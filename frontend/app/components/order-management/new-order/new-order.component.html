@@ -1,0 +1,38 @@
+<h3>Upload your CAD Files</h3>
+
+<form #uploadForm="ngForm" (ngSubmit)="onSubmit()">
+  <h6>User Information</h6>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon1">Name</span>
+    </div>
+    <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+  </div>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon2">Company</span>
+    </div>
+    <input type="text" class="form-control" placeholder="Company" aria-label="Company" aria-describedby="basic-addon2">
+  </div>
+
+  <h6>Part Data</h6>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <span class="input-group-text" id="basic-addon3">Material</span>
+    </div>
+    <input type="text" class="form-control" placeholder="Material" aria-label="Material" aria-describedby="basic-addon3">
+  </div>
+  <input type="file" class="d-none" multiple="multiple" (change)="onFilesSelected($event)" #fileInput>
+  <button type="button" class="btn btn-secondary" (click)="fileInput.click()">Add files</button>
+
+  <h6 class="mt-2">Files to upload</h6>
+
+  <div class="input-group mb-1" *ngFor="let selectedFile of selectedFiles; index as i">
+    <input type="text" class="form-control" placeholder="{{selectedFile.name}}" readonly>
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary" type="button" (click)="deleteFile(i)"><i class="fa fa-remove text-danger"></i></button>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary float-right">Submit</button>
+</form>
