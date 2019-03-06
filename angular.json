@@ -3,12 +3,10 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "mean-setup": {
+    "test-ng7": {
       "root": "",
       "sourceRoot": "frontend",
       "projectType": "application",
-      "prefix": "app",
-      "schematics": {},
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -16,21 +14,18 @@
             "outputPath": "dist",
             "index": "frontend/index.html",
             "main": "frontend/main.ts",
-            "polyfills": "frontend/polyfills.ts",
             "tsConfig": "frontend/tsconfig.app.json",
+            "polyfills": "frontend/polyfills.ts",
             "assets": [
-              "frontend/favicon.ico",
-              "frontend/assets"
+              "frontend/assets",
+              "frontend/favicon.ico"
             ],
             "styles": [
-              "node_modules/@coreui/icons/css/coreui-icons.css",
-              "node_modules/flag-icon-css/css/flag-icon.css",
               "node_modules/font-awesome/css/font-awesome.css",
-              "node_modules/simple-line-icons/css/simple-line-icons.css",
-              "frontend/scss/style.scss"
+              "frontend/styles/app.scss"
             ],
             "scripts": [
-              "node_modules/chart.js/dist/Chart.min.js"
+              "node_modules/chart.js/dist/Chart.js"
             ]
           },
           "configurations": {
@@ -49,42 +44,47 @@
               "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": true
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                }
+              ]
             }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "mean-setup:build"
+            "browserTarget": "test-ng7:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "mean-setup:build:production"
+              "browserTarget": "test-ng7:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "mean-setup:build"
+            "browserTarget": "test-ng7:build"
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "frontend/test.ts",
-            "karmaConfig": "./karma.conf.js",
             "polyfills": "frontend/polyfills.ts",
             "tsConfig": "frontend/tsconfig.spec.json",
+            "karmaConfig": "frontend/karma.conf.js",
             "scripts": [
-				"node_modules/chart.js/dist/Chart.min.js"
+              "node_modules/chart.js/dist/Chart.js"
             ],
             "styles": [
-              "node_modules/flag-icon-css/css/flag-icon.css",
               "node_modules/font-awesome/css/font-awesome.css",
-              "node_modules/simple-line-icons/css/simple-line-icons.css",
-              "frontend/scss/style.scss"
+              "frontend/styles/app.scss"
             ],
             "assets": [
               "frontend/assets",
@@ -106,19 +106,20 @@
         }
       }
     },
-    "mean-setup-e2e": {
+    "test-ng7-e2e": {
       "root": "e2e/",
       "projectType": "application",
+      "prefix": "",
       "architect": {
         "e2e": {
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "mean-setup:serve"
+            "devServerTarget": "test-ng7:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "mean-setup:serve:production"
+              "devServerTarget": "test-ng7:serve:production"
             }
           }
         },
@@ -134,5 +135,14 @@
       }
     }
   },
-  "defaultProject": "mean-setup"
+  "defaultProject": "test-ng7",
+  "schematics": {
+    "@schematics/angular:component": {
+      "prefix": "app",
+      "styleext": "scss"
+    },
+    "@schematics/angular:directive": {
+      "prefix": "app"
+    }
+  }
 }
