@@ -16,17 +16,25 @@ router.post('/upload', function (req, res) {
 
   // every time a file has been uploaded successfully, rename it to it's orignal name
   form.on('file', function (field, file) {
-    fs.rename(file.path, path.join(form.uploadDir, file.name));
+    fs.rename(file.path, path.join(form.uploadDir, file.name), function(err) {
+      if (err) {
+        console.log(err);
+      }
+    });
   });
 
   // log any errors that occur
   form.on('error', function (err) {
     console.log('An error has occured: \n' + err);
+    res.status(500).send(
+      {"success":"false",
+        "error":"Error while processing the file"
+    });
   });
 
   // once all the files have been uploaded, send a response to the client
   form.on('end', function () {
-    res.status(200).send({"success":"true"});
+    res.status(201).send({"success":"true"});
   });
 
   // parse the incoming request containing the form data

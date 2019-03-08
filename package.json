@@ -9,8 +9,10 @@
     "e2e": "ng e2e",
     "clean": "if exist dist rd /s /q dist",
     "ng-build": "ng build --watch",
+    "ng-serve": "ng serve --proxy-config proxy.conf.json --open",
     "server-build": "nodemon server.js",
     "complete-build": "npm-run-all --parallel ng-build server-build",
+    "run-server-w-ng": "npm-run-all --parallel ng-serve server-build",
     "start": "npm-run-all --sequential clean complete-build"
   },
   "private": true,
@@ -48,7 +50,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.10.4",
-    "@angular/cli": "7.0.4",
+    "@angular/cli": "7.3.1",
     "@angular/compiler-cli": "7.0.2",
     "@angular/language-service": "7.0.2",
     "@types/node": "10.12.2",

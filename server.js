@@ -6,6 +6,8 @@ var morgan = require('morgan');                                // log requests t
 var bodyParser = require('body-parser');                       // pull information from HTML POST (express4)
 var path = require('path');
 
+var SERVER_PORT = 9090;
+
 // registration testing
 var multicast = require('./server/registration');
 
@@ -16,7 +18,6 @@ mongoose.connect(config.databaseUrl);                        // connect to mongo
 app.use(morgan('dev'));                                   // log every request to the console
 app.use(bodyParser.urlencoded({'extended':'true'}));      // parse application/x-www-form-urlencoded
 app.use(bodyParser.json());                               // parse application/json
-app.use(bodyParser.json({ type: 'application/vnd.api+json' }));    // parse application/vnd.api+json as json
 
 // serve static assets with express (angular's dist folder needs to be mentioned here, too)
 app.use(express.static(__dirname + '/public'));
@@ -36,10 +37,10 @@ app.get('*', (req, res) => {
 });
 
 // start app ======================================
-var server = app.listen(8080);
+var server = app.listen(SERVER_PORT);
 
 // start socket-server
 var socket_communication = require('./server/socket-server')(server);
 
 
-console.log("app listening on port 8080");
+console.log(`app listening on port ${SERVER_PORT}`);
