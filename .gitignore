@@ -95,3 +95,6 @@ testem.log
 #System Files
 .DS_Store
 
+# --> App-specific stuff
+#Uploaded files
+/server/uploaded-files/
