@@ -4,31 +4,37 @@ var HOST = '0.0.0.0'; //this is your own IP
 var dgram = require('dgram');
 var udpClient = dgram.createSocket('udp4');
 var request = require('request');
-var AAS = require('./models/aas.model');
+const uuidv4 = require('uuid/v4');
+var SelfDescription = require('./models/selfdescription/SelfDescription');
+var ModuleFunction = require('./models/selfdescription/ModuleFunction');
 
 udpClient.bind(PORT, HOST, function () {
-  console.log("listening for UDP traffic on");
+  console.log("listening for UDP traffic...");
 });
 
 
 udpClient.on('message', function (message, remote) {
-  console.log('Broadcast Msg: From: ' + remote.address + ':' + remote.port + ' - ' + message);
+  console.log('Broadcast Msg: From: ' + remote.address + ':' + remote.port + '\nMessage: ' + message);
 
-  // parse message and create address to get the modules AAS
-  //jsonMsg = JSON.parse(message)
-  //aasAddress = 'http://' + remote.address + ':' + jsonMsg.port + jsonMsg.aasUrl;
+  // parse message to get module self description and address
+  let moduleBroadCast = JSON.parse(message)
+  moduleAddress = `http://'${remote.address}:${remote.port}`;
+  let opsRegistrationLocation = moduleBroadCast.getFunctionByName('ops-registration').location; 
+  
 
   // create OPS AAS
-  opsAas = new AAS(1, "Order Processing System", ["Process Orders", "Calculate KPIs"]);
-
-  udpClient.send("hello back", 15001, function(){
-    console.log("sent back")
-  });
+  opsSelfDescription = new SelfDescription(uuidv4(), 'Order Processing System', [
+    new ModuleFunction('Order-Management', 'Create new Orders', '/api/order-management', 'post', [{'name':'customerName', 'dataType': 'string'}, {'productModel' : 'file'}]),
+    new ModuleFunction('KPI-Dashboard', 'Allows for calculation and display of KPIs', '/api/kpi-calculation', 'post', [{'name':'nameOfKpi', 'dataType' : 'string'}]),
+    new ModuleFunction('Module-Registration', 'Register new modules at this endpoint', '/api/module-registration', 'post', [{'name':'moduleSelfDescription', 'dataType' : 'SelfDescription'}])
+  ]);
+  
+  // 
 
   // send the request
   request.post({
-      url: "aasAddress",
-      body: JSON.stringify(opsAas)
+      url: moduleAddress + opsRegistrationLocation,
+      body: JSON.stringify(opsSelfDescription)
     },
     function (error, response, body) {
       console.log('error: ' + error);

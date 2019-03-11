@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 // Routing
 import { ModuleManagementRouter } from './module-management.routing';
 import { ModuleManagementComponent } from './module-management.component';
-// Components
 
 
 @NgModule({

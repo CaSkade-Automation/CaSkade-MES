@@ -6,7 +6,7 @@ var fs = require ('fs');
 
 router.post('/upload', function (req, res) {
 
-  console.log("req body:" + req.body)
+  console.log("new file submitted:" + req.body)
 
 
   // create an incoming form object and set some attributes
@@ -15,11 +15,13 @@ router.post('/upload', function (req, res) {
   form.uploadDir = path.join(__dirname, '../uploaded-files');
 
   // every time a file has been uploaded successfully, rename it to it's orignal name
-  form.on('file', function (field, file) {
+  form.on('file', function (name, file) {
+    console.log('file coming');
+    
     fs.rename(file.path, path.join(form.uploadDir, file.name), function(err) {
-      if (err) {
-        console.log(err);
-      }
+     if (err) {
+       console.log("error while renaming" + err);
+     }
     });
   });
 

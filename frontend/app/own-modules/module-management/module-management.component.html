@@ -1,9 +1,9 @@
 <h1>Module Management</h1>
 <ul>
     <li *ngFor="let module of modules">
-        {{module.id}} | {{module.name}}
+        {{module.header.id}} | {{module.header.name}}
     </li>
 
     <input #socketInput type="text" (keyup)="this.socketMsg=socketInput.value">
-    <button (click)="sendMsg()">Send message via socket</button>
+    <button (click)="sendMsg(socketInput.value)">Send message via socket</button>
 </ul>

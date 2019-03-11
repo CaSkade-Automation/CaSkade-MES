@@ -1,39 +1,32 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
 import { SocketService } from "../../shared/services/socket.service";
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'module-management',
   templateUrl: 'module-management.component.html',
 })
 export class ModuleManagementComponent implements OnInit {
+  
+  constructor(private httpClient: HttpClient, private socketService: SocketService) {}
 
+  incomingmsg = [];
   modules = [];
-  //modules = new Array<Module>();
-  interval: any;
-  socketMsg : string;
+  
+  ngOnInit() {
+    this.httpClient.get('/api/modules').subscribe((data:any) => this.modules = data);
+    
 
-  constructor(private httpclient: HttpClient, private socketService: SocketService) { }
-
-  ngOnInit(): void {
-    this.initSocketConnection();
+    this.socketService
+        .getMessage()
+        .subscribe(msg => {
+          console.log('Incoming msg', msg);
+          this.modules.push(msg);
+        });
   }
 
-  private sendMsg(){
-    console.log("clicked button");
-    this.socketService.send("asd");
-  }
-
-  private initSocketConnection() {
-    this.socketService.initSocket();
-    this.socketService.onMessage("module-registration")
-      .subscribe((msg: any) => {
-        console.log(JSON.stringify(msg))
-        // let newModule;
-        this.modules.push(msg);
-        console.log(this.modules)
-    });
-  }
-
+  sendMsg(msg) {
+    console.log('sdsd', msg);
+    this.socketService.sendMessage(msg);
+ }
 }

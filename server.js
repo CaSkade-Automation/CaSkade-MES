@@ -13,20 +13,40 @@ var multicast = require('./server/registration');
 
 var config = require('./server/config');
 
-mongoose.connect(config.databaseUrl);                        // connect to mongoDB
+//mongoose.connect(config.databaseUrl, {useNewUrlParser : true});                        // connect to mongoDB
 
 app.use(morgan('dev'));                                   // log every request to the console
-app.use(bodyParser.urlencoded({'extended':'true'}));      // parse application/x-www-form-urlencoded
 app.use(bodyParser.json());                               // parse application/json
+app.use(bodyParser.urlencoded({'extended':'true'}));      // parse application/x-www-form-urlencoded
+
 
 // serve static assets with express (angular's dist folder needs to be mentioned here, too)
 app.use(express.static(__dirname + '/public'));
 app.use(express.static('dist'));
 
+
+// start app ======================================
+var server = app.listen(SERVER_PORT);
+
+// start socket-server
+var SocketServer = require('./server/socket-server');
+var socketServer = new SocketServer(server);
+socketServer.waitForConnection();
+
+
+//CORS Middleware
+// app.use(function (req, res, next) {  
+//   //Enabling CORS
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT');
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization');
+//   next();
+//  });
+
 // api routing
 // TODO: if a lot of routes are added later we have to have a central route file (otherwise we would have to include a lot of files here)
-var moduleManagementRoutes = require('./server/routes/module-management.routes');
-app.use('/api/module-management', moduleManagementRoutes);
+var moduleManagementRoutes = require('./server/routes/module-management.routes')(socketServer);
+app.use('/api/modules', moduleManagementRoutes);
 
 var orderManagementRoutes = require('./server/routes/order-management.routes');
 app.use('/api/order-management', orderManagementRoutes);
@@ -35,12 +55,5 @@ app.use('/api/order-management', orderManagementRoutes);
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
-
-// start app ======================================
-var server = app.listen(SERVER_PORT);
-
-// start socket-server
-var socket_communication = require('./server/socket-server')(server);
-
 
 console.log(`app listening on port ${SERVER_PORT}`);
