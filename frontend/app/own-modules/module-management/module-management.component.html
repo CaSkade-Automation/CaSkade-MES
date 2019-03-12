@@ -6,7 +6,7 @@
       <div class="card-header">
         <h5 class="card-title">{{module.header.name}}</h5>
         {{module.header.id}}
-        <button class="btn btn-danger" style="position:absolute; right:10px;top:10px;" title="Disconnect Module"><i class="fa fa-times"></i></button>
+        <button class="btn btn-danger" style="position:absolute; right:10px;top:10px;" title="Disconnect Module" (click)="disconnectModule(module.header.id)"><i class="fa fa-times"></i></button>
       </div>
       <div class="card-body">
         Functions:

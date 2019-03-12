@@ -9,6 +9,13 @@ module.exports = function (socketServer) {
 
   var modules = new Array();
 
+
+  /* get all modules*/
+  router.get('', function (req, res) {
+    res.status(200).send(modules);
+  });
+
+
   /* add a new module to the list */
   router.post('', function (req, res) {
     let postedSelfDescription = req.body;
@@ -21,10 +28,20 @@ module.exports = function (socketServer) {
     res.status(201).send("Module sucessfully registered");
   });
 
-  /* get all modules*/
-  router.get('', function (req, res) {
-    res.status(200).send(modules);
-  });
+
+  /** Remove a module from the list by its header id  */
+  router.delete('/:moduleId', function(req, res) {
+    let moduleId = req.params['moduleId'];
+
+    for (let i = 0; i < modules.length; i++) {
+      const module = modules[i];
+      if (module.header.id == moduleId) {
+        modules.splice(i, 1);
+      }
+    }
+    res.status(200).json("Module successfully disconnected");
+  })
+
 
   return router;
 };

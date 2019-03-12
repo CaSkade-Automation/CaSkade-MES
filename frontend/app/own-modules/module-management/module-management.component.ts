@@ -26,8 +26,21 @@ export class ModuleManagementComponent implements OnInit {
         });
   }
 
-  sendMsg(msg) {
-    console.log('sdsd', msg);
-    this.socketService.sendMessage(msg);
- }
+  disconnectModule(moduleId) {
+        // TODO: Post to API to really delete element
+    this.httpClient.delete(`api/modules/${moduleId}`).subscribe(
+      data => {this.removeModuleCard(moduleId)}),
+      error => console.log('An error happened, module could not be disconnected'
+    );    
+  }
+
+  removeModuleCard(moduleId) {
+    // remove module with that id from the list
+    for (let i = 0; i < this.modules.length; i++) {
+      if (this.modules[i].header.id == moduleId) {
+        this.modules.splice(i, 1);
+        break;
+      }      
+    }
+  }
 }
