@@ -22,14 +22,14 @@ udpClient.on('message', function (message, remote) {
   let moduleBroadCast = JSON.parse(message)
   let modulePort = moduleBroadCast['port'];
   moduleAddress = `http://${remote.address}`;
-  let selfDescriptionEndpoint = moduleBroadCast['self-description-endpoint']; 
+  let selfDescriptionEndpoint = moduleBroadCast['self-descriptions']; 
 
 
   // Create the answer (specifying registration endpoint)
   let broadcastAnswer = {
     "id": 1,
     "port": 9090,
-    "self-description-endpoint": "/self-descriptions"
+    "module-endpoint": "/modules"
   };
 
 
