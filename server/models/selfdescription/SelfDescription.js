@@ -1,12 +1,6 @@
 class SelfDescription {
-    constructor(id, name, moduleFunctions){
-        console.log(`id: ${id}`);
-        
-        console.log('moduleFunctions');
-        console.log(moduleFunctions);
-        
-        
-        this.header = new Header(id, name);
+    constructor(id, name, port, moduleFunctions){
+        this.header = new Header(id, name, port);
         this.body = new Body(moduleFunctions)
     }
     
@@ -22,9 +16,10 @@ class SelfDescription {
 module.exports = SelfDescription;
 
 class Header {
-    constructor(id, name) {
+    constructor(id, name, port) {
         this.id = id;
         this.name = name;
+        this.port = port;
     }
 }
 
