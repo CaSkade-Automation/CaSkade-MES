@@ -51,6 +51,9 @@ app.use('/api/modules', moduleManagementRoutes);
 var orderManagementRoutes = require('./server/routes/order-management.routes');
 app.use('/api/order-management', orderManagementRoutes);
 
+var graphDbManagementRoutes = require('./server/routes/graph-repositories.route');
+app.use('/api/graph-repositories', graphDbManagementRoutes);
+
 // load the single view file, angular does all the front-end-routing
 // app.get('*', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'dist/index.html'));
