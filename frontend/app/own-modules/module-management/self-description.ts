@@ -6,6 +6,7 @@ export interface SelfDescription {
 export interface Header {
     id: string;
     name: string;
+    port: number;
 }
 
 export interface Body {

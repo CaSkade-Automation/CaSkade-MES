@@ -8,33 +8,37 @@ const uuidv4 = require('uuid/v4');
 var SelfDescription = require('./models/selfdescription/SelfDescription');
 var ModuleFunction = require('./models/selfdescription/ModuleFunction');
 
+// Create the UDP client and listen for traffic
 udpClient.bind(PORT, HOST, function () {
   console.log("listening for UDP traffic...");
 });
 
 
+// On received message:
 udpClient.on('message', function (message, remote) {
   console.log('Broadcast Msg: From: ' + remote.address + ':' + remote.port + '\nMessage: ' + message);
 
   // parse message to get module self description and address
   let moduleBroadCast = JSON.parse(message)
-  moduleAddress = `http://'${remote.address}:${remote.port}`;
-  let opsRegistrationLocation = moduleBroadCast.getFunctionByName('ops-registration').location; 
+  let modulePort = moduleBroadCast['port'];
+  moduleAddress = `http://${remote.address}:${modulePort}`;
+  //let opsRegistrationLocation = moduleBroadCast.getFunctionByName('ops-registration').location; 
+  let opsRegistrationLocation = moduleBroadCast['location']; 
   
 
   // create OPS AAS
-  opsSelfDescription = new SelfDescription(uuidv4(), 'Order Processing System', [
-    new ModuleFunction('Order-Management', 'Create new Orders', '/api/order-management', 'post', [{'name':'customerName', 'dataType': 'string'}, {'productModel' : 'file'}]),
-    new ModuleFunction('KPI-Dashboard', 'Allows for calculation and display of KPIs', '/api/kpi-calculation', 'post', [{'name':'nameOfKpi', 'dataType' : 'string'}]),
-    new ModuleFunction('Module-Registration', 'Register new modules at this endpoint', '/api/module-registration', 'post', [{'name':'moduleSelfDescription', 'dataType' : 'SelfDescription'}])
+  opsSelfDescription = new SelfDescription(123, 'Order Processing System', 9090, [
+    new ModuleFunction('Order-Management', 'Create new Orders', '/api/order-management', 'POST', [{'name':'customerName', 'dataType': 'string'}, {'name': 'productModel', 'dataType' : 'file'}]),
+    new ModuleFunction('KPI-Dashboard', 'Allows for calculation and display of KPIs', '/api/kpi-calculation', 'POST', [{'name':'nameOfKpi', 'dataType' : 'string'}]),
+    new ModuleFunction('Module-Registration', 'Register new modules at this endpoint', '/api/modules', 'POST', [{'name':'moduleSelfDescription', 'dataType' : 'SelfDescription'}])
   ]);
   
   // 
 
   // send the request
   request.post({
-      url: moduleAddress + opsRegistrationLocation,
-      body: JSON.stringify(opsSelfDescription)
+      url: encodeURI(moduleAddress + opsRegistrationLocation),
+      json: opsSelfDescription
     },
     function (error, response, body) {
       console.log('error: ' + error);

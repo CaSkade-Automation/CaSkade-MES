@@ -52,8 +52,8 @@ var orderManagementRoutes = require('./server/routes/order-management.routes');
 app.use('/api/order-management', orderManagementRoutes);
 
 // load the single view file, angular does all the front-end-routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'dist/index.html'));
+// });
 
 console.log(`app listening on port ${SERVER_PORT}`);
