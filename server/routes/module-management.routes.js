@@ -1,9 +1,9 @@
+var express = require('express');
+var router = express.Router();
+var request = require('request');
 
 
-
-module.exports = function (socketServer) {
-  var express = require('express');
-  var router = express.Router();
+module.exports = function (socketServer, graphDbConnection) {
   // var SocketServer = require('../socket-server.js');
   var SelfDescription = require('../models/selfdescription/SelfDescription');
 
@@ -12,24 +12,39 @@ module.exports = function (socketServer) {
 
   /* get all modules*/
   router.get('', function (req, res) {
-    res.status(200).send(modules);
+    console.log('get all modules');
+    
+    // query modules from DB
+    graphDbConnection.executeQuery(req.body, function(success, err) {
+      console.log(`posted req.body ${req.body}`);
+      
+        if (!success) {
+          res.status(400).send(err)
+        } else {
+          res.status(200).send(success)
+        }
+    });
   });
+
 
 
   /* add a new module to the list */
   router.post('', function (req, res) {
-    let postedSelfDescription = req.body;
+    let newSelfDescription = req.body;
 
-    console.log("new SelfDescription");
-    console.log(postedSelfDescription);
-    
-    
-    newModuleSelfDescription = new SelfDescription(postedSelfDescription.header.id, postedSelfDescription.header.name, postedSelfDescription.port, postedSelfDescription.body.moduleFunctions)
-    modules.push(newModuleSelfDescription);
+    console.log(`new SelfDescription: ${newSelfDescription}`);
     
     // let socketServer = new SocketServer(req.connection.server);
-    socketServer.emitNewSelfDescription(newModuleSelfDescription);
-    res.status(201).json("Module sucessfully registered");
+    //socketServer.emitNewSelfDescription(newModuleSelfDescription);
+    
+    graphDbConnection.addRdfDocument(newSelfDescription, function(success, err){
+      if(success){
+        res.status(201).json("Module successfully registered");
+      } else {
+        res.status(400).json(err);
+      }
+    });
+
   });
 
 
