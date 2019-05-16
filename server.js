@@ -47,6 +47,7 @@ socketServer.waitForConnection();
 // api routing
 // TODO: if a lot of routes are added later we have to have a central route file (otherwise we would have to include a lot of files here)
 
+// Create an instance of a graphDB connection database
 GraphDBConnection = require('./server/util/graphDbConnection');
 graphDBConnection = new GraphDBConnection();
 
@@ -56,7 +57,7 @@ app.use('/api/modules', moduleManagementRoutes);
 var orderManagementRoutes = require('./server/routes/order-management.routes');
 app.use('/api/order-management', orderManagementRoutes);
 
-var graphDbManagementRoutes = require('./server/routes/graph-repositories.route');
+var graphDbManagementRoutes = require('./server/routes/graph-repositories.route')(graphDBConnection);
 app.use('/api/graph-repositories', graphDbManagementRoutes);
 
 // load the single view file, angular does all the front-end-routing
