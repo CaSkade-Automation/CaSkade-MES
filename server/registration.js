@@ -29,7 +29,7 @@ udpClient.on('message', function (message, remote) {
   let broadcastAnswer = {
     "id": 1,
     "port": 9090,
-    "module-endpoint": "/modules"
+    "moduleEndpoint": "/api/modules"
   };
 
 
