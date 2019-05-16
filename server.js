@@ -16,6 +16,7 @@ var config = require('./server/config');
 //mongoose.connect(config.databaseUrl, {useNewUrlParser : true});                        // connect to mongoDB
 
 app.use(morgan('dev'));                                   // log every request to the console
+app.use(bodyParser.text());
 app.use(bodyParser.json());                               // parse application/json
 app.use(bodyParser.urlencoded({'extended':'true'}));      // parse application/x-www-form-urlencoded
 
@@ -45,7 +46,11 @@ socketServer.waitForConnection();
 
 // api routing
 // TODO: if a lot of routes are added later we have to have a central route file (otherwise we would have to include a lot of files here)
-var moduleManagementRoutes = require('./server/routes/module-management.routes')(socketServer);
+
+GraphDBConnection = require('./server/util/graphDbConnection');
+graphDBConnection = new GraphDBConnection();
+
+var moduleManagementRoutes = require('./server/routes/module-management.routes')(socketServer, graphDBConnection);
 app.use('/api/modules', moduleManagementRoutes);
 
 var orderManagementRoutes = require('./server/routes/order-management.routes');
