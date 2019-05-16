@@ -13,10 +13,10 @@ module.exports = class GraphDbConnection {
         }
     }
     
-    addRdfDocument(rdfDocument){
+    addRdfDocument(rdfDocument, callback){
         // get all repositories of the graphdb
         request.post({
-            url: this.getCurrentRepoEndpointString(),
+            url: this.getCurrentRepoEndpointString() + '/statements',
             headers: {
             "Authorization" : this.createBase64AuthString(),
             "Accept": "application/json",
@@ -26,16 +26,21 @@ module.exports = class GraphDbConnection {
         },
         function (err, response, body) {
             if(err) {
-                console.log(`error: ${err}`);
-            }
-            else{
-            console.log('body' + body);
-            console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+                console.log(`Error while posting the rdfDocument to graphdDB.\nError: ${err}`);
+                callback(null, 'Error while posting the rdfDocument to graphdDB');
+            } else if(response.statusCode == 415) {
+                console.log(`Syntax error in RdfDocument.\nResponse of graphDb was: ${response}`);
+                callback(null, 'Syntax error in RdfDocument')
+            } else{
+                console.log(`RdfDocument posted successfully.\nResponse of grapDb was: ${response}`);
+                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+                callback(true, null);
             }
         });
     }
     
-    executeQuery(queryString){
+    
+    executeQuery(queryString, callback){
         console.log(queryString);
         
         request.post({
@@ -50,19 +55,24 @@ module.exports = class GraphDbConnection {
         function (err, response, body) {
             if(err) {
                 console.log(`error: ${err}`);
-            }
-            else{
+                callback(null, err)
+            } else if (response.statusCode != 200){
                 console.log(`body: ${body}`);
                 console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-            
+                callback(null, body);
+            } else{
+                callback(body, null);
             }
         });
     }
 
+    getRepositoriesEndpoint() {
+        let repositoriesEndpoint = this.dbConfig.host + "/repositories";
+        return repositoriesEndpoint;
+    }
+
     getCurrentRepoEndpointString() {
-        let repoEndpoint = this.dbConfig.host + "/repositories/" + this.dbConfig.selectedDB;
-        console.log(repoEndpoint);
-        
+        let repoEndpoint = this.getRepositoriesEndpoint() + "/" + this.dbConfig.selectedDB;
         return repoEndpoint;
     }
 
