@@ -1,27 +1,63 @@
 <h1>Module Management</h1>
-<h3>List of all currently connected modules</h3>
 <div class="row">
-  <div class="col-3" *ngFor="let module of modules">
+  <div class="col-6" *ngFor="let module of modules">
     <div class="card mb-5">
       <div class="card-header">
-        <h5 class="card-title">{{module.header.name}}</h5>
-        {{module.header.id}}
-        <button class="btn btn-danger" style="position:absolute; right:10px;top:10px;" title="Disconnect Module" (click)="disconnectModule(module.header.id)"><i class="fa fa-times"></i></button>
+        <h3 class="card-title" title="{{module.name}}">{{module.getShortName()}}</h3>
+        <button class="btn btn-danger" style="position:absolute; right:10px;top:10px;" title="Disconnect Module"
+          (click)="disconnectModule(module.header.id)"><i class="fa fa-times"></i></button>
       </div>
       <div class="card-body">
-        Functions:
-        <ul>
-          <li *ngFor="let moduleFunction of module.body.moduleFunctions">{{moduleFunction.name}}
-            <ul>
-              <li>Location: {{moduleFunction.location}}</li>
-              <li>Parameters:</li>
-              <ul>
-                <li *ngFor="let parameter of module.body.moduleFunctions[0].parameters">Name: {{parameter.name}}; Type:
-                  {{parameter.dataType}}</li>
-              </ul>
+        <!-- For all processes -->
+        <h4>Processes:</h4>
+        <div *ngFor="let process of module.processes" class="mb-3 border border-secondary rounded">
+          <h5 title="{{process.name}}">{{process.getShortName()}}</h5>
+          <!-- For all Executable Methods -->
+            <ul *ngFor="let method of process.methods">
+              <li><b>Executable Service:</b>{{method.getShortName()}}</li>
+              <li><b>HTTP-Method:</b>{{method.getShortMethodType()}}</li>
+              <li><b>Full Path:</b>{{method.getFullPath()}}</li>
+              <li><b>Parameters:</b>
+                <!-- For all parameters -->
+                <table class="table table-sm" *ngIf="method.parameters">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>DataType</th>
+                      <th>Options</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let parameter of method.parameters">
+                      <td>{{parameter.getShortName()}}</td>
+                      <td>{{parameter.getShortType()}}</td>
+                      <td>{{parameter.paramDataType}}</td>
+                      <td>
+                        <ul>
+                          <li *ngFor="let option of parameter.paramOptions">{{option}}</li>
+                        </ul>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </li>
+              Execute Method:
+              <div class="row">
+                <div class="col-6">
+                  <form (ngSubmit)="onSubmit(method)" #executionForm="ngForm">
+                    <div class="input-group mb-3" *ngFor="let parameter of method.parameters; let i = index">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">{{parameter.getShortName()}}</span>
+                      </div>
+                      <input type="text" class="form-control" placeholder="Username" name="{{parameter.getShortName()}}" [(ngModel)]="parameterValues[i]">
+                    </div>
+                    <button class="btn btn-primary">Execute request</button>
+                  </form>
+                </div>
+              </div>
             </ul>
-          </li>
-        </ul>
+        </div>
       </div>
     </div>
   </div>

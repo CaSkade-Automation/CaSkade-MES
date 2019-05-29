@@ -1,29 +1,145 @@
-export interface SelfDescription {
-    header: Header;
-    body: Body;
+abstract class ModuleElement {
+    public name: string;
+
+    constructor(name) {this.name = name}
+    
+    getShortName(): string {
+        return this.getShortProperty(this.name);
+    }
+
+    getShortProperty(property): string {
+        if(property.indexOf("#") == -1) {
+            return property;
+        } else {
+            return property.split("#")[1];
+        }
+    }
+
 }
 
-export interface Header {
-    id: string;
-    name: string;
-    port: number;
+
+export class ManufacturingModule extends ModuleElement {
+    public processes = new Array<Process>();
+
+    constructor(json) {
+        super(json.name);
+        this.name = json.name;
+        if (json.processes) {
+            json.processes.forEach(jsonProcess => {
+                this.processes.push(new Process(jsonProcess))
+            });
+        }
+    }
 }
 
-export interface Body {
-    moduleFunctions: ModuleFunction[];
+export class Process extends ModuleElement{
+    public methods = new Array<Method>();
+    
+    constructor(jsonProcess) {
+        super(jsonProcess.name)
+        this.name = jsonProcess.name;
+        if(jsonProcess.methods) {
+            jsonProcess.methods.forEach(jsonMethod => {
+                this.methods.push(new Method(jsonMethod))    
+            });
+        }
+    }
 }
 
-export interface ModuleFunction {
-    name: string;
-    description: string;
-    location: string;
-    requestMethod: string;
-    parameters: Parameter[];
+// Class that represents a WADL method -> a REST service
+export class Method extends ModuleElement {
+    public basePath: string;
+    public servicePath : string;
+    public methodType : string;
+    public parameters = new Array<Parameter>();
+
+    constructor(jsonMethod) {
+        super(jsonMethod.name)
+        this.name = jsonMethod.name;
+        this.addBasePath(jsonMethod.resourcesBase);
+        this.addServicePath(jsonMethod.resourcePath)
+        this.methodType = jsonMethod.methodType;
+        if(jsonMethod.parameters) {
+            jsonMethod.parameters.forEach(jsonParameter => {
+                this.parameters.push(new Parameter(jsonParameter))    
+            });
+        }
+    }
+
+    addBasePath(jsonBasePath: string) {
+        // Make sure base path doesn't end with a slash
+        if(jsonBasePath.endsWith("/")) {
+            this.basePath = jsonBasePath.slice(0, jsonBasePath.length - 2);
+        } else {
+            this.basePath = jsonBasePath;
+        }
+    }
+
+    addServicePath(jsonServicePath: string) {
+        // Make sure service path starts with a slash
+        if(!jsonServicePath.startsWith("/")) {
+            this.servicePath = "/" + jsonServicePath;
+        } else {
+            this.servicePath = jsonServicePath;
+        }
+    }
+
+    getShortMethodType(): string {
+        return this.getShortProperty(this.methodType);
+    }
+
+    getFullPath(): string {
+        return this.basePath + this.servicePath
+    }
 }
 
-export interface Parameter {
-    name: string;
-    dataType: string;
+export class Parameter extends ModuleElement {
+    public type: string;
+    public options: [];
+    public dataType: string;
+
+    constructor(jsonParameter){
+        super(jsonParameter.paramName)
+        this.type = jsonParameter.paramType;
+        this.dataType = jsonParameter.paramDataType
+        if(jsonParameter.paramOptions) {
+            this.options = jsonParameter.paramOptions.map(element => {
+                return element.paramOptionValue;
+            })
+        }
+    }
+
+    getShortType(): string {
+        return this.getShortProperty(this.type);
+    }
+}
+
+export class SelectedParameter extends Parameter {
+    public value: any;
+
+    constructor(param: Parameter, value:any){
+        // TODO: Fix this, currently has to be remapped to query output to use Parameter's constructor
+        super({
+            "paramName": param.name,
+            "paramType": param.type,
+            "paramDataType": param.dataType,
+            "paramOptions" : param.options
+        });
+        this.value = value;
+    }
+}
+
+
+export class ServiceExecutionDescription {
+    public fullPath: string;
+    public methodType: string;
+    public parameters = new Array<SelectedParameter>();
+
+    constructor(fullPath: string, methodType: string, parameters: Array<SelectedParameter>){
+        this.fullPath = fullPath;
+        this.methodType = methodType;
+        this.parameters = parameters;
+    }
 }
 
 
