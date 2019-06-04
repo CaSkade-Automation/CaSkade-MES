@@ -13,8 +13,12 @@
             <span>KPI-Dashboard</span>
         </a>
         <a routerLink="/reconfiguration-overview" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fa fa-fw fa-columns"></i>&nbsp;
+            <span>Reconfiguration Overview</span>
+        </a>
+        <a routerLink="/ops-configuration" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-cogs"></i>&nbsp;
-            <span>Reconfigurations</span>
+            <span>OPS Configuration</span>
         </a>
         <a class="list-group-item"><hr class="bg-light" style="height:1px;"></a>
         <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
@@ -24,26 +28,6 @@
         <a [routerLink]="['/charts']" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fa fa-fw fa-bar-chart-o"></i>&nbsp;
             <span>Charts</span>
-        </a>
-        <a [routerLink]="['/tables']" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-table"></i>&nbsp;
-            <span>Tables</span>
-        </a>
-        <a [routerLink]="['/forms']" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-edit"></i>&nbsp;
-            <span>Forms</span>
-        </a>
-        <a [routerLink]="['/bs-element']" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-desktop"></i>&nbsp;
-            <span>Bootstrap Element</span>
-        </a>
-        <a [routerLink]="['/grid']" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-fw fa-wrench"></i>&nbsp;
-            <span>Bootstrap Grid</span>
-        </a>
-        <a [routerLink]="['/components']" [routerLinkActive]="['router-link-active']" class="list-group-item">
-            <i class="fa fa-th-list"></i>&nbsp;
-            <span>Component</span>
         </a>
         <div class="nested-menu">
             <a class="list-group-item" (click)="addExpandClass('pages')">
