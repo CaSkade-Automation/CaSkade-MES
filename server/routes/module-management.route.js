@@ -1,27 +1,25 @@
 var express = require('express');
 var router = express.Router();
-var request = require('request');
-
+var QueryMapper = require('../models/selfdescription/GraphQueryMapper')
+var queryMapper = new QueryMapper();
+var SocketServer = require('../socket-server.js');
 
 module.exports = function (socketServer, graphDbConnection) {
-  // var SocketServer = require('../socket-server.js');
-  var SelfDescription = require('../models/selfdescription/SelfDescription');
-
+  
   var modules = new Array();
 
 
   /* get all modules*/
   router.get('', function (req, res) {
-    console.log('get all modules');
-    
+    // get the query to find all modules with their processes
+    let query = require('../queries/select_allModules');
     // query modules from DB
-    graphDbConnection.executeQuery(req.body, function(success, err) {
-      console.log(`posted req.body ${req.body}`);
-      
-        if (!success) {
+    graphDbConnection.executeQuery(query, function(err, result) {
+        if (!result) {
           res.status(400).send(err)
         } else {
-          res.status(200).send(success)
+          let mappedResult = queryMapper.mapResultToModule(JSON.parse(result));
+          res.status(200).send(mappedResult)
         }
     });
   });
@@ -32,13 +30,11 @@ module.exports = function (socketServer, graphDbConnection) {
   router.post('', function (req, res) {
     let newSelfDescription = req.body;
 
-    console.log(`new SelfDescription: ${newSelfDescription}`);
+    let socketServer = new SocketServer(req.connection.server);
+    socketServer.emitNewSelfDescription(newSelfDescription);
     
-    // let socketServer = new SocketServer(req.connection.server);
-    //socketServer.emitNewSelfDescription(newModuleSelfDescription);
-    
-    graphDbConnection.addRdfDocument(newSelfDescription, function(success, err){
-      if(success){
+    graphDbConnection.addRdfDocument(newSelfDescription, function(err, result){
+      if(result){
         res.status(201).json("Module successfully registered");
       } else {
         res.status(400).json(err);

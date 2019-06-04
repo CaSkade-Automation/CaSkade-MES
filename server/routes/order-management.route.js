@@ -44,4 +44,10 @@ router.post('/upload', function (req, res) {
 
 });
 
+
+router.get('', function(req, res) {
+  console.log('getting order')
+  res.status(200).json('Sadly, nobody had the time to code this...')
+})
+
 module.exports = router;
