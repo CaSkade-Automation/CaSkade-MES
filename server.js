@@ -51,14 +51,17 @@ socketServer.waitForConnection();
 GraphDBConnection = require('./server/util/graphDbConnection');
 graphDBConnection = new GraphDBConnection();
 
-var moduleManagementRoutes = require('./server/routes/module-management.routes')(socketServer, graphDBConnection);
+var moduleManagementRoutes = require('./server/routes/module-management.route')(socketServer, graphDBConnection);
 app.use('/api/modules', moduleManagementRoutes);
 
-var orderManagementRoutes = require('./server/routes/order-management.routes');
+var orderManagementRoutes = require('./server/routes/order-management.route');
 app.use('/api/order-management', orderManagementRoutes);
 
 var graphDbManagementRoutes = require('./server/routes/graph-repositories.route')(graphDBConnection);
 app.use('/api/graph-repositories', graphDbManagementRoutes);
+
+var serviceExecutionRoutes = require('./server/routes/service-execution.route');
+app.use('/api/service-executions', serviceExecutionRoutes);
 
 // load the single view file, angular does all the front-end-routing
 // app.get('*', (req, res) => {
