@@ -25,6 +25,7 @@
                       <th>Name</th>
                       <th>Type</th>
                       <th>DataType</th>
+                      <th>ParamLocation</th>
                       <th>Options</th>
                     </tr>
                   </thead>
@@ -32,7 +33,8 @@
                     <tr *ngFor="let parameter of method.parameters">
                       <td>{{parameter.getShortName()}}</td>
                       <td>{{parameter.getShortType()}}</td>
-                      <td>{{parameter.paramDataType}}</td>
+                      <td>{{parameter.dataType}}</td>
+                      <td>{{parameter.location}}</td>
                       <td>
                         <ul>
                           <li *ngFor="let option of parameter.paramOptions">{{option}}</li>
@@ -42,15 +44,15 @@
                   </tbody>
                 </table>
               </li>
-              Execute Method:
-              <div class="row">
+              <div class="row mt-4">
                 <div class="col-6">
-                  <form (ngSubmit)="onSubmit(method)" #executionForm="ngForm">
+                  <p>Execute Method:</p>
+                  <form (ngSubmit)="executeModuleService(method)" #executionForm="ngForm">
                     <div class="input-group mb-3" *ngFor="let parameter of method.parameters; let i = index">
                       <div class="input-group-prepend">
                         <span class="input-group-text">{{parameter.getShortName()}}</span>
                       </div>
-                      <input type="text" class="form-control" placeholder="Username" name="{{parameter.getShortName()}}" [(ngModel)]="parameterValues[i]">
+                      <input type="text" class="form-control" placeholder="ParameterValue" name="{{parameter.getShortName()}}" [(ngModel)]="parameterValues[i]">
                     </div>
                     <button class="btn btn-primary">Execute request</button>
                   </form>
@@ -64,5 +66,8 @@
 </div>
 
 
-<!-- <input #socketInput type="text" (keyup)="this.socketMsg=socketInput.value">
-<button (click)="sendMsg(socketInput.value)">Send message via socket</button> -->
+<input #socketInput type="text" (keyup)="this.socketMsg=socketInput.value">
+<button (click)="sendMsg(socketInput.value)">Send message via socket</button>
+
+
+<a href="api/server/uploaded-files/asd.txt">Download</a>

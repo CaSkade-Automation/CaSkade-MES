@@ -22,7 +22,7 @@ export class ModuleManagementComponent implements OnInit {
   parameterValues = new Array<string>();
   
   ngOnInit() {
-    let modules = this.moduleManagementService.getAllModules().subscribe(data => {
+    this.moduleManagementService.getAllModules().subscribe(data => {
       this.modules = data
     });
     
@@ -34,7 +34,7 @@ export class ModuleManagementComponent implements OnInit {
     }
 
 
-    onSubmit(method: Method) {
+    executeModuleService(method: Method) {
       let selectedParams = new Array<SelectedParameter>();
       // Create the selected parameters
       
@@ -45,25 +45,24 @@ export class ModuleManagementComponent implements OnInit {
         selectedParams.push(new SelectedParameter(param, paramValue));
       }
       let executionDescription = new ServiceExecutionDescription(method.getFullPath(), method.getShortMethodType(), selectedParams);
-      console.log(executionDescription);
       this.mfgServiceExecutor.executeService(executionDescription)
     }
 
-  disconnectModule(moduleId) {
-    // TODO: Post to API to really delete element
-    this.httpClient.delete(`api/modules/${moduleId}`).subscribe(
-      data => {this.removeModuleCard(moduleId)}),
-      error => console.log('An error happened, module could not be disconnected'
-    );    
-  }
+  // disconnectModule(moduleId) {
+  //   // TODO: Post to API to really delete element
+  //   this.httpClient.delete(`api/modules/${moduleId}`).subscribe(
+  //     data => {this.removeModuleCard(moduleId)}),
+  //     error => console.log('An error happened, module could not be disconnected'
+  //   );    
+  // }
 
-  removeModuleCard(moduleId) {
-    // remove module with that id from the list
-    for (let i = 0; i < this.modules.length; i++) {
-      if (this.modules[i].name == moduleId) {
-        this.modules.splice(i, 1);
-        break;
-      }      
-    }
-  }
+  // removeModuleCard(moduleId) {
+  //   // remove module with that id from the list
+  //   for (let i = 0; i < this.modules.length; i++) {
+  //     if (this.modules[i].name == moduleId) {
+  //       this.modules.splice(i, 1);
+  //       break;
+  //     }      
+  //   }
+  // }
 }
