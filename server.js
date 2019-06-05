@@ -27,6 +27,7 @@ app.use(express.static('dist'));
 
 
 // start app ======================================
+app.use('/uploaded-files', express.static(__dirname + '/server/uploaded-files')); //Serves resources from public folder
 var server = app.listen(SERVER_PORT);
 
 // start socket-server
@@ -67,5 +68,8 @@ app.use('/api/service-executions', serviceExecutionRoutes);
 // app.get('*', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'dist/index.html'));
 // });
+
+
+
 
 console.log(`app listening on port ${SERVER_PORT}`);
