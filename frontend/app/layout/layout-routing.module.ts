@@ -12,6 +12,7 @@ const routes: Routes = [
             { path: 'order-management', loadChildren: '../own-modules/order-management/order-management.module#OrderManagementModule'},
             { path: 'kpi-dashboard', loadChildren: '../own-modules/kpi-dashboard/kpi-dashboard.module#KpiDashboardModule'},
             { path: 'reconfiguration-overview', loadChildren: '../own-modules/reconfiguration-overview/reconfiguration-overview.module#ReconfigurationOverviewModule'},
+            { path: 'ops-configuration', loadChildren: '../own-modules/ops-configuration/ops-configuration.module#OpsConfigurationModule'},
             { path: 'dashboard', loadChildren: './dashboard/dashboard.module#DashboardModule' },
             { path: 'charts', loadChildren: './charts/charts.module#ChartsModule' },
             { path: 'blank-page', loadChildren: './blank-page/blank-page.module#BlankPageModule' }
