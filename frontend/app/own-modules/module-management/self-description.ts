@@ -97,11 +97,13 @@ export class Parameter extends ModuleElement {
     public type: string;
     public options: [];
     public dataType: string;
+    public location: string;
 
     constructor(jsonParameter){
         super(jsonParameter.paramName)
         this.type = jsonParameter.paramType;
-        this.dataType = jsonParameter.paramDataType
+        this.dataType = jsonParameter.paramDataType;
+        this.location = jsonParameter.paramLocation;
         if(jsonParameter.paramOptions) {
             this.options = jsonParameter.paramOptions.map(element => {
                 return element.paramOptionValue;
@@ -121,9 +123,10 @@ export class SelectedParameter extends Parameter {
         // TODO: Fix this, currently has to be remapped to query output to use Parameter's constructor
         super({
             "paramName": param.name,
-            "paramType": param.type,
+            "paramType": param.getShortType(),
             "paramDataType": param.dataType,
-            "paramOptions" : param.options
+            "paramOptions" : param.options,
+            "paramLocation": param.location
         });
         this.value = value;
     }
