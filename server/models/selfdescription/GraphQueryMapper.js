@@ -3,49 +3,12 @@ var _ = require('lodash');
 
 // Maps the query result of "select_allModules" to an array of Modules
 module.exports = class GraphQueryMapper {
-    mapResultToModule(queryResult) {
-        
-        let bindings = queryResult.results.bindings;
-
-        let newBindings = this.regroupResults(bindings, [
-            {
-                object: 'module',
-                name: 'name',
-                childRoot: 'processes'
-            },
-            {
-                object: 'process',
-                name: 'name',
-                childRoot: 'methods'
-            },
-            {
-                object: 'method',
-                toCollect: ['resourcesBase', 'resourcePath', 'methodType'],
-                name: 'name',
-                childRoot: 'parameters'
-            },
-            {
-                object: 'param',
-                name: 'fullName',
-                toCollect: ['paramDataType', 'paramName', 'paramType'],
-                childRoot: 'paramOptions'
-            },
-            {
-                object: 'paramOption',
-                name: 'name',
-                childRoot: 'options'
-            }
-        ]);
-        
-        return newBindings;
-    };
-
     
     /** Groups a SPARQL query result and converts it from a tabular structure to a regular nested array of elements  
      * @param inputArray The 'raw' SPARQL result that needs to be converted
      * @returns The converted structure
     */
-    regroupResults(inputArray, toGroupBy, currElement=0){
+    mapQueryResults(inputArray, toGroupBy, currElement=0){
 
         // first: transform array
         if (currElement == 0 ) {
@@ -57,9 +20,6 @@ module.exports = class GraphQueryMapper {
         let currGroup = toGroupBy[currElement]
         currGroup.childRoot = typeof currGroup.childRoot === "undefined" ? "content" : currGroup.childRoot;
 
-        
-        
-
         // group the ungrouped inputArray
         let groupedArray = groupBy(inputArray, [currGroup.object]);
         
@@ -69,8 +29,7 @@ module.exports = class GraphQueryMapper {
         Object.keys(groupedArray).forEach(key => {
             let groupedElement = groupedArray[key];
            
-
-            // Get all elements that should be collected
+            // Collect all elements that should be collected
             // TODO: Not only take groupedElement[0], but make sure the properties to collect are really equal for all groupedElements
             let elemsToCollect = {};
             if (currGroup.hasOwnProperty("toCollect")) {
@@ -84,7 +43,7 @@ module.exports = class GraphQueryMapper {
 
 
             if ((currElement <= (toGroupBy.length-2)) && (this.allEntriesContainGroupingProperty(groupedElement, toGroupBy[currElement+1].object))) {
-                groupedElement = (this.regroupResults(groupedElement, toGroupBy, currElement+1));
+                groupedElement = (this.mapQueryResults(groupedElement, toGroupBy, currElement+1));
             }
 
            
@@ -141,27 +100,4 @@ module.exports = class GraphQueryMapper {
         });
         return inputArray;
     } 
-}
-
-
-class ManufacturingModule{
-    constructor(iri) {
-        this.iri = iri;
-        this.name = iri.split('#',2)[1];
-    }
-
-    addProcess(){
-        this.processes.push(new Process)
-    }
-}
-
-
-class Process{
-    constructor(iri) {
-        this.iri = iri;
-        this.name = iri.split('#',2)[1];
-    }
-
-
-
 }
