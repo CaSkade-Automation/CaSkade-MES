@@ -7,9 +7,8 @@ import { Socket } from 'ngx-socket-io';
 export class SocketService {
 
   constructor(public socket: Socket) { }
-  getMessage() {  
-    return this.socket
-        .fromEvent<any>('moduleregistration');
+  getMessage() {
+    return this.socket.fromEvent<any>('moduleregistration');
 }
 
 sendMessage(msg: string) {

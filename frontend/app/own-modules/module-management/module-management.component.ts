@@ -26,27 +26,62 @@ export class ModuleManagementComponent implements OnInit {
       this.modules = data
     });
     
-
-    this.socketService.getMessage().subscribe((data:ManufacturingModule) => {
-        console.log('Incoming msg', data);
-        this.modules.push(data);
+    this.socketService.getMessage().subscribe(msg => {
+      this.moduleManagementService.getAllModules().subscribe(data => {
+        const currentModules: Array<ManufacturingModule> = data;
+        this.addNewModules(currentModules);
       });
-    }
+    });
+  }
+
+  sendMsg(msg) {
+    this.socketService.sendMessage(msg);
+ }
 
 
-    executeModuleService(method: Method) {
-      let selectedParams = new Array<SelectedParameter>();
-      // Create the selected parameters
+  executeModuleService(method: Method) {
+    let selectedParams = new Array<SelectedParameter>();
+    
+    // Create the selected parameters
+    for (let i = 0; i < method.parameters.length; i++) {
+      const param = method.parameters[i];
+      const paramValue = this.parameterValues[i];
       
-      for (let i = 0; i < method.parameters.length; i++) {
-        const param = method.parameters[i];
-        const paramValue = this.parameterValues[i];
-        
-        selectedParams.push(new SelectedParameter(param, paramValue));
-      }
-      let executionDescription = new ServiceExecutionDescription(method.getFullPath(), method.getShortMethodType(), selectedParams);
-      this.mfgServiceExecutor.executeService(executionDescription)
+      selectedParams.push(new SelectedParameter(param, paramValue));
     }
+    let executionDescription = new ServiceExecutionDescription(method.getFullPath(), method.getShortMethodType(), selectedParams);
+    this.mfgServiceExecutor.executeService(executionDescription)
+  }
+
+
+  /**
+   * Compares the existing modules-array with a new new list of all currently connected modules, finds out which modules are new and adds them to the modules-array
+   * @param newModules Array of all modules that are currently connected
+   */
+  addNewModules(newModules: Array<ManufacturingModule>): ManufacturingModule{
+    // Get only the modules that are not already displayed
+    if(this.modules.length != newModules.length) {
+      this.modules.forEach(module => {
+        for (let i = 0; i < newModules.length; i++) {
+          const newModule = newModules[i];
+          if(module.equals(newModule)) {
+            newModules.splice(i, 1);
+          }
+        }
+      });
+
+    // Add the new modules
+    newModules.forEach(newModule => {
+      this.modules.push(newModule);
+    });
+    } else{
+      // same length -> no new module
+      return null;
+    }
+  }
+
+
+
 
   // disconnectModule(moduleId) {
   //   // TODO: Post to API to really delete element

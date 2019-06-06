@@ -19,7 +19,7 @@
               <li><b>Full Path:</b>{{method.getFullPath()}}</li>
               <li><b>Parameters:</b>
                 <!-- For all parameters -->
-                <table class="table table-sm" *ngIf="method.parameters">
+                <table class="table table-responsive table-sm" *ngIf="method.parameters">
                   <thead>
                     <tr>
                       <th>Name</th>
@@ -45,7 +45,7 @@
                 </table>
               </li>
               <div class="row mt-4">
-                <div class="col-6">
+                <div class="col-10">
                   <p>Execute Method:</p>
                   <form (ngSubmit)="executeModuleService(method)" #executionForm="ngForm">
                     <div class="input-group mb-3" *ngFor="let parameter of method.parameters; let i = index">
@@ -65,9 +65,9 @@
   </div>
 </div>
 
-
+<!-- 
 <input #socketInput type="text" (keyup)="this.socketMsg=socketInput.value">
 <button (click)="sendMsg(socketInput.value)">Send message via socket</button>
 
 
-<a href="api/server/uploaded-files/asd.txt">Download</a>
+<a href="api/server/uploaded-files/asd.txt">Download</a> -->
