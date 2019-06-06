@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var QueryMapper = require('../models/selfdescription/GraphQueryMapper')
 var queryMapper = new QueryMapper();
-var SocketServer = require('../socket-server.js');
 
 module.exports = function (socketServer, graphDbConnection) {
   
@@ -12,15 +11,31 @@ module.exports = function (socketServer, graphDbConnection) {
   /* get all modules*/
   router.get('', function (req, res) {
     // get the query to find all modules with their processes
-    let query = require('../queries/select_allModules');
+    let query = require('../queries/select_allModules_NEW');
     // query modules from DB
     graphDbConnection.executeQuery(query, function(err, result) {
         if (!result) {
           res.status(400).send(err)
         } else {
-          let mappedResult = queryMapper.mapResultToModule(JSON.parse(result));
+          let mappedResult = queryMapper.mapQueryResults(JSON.parse(result).results.bindings, moduleMapObjectArray);
           res.status(200).send(mappedResult)
         }
+    });
+  });
+
+
+  /* get one module by name*/
+  router.get('/:moduleName', function (req, res) {
+    const moduleName = req.params.moduleName;
+    const query = require('../queries/select_oneModuleByName')(moduleName);
+
+    graphDbConnection.executeQuery(query, function(err, result) {
+      if (!result) {
+        res.status(400).send(err)
+      } else {
+        let mappedResult = queryMapper.mapQueryResults(JSON.parse(result).results.bindings, moduleMapObjectArray);
+        res.status(200).send(mappedResult)
+      }
     });
   });
 
@@ -30,14 +45,17 @@ module.exports = function (socketServer, graphDbConnection) {
   router.post('', function (req, res) {
     let newSelfDescription = req.body;
 
-    let socketServer = new SocketServer(req.connection.server);
-    socketServer.emitNewSelfDescription(newSelfDescription);
-    
     graphDbConnection.addRdfDocument(newSelfDescription, function(err, result){
       if(result){
+        // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
+        socketServer.emitModuleRegistrationEvent("newModule");
         res.status(201).json("Module successfully registered");
       } else {
-        res.status(400).json(err);
+        res.status(400).json(
+          {"msg": "Error while registering a new module",
+          "err": err,
+          }
+        );
       }
     });
 
@@ -62,3 +80,39 @@ module.exports = function (socketServer, graphDbConnection) {
 
   return router;
 };
+
+
+
+
+
+
+
+const moduleMapObjectArray = [
+  {
+      object: 'module',
+      name: 'name',
+      childRoot: 'processes'
+  },
+  {
+      object: 'process',
+      name: 'name',
+      childRoot: 'methods'
+  },
+  {
+      object: 'method',
+      toCollect: ['resourcesBase', 'resourcePath', 'methodType'],
+      name: 'name',
+      childRoot: 'parameters'
+  },
+  {
+      object: 'param',
+      name: 'fullName',
+      toCollect: ['paramDataType', 'paramName', 'paramType', 'paramLocation'],
+      childRoot: 'paramOptions'
+  },
+  {
+      object: 'paramOption',
+      name: 'name',
+      childRoot: 'options'
+  }
+];
