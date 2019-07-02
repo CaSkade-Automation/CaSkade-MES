@@ -33,7 +33,6 @@ var server = app.listen(SERVER_PORT);
 // start socket-server
 var SocketServer = require('./server/socket-server');
 var socketServer = new SocketServer(server);
-socketServer.waitForConnection();
 
 
 //CORS Middleware
@@ -46,7 +45,7 @@ socketServer.waitForConnection();
 //  });
 
 // api routing
-// TODO: if a lot of routes are added later we have to have a central route file (otherwise we would have to include a lot of files here)
+// TODO: if a lot of routes are added later we have to have a central route file (otherwise we include a lot of files here)
 
 // Create an instance of a graphDB connection database
 GraphDBConnection = require('./server/util/graphDbConnection');
