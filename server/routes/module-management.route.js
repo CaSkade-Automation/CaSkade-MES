@@ -63,18 +63,16 @@ module.exports = function (socketServer, graphDbConnection) {
 
 
   /** Remove a module from the list by its header id  */
-  router.delete('/:moduleId', function(req, res) {
-    let moduleId = req.params['moduleId'];
+  router.delete('/:moduleIri', function(req, res) {
+    let moduleIri = req.params['moduleIri'];
 
-    for (let i = 0; i < modules.length; i++) {
-      const module = modules[i];
-      if (module.header.id == moduleId) {
-        modules.splice(i, 1);
-      }
-    }
-
+    // TODO: 
+    // - Create select query to find the module
+    // - Get module's graph
+    // - Delete graph
+    
     // TODO: Send something to the module to really disconnect
-    res.status(200).json("Module successfully disconnected");
+  res.status(200).json("Module successfully disconnected");
   })
 
 
