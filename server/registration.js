@@ -5,8 +5,6 @@ var dgram = require('dgram');
 var udpClient = dgram.createSocket('udp4');
 var request = require('request');
 const uuidv4 = require('uuid/v4');
-var SelfDescription = require('./models/selfdescription/SelfDescription');
-var ModuleFunction = require('./models/selfdescription/ModuleFunction');
 
 // Create the UDP client and listen for traffic
 udpClient.bind(PORT, HOST, function () {
