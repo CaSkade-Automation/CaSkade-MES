@@ -30,6 +30,14 @@ export class ManufacturingModule extends ModuleElement {
             });
         }
     }
+
+    /**
+     * Compares two modules by their name
+     * @param otherModule The module to compare
+     */
+    equals(otherModule: ManufacturingModule): boolean {
+        return (this.name === otherModule.name);
+    }
 }
 
 export class Process extends ModuleElement{
