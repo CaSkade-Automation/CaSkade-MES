@@ -14,7 +14,7 @@ export class ModuleManagementService {
     let apiURL = `${this.apiRoot}/modules`;
     return this.http.get<ManufacturingModule[]>(apiURL).pipe(map(res => {
       let modules = new Array<ManufacturingModule>();
-      res.forEach(element => {
+      res.forEach(element => {  
         modules.push(new ManufacturingModule(element));
       });
       return modules;

@@ -51,8 +51,11 @@ var socketServer = new SocketServer(server);
 GraphDBConnection = require('./server/util/graphDbConnection');
 graphDBConnection = new GraphDBConnection();
 
-var moduleManagementRoutes = require('./server/routes/module-management.route')(socketServer, graphDBConnection);
-app.use('/api/modules', moduleManagementRoutes);
+var moduleRoutes = require('./server/routes/module-management.route')(socketServer, graphDBConnection);
+app.use('/api/modules', moduleRoutes);
+
+var moduleServiceRoutes = require('./server/routes/service-management.route')(socketServer, graphDBConnection);
+app.use('api/module-services/', moduleServiceRoutes);
 
 var orderManagementRoutes = require('./server/routes/order-management.route');
 app.use('/api/order-management', orderManagementRoutes);
