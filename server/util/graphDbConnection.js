@@ -24,17 +24,37 @@ module.exports = class GraphDbConnection {
     getSelectedRepo() {
         return this.selectedRepo;
     }
+
+    addRdfDocument(rdfDocument, context, callback) {
+        const contentType = "application/rdf+xml";
+        context = `?context=%3Curn:${context}%3E`;
+        this.executeStatement(rdfDocument, context, contentType, callback);
+    }
+
     
-    addRdfDocument(rdfDocument, callback){
+    clearGraph(graphName, callback) {
+        console.log(`clearing graph name: ${graphName}`);
+        
+        const contentType = "application/x-www-form-urlencoded";
+        const statement = `update=CLEAR GRAPH <${graphName}>`;
+        console.log("complete statement:");
+        console.log(statement);
+        
+        this.executeStatement(statement, "", contentType, callback);
+    }
+    
+
+    executeStatement(statement, context, contentType, callback){
         // get all repositories of the graphdb
+        console.log(this.getCurrentRepoEndpointString() + '/statements' + context)
         request.post({
-            url: this.getCurrentRepoEndpointString() + '/statements',
+            url: this.getCurrentRepoEndpointString() + '/statements' + context,
             headers: {
             "Authorization" : this.createBase64AuthString(),
             "Accept": "application/json",
-            "Content-Type": "application/x-www-form-urlencoded"
+            "Content-Type": contentType
             },
-            body: rdfDocument
+            body: statement
         },
         function (err, response, body) {
             if(err) {
@@ -44,7 +64,7 @@ module.exports = class GraphDbConnection {
                 console.log(`Syntax error in RdfDocument.\nResponse of graphDb was`);
                 callback('Syntax error in RdfDocument', null)
             } else{
-                console.log(`RdfDocument posted successfully.\nResponse of grapDb was:`);
+                console.log(`Statement executed successfully.\nResponse of grapDb was:`);
                 // console.dir(response);
                 callback(null, true);
             }
