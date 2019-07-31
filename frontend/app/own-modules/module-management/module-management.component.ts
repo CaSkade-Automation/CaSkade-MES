@@ -22,14 +22,25 @@ export class ModuleManagementComponent implements OnInit {
   parameterValues = new Array<string>();
   
   ngOnInit() {
-    this.moduleManagementService.getAllModules().subscribe(data => {
-      this.modules = data
+    this.moduleManagementService.getAllModules().subscribe(manufacturingModules => {
+      this.modules = manufacturingModules;
+      this.modules.forEach(manufacturingModule => {
+        this.moduleManagementService.getAllProcessesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
+          manufacturingModule.addProcesses(moduleProcesses);
+        });
+      });
+      
     });
     
     this.socketService.getMessage().subscribe(msg => {
       this.moduleManagementService.getAllModules().subscribe(data => {
         const currentModules: Array<ManufacturingModule> = data;
         this.addNewModules(currentModules);
+        this.modules.forEach(manufacturingModule => {
+          this.moduleManagementService.getAllProcessesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
+            manufacturingModule.addProcesses(moduleProcesses);
+          });
+        });
       });
     });
   }
