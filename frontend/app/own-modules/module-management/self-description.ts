@@ -31,6 +31,10 @@ export class ManufacturingModule extends ModuleElement {
         }
     }
 
+    addProcesses(processes: Process[]) {
+        this.processes.push(...processes);
+    }
+
     /**
      * Compares two modules by their name
      * @param otherModule The module to compare

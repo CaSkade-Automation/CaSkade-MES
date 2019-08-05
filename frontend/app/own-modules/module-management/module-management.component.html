@@ -9,7 +9,7 @@
       </div>
       <div class="card-body">
         <!-- For all processes -->
-        <h4>Processes:</h4>
+        <h4 *ngIf="(module.processes.length > 0)">Capabilities:</h4>
         <div *ngFor="let process of module.processes" class="mb-3 border border-secondary rounded">
           <h5 title="{{process.name}}">{{process.getShortName()}}</h5>
           <!-- For all Executable Methods -->

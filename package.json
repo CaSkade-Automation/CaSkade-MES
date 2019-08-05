@@ -12,7 +12,7 @@
     "ng-serve": "ng serve --proxy-config proxy.conf.json --open",
     "server-build": "nodemon server.js",
     "complete-build": "npm-run-all --parallel ng-build server-build",
-    "run-server-w-ng": "npm-run-all --parallel ng-serve server-build",
+    "start-all": "npm-run-all --parallel ng-serve server-build",
     "start": "npm-run-all --sequential clean complete-build"
   },
   "private": true,
