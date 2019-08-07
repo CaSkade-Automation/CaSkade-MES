@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { GraphDbRepoService } from '../../../shared/services/GraphDbRepoService.service'
+import { GraphDbRepoService, DbConfig } from '../../../shared/services/GraphDbRepoService.service'
 import { Observable } from 'rxjs';
+import { take, catchError } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -9,31 +11,60 @@ import { Observable } from 'rxjs';
 })
 
 export class GraphDbSettingsComponent implements OnInit{
-    repositories: Observable<any>;
+    repositories: String[];
 
-    dbObject = {
-        host: '139.11.207.25:7200',
-        user: 'ops',
-        password: 'ops'
-    }
+    dbConfig: DbConfig = {
+        host: "",
+        user: "",
+        password: "",
+        selectedRepo: "",
+    };
 
-    currentRepoTitle: Observable<string>;
+    loaderActive = false;
+    buttonText = "Change host";
+    showWarning = false;
 
     constructor(private repoService: GraphDbRepoService) {}
 
     ngOnInit() {
-        this.currentRepoTitle = this.repoService.getCurrentRepository();
-        this.repositories = this.repoService.getRepositories();
+        this.repoService.getCurrentConfig().pipe(take(1)).subscribe(config => {
+            this.dbConfig = config;
+        });
+        this.repoService.getRepositories().pipe(take(1)).subscribe(repos => {
+            this.repositories = repos;
+        });
     }
     
-    changeHost(){
-        this.repoService.changeHost(this.dbObject).subscribe(data =>
-            this.repositories = this.repoService.getRepositories()
+    changeConfig(){
+        this.startLoading();
+        this.showWarning = false;
+        
+        this.repoService.changeConfig(this.dbConfig)
+        .subscribe(
+            (response:any) => {          
+                this.endLoading()
+                    this.repoService.getRepositories().pipe(take(1)).subscribe(repos => {
+                        this.repositories = repos;
+                });
+            }, 
+            (err:any) => {
+                this.endLoading();
+                this.showWarning = true;
+            }
         );
     }
 
     changeRepository(newRepoTitle) {
         this.repoService.changeRepository(newRepoTitle).subscribe();
-        this.currentRepoTitle = this.repoService.getCurrentRepository();
+    }
+
+    private startLoading() {
+        this.loaderActive = true;
+        this.buttonText = "Changing host";
+    }
+
+    private endLoading(){
+        this.loaderActive = false;
+        this.buttonText = "Change host";
     }
 }

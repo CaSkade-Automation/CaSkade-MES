@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -9,20 +10,34 @@ export class GraphDbRepoService {
 
   constructor(private httpClient: HttpClient) { }
   
-  changeHost(newHostObj){
-    return this.httpClient.put('/api/graph-repositories', newHostObj);
+
+  getCurrentConfig(): Observable<DbConfig> {
+    return <Observable<DbConfig>>this.httpClient.get('/api/graph-repositories/config');
+  }
+
+  changeConfig(newConfig): Observable<DbConfig>{
+    return <Observable<DbConfig>>this.httpClient.put('/api/graph-repositories/config', newConfig)
+      .pipe(catchError((e:HttpErrorResponse) => {
+      return throwError(e);
+    }))
+  }
+
+  getRepositories(): Observable<String[]> {
+    return <Observable<String[]>>this.httpClient.get('/api/graph-repositories');
   }
 
   changeRepository(newRepoTitle:string) {
     const newRepo = {"selectedRepo" : newRepoTitle};
-    return this.httpClient.patch('/api/graph-repositories/0', newRepo)
+    return this.httpClient.patch('/api/graph-repositories/config', newRepo)
   }
+  
+}
 
-  getRepositories() {
-    return this.httpClient.get('/api/graph-repositories');
-  }
 
-  getCurrentRepository(): Observable<string> {
-    return <Observable<string>>this.httpClient.get('/api/graph-repositories/0');
-  }
+
+export interface DbConfig {
+  host: string;
+  user: string;
+  password: string;
+  selectedRepo: string;
 }
