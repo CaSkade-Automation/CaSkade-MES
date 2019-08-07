@@ -4,7 +4,6 @@ const request = require('request');
 
 
 router.get('', function (req, res){
-  console.log("asd")
   res.status(200).json('Nothing here yet')
 })
 
@@ -13,7 +12,6 @@ router.get('', function (req, res){
  */
 router.post('', function(req, res) {
   serviceDescription = req.body;
-  console.log(serviceDescription);
 
   let queryParams = [];
   serviceDescription.parameters.filter(parameter => {
@@ -28,11 +26,6 @@ router.post('', function(req, res) {
       requestBody[parameter.name] = parameter.value;
     }
   })
-  console.log('queryParams');
-  console.log(queryParams);
-  console.log('requestBody');
-  console.log(requestBody);
-  
 
   // Execute the service request
   request({
@@ -41,7 +34,7 @@ router.post('', function(req, res) {
     uri: serviceDescription.fullPath + createQueryParameterString(queryParams),
     body: JSON.stringify(requestBody)
   }, 
-  function(serviceErr, serviceRes, serviceBody){
+  function(serviceErr, serviceRes){
     if(serviceErr) {
       res.status(500).json({
                             "msg": "Error while executing the service",
@@ -49,8 +42,8 @@ router.post('', function(req, res) {
                           });
     } else {
       res.status(200).json({
-        "msg": "Service successfully executed",
-        "res": serviceRes
+        "msg": "Service execution added and executed",
+        "res": serviceRes.body
       });
     }
   });
