@@ -14,12 +14,12 @@ The platform consists of two parts:
 ### Table of contents
 1. [Modules and related capabilities](#modules)
 2. [Orders](#orders)
-3. [ServicesCapabilities](#services)
+3. [Services and Capabilities](#services)
 4. [Service Execution](#service-execution)
 5. [Queries and statements](#queries)
-6. [Repository management](#repositoryManagement)
+6. [Repository management](#repository-management)
 
-<a name="modules"></a>
+<a id="modules"></a>
 
 ### Modules
 The following backend routes can bes used to manage modules and their capabilities.
@@ -137,19 +137,20 @@ HTTP/1.1 201 CREATED
 
 "New capability successfully added"
 ```
-<a name="orders"></a>
+<a id="orders"></a>
 ### Orders
 A "customer" can enter an order inquiry via the OPS. Orders can be created, retrieved and deleted with the following backend routes:
 
 ... Under construction
 
-<a name="services"></a>
+<a id="services"></a>
+
 ### Capabilities & Services
 In [Modules and their capabilities](#modules), there was already shown how to get the capabilities and services of one specific module. It sometimes may be beneficial to get all capabilities of all currently connected modules and maybe find a capability that matches certain criteria. Therefore, capabilities and connected services can be retrieved without having a specific module. This is shown in the following subsections:
 
 ... Under Construction
 
-<a name="service-execution"></a>
+<a id="service-execution"></a>
 ### Service Execution
 Services can be seen as "executable capabilities". This subsections provides ways to get all scheduled executions as well as create new ones. (NOTE: Currently, executions can just be added and are executed right away. There is no scheduling)
 
@@ -173,7 +174,7 @@ POST /api/service-executions   HTTP 1.1
         ],
 }
 ```
-<a name="queries"></a>
+<a id="queries"></a>
 ### Queries and statements against the graph database
 Besides all the higher-level functionality of managing modules and their capabilities, the OPS also provides ways to directly interact with the underlying graph database. Please note that graph database differ between 'queries' and 'statements'. While the former provide only read-access (i.e. allow executing SELECT-queries), the latter can usually be used for both read and write access.  
 Please also note that all requests are executed against the currently selected repository. Furthermore, all requests are sent via HTTP POSTs, as it is easier and safer to transfer larger queries in a request body as opposed to sending the query as a URL query parameter. 
@@ -259,7 +260,7 @@ The response is just the same as above, so:
 HTTP/1.1 204 NO CONTENT
 ```
 
-<a name="repositoryManagement"></a>
+<a id="repository-management"></a>
 ### Managing the connected graph database
 The OPS also provides ways to manage the connected database. The following subsections show how to use the corresponding API routes.
 
