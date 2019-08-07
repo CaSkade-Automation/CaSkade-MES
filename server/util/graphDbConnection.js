@@ -15,10 +15,45 @@ module.exports = class GraphDbConnection {
      * Completely exchanges the host configuration against a new one
      * @param {*} newConfig The new host config (consisting of host, user, pw)
      */
-    changeHost(newConfig) {
-        this.host = newConfig.host;
-        this.user = newConfig.user;
-        this.password = newConfig.password;
+    async changeConfig(newConfig) {
+        const oldConfig = {
+            "host": this.host,
+            "user": this.user,
+            "password": this.password,
+            "selectedRepo": this.selectedRepo
+        }
+        
+        this.setConfig(newConfig);
+
+        // Make sure this configuration is valid
+        await this.getRepositories().then(repos => {
+            console.log("repos in changeConfig");
+            
+            console.log(repos);
+            return newConfig;
+        }).catch(err => {
+            // in case of error: return to old config
+            console.log("error in changeConfig");
+            
+            this.setConfig(oldConfig);
+            throw new Error(err);
+        });
+    }
+
+    getConfig() {
+        const config = {
+            "host": this.host,
+            "user": this.user,
+            "password": this.password,
+            "selectedRepo": this.selectedRepo
+        }
+        return config;
+    }
+
+    setConfig(newConfig) {
+        Object.keys(newConfig).forEach(key => {
+            this[key] = newConfig[key];
+        });                
     }
 
     getSelectedRepo() {
@@ -32,21 +67,26 @@ module.exports = class GraphDbConnection {
     }
 
     
+    /**
+     * Deletes all content from a given graph
+     * @param {*} graphName Name of the graph to be deleted
+     * @param {*} callback function(err, graphDbResponse) that gets called after clearing the graph
+     */
     clearGraph(graphName, callback) {
-        console.log(`clearing graph name: ${graphName}`);
-        
         const contentType = "application/x-www-form-urlencoded";
         const statement = `update=CLEAR GRAPH <${graphName}>`;
-        console.log("complete statement:");
-        console.log(statement);
-        
         this.executeStatement(statement, "", contentType, callback);
     }
     
 
+    /**
+     * Executes a statement against the current repository of the graph database
+     * @param {*} statement Statement to execute
+     * @param {*} context Context (=graph) that the statement is executed in
+     * @param {*} contentType Content type of the statement (either application/rdf+xml for update strings or application/x-www-form-urlencoded for an rdf document)
+     * @param {*} callback function(err, graphDbResponse) that gets called after clearing the graph
+     */
     executeStatement(statement, context, contentType, callback){
-        // get all repositories of the graphdb
-        console.log(this.getCurrentRepoEndpointString() + '/statements' + context)
         request.post({
             url: this.getCurrentRepoEndpointString() + '/statements' + context,
             headers: {
@@ -56,18 +96,8 @@ module.exports = class GraphDbConnection {
             },
             body: statement
         },
-        function (err, response, body) {
-            if(err) {
-                console.log(`Error while posting the rdfDocument to graphdDB`);
-                callback('Error while posting the rdfDocument to graphdDB', null);
-            } else if(response.statusCode == 415) {
-                console.log(`Syntax error in RdfDocument.\nResponse of graphDb was`);
-                callback('Syntax error in RdfDocument', null)
-            } else{
-                console.log(`Statement executed successfully.\nResponse of grapDb was:`);
-                // console.dir(response);
-                callback(null, true);
-            }
+        function (err, graphDbResponse) {
+            callback(err, graphDbResponse)
         });
     }
     
@@ -82,16 +112,13 @@ module.exports = class GraphDbConnection {
             },
             body: queryString
         },
-        function (err, response, body) {
+        function (err, graphDbResponse) {
             if(err) {
-                //console.log(`error: ${err}`);
-                callback(err, null)
-            } else if (response.statusCode != 200){
-                //console.log(`body: ${body}`);
-                //console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                callback(null, body);
-            } else{
-                callback(null, body);
+                callback(err);
+            }else if(graphDbResponse.statusCode == 200) {
+                callback(false, graphDbResponse.body);
+            } else {
+                callback(true, graphDbResponse.body);
             }
         });
     }

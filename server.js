@@ -16,9 +16,9 @@ var config = require('./server/config');
 //mongoose.connect(config.databaseUrl, {useNewUrlParser : true});                        // connect to mongoDB
 
 app.use(morgan('dev'));                                   // log every request to the console
-app.use(bodyParser.text());
-app.use(bodyParser.json());                               // parse application/json
 app.use(bodyParser.urlencoded({'extended':'true'}));      // parse application/x-www-form-urlencoded
+app.use(bodyParser.json());                               // parse application/json
+app.use(bodyParser.text());
 
 
 // serve static assets with express (angular's dist folder needs to be mentioned here, too)
@@ -33,16 +33,6 @@ var server = app.listen(SERVER_PORT);
 // start socket-server
 var SocketServer = require('./server/socket-server');
 var socketServer = new SocketServer(server);
-
-
-//CORS Middleware
-// app.use(function (req, res, next) {  
-//   //Enabling CORS
-//   res.header('Access-Control-Allow-Origin', '*');
-//   res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT');
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, x-client-key, x-client-token, x-client-secret, Authorization');
-//   next();
-//  });
 
 // api routing
 // TODO: if a lot of routes are added later we have to have a central route file (otherwise we include a lot of files here)
@@ -59,6 +49,9 @@ app.use('api/module-services/', moduleServiceRoutes);
 
 var orderManagementRoutes = require('./server/routes/order-management.route');
 app.use('/api/order-management', orderManagementRoutes);
+
+var graphOperationsRoutes = require('./server/routes/graph-operations.route')(graphDBConnection);
+app.use('/api/graph-operations', graphOperationsRoutes);
 
 var graphDbManagementRoutes = require('./server/routes/graph-repositories.route')(graphDBConnection);
 app.use('/api/graph-repositories', graphDbManagementRoutes);

@@ -6,9 +6,6 @@ const uuidv4 = require('uuid/v4');
 
 module.exports = function (socketServer, graphDbConnection) {
   
-  var modules = new Array();
-
-
   /* get all modules*/
   router.get('', function (req, res) {
     // get the query to find all modules with their processes
@@ -44,7 +41,7 @@ module.exports = function (socketServer, graphDbConnection) {
 
   /* Insert a new module that is defined within an rdf-document */
   router.post('', function (req, res) {
-    let newSelfDescription = req.body;
+    const newSelfDescription = req.body;
     
     // create a graph name (uuid)
     const graphName = uuidv4();
@@ -93,27 +90,23 @@ module.exports = function (socketServer, graphDbConnection) {
       queryResult.results.bindings.forEach(binding => {
         const graphName = binding.g.value;
 
+        // clear every graph
         graphDbConnection.clearGraph(graphName, function(err, res){
-          console.log(res);
         });
       });
     });
 
     // TODO: Provide useful and correct feedback
-
-    res.status(200).json("Module successfully disconnected");
+    res.status(204).end();
   })
 
 
-  /* get all processes of a module*/
-  router.get('/:moduleIri/services', function (req, res) {
+  /* get all capabilities of a module*/
+  router.get('/:moduleIri/capabilities', function (req, res) {
     const moduleIri = decodeURIComponent(req.params.moduleIri);
     console.log(moduleIri);
     
-    // get the query to find this module's processes
-    let query = require('../queries/select_allModuleProcesses')(moduleIri);
-    console.log("query");
-    console.log(query);
+    let query = require('../queries/select_allModuleCapabilities')(moduleIri);
     
     // query modules from DB
     graphDbConnection.executeQuery(query, function(err, result) {
@@ -121,10 +114,6 @@ module.exports = function (socketServer, graphDbConnection) {
           res.status(400).send(err)
         } else {
           let mappedResult = queryMapper.mapQueryResults(JSON.parse(result).results.bindings, processMapObjectArray);
-          console.log("results");
-          console.log(JSON.parse(result));
-          
-          
           res.status(200).send(mappedResult)
         }
     });
@@ -132,7 +121,7 @@ module.exports = function (socketServer, graphDbConnection) {
 
 
   /**Add a new service to a module */
-  router.post('/:moduleIri/services', function (req, res) {
+  router.post('/:moduleIri/capabilities', function (req, res) {
     const newService = req.body;
     
     // create a graph name for the service (uuid)
@@ -142,10 +131,10 @@ module.exports = function (socketServer, graphDbConnection) {
       if(result){
         // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
         socketServer.emitModuleRegistrationEvent("newModule");
-        res.status(201).json("Module successfully registered");
+        res.status(201).json("New capability successfully added");
       } else {
         res.status(400).json(
-          {"msg": "Error while registering a new module",
+          {"msg": "Error while adding a new capability",
           "err": err,
           }
         );
@@ -156,9 +145,9 @@ module.exports = function (socketServer, graphDbConnection) {
 
 
 
-  /** Delete a service */
-  router.delete('/:moduleIri/services/:serviceName', function (req, res) {
-
+  /** Delete a capability */
+  router.delete('/:moduleIri/capabilities/:capabilityName', function (req, res) {
+    // TODO: Implement when modules are able to kill a service
   });
 
 
