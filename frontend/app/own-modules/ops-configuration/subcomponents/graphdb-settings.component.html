@@ -43,7 +43,7 @@
           </div>
           <select class="custom-select" id="inputGroupSelect01" (change)="changeRepository($event.target.value)">
             <option *ngFor="let repo of this.repositories" [selected]="(this.dbConfig.selectedRepo == repo.title)">
-              {{repo.title}}</option>
+              {{repo.title}} (ID: {{repo.id}})</option>
           </select>
         </div>
       </div>
