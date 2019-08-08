@@ -15,6 +15,7 @@ import { NewOrderComponent } from './new-order/new-order.component';
 import { OrderManagementComponent } from './order-management.component';
 import { UploadSummaryComponent } from './upload-summary/upload-summary.component';
 import { CheckResultComponent } from './check-result/check-result.component';
+import { OrderQueryService } from './order-query-service';
 
 @NgModule({
   imports: [
@@ -30,6 +31,9 @@ import { CheckResultComponent } from './check-result/check-result.component';
     NewOrderComponent,
     UploadSummaryComponent,
     CheckResultComponent,
+  ],
+  providers: [
+    OrderQueryService
   ]
 })
 export class OrderManagementModule { }
