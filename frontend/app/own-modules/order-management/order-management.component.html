@@ -1,25 +1,22 @@
-<h1>Order Management</h1>
+<h1>Order Inquiry</h1>
 <div class="card">
   <div class="card-header">
     <ul class="nav nav-tabs card-header-tabs">
       <li class="nav-item">
-        <a class="nav-link" routerLink="new-order" routerLinkActive="active">Upload Files</a>
+        <a class="nav-link" routerLink="new-order" routerLinkActive="active">Enter Order Inquiry</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" routerLink="upload-summary" routerLinkActive="active">Upload Summary</a>
+        <a class="nav-link" routerLink="upload-summary" routerLinkActive="active">Start check</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" routerLink="producibility-check" routerLinkActive="active">Producibility Check</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="start-production" routerLinkActive="active">Start Production</a>
+        <a class="nav-link" routerLink="check-result" routerLinkActive="active">Result</a>
       </li>
     </ul>
   </div>
   <div class="card-body pt-3 pb-3">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-12">
+        <div class="col-10">
           <router-outlet></router-outlet>
         </div>
       </div>

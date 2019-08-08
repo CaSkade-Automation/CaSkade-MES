@@ -1,6 +1,6 @@
 // Angular
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 
@@ -14,13 +14,13 @@ import { OrderManagementRouter } from './order-management.routing';
 import { NewOrderComponent } from './new-order/new-order.component';
 import { OrderManagementComponent } from './order-management.component';
 import { UploadSummaryComponent } from './upload-summary/upload-summary.component';
-import { ProducibilityCheckComponent } from './producibility-check/producibility-check.component';
-import { StartProductionComponent } from './start-production/start-production.component';
+import { CheckResultComponent } from './check-result/check-result.component';
 
 @NgModule({
   imports: [
     OrderManagementRouter,
     TabsModule,
+    ReactiveFormsModule,
     FormsModule,
     CommonModule,
     HttpClientModule
@@ -29,8 +29,7 @@ import { StartProductionComponent } from './start-production/start-production.co
     OrderManagementComponent,
     NewOrderComponent,
     UploadSummaryComponent,
-    ProducibilityCheckComponent,
-    StartProductionComponent,
+    CheckResultComponent,
   ]
 })
 export class OrderManagementModule { }

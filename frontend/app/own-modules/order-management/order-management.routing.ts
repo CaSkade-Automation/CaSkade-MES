@@ -4,8 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { NewOrderComponent } from './new-order/new-order.component';
 import { OrderManagementComponent } from './order-management.component';
 import { UploadSummaryComponent } from './upload-summary/upload-summary.component';
-import { ProducibilityCheckComponent } from './producibility-check/producibility-check.component';
-import { StartProductionComponent } from './start-production/start-production.component';
+import { CheckResultComponent } from './check-result/check-result.component';
 
 const routes: Routes = [
   {
@@ -35,19 +34,12 @@ const routes: Routes = [
         }
       },
       {
-        path: 'producibility-check',
-        component: ProducibilityCheckComponent,
+        path: 'check-result',
+        component: CheckResultComponent,
         data: {
-          title: 'Check Production'
+          title: 'Check-Result'
         }
       },
-      {
-        path: 'start-production',
-        component: StartProductionComponent,
-        data: {
-          title: 'Start Production'
-        }
-      }
     ]
   }
 ];
