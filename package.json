@@ -1,5 +1,5 @@
 {
-  "name": "mean-setup",
+  "name": "ontology-based-planning-system",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -26,6 +26,7 @@
     "@angular/platform-browser": "7.2.5",
     "@angular/platform-browser-dynamic": "7.2.5",
     "@angular/router": "7.2.5",
+    "@fortawesome/fontawesome-free": "^5.10.1",
     "@ng-bootstrap/ng-bootstrap": "4.0.0",
     "axios": "^0.19.0",
     "body-parser": "^1.18.3",
@@ -34,7 +35,6 @@
     "core-js": "2.6.5",
     "express": "^4.16.4",
     "flag-icon-css": "3.2.1",
-    "font-awesome": "^4.7.0",
     "formidable": "^1.2.1",
     "jquery": "^3.4.1",
     "json-groupby": "^1.1.0",
