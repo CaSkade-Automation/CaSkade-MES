@@ -1,38 +1,147 @@
-<h3>Upload your CAD Files</h3>
+<h3>Enter your manufacturing inquiry</h3>
 
-<form #uploadForm="ngForm" (ngSubmit)="onSubmit()">
-  <h6>User Information</h6>
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon1">Name</span>
+
+<form [formGroup]="orderInquiryForm" (ngSubmit)="onSubmit()">
+
+  <div class="form-row">
+    <div class="col-6">
+      <h6>User Information</h6>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Name</span>
+        </div>
+        <input type="text" class="form-control" formControlName="name">
+      </div>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Company</span>
+        </div>
+        <input type="text" class="form-control" formControlName="company">
+      </div>
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">E-Mail</span>
+        </div>
+        <input type="text" class="form-control" formControlName="eMail">
+      </div>
     </div>
-    <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
-  </div>
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon2">Company</span>
-    </div>
-    <input type="text" class="form-control" placeholder="Company" aria-label="Company" aria-describedby="basic-addon2">
-  </div>
-
-  <h6>Part Data</h6>
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <span class="input-group-text" id="basic-addon3">Material</span>
-    </div>
-    <input type="text" class="form-control" placeholder="Material" aria-label="Material" aria-describedby="basic-addon3">
-  </div>
-  <input type="file" class="d-none" multiple="multiple" (change)="onFilesSelected($event)" #fileInput>
-  <button type="button" class="btn btn-secondary" (click)="fileInput.click()">Add files</button>
-
-  <h6 class="mt-2">Files to upload</h6>
-
-  <div class="input-group mb-1" *ngFor="let selectedFile of selectedFiles; index as i">
-    <input type="text" class="form-control" placeholder="{{selectedFile.name}}" readonly>
-    <div class="input-group-append">
-      <button class="btn btn-outline-secondary" type="button" (click)="deleteFile(i)"><i class="fa fa-remove text-danger"></i></button>
+    <div class="col-6">
+      <h6>Other information</h6>
+      <p>Could be cost or so</p>
     </div>
   </div>
 
-  <button type="submit" class="btn btn-primary float-right">Submit</button>
+  <div class="form-row mb-3">
+    <div class="col-12">
+      <h6>Part Information</h6>
+      <p>You can specifiy certain part properties that have to be met by the manufacturing process. Such properties
+        can be e.g. material or tolerances. Please select the properties you want to specify below.
+      </p>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="col-12">
+      <ng-container formArrayName="selectedRestrictions">
+        <ng-container *ngFor="let restriction of selectedRestrictions.controls; let i=index">
+          <div [formGroupName]="i">
+            <div class="form-row mt-1">
+              <div class="col-3">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Property</span>
+                  </div>
+                  <select class="form-control" formControlName="propertyType">
+                    <option *ngFor="let propertyType of restrictionProperties" value="{{propertyType}}">
+                      {{propertyType}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-3">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">has to be:</span>
+                  </div>
+                  <select class="form-control" formControlName="logicInterpretation">
+                    <option *ngFor="let interpretation of logicInterpretations" value="{{interpretation}}">
+                      {{interpretation}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Value</span>
+                  </div>
+                  <input type="text" class="form-control" formControlName="value">
+                </div>
+              </div>
+              <div class="col-2">
+                <button type="button" class="btn btn-danger" (click)="removeRestriction(i)">
+                  <i class="fas fa-backspace"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+      <div class="form-row mt-3 justify-content-end">
+        <div class="col-2">
+          <button type="button" class="btn btn-secondary" (click)="addRestriction()">Add restriction</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row mb-3">
+    <div class="col-12">
+      <h6>Process Information</h6>
+      <p>You can select specific manufacturing processes for the manufacturability check or explicitly include processes
+        from the check. By doing this, you filter
+        all modules that don't satisfy your specified processes.
+      </p>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="col-4">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Processes</span>
+        </div>
+        <select class="form-control">
+          <option *ngFor="let process of processes" value="{{process}}">{{process}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-row mt-2">
+    <div class="col-12">
+      <h6>3D-Model of the part</h6>
+      <p>Please upload a 3D-model of the part that you want to inquire.</p>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="col-12">
+      <input type="file" class="d-none" (change)="onFilesSelected($event)" #fileInput>
+      <button type="button" class="btn btn-secondary" (click)="fileInput.click()">Select file</button>
+
+      <div class="input-group mb-1 mt-2" *ngFor="let selectedFile of selectedFiles; index as i">
+        <input type="text" class="form-control" placeholder="{{selectedFile.name}}" readonly>
+        <div class="input-group-append">
+          <button class="btn btn-danger" type="button" (click)="deleteFile(i)">
+            <i class="fas fa-backspace"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="form-row mt-4 justify-content-end">
+    <div class="col-2">
+      <button type="submit" class="btn btn-primary float-right">Submit Inquiry</button>
+    </div>
+  </div>
+
 </form>
