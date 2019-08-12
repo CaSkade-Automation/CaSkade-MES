@@ -1,10 +1,8 @@
 //basic set up ========================
 var express  = require('express');
 var app = express();                                   // creating the app with express
-var mongoose = require('mongoose');                            // mongoose for mongodb
 var morgan = require('morgan');                                // log requests to the console (express4)
 var bodyParser = require('body-parser');                       // pull information from HTML POST (express4)
-var path = require('path');
 
 var SERVER_PORT = 9090;
 
@@ -13,7 +11,6 @@ var multicast = require('./server/registration');
 
 var config = require('./server/config');
 
-//mongoose.connect(config.databaseUrl, {useNewUrlParser : true});                        // connect to mongoDB
 
 app.use(morgan('dev'));                                   // log every request to the console
 app.use(bodyParser.urlencoded({'extended':'true'}));      // parse application/x-www-form-urlencoded
