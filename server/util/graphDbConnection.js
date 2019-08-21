@@ -27,14 +27,9 @@ module.exports = class GraphDbConnection {
 
         // Make sure this configuration is valid
         await this.getRepositories().then(repos => {
-            console.log("repos in changeConfig");
-            
-            console.log(repos);
             return newConfig;
         }).catch(err => {
             // in case of error: return to old config
-            console.log("error in changeConfig");
-            
             this.setConfig(oldConfig);
             throw new Error(err);
         });
