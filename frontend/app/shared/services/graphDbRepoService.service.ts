@@ -26,8 +26,8 @@ export class GraphDbRepoService {
     return <Observable<String[]>>this.httpClient.get('/api/graph-repositories');
   }
 
-  changeRepository(newRepoTitle:string) {
-    const newRepo = {"selectedRepo" : newRepoTitle};
+  changeRepository(newRepoId:string) {
+    const newRepo = {"selectedRepo" : newRepoId};
     return this.httpClient.patch('/api/graph-repositories/config', newRepo)
   }
   

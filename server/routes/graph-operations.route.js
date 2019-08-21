@@ -14,9 +14,9 @@ module.exports = function (graphDbConnection) {
 
     graphDbConnection.executeQuery(queryString, function (err, dbResult) {
       if (err) {
-        res.json(dbResult);
+        res.json(JSON.parse(dbResult));
       } else {
-        res.json(dbResult)
+        res.json(JSON.parse(dbResult))
       }
     })
   });
