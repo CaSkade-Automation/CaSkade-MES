@@ -148,6 +148,7 @@ module.exports = function (socketServer, graphDbConnection) {
   /** Delete a capability */
   router.delete('/:moduleIri/capabilities/:capabilityName', function (req, res) {
     // TODO: Implement when modules are able to kill a service
+    res.send("Not yet implemented");
   });
 
 
