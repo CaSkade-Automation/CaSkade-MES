@@ -10,7 +10,7 @@ var SERVER_PORT = 9090;
 var multicast = require('./server/registration');
 
 var config = require('./server/config');
-
+const _app_folder = 'dist';
 
 app.use(morgan('dev'));                                   // log every request to the console
 app.use(bodyParser.urlencoded({'extended':'true'}));      // parse application/x-www-form-urlencoded
@@ -20,7 +20,6 @@ app.use(bodyParser.text());
 
 // serve static assets with express (angular's dist folder needs to be mentioned here, too)
 app.use(express.static(__dirname + '/public'));
-app.use(express.static('dist'));
 
 
 // start app ======================================
@@ -60,6 +59,10 @@ app.use('/api/service-executions', serviceExecutionRoutes);
 // app.get('*', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'dist/index.html'));
 // });
+app.get('*.*', express.static(_app_folder, {maxAge: '1y'}));
+app.all('/*', function (req, res) {
+    res.status(200).sendFile(`/`, {root: _app_folder});
+});
 
 
 
