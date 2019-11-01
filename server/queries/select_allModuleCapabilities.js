@@ -22,34 +22,39 @@ select ?process ?method ?methodType ?resourcesBase ?resourcePath ?param ?paramTy
         ?method WADL:hasRequest ?request;
                 a ?methodType.
         ?methodType sesame:directSubClassOf WADL:Method.
-       # Query parameters
+       
+        # Optionally, the service has parameters. They can be either body or query parameter, that's why we need to do a UNION
         OPTIONAL{
+            {
+            # Query parameters
             ?request WADL:hasParameter ?param.
     		?param WADL:hasParameterType ?paramDataType;
                WADL:hasParameterName ?paramName;
                a ?paramType.
         	?paramType sesame:directSubClassOf WADL:Parameter.
 			BIND(STR("other") AS ?paramLocation).
-        	OPTIONAL {
-                ?param WADL:hasParameterOption ?paramOption.
-                ?paramOption WADL:hasOptionValue ?paramOptionValue.
-            }
-            }
-        #Body parameters
-         OPTIONAL{
-            ?request WADL:hasRepresentation ?rep.
-            ?rep WADL:hasParameter ?param.
-    		?param WADL:hasParameterType ?paramDataType;
-               WADL:hasParameterName ?paramName;
-               a ?paramType.
-        	?paramType sesame:directSubClassOf WADL:Parameter.
-            BIND(STR("body") AS ?paramLocation).
-        	OPTIONAL {
+            OPTIONAL {
                 ?param WADL:hasParameterOption ?paramOption.
                 ?paramOption WADL:hasOptionValue ?paramOptionValue.
             }
         }
-	}
+        UNION 
+            {
+            #Body parameters
+                ?request WADL:hasRepresentation ?rep.
+                ?rep WADL:hasParameter ?param.
+                ?param WADL:hasParameterType ?paramDataType;
+                WADL:hasParameterName ?paramName;
+                a ?paramType.
+                ?paramType sesame:directSubClassOf WADL:Parameter.
+                BIND(STR("body") AS ?paramLocation).
+                OPTIONAL {
+                    ?param WADL:hasParameterOption ?paramOption.
+                    ?paramOption WADL:hasOptionValue ?paramOptionValue.
+                }   
+            }
+        }
+    }
 }
 limit 100
 `;

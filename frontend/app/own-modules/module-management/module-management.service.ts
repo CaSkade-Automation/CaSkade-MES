@@ -22,9 +22,9 @@ export class ModuleManagementService {
   }
 
 
-  getAllProcessesOfModule(moduleIri: string):Observable<Process[]> {
+  getAllCapabilitiesOfModule(moduleIri: string):Observable<Process[]> {
     const encodedModuleIri = encodeURIComponent(moduleIri);
-    let apiURL = `${this.apiRoot}/modules/${encodedModuleIri}/services`;
+    let apiURL = `${this.apiRoot}/modules/${encodedModuleIri}/capabilities`;
     return this.http.get<Process[]>(apiURL).pipe(map(res => {
       let processes = new Array<Process>();
       res.forEach(element => {  

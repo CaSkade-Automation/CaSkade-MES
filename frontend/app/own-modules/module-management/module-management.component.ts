@@ -25,7 +25,7 @@ export class ModuleManagementComponent implements OnInit {
     this.moduleManagementService.getAllModules().subscribe(manufacturingModules => {
       this.modules = manufacturingModules;
       this.modules.forEach(manufacturingModule => {
-        this.moduleManagementService.getAllProcessesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
+        this.moduleManagementService.getAllCapabilitiesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
           manufacturingModule.addProcesses(moduleProcesses);
         });
       });
@@ -37,7 +37,7 @@ export class ModuleManagementComponent implements OnInit {
         const currentModules: Array<ManufacturingModule> = data;
         this.addNewModules(currentModules);
         this.modules.forEach(manufacturingModule => {
-          this.moduleManagementService.getAllProcessesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
+          this.moduleManagementService.getAllCapabilitiesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
             manufacturingModule.addProcesses(moduleProcesses);
           });
         });
