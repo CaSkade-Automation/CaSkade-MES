@@ -42,7 +42,7 @@
             <label class="input-group-text" for="inputGroupSelect01">Select Repository</label>
           </div>
           <select class="custom-select" id="inputGroupSelect01" (change)="changeRepository($event.target.value)">
-            <option *ngFor="let repo of this.repositories" [selected]="(this.dbConfig.selectedRepo == repo.title)">
+            <option *ngFor="let repo of this.repositories" [selected]="(this.dbConfig.selectedRepo == repo.title)" value="{{repo.id}}">
                 {{repo.id}} ({{repo.title}})</option>
           </select>
         </div>
