@@ -11,23 +11,30 @@
         <!-- For all processes -->
         <h4 *ngIf="(module.processes.length > 0)">Capabilities:</h4>
         <div *ngFor="let process of module.processes" class="card border-dark mb-3  border-secondary rounded">
-         <h5 class="card-header">{{process.getShortName()}}</h5>
+          <h5 class="card-header">{{process.getShortName()}}</h5>
           <!-- For all Executable Methods -->
-            <ul *ngFor="let method of process.methods">  
-           <table class="table table-bordered">
-          <tr><th>Executable Service:</th><td>{{method.getShortName()}}</td></tr>
-              <tr><th>HTTP-Method:</th><td>{{method.getShortMethodType()}}</td></tr>
-              <tr><th>Full Path:</th><td>{{method.getFullPath()}}</td></tr>
-             
-            </table>
-          
-              
-                <!-- For all parameters -->
-                <div class="row">
-                  <div class="col-2" ><b>Parameters:</b></div>
-                <div class="col-10">
-                  <table class="table table-responsive table-sm" *ngIf="method.parameters">
-                  
+          <div class="card-body" *ngFor="let method of process.methods">
+            <div class="row mb-2">
+              <div class="col-3"><b>Executable Service:</b></div>
+              <div class="col-9"> {{method.getShortName()}}</div>
+            </div>
+            <hr class="bottom-border">
+            <div class="row mb-2">
+              <div class="col-3"><b>HTTP-Method:</b></div>
+              <div class="col-9"> {{method.getShortMethodType()}}</div>
+            </div>
+            <hr class="bottom-border">
+            <div class="row mb-2">
+              <div class="col-3"><b>Full Path:</b></div>
+              <div class="col-9"> {{method.getFullPath()}}</div>
+            </div>
+            <hr class="bottom-border">
+            <!-- For all parameters -->
+            <div class="row">
+              <div class="col-3"><b>Parameters:</b></div>
+              <div class="col-9">
+                <table class="table table-responsive table-sm" *ngIf="method.parameters">
+
                   <thead class="thead thead-light">
                     <tr>
                       <th>Name</th>
@@ -52,24 +59,25 @@
                   </tbody>
                 </table>
               </div>
-              </div>
-              <div class="row mt-4">
-                <div class="col-10">
-                  <b>Execute Method:</b>
-                  <form (ngSubmit)="executeModuleService(method)" #executionForm="ngForm">
-                    <div class="input-group mb-3" *ngFor="let parameter of method.parameters; let i = index">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">{{parameter.getShortName()}}</span>
-                      </div>
-                      <input type="text" class="form-control" placeholder="ParameterValue" name="{{parameter.getShortName()}}" [(ngModel)]="parameterValues[i]">
+            </div>
+            <div class="row mt-4">
+              <div class="col-12">
+                <b>Execute Method:</b>
+                <form (ngSubmit)="executeModuleService(method)" #executionForm="ngForm">
+                  <div class="input-group mb-3" *ngFor="let parameter of method.parameters; let i = index">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">{{parameter.getShortName()}}</span>
                     </div>
-                    <button class="btn btn-primary">Execute request</button>
-                  </form>
-                </div>
+                    <input type="text" class="form-control" placeholder="ParameterValue"
+                      name="{{parameter.getShortName()}}" [(ngModel)]="parameterValues[i]">
+                  </div>
+                  <button class="btn btn-primary">Execute request</button>
+                </form>
               </div>
-            
-            </ul>
-          
+            </div>
+
+          </div>
+
         </div>
       </div>
     </div>
@@ -82,4 +90,3 @@
 
 
 <a href="api/server/uploaded-files/asd.txt">Download</a> -->
-
