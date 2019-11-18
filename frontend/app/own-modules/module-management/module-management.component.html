@@ -10,17 +10,25 @@
       <div class="card-body">
         <!-- For all processes -->
         <h4 *ngIf="(module.processes.length > 0)">Capabilities:</h4>
-        <div *ngFor="let process of module.processes" class="mb-3 border border-secondary rounded">
-          <h5 title="{{process.name}}">{{process.getShortName()}}</h5>
+        <div *ngFor="let process of module.processes" class="card border-dark mb-3  border-secondary rounded">
+         <h5 class="card-header">{{process.getShortName()}}</h5>
           <!-- For all Executable Methods -->
-            <ul *ngFor="let method of process.methods">
-              <li><b>Executable Service:</b>{{method.getShortName()}}</li>
-              <li><b>HTTP-Method:</b>{{method.getShortMethodType()}}</li>
-              <li><b>Full Path:</b>{{method.getFullPath()}}</li>
-              <li><b>Parameters:</b>
+            <ul *ngFor="let method of process.methods">  
+           <table class="table table-bordered">
+          <tr><th>Executable Service:</th><td>{{method.getShortName()}}</td></tr>
+              <tr><th>HTTP-Method:</th><td>{{method.getShortMethodType()}}</td></tr>
+              <tr><th>Full Path:</th><td>{{method.getFullPath()}}</td></tr>
+             
+            </table>
+          
+              
                 <!-- For all parameters -->
-                <table class="table table-responsive table-sm" *ngIf="method.parameters">
-                  <thead>
+                <div class="row">
+                  <div class="col-2" ><b>Parameters:</b></div>
+                <div class="col-10">
+                  <table class="table table-responsive table-sm" *ngIf="method.parameters">
+                  
+                  <thead class="thead thead-light">
                     <tr>
                       <th>Name</th>
                       <th>Type</th>
@@ -43,10 +51,11 @@
                     </tr>
                   </tbody>
                 </table>
-              </li>
+              </div>
+              </div>
               <div class="row mt-4">
                 <div class="col-10">
-                  <p>Execute Method:</p>
+                  <b>Execute Method:</b>
                   <form (ngSubmit)="executeModuleService(method)" #executionForm="ngForm">
                     <div class="input-group mb-3" *ngFor="let parameter of method.parameters; let i = index">
                       <div class="input-group-prepend">
@@ -58,7 +67,9 @@
                   </form>
                 </div>
               </div>
+            
             </ul>
+          
         </div>
       </div>
     </div>
@@ -71,3 +82,4 @@
 
 
 <a href="api/server/uploaded-files/asd.txt">Download</a> -->
+
