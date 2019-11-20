@@ -54,10 +54,10 @@ module.exports = class GraphDbConnection {
     return this.selectedRepo;
   }
 
-  addRdfDocument(rdfDocument, context, callback) {
+  async addRdfDocument(rdfDocument, context) {
     const contentType = "application/rdf+xml";
     context = `?context=%3Curn:${context}%3E`;
-    this.executeStatement(rdfDocument, context, contentType, callback);
+    return this.executeStatement(rdfDocument, context, contentType);
   }
 
 
@@ -87,6 +87,7 @@ module.exports = class GraphDbConnection {
       'Accept': 'application/json',
       'Content-Type': contentType
     }
+
 
     try {
       const dbResponse = await axios.post(
@@ -176,7 +177,7 @@ getCurrentRepoEndpointString() {
 getStatementEndpointString(context="") {
   let endpointString = `${this.getCurrentRepoEndpointString()}/statements`;
   if(context !== "") {
-    endpointString += `/${context}`;
+    endpointString += `${context}`;
   }
   return endpointString;
 }

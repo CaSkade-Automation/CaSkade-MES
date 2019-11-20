@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const request = require('request'); 
+const axios = require('axios');
 
-
+// Get all pending service excecutions
 router.get('', function (req, res){
   res.status(200).json('Nothing here yet')
 })
+
+
 
 /**
  * Add a new service that shall be executed
@@ -28,25 +30,24 @@ router.post('', function(req, res) {
   })
 
   // Execute the service request
-  request({
+  axios({
     headers: {'content-type' : 'application/json'},
     method: serviceDescription.methodType,
-    uri: serviceDescription.fullPath + createQueryParameterString(queryParams),
-    body: JSON.stringify(requestBody)
-  }, 
-  function(serviceErr, serviceRes){
-    if(serviceErr) {
-      res.status(500).json({
-                            "msg": "Error while executing the service",
-                            "err": serviceErr
-                          });
-    } else {
-      res.status(200).json({
-        "msg": "Service execution added and executed",
-        "res": serviceRes.body
-      });
-    }
-  });
+    url: serviceDescription.fullPath + createQueryParameterString(queryParams),
+    data: JSON.stringify(requestBody)
+  })
+  .then((serviceResponse) => {
+    res.status(200).json({
+      "msg": "Service execution added and executed",
+      "res": serviceResponse.data
+    });
+  })
+  .catch((serviceErr) => {
+    res.status(500).json({
+      "msg": "Internal Error while executing the service",
+      "err": serviceErr
+    });
+  })
 });
 
 
