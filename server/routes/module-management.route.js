@@ -5,20 +5,20 @@ var queryMapper = new QueryMapper();
 const uuidv4 = require('uuid/v4');
 
 module.exports = function (socketServer, graphDbConnection) {
-  
+
   /* get all modules*/
   router.get('', function (req, res) {
     // get the query to find all modules with their processes
     let query = require('../queries/select_allModules');
     // query modules from DB
-    graphDbConnection.executeQuery(query, function(err, result) {
-        if (!result) {
-          res.status(400).send(err)
-        } else {
-          let mappedResult = queryMapper.mapQueryResults(JSON.parse(result).results.bindings, moduleMapObjectArray);
-          res.status(200).send(mappedResult)
-        }
-    });
+    graphDbConnection.executeQuery(query)
+    .then((dbResult) => {
+      const mappedResult = queryMapper.mapQueryResults(dbResult.results.bindings, moduleMapObjectArray);
+      res.status(200).send(mappedResult);
+    })
+    .catch((err) => {
+      res.status(400).send(err);
+    })
   });
 
 
@@ -27,14 +27,14 @@ module.exports = function (socketServer, graphDbConnection) {
     const moduleName = req.params.moduleName;
     const query = require('../queries/select_oneModuleByName')(moduleName);
 
-    graphDbConnection.executeQuery(query, function(err, result) {
-      if (!result) {
-        res.status(400).send(err)
-      } else {
-        let mappedResult = queryMapper.mapQueryResults(JSON.parse(result).results.bindings, moduleMapObjectArray);
-        res.status(200).send(mappedResult)
-      }
-    });
+    graphDbConnection.executeQuery(query)
+    .then((dbResult) => {
+      const mappedResult = queryMapper.mapQueryResults(dbResult.results.bindings, moduleMapObjectArray);
+      res.status(200).send(mappedResult);
+    })
+    .catch((err) => {
+      res.status(400).send(err);
+    })
   });
 
 
@@ -42,24 +42,23 @@ module.exports = function (socketServer, graphDbConnection) {
   /* Insert a new module that is defined within an rdf-document */
   router.post('', function (req, res) {
     const newSelfDescription = req.body;
-    
+
     // create a graph name (uuid)
     const graphName = uuidv4();
 
-    graphDbConnection.addRdfDocument(newSelfDescription, graphName, function(err, result){
-      if(result){
-        // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-        socketServer.emitModuleRegistrationEvent("newModule");
-        res.status(201).json("Module successfully registered");
-      } else {
-        res.status(400).json(
-          {"msg": "Error while registering a new module",
-          "err": err,
-          }
-        );
-      }
-    });
-
+    graphDbConnection.addRdfDocument(newSelfDescription, graphName)
+    .then((dbResult) => {
+      // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
+      socketServer.emitModuleRegistrationEvent("newModule");
+      res.status(201).json("Module successfully registered");
+    })
+    .catch((err) => {
+      res.status(400).json(
+        {"msg": "Error while registering a new module",
+        "err": err,
+        }
+      );
+    })
   });
 
 
@@ -82,22 +81,27 @@ module.exports = function (socketServer, graphDbConnection) {
             }
         }
     }`;
-    
+
     // get all module's graph names
-    graphDbConnection.executeQuery(query, function(err,queryResult) {
-      queryResult = JSON.parse(queryResult)
-      
-      queryResult.results.bindings.forEach(binding => {
+    graphDbConnection.executeQuery(query)
+    .then((dbResult) => {
+      const dbResultBindings = dbResult.results.bindings;
+      dbResultBindings.forEach(binding => {
         const graphName = binding.g.value;
 
         // clear every graph
-        graphDbConnection.clearGraph(graphName, function(err, res){
-        });
+        graphDbConnection.clearGraph(graphName);
       });
-    });
-
-    // TODO: Provide useful and correct feedback
-    res.status(204).end();
+      // TODO: Provide useful and correct feedback
+      res.status(204).end();
+    })
+    .catch((err) => {
+      res.status(400).json(
+        {"msg": "Error while trying to delete a module",
+        "err": err,
+        }
+      );
+    })
   })
 
 
@@ -105,41 +109,41 @@ module.exports = function (socketServer, graphDbConnection) {
   router.get('/:moduleIri/capabilities', function (req, res) {
     const moduleIri = decodeURIComponent(req.params.moduleIri);
     console.log(moduleIri);
-    
+
     let query = require('../queries/select_allModuleCapabilities')(moduleIri);
-    
+
     // query modules from DB
-    graphDbConnection.executeQuery(query, function(err, result) {
-        if (!result) {
-          res.status(400).send(err)
-        } else {
-          let mappedResult = queryMapper.mapQueryResults(JSON.parse(result).results.bindings, processMapObjectArray);
-          res.status(200).send(mappedResult)
-        }
-    });
+    graphDbConnection.executeQuery(query)
+    .then((dbResult) => {
+      const mappedResult = queryMapper.mapQueryResults(dbResult.results.bindings, processMapObjectArray);
+      res.status(200).send(mappedResult)
+    })
+    .catch((err) => {
+      res.status(400).send(err)
+    })
   });
 
 
   /**Add a new service to a module */
   router.post('/:moduleIri/capabilities', function (req, res) {
     const newService = req.body;
-    
+
     // create a graph name for the service (uuid)
     const serviceGraphName = uuidv4();
 
-    graphDbConnection.addRdfDocument(newService, serviceGraphName, function(err, result){
-      if(result){
-        // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-        socketServer.emitModuleRegistrationEvent("newModule");
-        res.status(201).json("New capability successfully added");
-      } else {
-        res.status(400).json(
-          {"msg": "Error while adding a new capability",
-          "err": err,
-          }
-        );
-      }
-    });
+    graphDbConnection.addRdfDocument(newService, serviceGraphName)
+    .then((dbResult) => {
+      // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
+      socketServer.emitModuleRegistrationEvent("newModule");
+      res.status(201).json("New capability successfully added");
+    })
+    .catch((err) => {
+      res.status(400).json(
+        {"msg": "Error while adding a new capability",
+        "err": err,
+        }
+      );
+    })
   });
 
 

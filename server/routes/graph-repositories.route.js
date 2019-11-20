@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const request = require('request');
 const QueryMapper = require('../models/selfdescription/GraphQueryMapper');
 const queryMapper = new QueryMapper();
 
@@ -15,7 +14,7 @@ module.exports = function (graphDbConnection) {
 
     graphDbConnection.getRepositories().then(repos => {
       const repositories = repos.data.results.bindings;
-      
+
         const mappedRepositories = queryMapper.mapQueryResults(repositories, mapObjectArray)
         res.status(200).send(mappedRepositories)
       }

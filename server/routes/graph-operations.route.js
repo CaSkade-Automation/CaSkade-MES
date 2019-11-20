@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const request = require('request');
 const QueryMapper = require('../models/selfdescription/GraphQueryMapper');
 const queryMapper = new QueryMapper();
 
@@ -12,14 +11,14 @@ module.exports = function (graphDbConnection) {
   router.post('/queries', function (req, res) {
     const queryString = req.body;
 
-    graphDbConnection.executeQuery(queryString, function (err, dbResult) {
-      if (err) {
-        res.json(JSON.parse(dbResult));
-      } else {
-        res.json(JSON.parse(dbResult))
-      }
+    graphDbConnection.executeQuery(queryString)
+    .then((dbResult) => {
+      res.json(dbResult);
+    }).catch((err) => {
+      res.status(400).send(err.message);
     })
   });
+
 
   router.post('/statements', function (req, res) {
     let statement = req.body;
@@ -41,13 +40,12 @@ module.exports = function (graphDbConnection) {
           break;
       }
 
-      graphDbConnection.executeStatement(statement, "", contentType, function (err, graphDbResponse) {
-        if (err) {
-          res.status(graphDbResponse.statusCode).send(`There was an error while executing this statement. Error: ${err}`);
-        } else {
-          res.status(graphDbResponse.statusCode).send(graphDbResponse.body)
-        }
-      })
+      graphDbConnection.executeStatement(statement, "", contentType)
+        .then((dbResult) => {
+          res.json('Statement successfully executed!');
+        }).catch((err) => {
+          res.status(400).send(err.message);
+        })
     }
   });
 
