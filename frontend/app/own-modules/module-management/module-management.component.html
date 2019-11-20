@@ -10,17 +10,32 @@
       <div class="card-body">
         <!-- For all processes -->
         <h4 *ngIf="(module.processes.length > 0)">Capabilities:</h4>
-        <div *ngFor="let process of module.processes" class="mb-3 border border-secondary rounded">
-          <h5 title="{{process.name}}">{{process.getShortName()}}</h5>
+        <div *ngFor="let process of module.processes" class="card border-dark mb-3  border-secondary rounded">
+          <h5 class="card-header">{{process.getShortName()}}</h5>
           <!-- For all Executable Methods -->
-            <ul *ngFor="let method of process.methods">
-              <li><b>Executable Service:</b>{{method.getShortName()}}</li>
-              <li><b>HTTP-Method:</b>{{method.getShortMethodType()}}</li>
-              <li><b>Full Path:</b>{{method.getFullPath()}}</li>
-              <li><b>Parameters:</b>
-                <!-- For all parameters -->
+          <div class="card-body" *ngFor="let method of process.methods">
+            <div class="row mb-2">
+              <div class="col-3"><b>Executable Service:</b></div>
+              <div class="col-9"> {{method.getShortName()}}</div>
+            </div>
+            <hr class="bottom-border">
+            <div class="row mb-2">
+              <div class="col-3"><b>HTTP-Method:</b></div>
+              <div class="col-9"> {{method.getShortMethodType()}}</div>
+            </div>
+            <hr class="bottom-border">
+            <div class="row mb-2">
+              <div class="col-3"><b>Full Path:</b></div>
+              <div class="col-9"> {{method.getFullPath()}}</div>
+            </div>
+            <hr class="bottom-border">
+            <!-- For all parameters -->
+            <div class="row">
+              <div class="col-3"><b>Parameters:</b></div>
+              <div class="col-9">
                 <table class="table table-responsive table-sm" *ngIf="method.parameters">
-                  <thead>
+
+                  <thead class="thead thead-light">
                     <tr>
                       <th>Name</th>
                       <th>Type</th>
@@ -43,22 +58,26 @@
                     </tr>
                   </tbody>
                 </table>
-              </li>
-              <div class="row mt-4">
-                <div class="col-10">
-                  <p>Execute Method:</p>
-                  <form (ngSubmit)="executeModuleService(method)" #executionForm="ngForm">
-                    <div class="input-group mb-3" *ngFor="let parameter of method.parameters; let i = index">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">{{parameter.getShortName()}}</span>
-                      </div>
-                      <input type="text" class="form-control" placeholder="ParameterValue" name="{{parameter.getShortName()}}" [(ngModel)]="parameterValues[i]">
-                    </div>
-                    <button class="btn btn-primary">Execute request</button>
-                  </form>
-                </div>
               </div>
-            </ul>
+            </div>
+            <div class="row mt-4">
+              <div class="col-12">
+                <b>Execute Method:</b>
+                <form (ngSubmit)="executeModuleService(method)" #executionForm="ngForm">
+                  <div class="input-group mb-3" *ngFor="let parameter of method.parameters; let i = index">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">{{parameter.getShortName()}}</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="ParameterValue"
+                      name="{{parameter.getShortName()}}" [(ngModel)]="parameterValues[i]">
+                  </div>
+                  <button class="btn btn-primary">Execute request</button>
+                </form>
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </div>
     </div>
