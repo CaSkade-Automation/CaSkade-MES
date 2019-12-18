@@ -2,7 +2,7 @@ abstract class ModuleElement {
     public name: string;
 
     constructor(name) {this.name = name}
-    
+
     getShortName(): string {
         return this.getShortProperty(this.name);
     }
@@ -32,7 +32,11 @@ export class ManufacturingModule extends ModuleElement {
     }
 
     addProcesses(processes: Process[]) {
-        this.processes.push(...processes);
+      // make sure the process doesn't already exist
+      const newProcesses = processes.filter(process => {
+        return !this.processExists(process.name) // -> create a "processExists(name:string)" function
+      })
+      this.processes.push(...newProcesses);
     }
 
     /**
@@ -42,17 +46,28 @@ export class ManufacturingModule extends ModuleElement {
     equals(otherModule: ManufacturingModule): boolean {
         return (this.name === otherModule.name);
     }
+
+    processExists(name: string): boolean {
+      let exists = false;
+      this.processes.forEach(process => {
+        if(process.name == name) {exists = true}
+      });
+      console.log(`process name: ${name}`);
+      console.log(`exists: ${exists}`);
+
+      return exists;
+    }
 }
 
 export class Process extends ModuleElement{
     public methods = new Array<Method>();
-    
+
     constructor(jsonProcess) {
         super(jsonProcess.name)
         this.name = jsonProcess.name;
         if(jsonProcess.methods) {
             jsonProcess.methods.forEach(jsonMethod => {
-                this.methods.push(new Method(jsonMethod))    
+                this.methods.push(new Method(jsonMethod))
             });
         }
     }
@@ -73,7 +88,7 @@ export class Method extends ModuleElement {
         this.methodType = jsonMethod.methodType;
         if(jsonMethod.parameters) {
             jsonMethod.parameters.forEach(jsonParameter => {
-                this.parameters.push(new Parameter(jsonParameter))    
+                this.parameters.push(new Parameter(jsonParameter))
             });
         }
     }
