@@ -1,20 +1,22 @@
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
-import {GraphVisualizationComponent} from './graph-visualization.component';
+import {GraphVisualizationComponent} from './graph-visualization.component'
 
 const routes: Routes = [
-    { path: ':elementType/:elementIri',
-        component: GraphVisualizationComponent,
+  { path: '',
+  component: GraphVisualizationComponent,
+  data: {
+    title: 'Graph-Visualization'
+  },
+  children: []
 
-    },
-    {path:'modules', component: GraphVisualizationComponent
 
-    }
+   }
 ];
 
 @NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule]
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
 })
 
 export class GraphVisualizationRouter {}
