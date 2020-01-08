@@ -20,7 +20,7 @@ udpClient.on('message', function (message, remote) {
   let moduleBroadCast = JSON.parse(message)
   let modulePort = moduleBroadCast['port'];
   moduleAddress = `http://${remote.address}`;
-  let selfDescriptionEndpoint = moduleBroadCast['self-descriptions']; 
+  let selfDescriptionEndpoint = moduleBroadCast['self-descriptions'];
 
 
   // Create the answer (specifying registration endpoint)
@@ -28,7 +28,7 @@ udpClient.on('message', function (message, remote) {
     "id": 1,
     "port": 9090,
     "moduleEndpoint": "/api/modules",
-    "capabilityEndpoint": "/capabilities"
+    "capabilityEndpoint": "/api/capabilities"
   };
 
 
@@ -40,8 +40,8 @@ udpClient.on('message', function (message, remote) {
     }
     else console.log(`Sent broadcast answer to ${moduleAddress}`);
   });
-  
-  
+
+
   // // send the request to the module
   // request.post({
   //   url: encodeURI(moduleAddress + opsRegistrationLocation),
