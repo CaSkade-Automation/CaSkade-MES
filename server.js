@@ -40,8 +40,8 @@ graphDBConnection = new GraphDBConnection();
 var moduleRoutes = require('./server/routes/module-management.route')(socketServer, graphDBConnection);
 app.use('/api/modules', moduleRoutes);
 
-var moduleServiceRoutes = require('./server/routes/service-management.route')(socketServer, graphDBConnection);
-app.use('api/module-services/', moduleServiceRoutes);
+var capabilityRoutes = require('./server/routes/capability-management.route')(socketServer, graphDBConnection);
+app.use('/api/capabilities', capabilityRoutes);
 
 var orderManagementRoutes = require('./server/routes/order-management.route');
 app.use('/api/order-management', orderManagementRoutes);
