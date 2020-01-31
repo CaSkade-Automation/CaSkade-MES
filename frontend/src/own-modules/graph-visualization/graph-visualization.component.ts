@@ -15,10 +15,12 @@ export class GraphVisualizationComponent implements AfterContentInit {
     const margin = {top: 10, right: 30, bottom: 30, left: 40}; // Definition der Größen
  const width = 1400 - margin.left - margin.right;
  const height = 900 - margin.top - margin.bottom;
- const rad=20; // radius
+ const rad=20 // Radius eines Knotens
+ const nodeborder =8; // Umrandungsdicke eines Knotens
 
 
-var svg = d3.select("#graph") // Größe u. Grenzen SVG
+
+const svg = d3.select("#graph") // Größe u. Grenzen SVG
 .append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
@@ -28,8 +30,21 @@ var svg = d3.select("#graph") // Größe u. Grenzen SVG
        
         
 
-var colors = d3.scaleOrdinal(d3.schemeCategory10); //Farben
+const colors = d3.scaleOrdinal(d3.schemeCategory10); // Automatische Zuteilung von Farben für die Nodes
 
+svg.append('defs').append('marker')
+    .attr("id",'arrowhead')
+    .attr('viewBox','-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
+     .attr('refX', rad + nodeborder) // Position Pfeilspitze in Abh. v. Radius und Umrandung der Knoten
+     .attr('refY',0)
+     .attr('orient','auto')
+        .attr('markerWidth',13)
+        .attr('markerHeight',13)
+        .attr('xoverflow','visible')
+    .append('svg:path')
+    .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+    .attr('fill', '#999')
+    .style('stroke','none');
         
 
 //d3.json("\frontend\app\own-modules\graph-visualization\graph-data.json", function(input) {  // Input-Daten
@@ -89,23 +104,25 @@ const data = {
 
 
 
-  var link = svg // Links initialisieren
+  const link = svg // Links initialisieren
     .selectAll(".links")
     .data(data.links)
     .enter()
     .append("line")
       .style("stroke", "#aaa")
+      .attr("class", "links")
+      .attr('marker-end', 'url(#arrowhead)')
       ; 
     link.append("title")
       .text(function(d){return d.type});
-  var node = svg // Nodes initialisieren
+  const node = svg // Nodes initialisieren
     .selectAll("circle")
     .data(data.nodes)
     .enter()
     .append("circle")
       .attr("r", rad)
       .style( "fill", "white")
-      .style("stroke-width", 8) 
+      .style("stroke-width", nodeborder) 
       .style("stroke",function(d){return colors(d.group);} ) // Node-Farben nach Gruppenzugehörigkeit
     /*.append ("text") // name als text neben node
       .attr ("dx", 12)
@@ -133,10 +150,10 @@ const data = {
 
     
   
-  var simulation = d3.forceSimulation(data.nodes)     //Simulation
+  const simulation = d3.forceSimulation(data.nodes)     //Simulation
       .force("link", d3.forceLink()                               
             .id(function(d) { return d.id; })  
-            .distance(100)                   
+            .distance(150)                   
             .links(data.links)                                    
       )
       .force("charge", d3.forceManyBody().strength(-200)) // Anziehungskraft bzw. Abstoßen 
@@ -145,7 +162,6 @@ const data = {
 
   
   function ticked() { 
-    console.log(data);  
     text
         .attr("dx", function(d) {
            return Math.max(0+rad, Math.min(d.x+23, width-rad)); })
