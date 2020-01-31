@@ -34,7 +34,7 @@ const colors = d3.scaleOrdinal(d3.schemeCategory10); // Automatische Zuteilung v
 
 svg.append('defs').append('marker')
     .attr("id",'arrowhead')
-    .attr('viewBox','-0 -5 10 10') //the bound of the SVG viewport for the current SVG fragment. defines a coordinate system 10 wide and 10 high starting on (0,-5)
+    .attr('viewBox','-0 -5 10 10') //Koordinatensystem
      .attr('refX', rad + nodeborder) // Position Pfeilspitze in Abh. v. Radius und Umrandung der Knoten
      .attr('refY',0)
      .attr('orient','auto')
@@ -146,6 +146,7 @@ const data = {
       .data(data.links)
       .enter()
       .append("text")
+      .style("fill","#999" )
       .text(function (d){return d.type});
 
     
@@ -164,24 +165,46 @@ const data = {
   function ticked() { 
     text
         .attr("dx", function(d) {
-           return Math.max(0+rad, Math.min(d.x+23, width-rad)); })
-        .attr("dy", function(d) { return Math.max(0+rad, Math.min(d.y, height-rad)); })
+           return Math.max(0+rad, Math.min(d.x+23, width-rad))})
+        .attr("dy", function(d) { return Math.max(0+rad, Math.min(d.y, height-rad)) })
     
     linkText
-         .attr("dx", function(d){return 0.5*((d.source.x)+(d.target.x))})
-         .attr("dy", function(d){return 0.5*((d.source.y)+(d.target.y)) })
+         .attr("dx", function(d){
+           if ((d.target.x>width) || (d.source.x>width)) {
+             if (d.target.x>d.source.x) {
+                return Math.min(width,width-0.5*(width-d.source.x));
+             } else {
+                return Math.min(width,width-0.5*(width-d.target.x));
+             } ;
+           } else {
+                return Math.min(0.5*((Math.max(0,(d.target.x)))-(Math.max(0,(d.source.x))))+(Math.max(0,d.source.x)));
+              }
+           })
+           //Relationstext bleibt am Link
+         .attr("dy", function(d){
+           if ((d.target.y>height) || (d.source.y>height)) {
+              if (d.target.y>d.source.y) {
+                return Math.min(height,height-0.5*(height-d.source.y));
+              } 
+              else {
+                return Math.min(height,height-0.5*(height-d.target.y));
+              }
+           } 
+          else {
+                return (0.5*((Math.max(0,(d.target.y)))-(Math.max(0,(d.source.y))))+(Math.max(0,d.source.y)));
+           }})
          
 
 
     link   // Anfang und Ende der Links / Bestimmung der Position
-        .attr("x1", function(d) { return Math.max(0+rad, Math.min(d.source.x, width-rad)); }) // Postionen nur innerhalb des Fensters erlaubt
-        .attr("y1", function(d) { return Math.max(0+rad,Math.min(d.source.y, height-rad)); })
-        .attr("x2", function(d) { return Math.max(0+rad,Math.min(d.target.x, width-rad)); })
-        .attr("y2", function(d) { return Math.max(0+rad, Math.min(d.target.y, height-rad)); });
+        .attr("x1", function(d) { return Math.max(0+rad, Math.min(d.source.x, width-rad)) }) // Postionen nur innerhalb des Fensters erlaubt
+        .attr("y1", function(d) { return Math.max(0+rad,Math.min(d.source.y, height-rad)) })
+        .attr("x2", function(d) { return Math.max(0+rad,Math.min(d.target.x, width-rad)) })
+        .attr("y2", function(d) { return Math.max(0+rad, Math.min(d.target.y, height-rad)) });
 
     node // Bestimmung der Postion einzelner Nodes
-         .attr("cx", function (d) { return Math.max(0+rad,Math.min(d.x, width-rad)); }) // Zertrum der Node-kreise, Maximxaler Wert begrenzt auf Fenstergröße
-         .attr("cy", function(d) { return Math.max(0+rad, Math.min(d.y, height-rad)); });
+         .attr("cx", function (d) { return Math.max(0+rad,Math.min(d.x, width-rad)) }) // Zertrum der Node-kreise, Maximxaler Wert begrenzt auf Fenstergröße
+         .attr("cy", function(d) { return Math.max(0+rad, Math.min(d.y, height-rad)) });
   }
 
   function ended() {
