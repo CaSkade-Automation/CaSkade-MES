@@ -3,43 +3,39 @@ var router = express.Router();
 var QueryMapper = require('../models/selfdescription/GraphQueryMapper')
 var queryMapper = new QueryMapper();
 const uuidv4 = require('uuid/v4');
+const ModuleModel = require('./../models/module.model');
+const moduleModel = new ModuleModel();
 
 module.exports = function (socketServer, graphDbConnection) {
 
-  /* get all modules*/
+  /* get all mfgModules*/
   router.get('', function (req, res) {
-    // get the query to find all modules with their processes
-    let query = require('../queries/select_allModules');
-    // query modules from DB
-    graphDbConnection.executeQuery(query)
-    .then((dbResult) => {
-      const mappedResult = queryMapper.mapQueryResults(dbResult.results.bindings, moduleMapObjectArray);
-      res.status(200).send(mappedResult);
+    moduleModel.getAllModules().then((mfgModuleQueryResult) => {
+      const mfgModules = mfgModuleQueryResult.results.bindings;
+      res.status(200).json(mfgModules);
     })
-    .catch((err) => {
-      res.status(400).send(err);
-    })
+      .catch((err) => {
+        res.status(500).send(`Error while retrieving all mfgModules, ${err}`)
+      });
   });
 
 
-  /* get one module by name*/
-  router.get('/:moduleName', function (req, res) {
-    const moduleName = req.params.moduleName;
-    const query = require('../queries/select_oneModuleByName')(moduleName);
+  /* get one mfgModule by IRI*/
+  router.get('/:mfgModuleIri', function (req, res) {
+    const mfgModuleIri = decodeURIComponent(req.params.mfgModuleIri);
 
-    graphDbConnection.executeQuery(query)
-    .then((dbResult) => {
-      const mappedResult = queryMapper.mapQueryResults(dbResult.results.bindings, moduleMapObjectArray);
-      res.status(200).send(mappedResult);
+    moduleModel.getModuleByIri(mfgModuleIri).then((mfgModuleQueryResult) => {
+      const mfgModule = mfgModuleQueryResult.results.bindings;
+      res.status(200).json(mfgModule);
     })
-    .catch((err) => {
-      res.status(400).send(err);
-    })
+      .catch((err) => {
+        res.status(500).send(`Error while retrieving all mfgModules, ${err}`)
+      });
   });
 
 
 
-  /* Insert a new module that is defined within an rdf-document */
+  /* Insert a new mfgModule that is defined within an rdf-document */
   router.post('', function (req, res) {
     const newSelfDescription = req.body;
 
@@ -47,111 +43,87 @@ module.exports = function (socketServer, graphDbConnection) {
     const graphName = uuidv4();
 
     graphDbConnection.addRdfDocument(newSelfDescription, graphName)
-    .then((dbResult) => {
-      // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-      socketServer.emitModuleRegistrationEvent("newModule");
-      res.status(201).json("Module successfully registered");
-    })
-    .catch((err) => {
-      res.status(400).json(
-        {"msg": "Error while registering a new module",
-        "err": err,
-        }
-      );
-    })
+      .then((dbResult) => {
+        // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
+        socketServer.emitmfgModuleRegistrationEvent("newmfgModule");
+        res.status(201).json("mfgModule successfully registered");
+      })
+      .catch((err) => {
+        res.status(400).json(
+          {
+            "msg": "Error while registering a new mfgModule",
+            "err": err,
+          }
+        );
+      })
   });
 
 
   /**
-   * Remove a module by it's IRI
+   * Remove a mfgModule by it's IRI
    */
-  router.delete('/:moduleIri', function(req, res) {
-    let moduleIri = decodeURIComponent(req.params['moduleIri']);
+  router.delete('/:mfgModuleIri', function (req, res) {
+    let moduleIri = decodeURIComponent(req.params['mfgModuleIri']);
 
-    // query to get graph of the module IRI
-    const query = `
-    PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-    SELECT ?s ?g WHERE {
-        GRAPH ?g {
-            BIND(IRI("${moduleIri}") AS ?s).
-            {
-            ?s a VDI3682:TechnicalResource.
-            } UNION {
-            ?s VDI3682:TechnicalResourceIsAssignedToProcessOperator ?x.
-            }
-        }
-    }`;
-
-    // get all module's graph names
-    graphDbConnection.executeQuery(query)
-    .then((dbResult) => {
-      const dbResultBindings = dbResult.results.bindings;
-      dbResultBindings.forEach(binding => {
-        const graphName = binding.g.value;
-
-        // clear every graph
-        graphDbConnection.clearGraph(graphName);
-      });
-      // TODO: Provide useful and correct feedback
+    moduleModel.deleteModule(moduleIri).then(() => {
       res.status(204).end();
     })
     .catch((err) => {
-      res.status(400).json(
-        {"msg": "Error while trying to delete a module",
-        "err": err,
-        }
-      );
-    })
+      res.status(400).send(`Error while trying to delete a mfgModule: ${err}`)
+    });
   })
 
 
-  /* get all capabilities of a module*/
-  router.get('/:moduleIri/capabilities', function (req, res) {
-    const moduleIri = decodeURIComponent(req.params.moduleIri);
-    console.log(moduleIri);
+  // TODO: Move this to subroutes
 
-    let query = require('../queries/select_allModuleCapabilities')(moduleIri);
+  /* get all capabilities of a mfgModule*/
+  router.get('/:mfgModuleIri/capabilities', function (req, res) {
+    const mfgModuleIri = decodeURIComponent(req.params.mfgModuleIri);
+    console.log(mfgModuleIri);
 
-    // query modules from DB
+    let query = require('../queries/select_allmfgModuleCapabilities')(mfgModuleIri);
+
+    // query mfgModules from DB
     graphDbConnection.executeQuery(query)
-    .then((dbResult) => {
-      const mappedResult = queryMapper.mapQueryResults(dbResult.results.bindings, processMapObjectArray);
-      res.status(200).send(mappedResult)
-    })
-    .catch((err) => {
-      res.status(400).send(err)
-    })
+      .then((dbResult) => {
+        const mappedResult = queryMapper.mapQueryResults(dbResult.results.bindings, processMapObjectArray);
+        res.status(200).send(mappedResult)
+      })
+      .catch((err) => {
+        res.status(400).send(err)
+      })
   });
 
 
-  /**Add a new service to a module */
-  router.post('/:moduleIri/capabilities', function (req, res) {
+  /**Add a new service to a mfgModule */
+  router.post('/:mfgModuleIri/capabilities', function (req, res) {
     const newService = req.body;
 
     // create a graph name for the service (uuid)
     const serviceGraphName = uuidv4();
 
     graphDbConnection.addRdfDocument(newService, serviceGraphName)
-    .then((dbResult) => {
-      // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-      socketServer.emitModuleRegistrationEvent("newModule");
-      res.status(201).json("New capability successfully added");
-    })
-    .catch((err) => {
-      res.status(400).json(
-        {"msg": "Error while adding a new capability",
-        "err": err,
-        }
-      );
-    })
+      .then((dbResult) => {
+        // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
+        socketServer.emitmfgModuleRegistrationEvent("newmfgModule");
+        res.status(201).json("New capability successfully added");
+      })
+      .catch((err) => {
+        res.status(400).json(
+          {
+            "msg": "Error while adding a new capability",
+            "err": err,
+          }
+        );
+      })
   });
 
 
 
 
   /** Delete a capability */
-  router.delete('/:moduleIri/capabilities/:capabilityName', function (req, res) {
-    // TODO: Implement when modules are able to kill a service
+  router.delete('/:mfgModuleIri/capabilities/:capabilityName', function (req, res) {
+    // TODO: Implement when mfgModules are able to kill a service
     res.send("Not yet implemented");
   });
 
@@ -164,16 +136,16 @@ module.exports = function (socketServer, graphDbConnection) {
 
 
 
-
-const moduleMapObjectArray = [
+// TODO: Can be removed
+const mfgModuleMapObjectArray = [
   {
-      object: 'module',
-      name: 'name',
-      childRoot: 'processes'
+    object: 'mfgModule',
+    name: 'name',
+    childRoot: 'processes'
   },
   {
-      object: 'process',
-      name: 'name',
+    object: 'process',
+    name: 'name',
   },
 ];
 
