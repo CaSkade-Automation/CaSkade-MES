@@ -7,7 +7,7 @@ import { FormsModule }   from '@angular/forms';
 // Routing
 import { ModuleManagementRouter } from './module-management.routing';
 import { ModuleManagementComponent } from './module-management.component';
-import { ModuleManagementService } from './module-management.service';
+import { ModuleService } from '../../shared/services/module.service';
 import { ManufacturingServiceExecutor } from './manufacturing-service-executor.service';
 
 
@@ -22,7 +22,7 @@ import { ManufacturingServiceExecutor } from './manufacturing-service-executor.s
     ModuleManagementComponent,
   ],
   providers: [
-    ModuleManagementService,
+    ModuleService,
     ManufacturingServiceExecutor
   ]
 })

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { SocketService } from "../../shared/services/socket.service";
 import { HttpClient } from '@angular/common/http';
-import { ManufacturingModule, ServiceExecutionDescription, Method, SelectedParameter } from './self-description';
-import { ModuleManagementService } from './module-management.service';
+import { ManufacturingModule, ServiceExecutionDescription, Method, SelectedParameter } from '../../shared/models/self-description';
+import { ModuleService } from '../../shared/services/module.service';
 import { ManufacturingServiceExecutor } from './manufacturing-service-executor.service';
 
 @Component({
@@ -10,34 +10,34 @@ import { ManufacturingServiceExecutor } from './manufacturing-service-executor.s
   templateUrl: 'module-management.component.html',
 })
 export class ModuleManagementComponent implements OnInit {
-  
-  constructor(private httpClient: HttpClient, 
+
+  constructor(private httpClient: HttpClient,
     private socketService: SocketService,
-    private moduleManagementService: ModuleManagementService,
+    private moduleService: ModuleService,
     private mfgServiceExecutor: ManufacturingServiceExecutor) {}
 
   incomingmsg = [];
   modules = new Array<ManufacturingModule>();
   serviceExecutionDescription: ServiceExecutionDescription;
   parameterValues = new Array<string>();
-  
+
   ngOnInit() {
-    this.moduleManagementService.getAllModules().subscribe(manufacturingModules => {
+    this.moduleService.getAllModules().subscribe(manufacturingModules => {
       this.modules = manufacturingModules;
       this.modules.forEach(manufacturingModule => {
-        this.moduleManagementService.getAllCapabilitiesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
+        this.moduleService.getAllCapabilitiesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
           manufacturingModule.addProcesses(moduleProcesses);
         });
       });
-      
+
     });
-    
+
     this.socketService.getMessage().subscribe(msg => {
-      this.moduleManagementService.getAllModules().subscribe(data => {
+      this.moduleService.getAllModules().subscribe(data => {
         const currentModules: Array<ManufacturingModule> = data;
         this.addNewModules(currentModules);
         this.modules.forEach(manufacturingModule => {
-          this.moduleManagementService.getAllCapabilitiesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
+          this.moduleService.getAllCapabilitiesOfModule(manufacturingModule.name).subscribe(moduleProcesses => {
             manufacturingModule.addProcesses(moduleProcesses);
           });
         });
@@ -52,12 +52,12 @@ export class ModuleManagementComponent implements OnInit {
 
   executeModuleService(method: Method) {
     let selectedParams = new Array<SelectedParameter>();
-    
+
     // Create the selected parameters
     for (let i = 0; i < method.parameters.length; i++) {
       const param = method.parameters[i];
       const paramValue = this.parameterValues[i];
-      
+
       selectedParams.push(new SelectedParameter(param, paramValue));
     }
     let executionDescription = new ServiceExecutionDescription(method.getFullPath(), method.getShortMethodType(), selectedParams);
@@ -99,7 +99,7 @@ export class ModuleManagementComponent implements OnInit {
   //   this.httpClient.delete(`api/modules/${moduleId}`).subscribe(
   //     data => {this.removeModuleCard(moduleId)}),
   //     error => console.log('An error happened, module could not be disconnected'
-  //   );    
+  //   );
   // }
 
   // removeModuleCard(moduleId) {
@@ -108,7 +108,7 @@ export class ModuleManagementComponent implements OnInit {
   //     if (this.modules[i].name == moduleId) {
   //       this.modules.splice(i, 1);
   //       break;
-  //     }      
+  //     }
   //   }
   // }
 }
