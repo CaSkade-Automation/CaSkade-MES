@@ -1,10 +1,8 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpRequest, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-//import { ServiceExecutionDescription } from "./self-description";
+import { ServiceExecutionDescription } from "./self-description";
 import { map } from 'rxjs/operators';
-import { ServiceExecutionDescription } from "app/shared/models/self-description";
-
 
 @Injectable()
 
