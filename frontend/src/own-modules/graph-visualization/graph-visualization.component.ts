@@ -3,8 +3,6 @@ import * as d3 from "d3"
 import { enterView } from '@angular/core/src/render3/state';
 import { pathToFileURL } from 'url';
 import { window } from 'rxjs/operators';
-import { ModuleService } from 'app/shared/services/module.service';
-
 
 @Component({
   selector: 'graph-visualization',
@@ -14,16 +12,11 @@ import { ModuleService } from 'app/shared/services/module.service';
 })
 export class GraphVisualizationComponent implements AfterContentInit {
 
-  constructor(
-    private moduleService: ModuleService
-  ) { 
-  };
-
   @ViewChild('g') svgContainer: ElementRef;
 
   ngAfterContentInit(): void {
-    //console.log('element ref width:');
-   // console.log(this.svgContainer.nativeElement.offsetWidth);
+    console.log('element ref width:');
+    console.log(this.svgContainer.nativeElement.offsetWidth);
 
     const margin = { top: 10, right: 30, bottom: 30, left: 40 }; // Definition der Größen
     const width = 100; //parent.innerWidth - margin.left - margin.right;
@@ -32,7 +25,7 @@ export class GraphVisualizationComponent implements AfterContentInit {
     const rad = 20 // Radius eines Knotens
     const nodeborder = 8; // Umrandungsdicke eines Knotens
     const testweite = parent.innerWidth;
-    //console.log("Die ermittelte Weite ist:" + testweite);
+    console.log("Die ermittelte Weite ist:" + testweite);
 
     const svg = d3.select("#graph") // Größe u. Grenzen SVG
       .append("svg")
@@ -61,12 +54,9 @@ export class GraphVisualizationComponent implements AfterContentInit {
       .style('stroke', 'none');
 
 
+    //d3.json("\frontend\app\own-modules\graph-visualization\graph-data.json", function(input) {  // Input-Daten
 
-
-// ##### DATA ######
-
-
-    /*const data = {
+    const data = {
       "nodes": [
         {
           "id": 1,
@@ -118,107 +108,8 @@ export class GraphVisualizationComponent implements AfterContentInit {
         }
       ]
     }
-*/
-var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
-    var group=0;
-    var moduleId=0;
-    var capabilityId=100;
-    var inputId=1000;
-    var outputId=10000;
-    var skillId=100000;
-    var typeId=1000000;
-    var data= {nodes:[], links:[]};
-   //################################################ 
-    receivedData.forEach(modul => {
-      moduleId++;
-      group++;
-      data.nodes.push({
-        "id" : moduleId,
-        "name": modul.name,
-        "group": 1
-      });
-      modul.capabilities.forEach(capability=>{
-      capabilityId++;
-      data.nodes.push({
-        "id" : capabilityId,
-        "name": capability.name,
-        "group": 2
-       })
-      data.links.push({
-        "source": moduleId,
-        "target": capabilityId,
-        "type": "has_capability"
-      })
-      capability.hasInput.forEach(input=>{
-        inputId++;
-        typeId++;
-        data.nodes.push({
-          "id" : inputId,
-          "name": input.name,
-          "group": 3
-         })
-         data.links.push({
-          "source": capabilityId,
-          "target": inputId,
-          "type": "has_input"
-        })  
-        data.nodes.push({
-          "id": typeId,
-          "name": input.stateType,
-          "group": 6
-        })
-        data.links.push({
-          "source": inputId,
-          "target": typeId,
-          "type": "is_state_type"
-        })
-       })
-       capability.hasOutput.forEach(output=>{
-        outputId++;
-        typeId++;
-        data.nodes.push({
-          "id" : outputId,
-          "name": output.name,
-          "group": 4
-         })
-         data.links.push({
-          "source": capabilityId,
-          "target": outputId,
-          "type": "has_output"
-        })  
 
-        data.nodes.push({
-          "id": typeId,
-          "name": output.stateType,
-          "group": 6
-        })
-        data.links.push({
-          "source": outputId,
-          "target": typeId,
-          "type": "is_state_type"
-        })
 
-       })
-       capability.executableViaSkill.forEach(skill=>{
-        skillId++;
-        data.nodes.push({
-          "id" : skillId,
-          "name": skill.name,
-          "group": 5
-         })
-         data.links.push({
-          "source": capabilityId,
-          "target": skillId,
-          "type": "executable_via_Skill"
-        })  
-       })
-
-      })
-    
-    });
-// ##################################################
-
-    console.log(data);
 
     const link = svg // Links initialisieren
       .selectAll(".links")
@@ -355,7 +246,7 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
         .distance(300)
         .links(data.links)
       )
-      .force("charge", d3.forceManyBody().strength(-550)) // Anziehungskraft bzw. Abstoßen 
+      .force("charge", d3.forceManyBody().strength(-150)) // Anziehungskraft bzw. Abstoßen 
       .force("center", d3.forceCenter(this.svgContainer.nativeElement.offsetWidth/2, this.svgContainer.nativeElement.offsetHeight/2)) //Zentrierung der Nodes
         
 
@@ -364,7 +255,7 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
       .on("tick", ticked); // tick wird in jedem Schritt durchgeführt
 
     function ended() {
-      //console.log("ended");
+      console.log("ended");
     }
     function mouseover(){
       d3.select(this).select("circle").transition()
@@ -385,7 +276,7 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
 
     function dragged(d) {
 
-     // console.log(d3.event)
+      console.log(d3.event)
       d.fx = d3.event.x;
       d.fy = d3.event.y;
     }
@@ -396,9 +287,6 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
     }
 
   }
-  
- 
-    
-  
+  constructor() { }
 
 }
