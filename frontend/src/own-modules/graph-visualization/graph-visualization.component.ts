@@ -22,19 +22,14 @@ export class GraphVisualizationComponent implements AfterContentInit {
   @ViewChild('g') svgContainer: ElementRef;
 
   ngAfterContentInit(): void {
-    //console.log('element ref width:');
-   // console.log(this.svgContainer.nativeElement.offsetWidth);
-
-    const margin = { top: 10, right: 30, bottom: 30, left: 40 }; // Definition der Größen
-    const width = 100; //parent.innerWidth - margin.left - margin.right;
+    const margin = { top: 10, right: 30, bottom: 30, left: 40 }; 
+    const width = 100;                //parent.innerWidth - margin.left - margin.right;
     //var width= window.innerWidth;
     const height = 100;
-    const rad = 20 // Radius eines Knotens
-    const nodeborder = 8; // Umrandungsdicke eines Knotens
+    const rad = 20                    // node radius
+    const nodeborder = 8;             // node border thickness 
     const testweite = parent.innerWidth;
-    //console.log("Die ermittelte Weite ist:" + testweite);
-
-    const svg = d3.select("#graph") // Größe u. Grenzen SVG
+    const svg = d3.select("#graph")   // size definitions for the svg
       .append("svg")
       .attr("width", width + '%')
       .attr("height", height+'%')
@@ -44,12 +39,12 @@ export class GraphVisualizationComponent implements AfterContentInit {
 
 
 
-    const colors = d3.scaleOrdinal(d3.schemeCategory10); // Automatische Zuteilung von Farben für die Nodes
+    const colors = d3.scaleOrdinal(d3.schemeCategory10); // chooses a scheme category for node colours
 
     svg.append('defs').append('marker')
       .attr("id", 'arrowhead')
-      .attr('viewBox', '-0 -5 10 10') //Koordinatensystem
-      .attr('refX', rad + nodeborder) // Position Pfeilspitze in Abh. v. Radius und Umrandung der Knoten
+      .attr('viewBox', '-0 -5 10 10') //coordinate system
+      .attr('refX', rad + nodeborder) // arrow position and dimensions
       .attr('refY', 0)
       .attr('orient', 'auto')
       .attr('markerWidth', 13)
@@ -63,193 +58,141 @@ export class GraphVisualizationComponent implements AfterContentInit {
 
 
 
-// ##### DATA ######
-
-
-    /*const data = {
-      "nodes": [
-        {
-          "id": 1,
-          "name": "ModulA",
-          "group": 1
-        },
-        {
-          "id": 2,
-          "name": "ModulB",
-          "group": 2
-        },
-        {
-          "id": 3,
-          "name": "ModulC",
-          "group": 3
-
-        }, {
-          "id": 4,
-          "name": "cap11",
-          "group": 1
-        },
-        {
-          "id": 5,
-          "name": "cap12",
-          "group": 1
-        },
-        {
-          "id": 6,
-          "name": "cap21",
-          "group": 2
-        }
-      ],
-      "links": [
-
-        {
-          "source": 1,
-          "target": 4,
-          "type": "is_a"
-        },
-        {
-          "source": 1,
-          "target": 5,
-          "type": "has"
-        },
-        {
-          "source": 2,
-          "target": 6,
-          "type": "has"
-        }
-      ]
-    }
-*/
+/* Get data*/
+//##########################################################
 var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
-    var group=0;
-    var moduleId=0;
-    var capabilityId=100;
-    var inputId=1000;
-    var outputId=10000;
-    var skillId=100000;
-    var typeId=1000000;
-    var data= {nodes:[], links:[]};
-   //################################################ 
-    receivedData.forEach(modul => {
-      moduleId++;
-      group++;
-      data.nodes.push({
-        "id" : moduleId,
-        "name": modul.name,
-        "group": 1
-      });
-      modul.capabilities.forEach(capability=>{
-      capabilityId++;
-      data.nodes.push({
-        "id" : capabilityId,
-        "name": capability.name,
-        "group": 2
-       })
-      data.links.push({
-        "source": moduleId,
-        "target": capabilityId,
-        "type": "has_capability"
-      })
-      capability.hasInput.forEach(input=>{
-        inputId++;
-        typeId++;
-        data.nodes.push({
-          "id" : inputId,
-          "name": input.name,
-          "group": 3
-         })
-         data.links.push({
-          "source": capabilityId,
-          "target": inputId,
-          "type": "has_input"
-        })  
-        data.nodes.push({
-          "id": typeId,
-          "name": input.stateType,
-          "group": 6
-        })
-        data.links.push({
-          "source": inputId,
-          "target": typeId,
-          "type": "is_state_type"
-        })
-       })
-       capability.hasOutput.forEach(output=>{
-        outputId++;
-        typeId++;
-        data.nodes.push({
-          "id" : outputId,
-          "name": output.name,
-          "group": 4
-         })
-         data.links.push({
-          "source": capabilityId,
-          "target": outputId,
-          "type": "has_output"
-        })  
-
-        data.nodes.push({
-          "id": typeId,
-          "name": output.stateType,
-          "group": 6
-        })
-        data.links.push({
-          "source": outputId,
-          "target": typeId,
-          "type": "is_state_type"
-        })
-
-       })
-       capability.executableViaSkill.forEach(skill=>{
-        skillId++;
-        data.nodes.push({
-          "id" : skillId,
-          "name": skill.name,
-          "group": 5
-         })
-         data.links.push({
-          "source": capabilityId,
-          "target": skillId,
-          "type": "executable_via_Skill"
-        })  
-       })
-
-      })
+var data= {nodes:[], links:[]};
+let idMap= new Map();                 // Map for saving Node-IDs
+var id=0;                             // ID start value
+receivedData.forEach(receivedModule => {  //loop over all modules
+id++;
+idMap.set(receivedModule, id);        // assigns an ID for each module-node
+data.nodes.push({                     // adds a node for each module
+"id" : idMap.get(receivedModule),
+"name": receivedModule.name,
+"group": 1                            // assings node-groups (here: node colour)
+});
+  
+  receivedModule.capabilities.forEach(capability=>{ //loop over all capabilities of current module 
+  id++;
+  idMap.set(capability, id);          // assigns an ID for each capability-node
+  data.nodes.push({                   // adds a node for each capability of current module
+  "id" : idMap.get(capability),
+  "name": capability.name,
+  "group": 2
+  })
+  data.links.push({                   // adds a link between capability and module
+  "source": idMap.get(receivedModule),    // defines source and target of the link. Important for the direction of the link/arrow
+  "target": idMap.get(capability),
+  "type": "has_capability"            // adds a link description
+  })
     
-    });
+    capability.hasInput.forEach(input=>{
+    id++;
+    idMap.set(input, id);             // assigns an ID for each input-node
+    data.nodes.push({                 // adds a node for each input of current capability
+    "id": idMap.get(input),
+    "name": input.name,
+    "group": 3
+    })
+    data.links.push({                 // adds a link between capability and input
+    "source": idMap.get(capability),
+    "target": idMap.get(input),
+    "type": "has_input"
+    }) 
+    id++;
+    data.nodes.push({                 // adds a node for rdf:type of current input
+    "id": id,                         // adds an ID for the type node (not saved in idMap)
+    "name": input.stateType,
+    "group": 6
+    })
+    data.links.push({                 // adds a link between rdf:type and input
+    "source": idMap.get(input),
+    "target": id,                     //assigns an ID for each type-node (not saved in idMap)
+    "type": "rdf:type"
+    })
+    })
+       
+    capability.hasOutput.forEach(output=>{
+    id++;
+    idMap.set(output,id);             // assigns an ID for each output-node
+    data.nodes.push({                 // adds a node for each output of current capability
+    "id" : idMap.get(output),
+    "name": output.name,
+    "group": 4
+    })
+    data.links.push({                 // adds a link between capability and output
+    "source": idMap.get(capability),
+    "target": idMap.get(output),
+    "type": "has_output"
+    })  
+    id++;   
+    data.nodes.push({                 // adds a node for rdf:type of current output
+    "id": id,
+    "name": output.stateType,
+    "group": 6
+    })
+    data.links.push({                 // adds a link between rdf:type and input
+    "source": idMap.get(output),
+    "target": id,
+    "type": "rdf:type"
+    })
+    })
+       
+    capability.executableViaSkill.forEach(skill=>{
+    id++;
+    idMap.set(skill, id)              // adds a node for each skill of current capability
+    data.nodes.push({
+    "id" : idMap.get(skill),
+    "name": skill.name,
+    "group": 5
+    })
+    data.links.push({                // adds a link between  current capability and current skill node
+    "source": idMap.get(capability),
+    "target": idMap.get(skill),
+    "type": "executable_via_Skill"
+    })  
+    })
+
+  })
+    
+});
 // ##################################################
 
     console.log(data);
 
-    const link = svg // Links initialisieren
+    const link = svg                // link definitions
       .selectAll(".links")
       .data(data.links)
       .enter()
       .append("line")
       .style("stroke", "#aaa")
       .attr("class", "links")
-      .attr('marker-end', 'url(#arrowhead)')
+      .attr('marker-end', 'url(#arrowhead)') // arrow on end of the link
       ;
     link.append("title")
-      .text(function (d) { return d.type });
-    const node = svg // Nodes initialisieren
+      .text(function (d) { return d.type }); // get link title from data
+    const node = svg               // node definitions 
       .selectAll("circle")
       .data(data.nodes)
       .enter()
       .append("circle")
       .attr("r", rad)
-      .on('mouseover', function(){
+      .on('mouseover', function(){ // function on mousover: increase radius
         d3.select(this).transition()
         .duration('2')
-        .attr('r', rad+5)
+        .attr('r', rad+6)
       })
-      .on('mouseout', function(){
+      .on('mouseout', function(){ // function on mousout: decrease radius to orgin
         d3.select(this).transition()
         .attr('r', rad)
       })
+      .on('dblclick', doubleclick)// function on doubleclick:
+      
       .style("fill", "white")
       .style("stroke-width", nodeborder)
-      .style("stroke", function (d) { return colors(d.group); }) // Node-Farben nach Gruppenzugehörigkeit
-      /*.append ("text") // name als text neben node
+      .style("stroke", function (d) { return colors(d.group); }) // set different node colours for each node-group
+      /*.append ("text") 
         .attr ("dx", 12)
         .attr ("dy", ".35em")
         .text(function(d){return d.name})*/
@@ -258,21 +201,21 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
         .on("drag", dragged));
     ;
 
-    const text = svg
+    const text = svg            // node text definitions    
       .selectAll("text")
       .data(data.nodes)
       .enter()
       .append("text")
 
-      .text(function (d) { return d.name });
+      .text(function (d) { return d.name }); // get text from data
 
-    const linkText = svg
+    const linkText = svg        // link text definitions
       .selectAll("links")
       .data(data.links)
       .enter()
       .append("text")
       .style("fill", "#999")
-      .text(function (d) { return d.type });
+      .text(function (d) { return d.type }); // get link text from data
 
 
 
@@ -280,13 +223,11 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
 
 
     const ticked = () => {
-      const centerWidth=  this.svgContainer.nativeElement.offsetWidth/2;
+      const centerWidth=  this.svgContainer.nativeElement.offsetWidth/2; // center definitions of the svg
       const centerHeight= this.svgContainer.nativeElement.offsetHeight/2;
 
-     // data.nodes.indexOf[0].fx= centerWidth;
-      //data.nodes.indexOf[0].fy= centerHeight;
       text
-        .attr("dx", (d)=>{
+        .attr("dx", (d)=>{    // restrictions for node text positions in the svg
           const relativeRad =100* rad / this.svgContainer.nativeElement.offsetWidth;
           const relativeDragX=100* d.x / this.svgContainer.nativeElement.offsetWidth;
           return Math.max(0 + relativeRad, Math.min(relativeDragX + 1.5, width - 5*relativeRad))+'%'})
@@ -296,7 +237,7 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
           return Math.max(0 + relativeRad, Math.min(relativeDragY, height - 5*relativeRad))+'%' })
 
       linkText
-        .attr("dx", (d)=>{
+        .attr("dx", (d)=>{  // restrictions for link text positions in the svg
           d.source.x= Math.max(0 + rad, Math.min(d.source.x, this.svgContainer.nativeElement.offsetWidth - 5*rad));
           d.target.x=Math.max(0 + rad, Math.min(d.target.x, this.svgContainer.nativeElement.offsetWidth - 5*rad))
           const relativeTargetX = 100*d.target.x/this.svgContainer.nativeElement.offsetWidth;
@@ -313,10 +254,10 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
           return Math.min(height- 5*relativeRad, (Math.max(0+ relativeRad, ((relativeSourceY-relativeTargetY)/2)+ relativeTargetY))) +'%';
         })
 
-      link   // Anfang und Ende der Links / Bestimmung der Position   nachfolgend Closure-Funtktionen um Zugriff mit this. außerhalb der Funktion
-        .attr("x1",  (d)=> {
+      link  
+        .attr("x1",  (d)=> {  // restrictions for link positions in the svg
           d.source.x= Math.max(0 + rad, Math.min(d.source.x, this.svgContainer.nativeElement.offsetWidth - 5*rad));
-          const relativeRad =100* rad / this.svgContainer.nativeElement.offsetWidth; // Umwandlung des Radius in relative Zahl (in % !)
+          const relativeRad =100* rad / this.svgContainer.nativeElement.offsetWidth; // converting radius from absolute to relative
           const relativeSourceX = 100*d.source.x/this.svgContainer.nativeElement.offsetWidth;
           return relativeSourceX+'%';})
           .attr("y1",  (d)=> {
@@ -335,13 +276,13 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
           const relativeTargetY = 100*d.target.y/this.svgContainer.nativeElement.offsetHeight;
           return relativeTargetY+'%';})
 
-      node // Bestimmung der Postion einzelner Nodes
-        .attr("cx", (d) => {
+      node 
+        .attr("cx", (d) => { // restrictions for node positions in the svg
           d.x=Math.max(0 + rad, Math.min(d.x, this.svgContainer.nativeElement.offsetWidth - 5*rad))
           const relativeRad =100* rad / this.svgContainer.nativeElement.offsetWidth;
           const relativeDragX=100* d.x / this.svgContainer.nativeElement.offsetWidth;
           return relativeDragX+'%';
-        }) // Zentrum der Node-kreise, Maximxaler Wert begrenzt auf Fenstergröße
+        }) 
         .attr("cy", (d) => {
           d.y= Math.max(0 + rad, Math.min(d.y, this.svgContainer.nativeElement.offsetHeight - 5*rad))
           const relativeRad = 100* rad / this.svgContainer.nativeElement.offsetWidth;
@@ -349,38 +290,32 @@ var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
           return relativeDragY+'%';})
     }
 
-    const simulation = d3.forceSimulation(data.nodes)     //Simulation
+    const simulation = d3.forceSimulation(data.nodes) // simulation
       .force("link", d3.forceLink()
         .id(function (d) { return d.id; })
         .distance(300)
         .links(data.links)
       )
-      .force("charge", d3.forceManyBody().strength(-550)) // Anziehungskraft bzw. Abstoßen 
+      .force("charge", d3.forceManyBody().strength(-400)) // node magnetism /attraction
       .force("center", d3.forceCenter(this.svgContainer.nativeElement.offsetWidth/2, this.svgContainer.nativeElement.offsetHeight/2)) //Zentrierung der Nodes
         
 
          
      
-      .on("tick", ticked); // tick wird in jedem Schritt durchgeführt
+      .on("tick", ticked); // tick on every step of the simulation
 
-    function ended() {
-      //console.log("ended");
-    }
-    function mouseover(){
-      d3.select(this).select("circle").transition()
-        .duration(750)
-        .attr("r", rad+10)
-    }
-
-    function mouseout(){
-      d3.select(this).select("circle").transition()
-      .duration(750)
-      .attr("r", rad)
-    }
     function dragstarted(d) {
       if (!d3.event.active) simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
+    }
+    function doubleclick(){
+      id++;
+      data.nodes.push({
+        "id": id,
+        "name": "neighbor",
+        "group": 7
+      })
     }
 
     function dragged(d) {
