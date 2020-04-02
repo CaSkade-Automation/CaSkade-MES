@@ -1,146 +1,119 @@
 import { Injectable } from '@angular/core';
-import { Capability } from '@shared/models/capability/Capability';
-import { ProductionModule } from '@shared/models/production-module/ProductionModule';
-import { Skill } from '@shared/models/skill/Skill';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { CapabilityService } from 'src/shared/services/capability.service';
-import { SkillService } from 'src/shared/services/skill.service';
-import { ModuleService } from '../../shared/services/module.service';
-import { D3CapabilityNode, D3GraphData, D3Link, D3ModuleNode, D3Node, D3SkillNode, NodeType } from './D3GraphData';
-
+import { ModuleService } from 'app/shared/services/module.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class NodeCreatorService {
-    apiRoot = "/api";
-    modules: ProductionModule[]
+  apiRoot = "/api";
+  constructor(
+  private moduleService: ModuleService
+  ) {}
+  getAllNodes() {
 
-    constructor(
-        private moduleService: ModuleService,
-        private skillService: SkillService,
-        private capabilityService: CapabilityService) { }
+      const receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
+      const data= {nodes:[], links:[]};
+      const idMap= new Map();                 // Map for saving Node-IDs
+      let id=0;                            // ID start value
+      receivedData.forEach(receivedModule => {  //loop over all modules
+          id++;
+          idMap.set(receivedModule, id);        // assigns an ID for each module-node
+          data.nodes.push({                     // adds a node for each module
+              "id" : idMap.get(receivedModule),
+              "name": receivedModule.name,
+              "group": 1                            // assings node-groups (here: node colour)
+          });
 
-    // /** Creates node- and link-data with transmitted data of connected modules for d3.js visualization */
-    // getAllNodes(moduleIri: string): Observable<D3GraphData> {
+          receivedModule.capabilities.forEach(capability=>{ //loop over all capabilities of current module
+              id++;
+              idMap.set(capability, id);          // assigns an ID for each capability-node
+              data.nodes.push({                   // adds a node for each capability of current module
+                  "id" : idMap.get(capability),
+                  "name": capability.name,
+                  "group": 2
+              });
+              data.links.push({                   // adds a link between capability and module
+                  "source": idMap.get(receivedModule),    // defines source and target of the link. Important for the direction of the link/arrow
+                  "target": idMap.get(capability),
+                  "type": "has_capability"            // adds a link description
+              });
 
-    //     return this.moduleService.getAllModules().pipe(map(modules => {
-    //         // If a module name is passed, filter the module list for that specific one
-    //         if(moduleIri != undefined) {
-    //             modules = modules.filter(module => module.iri == moduleIri);
-    //         }
-    //         return this.getDataFromModules(modules);
-    //     }));
-    // }
+              capability.hasInput.forEach(input=>{
+                  id++;
+                  idMap.set(input, id);             // assigns an ID for each input-node
+                  data.nodes.push({                 // adds a node for each input of current capability
+                      "id": idMap.get(input),
+                      "name": input.name,
+                      "group": 3
+                  });
+                  data.links.push({                 // adds a link between capability and input
+                      "source": idMap.get(capability),
+                      "target": idMap.get(input),
+                      "type": "has_input"
+                  });
+                  id++;
+                  data.nodes.push({                 // adds a node for rdf:type of current input
+                      "id": id,                         // adds an ID for the type node (not saved in idMap)
+                      "name": input.stateType,
+                      "group": 6
+                  });
+                  data.links.push({                 // adds a link between rdf:type and input
+                      "source": idMap.get(input),
+                      "target": id,                     //assigns an ID for each type-node (not saved in idMap)
+                      "type": "rdf:type"
+                  });
+              });
 
-    getAllModuleNodes(moduleIri: string): Observable<D3GraphData> {
+              capability.hasOutput.forEach(output=>{
+                  id++;
+                  idMap.set(output,id);             // assigns an ID for each output-node
+                  data.nodes.push({                 // adds a node for each output of current capability
+                      "id" : idMap.get(output),
+                      "name": output.name,
+                      "group": 4
+                  });
+                  data.links.push({                 // adds a link between capability and output
+                      "source": idMap.get(capability),
+                      "target": idMap.get(output),
+                      "type": "has_output"
+                  });
+                  id++;
+                  data.nodes.push({                 // adds a node for rdf:type of current output
+                      "id": id,
+                      "name": output.stateType,
+                      "group": 6
+                  });
+                  data.links.push({                 // adds a link between rdf:type and input
+                      "source": idMap.get(output),
+                      "target": id,
+                      "type": "rdf:type"
+                  });
+              });
 
-        return this.moduleService.getAllModules().pipe(map(modules => {
-            // If a module IRI is passed, filter the module list for that specific one
-            if(moduleIri != undefined && moduleIri != "") {
-                console.log("filtering");
-                console.log("moduleIri: '" + moduleIri + "'");
+              capability.executableViaSkill.forEach(skill=>{
+                  id++;
+                  idMap.set(skill, id);              // adds a node for each skill of current capability
+                  data.nodes.push({
+                      "id" : idMap.get(skill),
+                      "name": skill.name,
+                      "group": 5
+                  });
+                  data.links.push({                // adds a link between  current capability and current skill node
+                      "source": idMap.get(capability),
+                      "target": idMap.get(skill),
+                      "type": "executable_via_Skill"
+                  });
+              });
 
+          });
 
-                modules = modules.filter(module => module.iri == moduleIri);
-            }
+      });
 
-            console.log("modules");
-            console.log(modules);
-
-
-
-            const graphData = new D3GraphData();
-            modules.forEach(module => {  //loop over all modules
-
-                graphData.addNode(new D3ModuleNode(module.iri, module.getLocalName()));
-                // TODO: Add module components
-
-                const skillData = this.getDataFromSkills(module.skills);
-                graphData.appendAndConnectData(skillData, module.iri, NodeType.D3SkillNode, "hasSkill");
-
-                const capabilityData = this.getDataFromCapabilities(module.capabilities);
-                graphData.appendAndConnectData(capabilityData, module.iri, NodeType.D3CapabilityNode, "hasCapability");
-            });
-            return graphData;
-
-        }));
-    }
-
-    getAllSkillNodes(skillIri: string): Observable<D3GraphData> {
-        return this.skillService.getAllSkills().pipe(map(skills => {
-            // If a skill IRI is passed, filter the skill list for that specific one
-            if(skillIri != undefined && skillIri != "") {
-                skills = skills.filter(skill => skill.iri == skillIri);
-            }
-
-            return this.getDataFromSkills(skills);
-        }));
-    }
-
-    getAllCapabilityNodes(capabilityIri: string): Observable<D3GraphData> {
-        return this.capabilityService.getAllCapabilities().pipe(map(capabilities => {
-            // If a capability IRI is passed, filter the capability list for that specific one
-            if(capabilityIri != undefined && capabilityIri != "") {
-                capabilities = capabilities.filter(capability => capability.iri == capabilityIri);
-            }
-
-            return this.getDataFromCapabilities(capabilities);
-        }));
-    }
-
-
-    private getDataFromSkills(skills: Skill[]): D3GraphData {
-        const graphData = new D3GraphData();
-        skills.forEach(skill => {
-
-            graphData.addNode(new D3SkillNode(skill.iri, skill.getLocalName()));
-
-            // Add state machine
-            graphData.addNode(new D3Node(skill.stateMachine.iri, skill.stateMachine.getLocalName(), 120));
-            graphData.addLink(new D3Link(skill.iri, skill.stateMachine.iri, "hasStateMachine"));
-
-            // Add skill parameters
-            skill.skillParameters.forEach(parameter => {
-                graphData.addNode(new D3Node(parameter.iri, parameter.getLocalName(), 140));
-                graphData.addLink(new D3Link(skill.iri, parameter.iri, "hasSkillParameter"));
-            });
-
-            // Add skill outputs
-            skill.skillOutputs.forEach(output => {
-                graphData.addNode(new D3Node(output.iri,output.getLocalName(), 160));
-                graphData.addLink(new D3Link(skill.iri, output.iri, "hasSkillOutput"));
-            });
-        });
-        return graphData;
-    }
-
-    private getDataFromCapabilities(capabilities: Capability[]): D3GraphData {
-        const graphData = new D3GraphData();
-
-        capabilities.forEach(capability => { //loop over all capabilities of current module
-            graphData.addNode(new D3CapabilityNode(capability.iri, capability.getLocalName()));
-
-            capability.inputs.forEach(input => {
-                graphData.addNode(new D3Node(input.iri, input.getLocalName(), 240));
-                graphData.addLink(new D3Link(capability.iri, input.iri, "hasInput"));
-
-            });
-
-            capability.outputs.forEach(output => {
-                graphData.addNode(new D3Node(output.iri, output.getLocalName(), 270));
-                graphData.addLink(new D3Link(capability.iri, output.iri, "hasOutput"));
-            });
-        });
-        return graphData;
-    }
-
-
+      return data;
+  }
 
 
 }
-
 
 
 
