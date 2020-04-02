@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { GraphVisualizationComponent } from './graph-visualization.component';
 import {GraphVisualizationRouter} from './graph-visualization.routing';
 import { ModuleService } from 'app/shared/services/module.service';
+import { NodeCreatorService } from './node-creator.service';
 
 @NgModule({
   imports: [
@@ -10,6 +11,8 @@ import { ModuleService } from 'app/shared/services/module.service';
   declarations: [GraphVisualizationComponent],
   providers: [
     ModuleService,
+    NodeCreatorService
+    
   ]
 })
 export class GraphVisualizationModule { }
