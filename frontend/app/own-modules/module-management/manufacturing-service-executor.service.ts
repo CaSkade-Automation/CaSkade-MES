@@ -1,13 +1,13 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpRequest, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { ServiceExecutionDescription } from "./self-description";
+import { ServiceExecutionDescription } from "../../shared/models/self-description";
 import { map } from 'rxjs/operators';
 
 @Injectable()
 
 export class ManufacturingServiceExecutor {
-  
+
     constructor(private http: HttpClient) {}
 
     executeService(executionDescription:ServiceExecutionDescription) {
@@ -28,15 +28,15 @@ export class ManufacturingServiceExecutor {
       //     queryParams.set(parameter.name, parameter.value);
       //   }
       // });
-            
+
       // let request = new HttpRequest(executionDescription.methodType, executionDescription.fullPath, {
       //   "headers": headers,
       //   "params": queryParams
       // })
 
-      // Send 
+      // Send
       this.http.post(`api/service-executions`, executionDescription).subscribe(res => {console.log(JSON.stringify(res))});
     }
 
- 
+
 }

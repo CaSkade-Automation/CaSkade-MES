@@ -13,6 +13,7 @@ export class ModuleService {
 
 
   // Returns fake data for Tom
+  // TODO: Return real data
   getAllModulesWithCapabilitiesAndSkills(): Module[] {
     const fakeModules: Module[] = [{
       name: "Bohrmodul",
