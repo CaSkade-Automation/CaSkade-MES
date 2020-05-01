@@ -1,11 +1,15 @@
-import { Component, AfterContentInit, ViewEncapsulation, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component,OnInit, AfterContentInit, ViewEncapsulation, HostListener, ViewChild, ElementRef } from '@angular/core';
 import * as d3 from "d3"
 import { enterView } from '@angular/core/src/render3/state';
 import { pathToFileURL } from 'url';
 import { window } from 'rxjs/operators';
 import { ModuleService } from 'app/shared/services/module.service';
-import { ResolveStart } from '@angular/router';
+import { ResolveStart, ActivatedRoute } from '@angular/router';
 import { NodeCreatorService } from './node-creator.service';
+import { getModuleFactory__POST_R3__ } from '@angular/core/src/linker/ng_module_factory_loader';
+import { defineDirective } from '@angular/core/src/render3';
+
+
 
 
 @Component({
@@ -14,15 +18,30 @@ import { NodeCreatorService } from './node-creator.service';
   templateUrl: './graph-visualization.component.html',
   styleUrls: ['./graph-visualization.component.scss']
 })
-export class GraphVisualizationComponent implements AfterContentInit {
+export class GraphVisualizationComponent implements AfterContentInit, OnInit {name:String;
 
   constructor(
-    //private moduleService: ModuleService,
+    private route: ActivatedRoute,
     private nodeCreatorService: NodeCreatorService
   ) { 
   };
 
   @ViewChild('g') svgContainer: ElementRef;
+  moduleName: string;
+  ngOnInit(): void
+  { 
+  
+
+ // console.log("Der Name ist :"+this.moduleName);
+
+//console.log(this.route.queryParams);
+
+    //.subscribe(params=>params.name)
+    
+    //this.name= params.name;
+
+  }
+
 
   ngAfterContentInit(): void {
     const margin = { top: 10, right: 30, bottom: 30, left: 40 }; 
@@ -58,10 +77,11 @@ export class GraphVisualizationComponent implements AfterContentInit {
       .attr('fill', '#999')
       .style('stroke', 'none');
 
+this.route.params.subscribe(p=>{
+  this.moduleName=p['moduleName'];
+})
+var data= this.nodeCreatorService.getAllNodes(this.moduleName); // load data created by node-creator.service
 
-var data= this.nodeCreatorService.getAllNodes(); // load data created by node-creator.service
-
-    console.log(data);
 
     const link = svg                // link definitions
       .selectAll(".links")
@@ -246,6 +266,7 @@ var data= this.nodeCreatorService.getAllNodes(); // load data created by node-cr
     }
 
   }
+
   
  
     
