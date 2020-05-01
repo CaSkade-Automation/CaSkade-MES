@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ModuleService } from 'app/shared/services/module.service';
+import { containsElement } from '@angular/animations/browser/src/render/shared';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +10,14 @@ export class NodeCreatorService {
 constructor(
   private moduleService: ModuleService
 ) {}
-getAllNodes() {
+getAllNodes(moduleName:String) {
   
   var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
   const data= {nodes:[], links:[]};
   let idMap= new Map();                 // Map for saving Node-IDs
   var id=0;                            // ID start value
   receivedData.forEach(receivedModule => {  //loop over all modules
+    if(receivedModule.name==moduleName|| moduleName== undefined){  // creates nodes for chosen modules
   id++;
   idMap.set(receivedModule, id);        // assigns an ID for each module-node
   data.nodes.push({                     // adds a node for each module
@@ -106,9 +108,18 @@ getAllNodes() {
       })
   
     })
-      
-  });
+  } 
 
+  });
+  if(id==0){                          //if module does not exist, show error-node
+    id++;
+   data.nodes.push({
+     "id" : id,
+     "name": "<<<ERROR: Module not found!>>>",
+     "group": 1
+     })
+  }
+  
 return data;
 }
 
