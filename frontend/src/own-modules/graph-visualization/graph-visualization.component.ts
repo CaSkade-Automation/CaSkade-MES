@@ -99,28 +99,16 @@ var data= this.nodeCreatorService.getAllNodes(this.moduleName); // load data cre
       .data(data.nodes)
       .enter()
       .append("circle")
-      .attr("r", rad)
-      .on('mouseover', function(){ // function on mousover: increase radius
-        d3.select(this).transition()
-        .duration('2')
-        .attr('r', rad+6)
+      .attr("r",function(d){
+        if(d.group==1){return rad+8}
+        else{return rad}
       })
-      .on('mouseout', function(){ // function on mousout: decrease radius to orgin
-        d3.select(this).transition()
-        .attr('r', rad)
+      .on('mouseover', mouseover)
+      .on('mouseout', mouseout)
+      .style("fill", function(d){
+        if(d.group==1){return "black"}
+        else{return "whitesmoke"}
       })
-      .on('dblclick', function(d){  const node= { "id":30,
-      "name": "neighbor",
-      "group": 7}
-      data.nodes.push(node)
-      data.links.push({
-        "source": d.id,
-        "target":30
-      })
-
-     console.log(d);// function on doubleclick:
-    })
-      .style("fill", "white")
       .style("stroke-width", nodeborder)
       .style("stroke", function (d) { return colors(d.group); }) // set different node colours for each node-group
       /*.append ("text") 
@@ -137,7 +125,10 @@ var data= this.nodeCreatorService.getAllNodes(this.moduleName); // load data cre
       .data(data.nodes)
       .enter()
       .append("text")
-
+      .attr("font-weight", function(d){
+        if(d.group==1){return "bold"}
+        else{return "normal"}
+      })
       .text(function (d) { return d.name }); // get text from data
 
     const linkText = svg        // link text definitions
@@ -146,6 +137,7 @@ var data= this.nodeCreatorService.getAllNodes(this.moduleName); // load data cre
       .enter()
       .append("text")
       .style("fill", "#999")
+      .attr("font-style", "italic")
       .text(function (d) { return d.type }); // get link text from data
 
 
@@ -263,6 +255,25 @@ var data= this.nodeCreatorService.getAllNodes(this.moduleName); // load data cre
       //if (!d3.event.active) simulation.alphaTarget(0);
       //d.fx = null;
       //d.fy = null;
+    }
+
+    function mouseover(d){ // function on mousover: increase radius
+      if(d.group==1){
+        d3.select(this).transition()
+        .duration('2')
+        .attr('r', rad+12)}
+      else{
+      d3.select(this).transition()
+      .duration('2')
+      .attr('r', rad+6)}
+    }
+    function mouseout(d){ // function on mousout: decrease radius to orgin
+      if(d.group==1){
+        d3.select(this).transition()
+      .attr('r', rad+8)
+      }
+     else{ d3.select(this).transition()
+      .attr('r', rad)}
     }
 
   }
