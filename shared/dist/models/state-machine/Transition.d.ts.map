@@ -1,0 +1,1 @@
+{"version":3,"file":"Transition.d.ts","sourceRoot":"","sources":["../../../models/state-machine/Transition.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,eAAe,CAAC;AAC3C,OAAO,EAAE,KAAK,EAAE,MAAM,SAAS,CAAC;AAEhC,qBAAa,UAAW,SAAQ,UAAU;IACb,OAAO,CAAC,aAAa;gBAAlC,GAAG,EAAE,MAAM,EAAU,aAAa,EAAE,KAAK,CAAC,KAAK,CAAC;CAG/D"}
