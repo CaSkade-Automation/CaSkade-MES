@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { ManufacturingModule, Process } from "../models/self-description";
+import { Process, ManufacturingModule } from "../models/self-description";
+import { ProductionModule } from "../../../../shared/models/production-module/ProductionModule";
 import { map } from 'rxjs/operators';
 import { Module } from "../models/module";
 
 @Injectable()
-
 export class ModuleService {
   apiRoot: string = "/api";
   constructor(private http: HttpClient) { }
@@ -38,12 +38,12 @@ export class ModuleService {
   }
 
 
-  getAllModules(): Observable<ManufacturingModule[]> {
+  getAllModules(): Observable<ProductionModule[]> {
     let apiURL = `${this.apiRoot}/modules`;
-    return this.http.get<ManufacturingModule[]>(apiURL).pipe(map(res => {
-      let modules = new Array<ManufacturingModule>();
+    return this.http.get<ProductionModule[]>(apiURL).pipe(map(res => {
+      let modules = new Array<ProductionModule>();
       res.forEach(element => {
-        modules.push(new ManufacturingModule(element));
+        modules.push(element);
       });
       return modules;
     }));

@@ -5,7 +5,6 @@ import { ServiceExecutionDescription } from "../../shared/models/self-descriptio
 import { map } from 'rxjs/operators';
 
 @Injectable()
-
 export class ManufacturingServiceExecutor {
 
     constructor(private http: HttpClient) {}

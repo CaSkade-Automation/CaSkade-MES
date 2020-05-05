@@ -1,0 +1,26 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compileOnSave": false,
+    "compilerOptions": {
+        "outDir": "./dist/out-tsc",
+        "baseUrl": "./",
+        "sourceMap": true,
+		"declaration": false,
+        "moduleResolution": "node",
+        "module": "esnext",
+        "target": "es2015",
+        "lib": [
+            "es2018",
+            "dom"
+        ],
+    },
+    "references": [
+        {
+            "path": "../shared"
+        }
+    ],
+    "angularCompilerOptions": {
+        "fullTemplateTypeCheck": true,
+        "strictInjectionParameters": true
+    }
+}
