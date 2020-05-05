@@ -1,22 +1,3 @@
-import { Controller, Get } from '@nestjs/common';
-
-@Controller('modules')
-export class ModuleController {
-
-  @Get()
-  findAll(): string {
-    return 'This action returns all cats';
-  }
-}
-
-// var express = require('express');
-// var router = express.Router();
-// var QueryMapper = require('../models/selfdescription/GraphQueryMapper')
-// var queryMapper = new QueryMapper();
-// const uuidv4 = require('uuid/v4');
-// const ModuleModel = require('./../models/module.model');
-// const moduleModel = new ModuleModel();
-// module.exports = function (socketServer, graphDbConnection) {
 
 //   /* get all mfgModules*/
 //   router.get('', function (req, res) {
@@ -140,47 +121,3 @@ export class ModuleController {
 
 //   return router;
 // };
-
-
-
-
-
-
-// // TODO: Can be removed
-// const mfgModuleMapObjectArray = [
-//   {
-//     object: 'mfgModule',
-//     name: 'name',
-//     childRoot: 'processes'
-//   },
-//   {
-//     object: 'process',
-//     name: 'name',
-//   },
-// ];
-
-
-// const processMapObjectArray = [
-//   {
-//     object: 'process',
-//     name: 'name',
-//     childRoot: 'methods'
-//   },
-//   {
-//     object: 'method',
-//     toCollect: ['resourcesBase', 'resourcePath', 'methodType'],
-//     name: 'name',
-//     childRoot: 'parameters'
-//   },
-//   {
-//     object: 'param',
-//     name: 'fullName',
-//     toCollect: ['paramDataType', 'paramName', 'paramType', 'paramLocation'],
-//     childRoot: 'paramOptions'
-//   },
-//   {
-//     object: 'paramOption',
-//     name: 'name',
-//     childRoot: 'options'
-//   }
-// ];

@@ -22,10 +22,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
   /**
-   * Emits a mesage with the 'moduleregistration'-event
+   * Emits an event with a given message
    * @param {string} message The message to be emitted
    */
-  emitModuleRegistrationEvent(message) {
+  emitEvent(message) {
     this.server.emit('moduleregistration', message);
   }
 

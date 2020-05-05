@@ -3,11 +3,11 @@ import { GraphDbConnectionService } from "./GraphDbConnection.service";
 
 @Global()
 @Module({
-  providers: [
-    GraphDbConnectionService,
-  ],
-  exports: [
-    GraphDbConnectionService
-  ],
+    providers: [
+        GraphDbConnectionService,
+    ],
+    exports: [
+        GraphDbConnectionService
+    ],
 })
 export class GraphDbConnectionModule {}
