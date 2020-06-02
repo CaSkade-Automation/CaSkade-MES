@@ -10,6 +10,7 @@ export class NodeCreatorService {
 constructor(
   private moduleService: ModuleService
 ) {}
+/** Creates node- and link-data with transmitted data of connected modules for d3.js visualization */
 getAllNodes(moduleName:String) {
   
   var receivedData= this.moduleService.getAllModulesWithCapabilitiesAndSkills();
