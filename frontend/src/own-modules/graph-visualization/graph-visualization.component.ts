@@ -4,12 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { NodeCreatorService } from './node-creator.service';
 
 
-
-
-
-
-
-
 @Component({
   selector: 'graph-visualization',
   encapsulation: ViewEncapsulation.None,
@@ -33,6 +27,7 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
 /**Simulation of the force directed graph */
   simulation: any;
 
+
   margin = { top: 10, right: 30, bottom: 30, left: 40 };
   width = 100;                
   height = 100;
@@ -51,24 +46,42 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
 
   @ViewChild('g') svgContainer: ElementRef;
   moduleName: string;
-  ngOnInit(): void {
-
-
-    // console.log("Der Name ist :"+this.moduleName);
-
-    //console.log(this.route.queryParams);
-
-    //.subscribe(params=>params.name)
-
-    //this.name= params.name;
-
-  }
+  ngOnInit(): void {}
 
 
   ngAfterContentInit(): void {
-
-    console.log(this.svgContainer);
     
+    
+  
+    this.route.params.subscribe(p => {
+      this.moduleName = p['moduleName'];
+    })
+    this.data = this.nodeCreatorService.getAllNodes(this.moduleName); // load data created by node-creator.service
+   
+    this.setSvg();
+    this.setSimulation();
+  }
+
+/**Defines settings of the simulation */  
+setSimulation(){
+  this.simulation = d3.forceSimulation(this.data.nodes);
+  this.simulation
+    .force("link", d3.forceLink()
+      .id(function (d) { return d.id; })
+      .distance(80)
+      .links(this.data.links))
+    .force("collision", d3.forceCollide(40))
+    .on("tick", this.ticked) // tick on every step of the simulation
+    .force("charge", d3.forceManyBody().strength(-400)) // node magnetism / attraction
+    .force("center", d3.forceCenter(this.svgContainer.nativeElement.offsetWidth / 2, this.svgContainer.nativeElement.offsetHeight / 2)) //Zentrierung der Nodes
+
+    this.refreshSimulation();
+}
+
+
+
+/**Defines settings of the SVG and the color-scheme of the nodes */
+  setSvg(){
 
     this.svg = d3.select("#graph")   // size definitions for the svg
       .append("svg")
@@ -82,7 +95,7 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
 
     this.color = d3.scaleOrdinal(d3.schemeCategory10); // chooses a scheme category for node colours
 
-    this.svg.append('defs').append('marker')
+    this.svg.append('defs').append('marker') // marker/ arrow  settings
       .attr("id", 'arrowhead')
       .attr('viewBox', '-0 -5 10 10') //coordinate system
       .attr('refX', this.rad + this.nodeborder) // arrow position and dimensions
@@ -94,139 +107,49 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
       .append('svg:path')
       .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
       .attr('fill', '#999')
-      .style('stroke', 'none');
-
-    this.route.params.subscribe(p => {
-      this.moduleName = p['moduleName'];
-    })
-    this.data = this.nodeCreatorService.getAllNodes(this.moduleName); // load data created by node-creator.service
+      .style('stroke', 'none');}
 
 
-    //##############################################################################################################
-
-    this.simulation = d3.forceSimulation(this.data.nodes);
-    // simulation.force('link').links(data.links); // simulation
-    this.simulation
-      .force("link", d3.forceLink()
-        .id(function (d) { return d.id; })
-        .distance(80)
-        .links(this.data.links)
-
-      )
-      .force("collision", d3.forceCollide(40))
-      .on("tick", this.ticked) // tick on every step of the simulation
-      .force("charge", d3.forceManyBody().strength(-400)) // node magnetism /attraction
-      .force("center", d3.forceCenter(this.svgContainer.nativeElement.offsetWidth / 2, this.svgContainer.nativeElement.offsetHeight / 2)) //Zentrierung der Nodes
-
-    this.refresh();
-  }
 
   /**
-   * Draws the graph, executed first on AfterContentInit and on every doubleclick on a node
+   * Draws the graph, executed first on AfterContentInit while setSimulation() and on every doubleclick on a node
    */
-  refresh() {
-    console.log("refresh starting..")
-    console.log(this.data.nodes)
-  
-
-   /* this.simulation.force("link").links(this.data.links);
-    this.simulation.force("link", d3.forceLink()
-    .id(function (d) { return d.id; })
-    .distance(80)
-    .links(this.data.links)
-    
-
-  )*/
-//this.link.exit().remove();
-//this.node.exit().remove();
-
-
-    this.link = this.svg                // link definitions
-      .selectAll(".link")
-      .data(this.data.links, function (d){return d.target.id})
-      /*.join(enter => enter.append("line")
-                      .append("line").style("stroke", "#aaa")
-                      .attr("class", "links")
-                      .attr('marker-end', 'url(#arrowhead)'), // arrow on end of the link
-            exit =>   exit.remove())*/
-
-    var linkEnter=this.link.enter()
+  refreshSimulation() {
+    this.link = this.svg.selectAll(".link").data(this.data.links, function (d){return d.target.id})
+    var linkEnter=this.link.enter()     //enter-selection
       .append("line").style("stroke", "#aaa")
       .attr("class", "links")
       .attr('marker-end', 'url(#arrowhead)') // arrow on end of the link
       ;
       linkEnter.append("title")
       .text(function (d){return d.type})
-    this.link = this.link.merge(linkEnter);
-    this.link.exit().remove();
+    this.link = this.link.merge(linkEnter); // merge old elements with entered elements
+    this.link.exit().remove(); // remove data-elements of exit-selection(all old elements, wich are not in the new dataset)
     
-    this.node = this.svg.selectAll(".node")
-      .data(this.data.nodes, function (d){return d.id})
-      .join(enter => enter.append("circle")
-                    .attr("r", (d) => {
-                    if (d.group == 1) { return this.rad + 8 }
-                    else { return this.rad }
-                    })
-                    .on('mouseover', this.mouseover)
-                    .on('mouseout', this.mouseout)
-                    .style("fill", function (d) {
-                    if (d.group == 1) { return "black" }
-                    else { return "whitesmoke" }
-                    })
-                    .style("stroke-width", this.nodeborder)
-                    .style("stroke", (d) => { return this.color(d.group); })
-                    .on('dblclick', this.nodeDoubleClick)
-                    .call(d3.drag()
-                    .on("start", this.dragstarted)
-                    .on("drag", this.dragged)
-                    .on("end", this.dragended)),
-            update => update.style("fill", "red"),
-            exit => exit.remove())
-
-
-  /*var nodeEnter= this.node.enter().append("circle")
+    this.node = this.svg.selectAll(".node").data(this.data.nodes, function (d){return d.id})
+ 
+    var nodeEnter= this.node.enter().append("circle")
       .attr("r", (d) => {
         if (d.group == 1) { return this.rad + 8 }
         else { return this.rad }
       })
-      /*nodeEnter.append("title")
-      .text(function(d){return d.id})
-      nodeEnter.append("text")
-      .text(function (d){return d.name})*/
-     /* nodeEnter.on('mouseover', this.mouseover);
+      nodeEnter.on('mouseover', this.mouseover);
       nodeEnter.on('mouseout', this.mouseout);
-      nodeEnter.style("fill", function (d) {
-        if (d.group == 1) { return "black" }
-        else { return "whitesmoke" }
-      })
+      nodeEnter.style("fill", this.setNodeStyle)
       .style("stroke-width", this.nodeborder)
       .style("stroke", (d) => { return this.color(d.group); }) // set different node colours for each node-group
-      /*.append ("text") 
-        .attr ("dx", 12)
-        .attr ("dy", ".35em")
-        .text(function(d){return d.name})*/
-/*
       nodeEnter.on('dblclick', this.nodeDoubleClick);
-      nodeEnter.call(d3.drag()
+      nodeEnter.call(d3.drag()  // reactions when dragging a node
         .on("start", this.dragstarted)
         .on("drag", this.dragged)
         .on("end", this.dragended));                                                 
-    this.node=this.node.merge(nodeEnter);
-  this.node.exit().remove();
+    this.node=this.node.merge(nodeEnter); // merge old elements with entered elements
+    this.node.exit().remove(); // remove data-elements of exit-selection(all old elements, wich are not in the new dataset)
+  
     
-    console.log(this.node)
-    */
-
     this.text = this.svg.selectAll("text").data(this.data.nodes)
-      /*.join(enter=> enter.append("text")
-                      .attr("font-weight", function (d) {
-                       if (d.group == 1) { return "bold" } else { return "normal" }})
-                      .text(function (d) { console.log(d.name);return d.name }),
-            exit=>  exit.remove() )*/
-
-    
-  var textEnter=this.text.enter().append("text")
-  .data(this.data.nodes, function (d){return d.name})
+       var textEnter=this.text.enter().append("text")
+      .data(this.data.nodes, function (d){return d.name})
 
       .attr("font-weight", function (d) {
         if (d.group == 1) { return "bold" }
@@ -235,30 +158,20 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
       .text(function (d) { console.log(d.name); 
         return d.name }); // get text from data
     this.text=this.text.merge(textEnter);
-//this.text.exit().remove();
+    this.text.exit().remove();
 
     this.linkText = this.svg.selectAll("links").data(this.data.links, function (d){ return d.type})
-      .join(enter=> enter.append("text")
-                  .style("fill", "#999")
-                  .attr("font-style", "italic")
-                  .text(function (d) { return d.type }),
-            exit=> exit.remove())
-    
-  
-  
-  
-  /*  var linkTextEnter=this.linkText.enter().append("text")
+    var linkTextEnter=this.linkText.enter().append("text")
       .style("fill", "#999")
       .attr("font-style", "italic")
       .text(function (d) { return d.type }); // get link text from data
       this.linkText=this.linkText.merge(linkTextEnter); 
-//this.linkText.exit().remove();
-*/
-    
-    this.simulation.nodes(this.data.nodes);
-    this.simulation.force("link").links(this.data.links);
+      this.linkText.exit().remove();
 
-    //###########################################################################################################
+    
+    this.simulation.nodes(this.data.nodes); // simualtion uses current data
+    this.simulation.force("link").links(this.data.links);
+  
   }
 /**
  * Function executed on every tick in the simulation. Defines restrictions for positions of node, text, link-text and link. The functions computes the position of each element
@@ -267,8 +180,7 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
   ticked = () => {
     const centerWidth = this.svgContainer.nativeElement.offsetWidth / 2; // center definitions of the svg
     const centerHeight = this.svgContainer.nativeElement.offsetHeight / 2;
-
-
+   
     this.text
       .attr("dx", (d) => {    // restrictions for node text positions in the svg
         const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
@@ -340,36 +252,33 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
       })
   }
 
-
+/**
+ * Function executed on a drag start
+ */
   dragstarted = (d) => {
     if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
   }
 
-
-
   /**
    * Drag function, executed on every drag movement
    * @param d The dragged node
    */
   dragged(d) {
-    // console.log(d3.event)
     d.fx = d3.event.x;
     d.fy = d3.event.y;
   }
 
   dragended(d) {
-    //if (!d3.event.active) this.simulation.alphaTarget(0);
-    //d.fx = null;
-    // d.fy = null;
+
   }
 /**
  * Mouseover function, executed when mouse over node. The radius of the node will increase.
  * @param d node under the cursor
  */
   mouseover(d) { 
-    if (d.group == 1) {
+    if (d.group == 1) { // module-nodes belong to group 1 and are displayed by a bigger node
       d3.select(this).transition()
         .duration('2')
         .attr('r', 20 + 12)
@@ -381,11 +290,11 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
     }
   }
 /**
- * Mousout function, executed when mouse cursor leaves the node
+ * Mousout function, executed when mouse cursor leaves the node. Decreases radius to origin.
  * @param d node wich is left by the cursor after mouseover
  */
-  mouseout(d) { // function on mousout: decrease this.radius to orgin
-    if (d.group == 1) {
+  mouseout(d) { 
+    if (d.group == 1) { // module-nodes belong to group 1 and are displayed by a bigger node
       d3.select(this).transition()
         .attr('r', 20 + 8)
     }
@@ -398,46 +307,22 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
  * Doubleclick function, executed on every doubleclick on a node
  *@param d The clicked node
  */
-
   nodeDoubleClick=(d)=> {
-//this.simulation.stop();
   this.index++;
-   
-    const newNode = {  "name": "neighbor"+ this.index, "group": 8 };
-    this.data.nodes.push(newNode);
-    this.data.links.push({ "source": d.id, "target": newNode, "type": "testclick" })
-    /*
-    this.link.exit().remove();
-    this.linkText.exit().remove();
-    this.text.exit().remove(); */
-    /*this.simulation.force("link", d3.forceLink()
-     .id(function (d) { return d.id; })
-       .distance(80)
-       .links(this.data.links))
+    const testNode = {  "name": "neighbor"+ this.index, "group": 8 };
+    this.data.nodes.push(testNode);
+    this.data.links.push({ "source": d.id, "target": testNode, "type": "testclick" })
+    this.refreshSimulation();   
+  }
 
-    // )
-    //   .force("collision", d3.forceCollide(40))
-    //   .on("tick", this.ticked) // tick on every ste
-    -400)) // node magnetism /attraction
-    //.force("center", d3.forceCenter(this.svgContainer.nativeElement.offsetWidth/2, this.svgContainer.nativeElement.offsetHeight/2))
-    //simulation.restart(); //node oben links + fehlermeldungen 
-   // this.simulation.nodes(this.data.nodes)
-   // this.simulation.force('link').links(this.data.links)
-    //simulation.force('nodes').nodes(data.nodes)
-    //node.data(data.nodes);
-    //link.data(data.links);
-    //node.enter().append("circle");
-    //this.node.exit().remove();
-    //link.exit().remove();
-    //linkText.exit().remove();
-    //text.exit().remove();
-   // this.node = this.node.data(this.data.nodes);
-    //link= link.data(data.links)
-    //node.selectAll('circle').remove();
-    //this.simulation.restart();  */ 
-    this.refresh();
-   // this.simulation.restart();
-    //console.log(this.data.nodes)
+  /** Returns the color of the inner circle of a node */
+  setNodeStyle(d){
+    if (d.group == 1) { return "black" }
+    else { return "whitesmoke" }
+  }
+/** Returns the node border color for each node-group */
+  setNodeBorderStyle=(d)=>{ 
+    return this.color(d.group); 
   }
 
 }
