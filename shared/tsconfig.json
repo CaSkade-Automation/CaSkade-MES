@@ -4,8 +4,10 @@
       /* Truncated compiler options to list only relevant options */
       "declaration": true,
       "declarationMap": true,
-      "rootDir": ".",
       "outDir": "./dist",
       "composite": true,
+      "rootDir": ".",
+      "baseUrl": "./",
     },
+    "exclude": ["dist", "node_modules"]
   }
