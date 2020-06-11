@@ -1,0 +1,94 @@
+<h1>Module Management</h1>
+<div class="row">
+    <div class="col-6" *ngFor="let module of modules">
+        <div class="card mb-5">
+            <div class="card-header">
+                <h3 class="card-title" title="{{module.iri}}">{{module.getLocalName()}}</h3>
+                <button class="btn btn-danger" style="position:absolute; right:10px;top:10px;" title="Disconnect Module"
+                    (click)="disconnectModule(module.iri)"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="card-body">
+                <!-- For all processes -->
+                <h4 *ngIf="(module.capabilities.length > 0)">Capabilities:</h4>
+                <div *ngFor="let capability of module.capabilities"
+                    class="card border-dark mb-3  border-secondary rounded">
+                    <h5 class="card-header">{{capability.getLocalName()}}</h5>
+                    <!-- For all Executable Methods -->
+                    <!-- <div class="card-body" *ngFor="let method of process.methods">
+                        <div class="row mb-2">
+                            <div class="col-3"><b>Executable Service:</b></div>
+                            <div class="col-9"> {{method.getShortName()}}</div>
+                        </div>
+                        <hr class="bottom-border">
+                        <div class="row mb-2">
+                            <div class="col-3"><b>HTTP-Method:</b></div>
+                            <div class="col-9"> {{method.getShortMethodType()}}</div>
+                        </div>
+                        <hr class="bottom-border">
+                        <div class="row mb-2">
+                            <div class="col-3"><b>Full Path:</b></div>
+                            <div class="col-9"> {{method.getFullPath()}}</div>
+                        </div>
+                        <hr class="bottom-border">
+                        <!-- For all parameters -->
+                        <!-- <div class="row">
+                            <div class="col-3"><b>Parameters:</b></div>
+                            <div class="col-9">
+                                <table class="table table-responsive table-sm" *ngIf="method.parameters">
+
+                                    <thead class="thead thead-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Type</th>
+                                            <th>DataType</th>
+                                            <th>ParamLocation</th>
+                                            <th>Options</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let parameter of method.parameters">
+                                            <td>{{parameter.getShortName()}}</td>
+                                            <td>{{parameter.getShortType()}}</td>
+                                            <td>{{parameter.dataType}}</td>
+                                            <td>{{parameter.location}}</td>
+                                            <td>
+                                                <ul>
+                                                    <li *ngFor="let option of parameter.paramOptions">{{option}}</li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <b>Execute Method:</b>
+                                <form (ngSubmit)="executeModuleService(method)" #executionForm="ngForm">
+                                    <div class="input-group mb-3"
+                                        *ngFor="let parameter of method.parameters; let i = index">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">{{parameter.getShortName()}}</span>
+                                        </div>
+                                        <input type="text" class="form-control" placeholder="ParameterValue"
+                                            name="{{parameter.getShortName()}}" [(ngModel)]="parameterValues[i]">
+                                    </div>
+                                    <button class="btn btn-primary">Execute request</button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div> -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--
+<input #socketInput type="text" (keyup)="this.socketMsg=socketInput.value">
+<button (click)="sendMsg(socketInput.value)">Send message via socket</button>
+
+
+<a href="api/server/uploaded-files/asd.txt">Download</a> -->

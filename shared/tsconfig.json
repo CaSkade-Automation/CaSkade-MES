@@ -1,0 +1,13 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+      /* Truncated compiler options to list only relevant options */
+      "declaration": true,
+      "declarationMap": true,
+      "outDir": "./dist",
+      "composite": true,
+      "rootDir": ".",
+      "baseUrl": "./",
+    },
+    "exclude": ["dist", "node_modules"]
+  }
