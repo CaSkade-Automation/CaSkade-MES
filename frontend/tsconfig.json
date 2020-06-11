@@ -3,6 +3,7 @@
     "compileOnSave": false,
     "compilerOptions": {
         "outDir": "./dist/out-tsc",
+        "rootDir": ".",
         "baseUrl": "./",
         "sourceMap": true,
 		"declaration": false,
@@ -21,6 +22,5 @@
     ],
     "angularCompilerOptions": {
         "fullTemplateTypeCheck": true,
-        "strictInjectionParameters": true
     }
 }
