@@ -3,7 +3,10 @@ import { StateMachine } from '../state-machine/StateMachine';
 import { State } from '../state-machine/State';
 
 export class Skill extends RdfElement{
-    constructor(iri: string, private stateMachine: StateMachine, private currentState: State) {
+    constructor(
+        iri: string,
+        public stateMachine: StateMachine,
+        public currentState: State) {
         super(iri);
     }
 }

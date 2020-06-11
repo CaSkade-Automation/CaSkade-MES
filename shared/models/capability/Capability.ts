@@ -4,8 +4,8 @@ import { FpbElement } from "../fpb/FpbElement";
 export class Capability extends RdfElement {
     constructor(
         iri: string,
-        private inputs: Array<FpbElement>,
-        private outputs: Array<FpbElement>
+        public inputs: Array<FpbElement>,
+        public outputs: Array<FpbElement>
     ) {
         super(iri);
     }
