@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Delete, Post } from '@nestjs/common';
 import { CapabilityService } from './capability.service';
 import { Capability } from '../../../shared/models/capability/Capability';
-import { StringBody } from 'custom-decorators/StringBodyDecorator';
+import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 
 @Controller('/capabilities')
 export class CapabilityController {

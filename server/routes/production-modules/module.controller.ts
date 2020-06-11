@@ -1,12 +1,13 @@
-import { Controller, Get, Post, Delete, Param } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Logger } from '@nestjs/common';
 import { ModuleService } from './module.service';
-import { CapabilityService } from 'routes/capabilities/capability.service';
+import { CapabilityService } from '../../routes/capabilities/capability.service';
 import { ProductionModule } from '../../../shared/models/production-module/ProductionModule';
 import { Capability } from '../../../shared/models/capability/Capability';
-import { StringBody } from 'custom-decorators/StringBodyDecorator';
+import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 
 @Controller('modules')
 export class ModuleController {
+    logger = new Logger(ModuleController.name)
 
     constructor(private moduleService: ModuleService, private capabilityService: CapabilityService) {}
 
@@ -21,6 +22,7 @@ export class ModuleController {
 
     @Get()
     async getAllModules(): Promise < Array < ProductionModule >> {
+        this.logger.warn("Getting all modules");
         return this.moduleService.getAllModules();
     }
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
-import { SocketGateway } from 'socket-gateway/socket.gateway';
+import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
+import { SocketGateway } from '../../socket-gateway/socket.gateway';
 import { v4 as uuidv4 } from 'uuid';
 
 import {ProductionModule} from "../../../shared/models/production-module/ProductionModule";

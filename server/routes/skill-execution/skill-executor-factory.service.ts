@@ -3,7 +3,7 @@ import { SkillExecutor } from "./SkillExecutor";
 import { OpcUaSkillExecutionService } from "./OpcUaSkillExecutor";
 import { RestSkillExecutionService } from "./RestSkillExecutor";
 import { NullSkillExecutor } from "./NullSkillExecutor";
-import { GraphDbConnectionService } from "util/GraphDbConnection.service";
+import { GraphDbConnectionService } from "../../util/GraphDbConnection.service";
 
 @Injectable()
 export class SkillExecutorFactory {

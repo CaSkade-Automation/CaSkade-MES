@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
+import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { Capability } from '../../../shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
 import { v4 as uuidv4 } from 'uuid';
-import { SocketGateway } from 'socket-gateway/socket.gateway';
+import { SocketGateway } from '../../socket-gateway/socket.gateway';
 
 import SparqlResultConverter = require('sparql-result-converter');  // strange syntax because SparqlConverter doesn't allow ES6-imports yet
 const converter = new SparqlResultConverter();
