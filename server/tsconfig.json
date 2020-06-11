@@ -3,13 +3,16 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es2017",
+        "rootDir": ".",
         "sourceMap": true,
         "outDir": "./dist",
-        "baseUrl": "./",
-        "incremental": true
+        "baseUrl": ".",
     },
     "exclude": [
         "node_modules",
         "dist"
+    ],
+    "references": [
+        {"path": "../shared"}
     ]
 }
