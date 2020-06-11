@@ -5,14 +5,14 @@ import {Client, Server} from 'socket.io';
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() server: Server;
-  connectedClients: number = 0;
+  connectedClients = 0;
 
   handleConnection(client: any, ...args: any[]) {
-    this.connectedClients++;
+      this.connectedClients++;
   }
 
   handleDisconnect(client: any) {
-    this.connectedClients--;
+      this.connectedClients--;
   }
 
 
@@ -26,7 +26,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * @param {string} message The message to be emitted
    */
   emitEvent(message) {
-    this.server.emit('moduleregistration', message);
+      this.server.emit('moduleregistration', message);
   }
 
 }
