@@ -23,12 +23,11 @@ export class ModuleManagementComponent implements OnInit {
     serviceExecutionDescription: ServiceExecutionDescription;
     parameterValues = new Array<string>();
 
-    ngOnInit() {
+    ngOnInit(): void {
         console.log("init");
 
-        this.moduleService.getAllModulesWithCapabilities().subscribe((modules: ProductionModule[]) => {
-            this.modules = modules;
-        });
+        this.modules = this.moduleService.getAllModulesWithCapabilitiesAndSkills();
+
         // this.moduleService.getAllModules().subscribe(productionModules => {
         //     console.log(productionModules);
 
@@ -41,17 +40,17 @@ export class ModuleManagementComponent implements OnInit {
 
         // });
 
-        this.socketService.getMessage().subscribe(msg => {
-            this.moduleService.getAllModules().subscribe(data => {
-                const currentModules: Array<ProductionModule> = data;
-                this.modules = currentModules;
-                this.modules.forEach(manufacturingModule => {
-                    this.moduleService.getAllCapabilitiesOfModule(manufacturingModule.iri).subscribe(moduleProcesses => {
-                        manufacturingModule.addCapabilities(moduleProcesses);
-                    });
-                });
-            });
-        });
+        // this.socketService.getMessage().subscribe(msg => {
+        //     this.moduleService.getAllModules().subscribe(data => {
+        //         const currentModules: Array<ProductionModule> = data;
+        //         this.modules = currentModules;
+        //         this.modules.forEach(manufacturingModule => {
+        //             this.moduleService.getAllCapabilitiesOfModule(manufacturingModule.iri).subscribe(moduleProcesses => {
+        //                 manufacturingModule.addCapabilities(moduleProcesses);
+        //             });
+        //         });
+        //     });
+        // });
     }
 
     sendMsg(msg) {
@@ -60,7 +59,7 @@ export class ModuleManagementComponent implements OnInit {
 
 
     executeModuleService(method: Method) {
-        let selectedParams = new Array<SelectedParameter>();
+        const selectedParams = new Array<SelectedParameter>();
 
         // Create the selected parameters
         for (let i = 0; i < method.parameters.length; i++) {
@@ -69,8 +68,8 @@ export class ModuleManagementComponent implements OnInit {
 
             selectedParams.push(new SelectedParameter(param, paramValue));
         }
-        let executionDescription = new ServiceExecutionDescription(method.getFullPath(), method.getShortMethodType(), selectedParams);
-        this.mfgServiceExecutor.executeService(executionDescription)
+        const executionDescription = new ServiceExecutionDescription(method.getFullPath(), method.getShortMethodType(), selectedParams);
+        this.mfgServiceExecutor.executeService(executionDescription);
     }
 
 
@@ -87,20 +86,20 @@ export class ModuleManagementComponent implements OnInit {
 
 
     disconnectModule(moduleIri) {
-      // TODO: Post to API to really delete element
-      this.httpClient.delete(`api/modules/${moduleIri}`).subscribe(
-        data => {this.removeModuleCard(moduleIri)}),
+        // TODO: Post to API to really delete element
+        this.httpClient.delete(`api/modules/${moduleIri}`).subscribe(
+            data => {this.removeModuleCard(moduleIri);}),
         error => console.log('An error happened, module could not be disconnected'
-      );
+        );
     }
 
     removeModuleCard(moduleIri) {
-      // remove module with that id from the list
-      for (let i = 0; i < this.modules.length; i++) {
-        if (this.modules[i].iri == moduleIri) {
-          this.modules.splice(i, 1);
-          break;
+        // remove module with that id from the list
+        for (let i = 0; i < this.modules.length; i++) {
+            if (this.modules[i].iri == moduleIri) {
+                this.modules.splice(i, 1);
+                break;
+            }
         }
-      }
     }
 }
