@@ -6,7 +6,10 @@
         "rootDir": ".",
         "sourceMap": true,
         "outDir": "./dist",
-        "baseUrl": ".",
+        "baseUrl": "./",
+        "paths": {
+            "@shared/*": [ "../shared/dist/*" ]
+        }
     },
     "exclude": [
         "node_modules",
