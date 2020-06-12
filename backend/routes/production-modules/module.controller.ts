@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Delete, Param, Logger } from '@nestjs/common';
 import { ModuleService } from './module.service';
 import { CapabilityService } from '../../routes/capabilities/capability.service';
-import { ProductionModule } from '../../../shared/models/production-module/ProductionModule';
-import { Capability } from '../../../shared/models/capability/Capability';
+import { ProductionModule } from '@shared/models/production-module/ProductionModule';
+import { Capability } from '@shared/models/capability/Capability';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 
 @Controller('modules')
@@ -21,9 +21,9 @@ export class ModuleController {
     }
 
     @Get()
-    async getAllModules(): Promise < Array < ProductionModule >> {
+    async getAllModules(): Promise<Array<ProductionModule>> {
         this.logger.warn("Getting all modules");
-        return this.moduleService.getAllModules();
+        return this.moduleService.getAllModulesComplete();
     }
 
     @Get(':moduleIri')
