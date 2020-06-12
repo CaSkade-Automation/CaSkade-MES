@@ -7,23 +7,21 @@ import { FormsModule }   from '@angular/forms';
 // Routing
 import { ModuleManagementRouter } from './module-management.routing';
 import { ModuleManagementComponent } from './module-management.component';
-import { ModuleService } from '../../shared/services/module.service';
 import { ManufacturingServiceExecutor } from './manufacturing-service-executor.service';
 
 
 @NgModule({
-  imports: [
-    CommonModule,
-    HttpClientModule,
-    ModuleManagementRouter,
-    FormsModule
-  ],
-  declarations: [
-    ModuleManagementComponent,
-  ],
-  providers: [
-    ModuleService,
-    ManufacturingServiceExecutor
-  ]
+    imports: [
+        CommonModule,
+        HttpClientModule,
+        ModuleManagementRouter,
+        FormsModule
+    ],
+    declarations: [
+        ModuleManagementComponent,
+    ],
+    providers: [
+        ManufacturingServiceExecutor
+    ]
 })
 export class ModuleManagementModule { }

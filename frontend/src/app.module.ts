@@ -4,12 +4,14 @@ import { AppComponent } from './app.component';
 import { AuthGuard } from './shared';
 import {BrowserModule} from '@angular/platform-browser';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { HttpClientModule } from "@angular/common/http";
 
 @NgModule({
     imports: [
         AppRoutingModule,
         BrowserModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        HttpClientModule
     ],
     declarations: [AppComponent],
     providers: [AuthGuard],

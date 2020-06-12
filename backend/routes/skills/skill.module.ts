@@ -6,5 +6,6 @@ import { SkillService } from './skill.service';
     imports: [],
     controllers: [SkillController],
     providers: [SkillService],
+    exports: [SkillService]
 })
 export class SkillModule {}

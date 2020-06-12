@@ -3,15 +3,23 @@ import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
 import { v4 as uuidv4 } from 'uuid';
 
-import {ProductionModule} from "../../../shared/models/production-module/ProductionModule";
+import {ProductionModule} from "@shared/models/production-module/ProductionModule";
 import { moduleMapping } from './module-mappings';
 
 import SparqlResultConverter = require('sparql-result-converter');  // strange syntax because SparqlConverter doesn't allow ES6-imports yet
+import { CapabilityService } from '../capabilities/capability.service';
+import { SkillService } from '../skills/skill.service';
+import { Product } from '../../../shared/models/fpb/FpbElement';
+import { Capability } from '../../../shared/models/capability/Capability';
 const converter = new SparqlResultConverter();
 
 @Injectable()
 export class ModuleService {
-    constructor(private graphDbConnection: GraphDbConnectionService, private socketService: SocketGateway) {}
+    constructor(
+        private graphDbConnection: GraphDbConnectionService,
+        private capabilityService: CapabilityService,
+        private skillService: SkillService,
+        private socketService: SocketGateway) {}
 
     /**
      * Register a new module
@@ -32,6 +40,25 @@ export class ModuleService {
         }
     }
 
+
+    async getAllModulesComplete(): Promise<ProductionModule[]> {
+        let modules = await this.getAllModules();
+
+        for (const module of modules) {
+            const moduleCapabilities = await this.capabilityService.getCapabilitiesOfModule(module.iri);
+            module.addCapabilities(moduleCapabilities);
+            console.log(module);
+
+
+            for (const capability of module.capabilities) {
+                const skills = await this.skillService.getSkillsOfCapability(capability.iri);
+                capability.addSkills(skills);
+            }
+        }
+
+        return modules;
+    }
+
     /**
      * Get all modules that are currently registered
      */
@@ -49,9 +76,8 @@ export class ModuleService {
               ?module VDI2206:hasInterface ?interface.
           }
       }`);
-            const productionModules = converter.convert(queryResult.results.bindings, moduleMapping) as Array<
-                ProductionModule
-            >;
+            let productionModules = converter.convert(queryResult.results.bindings, moduleMapping) as Array<ProductionModule>;
+            productionModules = productionModules.map(module => new ProductionModule(module.iri, new Array<Capability>()));
             return productionModules;
         } catch (error) {
             console.error(`Error while returning all mfgModules, ${error}`);

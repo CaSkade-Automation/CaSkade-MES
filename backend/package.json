@@ -9,7 +9,7 @@
         "clean": "if exist dist rd /s /q dist",
         "lint": "eslint routes --ext .ts",
         "server-build": "nest build",
-        "server-start": "tsc-watch --build --onSuccess \"node dist/main.js\"",
+        "server-start": "tsc-watch --build --onSuccess \"node -r tsconfig-paths/register dist/main.js dist/main.js \"",
         "server-start:dev": "nest start --watch",
         "server-start:debug": "nest start --debug --watch"
     },

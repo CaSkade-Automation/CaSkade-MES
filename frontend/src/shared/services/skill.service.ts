@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Capability } from '../../../../shared/models/capability/Capability';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Skill } from '../../../../shared/models/skill/Skill';
 
 @Injectable({
@@ -37,10 +37,13 @@ export class SkillService {
     }
 
 
-    getAllSkillsOfCapability(capabilityIri: string): Observable<Skill[]> {
-        const encodedModuleIri = encodeURIComponent(capabilityIri);
-        const apiURL = `${this.apiRoot}/modules/${encodedModuleIri}/capabilities`;
+    getSkillsOfCapability(capabilityIri: string): Observable<Skill[]> {
+        console.log(`Getting skills of capability ${capabilityIri}`);
+
+        const encodedCapabilityIri = encodeURIComponent(capabilityIri);
+        const apiURL = `${this.apiRoot}/capabilities/${encodedCapabilityIri}/skills`;
         return this.http.get<Skill[]>(apiURL).pipe(
+            tap(data => console.log(data)),
             map(
                 (data: Skill[]) => data.map(skill => {
                     return new Skill(skill.iri, skill.stateMachine, skill.currentState);

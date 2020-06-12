@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 
-import { Skill} from "../../../shared/models/skill/Skill";
+import { Skill} from "@shared/models/skill/Skill";
 import { skillMapping } from './skill-mappings';
 import { v4 as uuidv4 } from 'uuid';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
@@ -76,6 +76,25 @@ export class SkillService {
             return skill;
         } catch(error) {
             throw new Error(`Error while returning skill with IRI ${skillIri}. Error: ${error}`);
+        }
+    }
+
+    async getSkillsOfCapability(capabilityIri: string): Promise<Skill[]> {
+        try {
+            const query = `
+            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            SELECT ?skill ?stateMachine ?currentState WHERE {
+                <${capabilityIri}> Cap:isExecutableViaSkill ?skill.
+                OPTIONAL{
+                    ?skill Cap:hasStateMachine ?stateMachine;
+                        Cap:hasCurrentState ?currentState.
+                }
+            }`;
+            const queryResult = await this.graphDbConnection.executeQuery(query);
+            const skills = converter.convert(queryResult.results.bindings, skillMapping) as Skill[];
+            return skills;
+        } catch(error) {
+            throw new Error(`Error while returning skills of capability ${capabilityIri}. Error: ${error}`);
         }
     }
 

@@ -4,33 +4,33 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class GraphDbRepoService {
 
-  constructor(private httpClient: HttpClient) { }
-  
+    constructor(private httpClient: HttpClient) { }
 
-  getCurrentConfig(): Observable<DbConfig> {
-    return <Observable<DbConfig>>this.httpClient.get('/api/graph-repositories/config');
-  }
 
-  changeConfig(newConfig): Observable<DbConfig>{
-    return <Observable<DbConfig>>this.httpClient.put('/api/graph-repositories/config', newConfig)
-      .pipe(catchError((e:HttpErrorResponse) => {
-      return throwError(e);
-    }))
-  }
+    getCurrentConfig(): Observable<DbConfig> {
+        return this.httpClient.get('/api/graph-repositories/config') as Observable<DbConfig>;
+    }
 
-  getRepositories(): Observable<String[]> {
-    return <Observable<String[]>>this.httpClient.get('/api/graph-repositories');
-  }
+    changeConfig(newConfig): Observable<DbConfig>{
+        return this.httpClient.put('/api/graph-repositories/config', newConfig)
+            .pipe(catchError((e: HttpErrorResponse) => {
+                return throwError(e);
+            })) as Observable<DbConfig>;
+    }
 
-  changeRepository(newRepoId:string) {
-    const newRepo = {"selectedRepo" : newRepoId};
-    return this.httpClient.patch('/api/graph-repositories/config', newRepo)
-  }
-  
+    getRepositories(): Observable<string[]> {
+        return <Observable<string[]>>this.httpClient.get('/api/graph-repositories');
+    }
+
+    changeRepository(newRepoId: string) {
+        const newRepo = {"selectedRepo" : newRepoId};
+        return this.httpClient.patch('/api/graph-repositories/config', newRepo);
+    }
+
 }
 
 

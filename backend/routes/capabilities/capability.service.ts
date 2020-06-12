@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
-import { Capability } from '../../../shared/models/capability/Capability';
+import { Capability } from '@shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
 import { v4 as uuidv4 } from 'uuid';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
@@ -108,7 +108,8 @@ export class CapabilityService {
                 }
                 FILTER(?resource = IRI("${moduleIri}"))
             }`);
-            const capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as Array<Capability>;
+            let capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as Array<Capability>;
+            capabilities = capabilities.map(capability => new Capability(capability.iri));
             return capabilities;
         } catch (error) {
             console.error(`Error while returning all capabilities of module ${moduleIri}, ${error}`);

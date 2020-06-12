@@ -8,6 +8,8 @@
       "composite": true,
       "rootDir": ".",
       "baseUrl": "./",
+      "module": "CommonJS",
+      "target": "es2017",
     },
     "exclude": ["dist", "node_modules"]
   }
