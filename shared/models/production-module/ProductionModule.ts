@@ -1,5 +1,6 @@
 import { Capability } from "../capability/Capability";
 import { RdfElement } from "../RdfElement";
+import { Skill } from "../skill/Skill";
 
 export class ProductionModule extends RdfElement{
     iri: string;
@@ -8,8 +9,9 @@ export class ProductionModule extends RdfElement{
     components? = new Array<Component>();
     capabilities? = new Array<Capability>();
 
-    constructor(iri: string) {
+    constructor(iri: string, capabilities?: Capability[]) {
         super(iri);
+        this.capabilities = capabilities;
     }
 
     addCapability(newCapability: Capability): void {
@@ -17,10 +19,18 @@ export class ProductionModule extends RdfElement{
     }
 
     addCapabilities(newCapabilities: Array<Capability>): void {
-        console.log("Adding capabilities, new cap: ");
-        console.log(newCapabilities);
-
         this.capabilities.push(...newCapabilities);
+    }
+
+    /**
+     * Utility getter that allows to easily get all skills of this module by looking at all capabilities' skills
+     */
+    get skills(): Array<Skill> {
+        const skills = new Array<Skill>();
+        this.capabilities.forEach(capability => {
+            skills.push(...capability.skills);
+        });
+        return skills;
     }
 }
 
