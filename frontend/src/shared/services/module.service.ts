@@ -41,7 +41,10 @@ export class ModuleService {
                     [ new FpbElement("www.asd.de#Rohteil"), new FpbElement("www.asd.de#Fräsinfos"), new FpbElement("www.asd.de#Information")],
                     [ new FpbElement("www.asd.de#Fertigteil")],
                     [ new Skill("www.asd.de#Fräsen_RestSkill", new StateMachine("www.asd.de#FräsenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState ),  new Skill("www.asd.de#Fräsen_OpcUaSkill", new StateMachine("www.asd.de#FräsenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState )]
-                )]),
+                ), new Capability("www.asd.de#Bohren",  [ new FpbElement("www.asd.de#Rohteil"), new FpbElement("www.asd.de#Fräsinfos"), new FpbElement("www.asd.de#Information")],
+                [ new FpbElement("www.asd.de#Fertigteil")],
+                [ new Skill("www.asd.de#Bohren_RestSkill", new StateMachine("www.asd.de#BohrenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState ),  new Skill("www.asd.de#Bohren_OpcUaSkill", new StateMachine("www.asd.de#Bohren_StateMachine", [dummyState], [dummyTransition]), dummyState )])] )
+           
         ];
 
         return fakeModules;

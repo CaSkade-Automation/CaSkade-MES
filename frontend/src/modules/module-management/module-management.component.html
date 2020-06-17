@@ -13,6 +13,39 @@
                 <div *ngFor="let capability of module.capabilities"
                     class="card border-dark mb-3  border-secondary rounded">
                     <h5 class="card-header">{{capability.getLocalName()}}</h5>
+<div class="col-4">
+                    <form >
+                        <div class="form-group">
+                            <label for="skillSelection">Executed via skill:</label>
+                            <select  class="form-control" >
+                                <option *ngFor="let skill of capability.skills" >{{skill.getLocalName()}}</option>
+                            </select>
+    
+                        </div>
+
+                    </form>
+                    
+                </div>
+<div class= "col-4">
+   
+    <div class= "card">
+        <h6 class= "card-header">Exacutable commands</h6>
+        <div class= "card-body">
+            <div [ngSwitch]="executableCommand.group" class="btn-group" role="group"  *ngFor="let executableCommand of executableCommands">
+             
+                
+                    <button *ngSwitchCase="1" type="button" class="btn btn-success mr-1 mt-1 ">{{executableCommand.name}}</button>
+                    <button *ngSwitchCase="2" type="button" class="btn btn-primary mt-1 mr-1 ">{{executableCommand.name}}</button>
+                    <button *ngSwitchCase="3" type="button" class="btn btn-warning mt-1 mr-1">{{executableCommand.name}}</button>
+                    <button *ngSwitchCase="4" type="button" class="btn btn-danger mt-1 mr-3 ">{{executableCommand.name}}</button>
+     
+        </div>
+        </div>
+    </div>
+
+
+</div>
+          
                     <!-- For all Executable Methods -->
                     <!-- <div class="card-body" *ngFor="let method of process.methods">
                         <div class="row mb-2">
@@ -81,7 +114,12 @@
                     </div> -->
 
                 </div>
+
+               
+
+
             </div>
+
         </div>
     </div>
 </div>
