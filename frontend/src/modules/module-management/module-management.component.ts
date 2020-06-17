@@ -58,15 +58,14 @@ export class ModuleManagementComponent implements OnInit {
     }
     executableCommands=[
         {id:"1", name:"Start", group:"1"},
-        {id:"2",name:"SC", group:"1"},
-        {id:"3",name:"Hold", group:"2"},
-        {id:"4",name:"Unhold", group:"1"},
-        {id:"5",name:"Suspend", group:"2"},
-        {id:"6",name:"Unsuspend", group:"1"},
-        {id:"7",name:"Reset", group:"3"},
-        {id:"8",name:"Abort", group:"4"},
-        {id:"9",name:"Clear", group:"3"},
-        {id:"10",name:"Stop", group:"4"}
+        {id:"2",name:"Hold", group:"2"},
+        {id:"3",name:"Unhold", group:"1"},
+        {id:"4",name:"Suspend", group:"2"},
+        {id:"5",name:"Unsuspend", group:"1"},
+        {id:"6",name:"Reset", group:"3"},
+        {id:"7",name:"Abort", group:"4"},
+        {id:"8",name:"Clear", group:"3"},
+        {id:"9",name:"Stop", group:"4"}
     ]
   
 
