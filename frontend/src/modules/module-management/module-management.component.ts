@@ -55,7 +55,6 @@ export class ModuleManagementComponent implements OnInit {
         {id:"9",name:"Stop", group:"4"}
     ]
 
-
     sendMsg(msg) {
         this.socketService.sendMessage(msg);
     }
