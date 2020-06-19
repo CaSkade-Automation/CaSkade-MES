@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Capability } from '../../../../shared/models/capability/Capability';
 import { HttpClient } from '@angular/common/http';
-import { map, tap } from 'rxjs/operators';
-import { Skill } from '../../../../shared/models/skill/Skill';
+import { map } from 'rxjs/operators';
+import { Skill, SkillDto } from '../../../../shared/models/skill/Skill';
 
 @Injectable({
     providedIn: 'root'
@@ -15,38 +14,58 @@ export class SkillService {
         private http: HttpClient
     ) { }
 
-    // TODO: Implement
+    /**
+     * Get all skills that are currently registered
+     */
     getAllSkills(): Observable<Skill[]> {
-        return;
+        const apiURL = `${this.apiRoot}/skills`;
+
+        return this.http.get<SkillDto[]>(apiURL).pipe(
+            map(
+                (data: SkillDto[]) => data.map(skillDto => {
+                    return new Skill(skillDto);
+                })
+            ));
     }
 
 
-    //TODO
     /**
      * Returns a skill with a given IRI
      * @param skillIri IRI of the skill to return
      */
     getSkillByIri(skillIri: string): Observable<Skill> {
-        return;
+        const encodedSkillIri = encodeURIComponent(skillIri);
+        const apiURL = `${this.apiRoot}/skills/${encodedSkillIri}`;
+
+        return this.http.get<SkillDto>(apiURL).pipe(
+            map(
+                (data: SkillDto) => new Skill(data))
+        );
     }
 
 
     // TODO: Implement
     getAllSkillsOfModule(moduleIri: string): Observable<Skill[]> {
-        return;
+        const encodedModuleIri = encodeURIComponent(moduleIri);
+        const apiURL = `${this.apiRoot}/modules/${encodedModuleIri}/skills`;
+
+        return this.http.get<SkillDto[]>(apiURL).pipe(
+            map(
+                (data: SkillDto[]) => data.map(skillDto => {
+                    return new Skill(skillDto);
+                })
+            ));
     }
 
 
     getSkillsOfCapability(capabilityIri: string): Observable<Skill[]> {
-        console.log(`Getting skills of capability ${capabilityIri}`);
-
         const encodedCapabilityIri = encodeURIComponent(capabilityIri);
         const apiURL = `${this.apiRoot}/capabilities/${encodedCapabilityIri}/skills`;
-        return this.http.get<Skill[]>(apiURL).pipe(
-            tap(data => console.log(data)),
+
+        return this.http.get<SkillDto[]>(apiURL).pipe(
             map(
-                (data: Skill[]) => data.map(skill => {
-                    return new Skill(skill.iri, skill.stateMachine, skill.currentState);
+                (data: SkillDto[]) => data.map(skillDto => {
+                    return new Skill(skillDto);
                 })
             ));
     }
