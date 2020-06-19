@@ -15,7 +15,7 @@ module.exports = {
         "semi": ["error","always"],
         "indent": ["error", 4],
         "prefer-const": ["error",{}],
-        "max-len": ["error", {code: 125, ignoreComments: true}]
+        "max-len": ["error", {code: 140, ignoreComments: true}]
         // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
         // e.g. "@typescript-eslint/explicit-function-return-type": "off",
     },
