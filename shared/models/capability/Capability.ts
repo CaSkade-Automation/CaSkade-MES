@@ -1,15 +1,17 @@
-import { RdfElement } from "../RdfElement";
+import { RdfElement, RdfElementDto } from "../RdfElement";
 import { FpbElement } from "../fpb/FpbElement";
-import { Skill } from "../skill/Skill";
+import { Skill, SkillDto } from "../skill/Skill";
 
 export class Capability extends RdfElement {
-    constructor(
-        iri: string,
-        public inputs?: Array<FpbElement>,
-        public outputs?: Array<FpbElement>,
-        public skills = new Array<Skill>()
-    ) {
-        super(iri);
+    public skills: Array<Skill>;
+    public inputs?: Array<FpbElement>;
+    public outputs?: Array<FpbElement>;
+
+    constructor(dto: CapabilityDto) {
+        super(dto.iri);
+        this.inputs = dto.inputs;
+        this.outputs = dto.outputs;
+        this.skills = dto.skillDtos.map(skillDto => new Skill(skillDto));
     }
 
     addSkill(skill: Skill) {
@@ -19,4 +21,11 @@ export class Capability extends RdfElement {
     addSkills(skills: Array<Skill>) {
         this.skills.push(...skills);
     }
+}
+
+
+export class CapabilityDto extends RdfElementDto{
+    public skillDtos: Array<SkillDto>;
+    public inputs?: Array<FpbElement>;
+    public outputs?: Array<FpbElement>;
 }
