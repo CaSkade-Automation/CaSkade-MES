@@ -2,8 +2,9 @@
 const skillMapping = [
     {
         objectToGroup: 'skill',
-        name: 'iri',
-        childRoot: 'stateMachine'
+        name: 'skillIri',
+        toCollect: ['stateMachine', 'currentStateTypeIri'],
+        childRoot: 'stateMachines'
     },
 ];
 

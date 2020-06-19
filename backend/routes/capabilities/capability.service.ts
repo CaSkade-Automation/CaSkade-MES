@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
-import { Capability } from '@shared/models/capability/Capability';
+import { CapabilityDto } from '@shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
 import { v4 as uuidv4 } from 'uuid';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
 
-import SparqlResultConverter = require('sparql-result-converter');  // strange syntax because SparqlConverter doesn't allow ES6-imports yet
+import {SparqlResultConverter} from "sparql-result-converter";
+
 const converter = new SparqlResultConverter();
 
 @Injectable()
@@ -35,7 +36,7 @@ export class CapabilityService {
     /**
      * Returns all currently registered capabilities (optionally with their in- and outputs)
      */
-    async getAllCapabilities(): Promise<Array<Capability>> {
+    async getAllCapabilities(): Promise<Array<CapabilityDto>> {
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
@@ -54,7 +55,7 @@ export class CapabilityService {
                     VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
             }`);
-            const capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as Array<Capability>;
+            const capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as Array<CapabilityDto>;
             return capabilities;
         } catch (error) {
             console.error(`Error while returning all capabilities, ${error}`);
@@ -66,7 +67,7 @@ export class CapabilityService {
      * Gets a specific capability by its IRI
      * @param capabilityIri IRI of the capability to get
      */
-    async getCapabilityByIri(capabilityIri: string): Promise<Capability> {
+    async getCapabilityByIri(capabilityIri: string): Promise<CapabilityDto> {
         console.log(capabilityIri);
 
         try {
@@ -76,7 +77,7 @@ export class CapabilityService {
                 ?capability a Cap:Capability.
                 FILTER(?capability = IRI("${capabilityIri}")).
             }`);
-            const capability = converter.convert(queryResult.results.bindings, capabilityMapping)[0] as Capability;
+            const capability = converter.convert(queryResult.results.bindings, capabilityMapping)[0] as CapabilityDto;
             return capability;
         } catch (error) {
             console.error(`Error while returning capability with IRI ${capabilityIri}, ${error}`);
@@ -88,7 +89,7 @@ export class CapabilityService {
      * Get all capabilities of a given module
      * @param moduleIri IRI of the module to get capabilities of
      */
-    async getCapabilitiesOfModule(moduleIri: string): Promise<Array<Capability>> {
+    async getCapabilitiesOfModule(moduleIri: string): Promise<Array<CapabilityDto>> {
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
@@ -108,8 +109,7 @@ export class CapabilityService {
                 }
                 FILTER(?resource = IRI("${moduleIri}"))
             }`);
-            let capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as Array<Capability>;
-            capabilities = capabilities.map(capability => new Capability(capability.iri));
+            const capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as Array<CapabilityDto>;
             return capabilities;
         } catch (error) {
             console.error(`Error while returning all capabilities of module ${moduleIri}, ${error}`);
