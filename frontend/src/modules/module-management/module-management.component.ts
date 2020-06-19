@@ -5,7 +5,6 @@ import { ServiceExecutionDescription, Method, SelectedParameter } from '../../sh
 import { ModuleService } from '../../shared/services/module.service';
 import { ManufacturingServiceExecutor } from './manufacturing-service-executor.service';
 import { ProductionModule } from '../../../../shared/models/production-module/ProductionModule';
-import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'module-management',
@@ -22,24 +21,16 @@ export class ModuleManagementComponent implements OnInit {
     modules = new Array<ProductionModule>();
     serviceExecutionDescription: ServiceExecutionDescription;
     parameterValues = new Array<string>();
+    selectedSkill: string;
+    displayedSkill: any;
+
 
     ngOnInit(): void {
         console.log("init");
 
-        this.modules = this.moduleService.getAllModulesWithCapabilitiesAndSkills();
+        this.moduleService.getAllModules().subscribe((modules: ProductionModule[]) => this.modules = modules);
 
-        // this.moduleService.getAllModules().subscribe(productionModules => {
-        //     console.log(productionModules);
-
-        //     this.modules = productionModules;
-        //     this.modules.forEach(manufacturingModule => {
-        //         this.moduleService.getAllCapabilitiesOfModule(manufacturingModule.iri).subscribe(moduleProcesses => {
-        //             manufacturingModule.addCapabilities(moduleProcesses);
-        //         });
-        //     });
-
-        // });
-
+        // TODO (Aljosha): Fix socket service
         // this.socketService.getMessage().subscribe(msg => {
         //     this.moduleService.getAllModules().subscribe(data => {
         //         const currentModules: Array<ProductionModule> = data;
@@ -52,6 +43,18 @@ export class ModuleManagementComponent implements OnInit {
         //     });
         // });
     }
+    executableCommands=[
+        {id:"1", name:"Start", group:"1"},
+        {id:"2",name:"Hold", group:"2"},
+        {id:"3",name:"Unhold", group:"1"},
+        {id:"4",name:"Suspend", group:"2"},
+        {id:"5",name:"Unsuspend", group:"1"},
+        {id:"6",name:"Reset", group:"3"},
+        {id:"7",name:"Abort", group:"4"},
+        {id:"8",name:"Clear", group:"3"},
+        {id:"9",name:"Stop", group:"4"}
+    ]
+
 
     sendMsg(msg) {
         this.socketService.sendMessage(msg);

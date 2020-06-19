@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Delete, Param, Logger } from '@nestjs/common';
 import { ModuleService } from './module.service';
 import { CapabilityService } from '../../routes/capabilities/capability.service';
-import { ProductionModule } from '@shared/models/production-module/ProductionModule';
-import { Capability } from '@shared/models/capability/Capability';
+import { ProductionModule, ProductionModuleDto } from '@shared/models/production-module/ProductionModule';
+import { Capability, CapabilityDto } from '@shared/models/capability/Capability';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 
 @Controller('modules')
@@ -21,13 +21,13 @@ export class ModuleController {
     }
 
     @Get()
-    async getAllModules(): Promise<Array<ProductionModule>> {
+    async getAllModules(): Promise<Array<ProductionModuleDto>> {
         this.logger.warn("Getting all modules");
-        return this.moduleService.getAllModulesComplete();
+        return this.moduleService.getAllModulesWithCapabilitiesAndSkills();
     }
 
     @Get(':moduleIri')
-    async getModuleByIri(@Param('moduleIri') moduleIri: string): Promise < ProductionModule > {
+    async getModuleByIri(@Param('moduleIri') moduleIri: string): Promise<ProductionModuleDto> {
         return this.moduleService.getModuleByIri(moduleIri);
     }
 
@@ -54,7 +54,7 @@ export class ModuleController {
      * @param moduleIri IRI of the module to get all capabilities from
      */
     @Get(':moduleIri/capabilities')
-    getAllCapabilitiesOfModule(@Param('moduleIri') moduleIri: string): Promise<Array<Capability>> {
+    getAllCapabilitiesOfModule(@Param('moduleIri') moduleIri: string): Promise<Array<CapabilityDto>> {
         return this.capabilityService.getCapabilitiesOfModule(moduleIri);
     }
 
@@ -64,7 +64,7 @@ export class ModuleController {
      * @param capabilityIri IRI of the capability that is deleted
      */
     @Delete(':moduleIri/capabilities/:capabilityIri')
-    deleteCapability(@Param('moduleIri') moduleIri: string, @Param('capabilityIri') capabilityIri: string) {
+    deleteCapability(@Param('moduleIri') moduleIri: string, @Param('capabilityIri') capabilityIri: string): Promise<string>  {
         return this.capabilityService.deleteCapability(capabilityIri);
     }
 }

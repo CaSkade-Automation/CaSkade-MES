@@ -1,3 +1,3 @@
 {
-    "eslint.workingDirectories": ["frontend", "server", "shared"]
+    "eslint.workingDirectories": ["frontend", "backend", "shared"]
 }

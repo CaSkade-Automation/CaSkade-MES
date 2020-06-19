@@ -11,3 +11,8 @@ export class RdfElement {
       return namespace;
   }
 }
+
+
+export class RdfElementDto {
+    iri: string;
+}
