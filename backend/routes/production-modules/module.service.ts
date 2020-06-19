@@ -3,14 +3,12 @@ import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
 import { v4 as uuidv4 } from 'uuid';
 
-import {ProductionModule} from "@shared/models/production-module/ProductionModule";
+import {ProductionModule, ProductionModuleDto} from "@shared/models/production-module/ProductionModule";
 import { moduleMapping } from './module-mappings';
 
-import SparqlResultConverter = require('sparql-result-converter');  // strange syntax because SparqlConverter doesn't allow ES6-imports yet
+import {SparqlResultConverter} from 'sparql-result-converter';
 import { CapabilityService } from '../capabilities/capability.service';
 import { SkillService } from '../skills/skill.service';
-import { Product } from '../../../shared/models/fpb/FpbElement';
-import { Capability } from '../../../shared/models/capability/Capability';
 const converter = new SparqlResultConverter();
 
 @Injectable()
@@ -40,44 +38,75 @@ export class ModuleService {
         }
     }
 
+    /**
+     * Get all modules including capabilities and skills. Returns a complete module representation
+     */
+    async getAllModulesWithCapabilitiesAndSkills(): Promise<ProductionModuleDto[]> {
+        const productionModuleDtos = await this.getModules();
 
-    async getAllModulesComplete(): Promise<ProductionModule[]> {
-        let modules = await this.getAllModules();
+        for (const moduleDto of productionModuleDtos) {
+            const moduleCapabilityDtos = await this.capabilityService.getCapabilitiesOfModule(moduleDto.iri);
+            moduleDto.capabilityDtos = moduleCapabilityDtos;
 
-        for (const module of modules) {
-            const moduleCapabilities = await this.capabilityService.getCapabilitiesOfModule(module.iri);
-            module.addCapabilities(moduleCapabilities);
-            console.log(module);
-
-
-            for (const capability of module.capabilities) {
-                const skills = await this.skillService.getSkillsOfCapability(capability.iri);
-                capability.addSkills(skills);
+            for (const capabilityDto of moduleDto.capabilityDtos) {
+                const skillDtos = await this.skillService.getSkillsOfCapability(capabilityDto.iri);
+                capabilityDto.skillDtos = skillDtos;
             }
         }
 
-        return modules;
+        return productionModuleDtos;
     }
 
+
     /**
-     * Get all modules that are currently registered
+     * Get a module with a given IRI
+     * @param moduleIri IRI of the module to get
      */
-    async getAllModules(): Promise<Array<ProductionModule>> {
+    async getModuleByIri(moduleIri: string): Promise<ProductionModuleDto> {
+        // just get the one result that should be returned for a given IRI
+        const moduleDto = (await this.getModules(moduleIri))[0];
+
+        // add capabilies
+        const moduleCapabilityDtos = await this.capabilityService.getCapabilitiesOfModule(moduleDto.iri);
+        moduleDto.capabilityDtos = moduleCapabilityDtos;
+
+        // add skills for each capability
+        for (const capabilityDto of moduleDto.capabilityDtos) {
+            const skillDtos = await this.skillService.getSkillsOfCapability(capabilityDto.iri);
+            capabilityDto.skillDtos = skillDtos;
+        }
+
+        return moduleDto;
+    }
+
+
+
+    /**
+     * Get all modules without their capabilities and skills. Returns just the modules with their components and interfaces
+     */
+    private async getModules(moduleIri?: string): Promise<Array<ProductionModuleDto>> {
+        let filterClause = "";
+        if (moduleIri) {
+            filterClause = `FILTER(?module = <${encodeURI(moduleIri)}>)`;
+        }
+
         try {
-            const queryResult = await this.graphDbConnection.executeQuery(`
-      PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-      PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
-      SELECT ?module ?component ?interface WHERE {
-          ?module a VDI3682:TechnicalResource.
-          OPTIONAL{
-            ?module VDI2206:consistsOf ?component.
-          }
-          OPTIONAL{
-              ?module VDI2206:hasInterface ?interface.
-          }
-      }`);
-            let productionModules = converter.convert(queryResult.results.bindings, moduleMapping) as Array<ProductionModule>;
-            productionModules = productionModules.map(module => new ProductionModule(module.iri, new Array<Capability>()));
+            const query = `
+                PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+                PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
+                SELECT ?module ?component ?interface WHERE {
+                    ?module a VDI3682:TechnicalResource.
+                    OPTIONAL{
+                        ?module VDI2206:consistsOf ?component.
+                    }
+                    OPTIONAL{
+                        ?module VDI2206:hasInterface ?interface.
+                    }
+                    ${filterClause}
+                }`;
+            console.log(query);
+            const queryResult = await this.graphDbConnection.executeQuery(query);
+            const productionModules = converter.convert(queryResult.results.bindings, moduleMapping) as Array<ProductionModuleDto>;
             return productionModules;
         } catch (error) {
             console.error(`Error while returning all mfgModules, ${error}`);
@@ -85,25 +114,6 @@ export class ModuleService {
         }
     }
 
-    /**
-     * Get a module with a given IRI
-     * @param moduleIri IRI of the module to get
-     */
-    async getModuleByIri(moduleIri: string): Promise<ProductionModule> {
-        try {
-            const queryResult = await this.graphDbConnection.executeQuery(`
-            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-            SELECT ?module WHERE {
-                ?module a VDI3682:TechnicalResource.
-                FILTER(?module = IRI("${moduleIri}"))
-            }`);
-            const productionModule = converter.convert(queryResult.results.bindings, moduleMapping)[0] as ProductionModule;
-            return productionModule;
-        } catch (error) {
-            console.error(`Error while returning module with IRI '${moduleIri}'`);
-            throw new Error(error);
-        }
-    }
 
     /**
      * Delete a module with a given IRI

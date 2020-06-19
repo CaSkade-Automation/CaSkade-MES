@@ -1,17 +1,18 @@
-import { Capability } from "../capability/Capability";
+import { Capability, CapabilityDto } from "../capability/Capability";
 import { RdfElement } from "../RdfElement";
 import { Skill } from "../skill/Skill";
 
 export class ProductionModule extends RdfElement{
     iri: string;
-    label: string;
     interfaces? = Array<ModuleInterface>();
     components? = new Array<Component>();
     capabilities? = new Array<Capability>();
 
-    constructor(iri: string, capabilities?: Capability[]) {
-        super(iri);
-        this.capabilities = capabilities;
+    constructor(moduleDto: ProductionModuleDto) {
+        super(moduleDto.iri);
+        this.capabilities = moduleDto.capabilityDtos.map(capabilityDto => new Capability(capabilityDto));
+        this.interfaces = moduleDto.interfaces;
+        this.components = moduleDto.components;
     }
 
     addCapability(newCapability: Capability): void {
@@ -32,6 +33,13 @@ export class ProductionModule extends RdfElement{
         });
         return skills;
     }
+}
+
+export class ProductionModuleDto {
+    iri: string;
+    interfaces? : Array<ModuleInterface>;
+    components? : Array<Component>;
+    capabilityDtos?: Array<CapabilityDto>;
 }
 
 export interface ModuleInterface {

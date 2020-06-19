@@ -1,9 +1,9 @@
 import { Controller, Get, Param, Delete, Post } from '@nestjs/common';
 import { CapabilityService } from './capability.service';
-import { Capability } from '../../../shared/models/capability/Capability';
+import { Capability, CapabilityDto } from '../../../shared/models/capability/Capability';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 import { SkillService } from '../skills/skill.service';
-import { Skill } from '../../../shared/models/skill/Skill';
+import { Skill, SkillDto } from '../../../shared/models/skill/Skill';
 
 @Controller('/capabilities')
 export class CapabilityController {
@@ -25,7 +25,7 @@ export class CapabilityController {
      * Get all capabilities that are currently registered
      */
     @Get()
-    getAllCapabilities(): Promise<Array<Capability>> {
+    getAllCapabilities(): Promise<Array<CapabilityDto>> {
         return this.capabilityService.getAllCapabilities();
     }
 
@@ -34,13 +34,13 @@ export class CapabilityController {
      * @param capabilityIri IRI of the capability to get
      */
     @Get(':capabilityIri')
-    getCapabilityByIri(@Param('capabilityIri') capabilityIri: string): Promise<Capability> {
+    getCapabilityByIri(@Param('capabilityIri') capabilityIri: string): Promise<CapabilityDto> {
         return this.capabilityService.getCapabilityByIri(capabilityIri);
     }
 
 
     @Get(':capabilityIri/skills')
-    getSkillsOfCapability(@Param('capabilityIri') capabilityIri: string): Promise<Skill[]>{
+    getSkillsOfCapability(@Param('capabilityIri') capabilityIri: string): Promise<SkillDto[]>{
         return this.skillService.getSkillsOfCapability(capabilityIri);
     }
 

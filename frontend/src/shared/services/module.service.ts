@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, forkJoin } from "rxjs";
-import { ProductionModule } from "../../../../shared/models/production-module/ProductionModule";
+import { ProductionModule, ProductionModuleDto } from "../../../../shared/models/production-module/ProductionModule";
 import { map, flatMap, toArray, tap } from 'rxjs/operators';
 import { Module } from "../models/module";
 import { CapabilityService } from "./capability.service";
@@ -25,65 +25,52 @@ export class ModuleService {
 
     // Returns fake data for Tom
     // TODO: Return real data
-    getAllModulesWithCapabilitiesAndSkills(): ProductionModule[] {
-        const dummyState = new State("www.asd.de#dummyState");
-        const dummyTransition = new Transition("www.asd.de#dummyTransition");
+    // getAllModulesWithCapabilitiesAndSkills(): ProductionModule[] {
+    //     const dummyState = new State("www.asd.de#dummyState");
+    //     const dummyTransition = new Transition("www.asd.de#dummyTransition");
 
-        const fakeModules: ProductionModule[] = [
-            new ProductionModule("www.asd.de#Bohrmodul",
-                [new Capability("www.asd.de#Bohren",
-                    [new FpbElement("www.asd.de#Rohteil"), new FpbElement("www.asd.de#Bohrungsinfos"), new FpbElement("www.asd.de#Information")],
-                    [new FpbElement("www.asd.de#Fertigteil")],
-                    [new Skill("www.asd.de#Bohren_RestSkill", new StateMachine("www.asd.de#BohrenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState ),  new Skill("www.asd.de#Bohren_OpcUaSkill", new StateMachine("www.asd.de#BohrenOpcUaSkill_StateMachine", [dummyState], [dummyTransition]), dummyState )]
-                )]),
-            new ProductionModule("www.asd.de#Fräsmodul",
-                [new Capability("www.asd.de#Fräsen",
-                    [ new FpbElement("www.asd.de#Rohteil"), new FpbElement("www.asd.de#Fräsinfos"), new FpbElement("www.asd.de#Information")],
-                    [ new FpbElement("www.asd.de#Fertigteil")],
-                    [ new Skill("www.asd.de#Fräsen_RestSkill", new StateMachine("www.asd.de#FräsenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState ),  new Skill("www.asd.de#Fräsen_OpcUaSkill", new StateMachine("www.asd.de#FräsenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState )]
-                ), new Capability("www.asd.de#Bohren",  [ new FpbElement("www.asd.de#Rohteil"), new FpbElement("www.asd.de#Fräsinfos"), new FpbElement("www.asd.de#Information")],
-                [ new FpbElement("www.asd.de#Fertigteil")],
-                [ new Skill("www.asd.de#Bohren_RestSkill", new StateMachine("www.asd.de#BohrenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState ),  new Skill("www.asd.de#Bohren_OpcUaSkill", new StateMachine("www.asd.de#Bohren_StateMachine", [dummyState], [dummyTransition]), dummyState )])] )
-           
-        ];
+    //     const fakeModules: ProductionModule[] = [
+    //         new ProductionModule("www.asd.de#Bohrmodul",
+    //             [new Capability("www.asd.de#Bohren",
+    //                 [new FpbElement("www.asd.de#Rohteil"), new FpbElement("www.asd.de#Bohrungsinfos"), new FpbElement("www.asd.de#Information")],
+    //                 [new FpbElement("www.asd.de#Fertigteil")],
+    //                 [new Skill("www.asd.de#Bohren_RestSkill", new StateMachine("www.asd.de#BohrenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState ),  new Skill("www.asd.de#Bohren_OpcUaSkill", new StateMachine("www.asd.de#BohrenOpcUaSkill_StateMachine", [dummyState], [dummyTransition]), dummyState )]
+    //             )]),
+    //         new ProductionModule("www.asd.de#Fräsmodul",
+    //             [new Capability("www.asd.de#Fräsen",
+    //                 [ new FpbElement("www.asd.de#Rohteil"), new FpbElement("www.asd.de#Fräsinfos"), new FpbElement("www.asd.de#Information")],
+    //                 [ new FpbElement("www.asd.de#Fertigteil")],
+    //                 [ new Skill("www.asd.de#Fräsen_RestSkill", new StateMachine("www.asd.de#FräsenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState ),  new Skill("www.asd.de#Fräsen_OpcUaSkill", new StateMachine("www.asd.de#FräsenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState )]
+    //             )]),
+    //     ];
 
-        return fakeModules;
-    }
-
-    getAllModulesWithCapabilities(): Observable<ProductionModule[]> {
-
-        return this.getAllModules().pipe(flatMap((modules: ProductionModule[]) => {
-            const capabilities$ = modules.map(module => this.capabilityService.getAllCapabilitiesOfModule(module.iri));
-            return forkJoin(capabilities$).pipe(map(capabilities=>
-                capabilities.map((capability, i) => {
-                    const module = modules[i];
-                    console.log(module);
-                    module.addCapabilities(capability);
-                    return module;
-                })
-            ));
-        }));
-    }
+    //     return fakeModules;
+    // }
 
 
+    /**
+     * Get all modules currently registered
+     */
     getAllModules(): Observable<ProductionModule[]> {
         const apiURL = `${this.apiRoot}/modules`;
-        return this.http.get<ProductionModule[]>(apiURL).pipe(
+        return this.http.get<ProductionModuleDto[]>(apiURL).pipe(
             map(
-                (data: ProductionModule[]) => data.map(productionModule => {
-                    return new ProductionModule(productionModule.iri, productionModule.capabilities);
+                (data: ProductionModuleDto[]) => data.map(productionModuleDto => {
+                    return new ProductionModule(productionModuleDto);
                 })
             ));
     }
 
-    getAllModulesComplete(): Observable<ProductionModule[]> {
-        const apiURL = `${this.apiRoot}/modules`;
-        return this.http.get<ProductionModule[]>(apiURL).pipe(
-            map(
-                (data: ProductionModule[]) => data.map(productionModule => {
-                    return new ProductionModule(productionModule.iri);
-                })
-            ));
+    /**
+     * Get a single module by its IRI
+     * @param moduleIri IRI of the module to return
+     */
+    getModuleByIri(moduleIri: string): Observable<ProductionModule> {
+        const encodedModuleIri = encodeURI(moduleIri);
+        const apiURL = `${this.apiRoot}/modules/${encodedModuleIri}`;
+        return this.http.get<ProductionModuleDto>(apiURL).pipe(
+            map((data: ProductionModuleDto) => new ProductionModule(data))
+        );
     }
 
 

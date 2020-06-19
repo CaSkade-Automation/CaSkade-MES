@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Body, Patch } from "@nestjs/common";
 import { GraphDbConnectionService, GraphDbConfig } from "../../util/GraphDbConnection.service";
 
-import SparqlResultConverter = require('sparql-result-converter');
+import {SparqlResultConverter} from 'sparql-result-converter';
 const converter = new SparqlResultConverter();
 
 @Controller('graph-repositories')

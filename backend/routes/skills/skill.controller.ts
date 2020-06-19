@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Delete } from '@nestjs/common';
 import { SkillService } from './skill.service';
-import { Skill } from '../../../shared/models/skill/Skill';
+import { SkillDto } from '../../../shared/models/skill/Skill';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 
 @Controller('/skills')
@@ -13,12 +13,12 @@ export class SkillController {
     }
 
     @Get()
-    getAllSkills(): Promise<Array<Skill>> {
+    getAllSkills(): Promise<Array<SkillDto>> {
         return this.skillService.getAllSkills();
     }
 
     @Get(':skillIri')
-    getSkillByIri(@Param() skillIri: string): Promise<Skill> {
+    getSkillByIri(@Param() skillIri: string): Promise<SkillDto> {
         return this.skillService.getSkillByIri(skillIri);
     }
 
