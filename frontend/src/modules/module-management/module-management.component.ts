@@ -221,6 +221,11 @@ export class ModuleManagementComponent implements OnInit {
         // Add the new module
         this.modules.push(newModule);
     }
+    getShortName(command: Transition): string{
+        let name = command.iri.split("#")[1];
+        name = name.split("_")[0];
+        return name;
+    }
 
 
 
