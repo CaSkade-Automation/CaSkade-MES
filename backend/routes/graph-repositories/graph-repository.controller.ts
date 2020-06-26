@@ -9,12 +9,12 @@ export class GraphRepositoryController {
 
     constructor(private graphDbConnection: GraphDbConnectionService) { }
 
-    // mapObjectArray = [{
-    //   object: 'uri',
-    //   name: 'uri',
-    //   childRoot: 'properties',
-    //   toCollect: ['readable', 'writable', 'id', 'title'],
-    // },];
+    mapObjectArray = [{
+        objectToGroup: 'uri',
+        name: 'uri',
+        childRoot: 'properties',
+        toCollect: ['readable', 'writable', 'id', 'title'],
+    },];
 
   /**
    * Returns all repositories at the currently connected graph DB
@@ -25,7 +25,7 @@ export class GraphRepositoryController {
             const repos = await this.graphDbConnection.getRepositories();
             const repositories = repos.data.results.bindings;
 
-            const mappedRepositories = repositories; //converter.mapQueryResults(repositories, this.mapObjectArray)
+            const mappedRepositories = converter.convert(repositories, this.mapObjectArray);
             return mappedRepositories;
         } catch (error) {
             return {
