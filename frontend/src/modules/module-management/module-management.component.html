@@ -9,54 +9,49 @@
             </div>
             <div class="card-body">
                 <!-- For all processes -->
-                <h4 *ngIf="(module.capabilities.length > 0)">Capabilities:</h4>
-                <div *ngFor="let capability of module.capabilities"
+                <h4>Skills:</h4>
+                <div *ngFor="let skill of module.skills"
                     class="card border-dark mb-3  border-secondary rounded">
-                    <h5 class="card-header">{{capability.getLocalName()}}</h5>
-<div class="input-group mb-3">
-    <div class="input-group-prepend">
-        <label class="input-group-text" for="skillSelection">Select skill for execution </label>
-    </div>
-    
-    <select id="skillSelection" class="custom-select" (change)="selectSkill(module, capability, $event.target.value)" >
-        <option>...
-            ,
-        </option>
-        <option *ngFor="let skill of capability.skills" [selected]="skill" >{{skill.getLocalName()}}</option>
-    </select>
-    
-                      
+                    <h5 class="card-header">{{skill.getLocalName()}}</h5>
 
-                    
-                 
-                </div>
-<div class= "col-7">
+                    <div class="col-7">
 
-    <div class= "card">
-        <h6 class= "card-header">Executable commands</h6>
-        <div class= "card-body">
-            <div [ngSwitch]="executableCommand.group" class="btn-group" role="group"  *ngFor="let executableCommand of executableCommands">
-             <ng-container *ngIf="executableCommand.active; else elseTemplate">
-                <button *ngSwitchCase="1" type="button" style="min-width:120px" class="btn btn-success mr-1 mt-1 "aria-pressed="true">{{executableCommand.name}}</button>
-                <button *ngSwitchCase="2" type="button" style="min-width:120px" class="btn btn-success mt-1 mr-1 "aria-pressed="true">{{executableCommand.name}}</button>
-                <button *ngSwitchCase="3" type="button" style="min-width:120px" class="btn btn-warning mt-1 mr-1"aria-pressed="true">{{executableCommand.name}}</button>
-                <button *ngSwitchCase="4" type="button" style="min-width:120px" class="btn btn-danger mt-1 mr-1 "aria-pressed="true">{{executableCommand.name}}</button>
-             </ng-container>
-             <ng-template #elseTemplate>
-                <button type="button" style="min-width:120px" class="btn btn-secondary mr-1 mt-1 "disabled>{{executableCommand.name}}</button>
-               
-             </ng-template>
-             
-                
-                   
-     
-        </div>
-        </div>
-    </div>
+                        <div class="card">
+                            <h6 class="card-header">Executable commands</h6>
+                            <div class="card-body">
+                                <button class="btn btn-sm command-button" [ngClass]="{'grayOut': !this.isActiveCommand(command, skill)}" [class]="this.getCommandButtonClass(command)" *ngFor="let command of skill.stateMachine.getCommands()">
+                                    {{command.getLocalName()}}
+                                </button>
+                                <!-- <div [ngSwitch]="executableCommand.group" class="btn-group" role="group"
+                                    *ngFor="let executableCommand of executableCommands">
+                                    <ng-container *ngIf="executableCommand.active; else elseTemplate">
+                                        <button *ngSwitchCase="1" type="button" style="min-width:120px"
+                                            class="btn btn-success mr-1 mt-1 "
+                                            aria-pressed="true">{{executableCommand.name}}</button>
+                                        <button *ngSwitchCase="2" type="button" style="min-width:120px"
+                                            class="btn btn-success mt-1 mr-1 "
+                                            aria-pressed="true">{{executableCommand.name}}</button>
+                                        <button *ngSwitchCase="3" type="button" style="min-width:120px"
+                                            class="btn btn-warning mt-1 mr-1"
+                                            aria-pressed="true">{{executableCommand.name}}</button>
+                                        <button *ngSwitchCase="4" type="button" style="min-width:120px"
+                                            class="btn btn-danger mt-1 mr-1 "
+                                            aria-pressed="true">{{executableCommand.name}}</button>
+                                    </ng-container>
+                                    <ng-template #elseTemplate>
+                                        <button type="button" style="min-width:120px"
+                                            class="btn btn-secondary mr-1 mt-1 "
+                                            disabled>{{executableCommand.name}}</button>
+
+                                    </ng-template>
+
+                                </div>-->
+                            </div>
+                        </div>
 
 
-</div>
-          
+                    </div>
+
                     <!-- For all Executable Methods -->
                     <!-- <div class="card-body" *ngFor="let method of process.methods">
                         <div class="row mb-2">
@@ -75,7 +70,7 @@
                         </div>
                         <hr class="bottom-border">
                         <!-- For all parameters -->
-                        <!-- <div class="row">
+                    <!-- <div class="row">
                             <div class="col-3"><b>Parameters:</b></div>
                             <div class="col-9">
                                 <table class="table table-responsive table-sm" *ngIf="method.parameters">
@@ -126,7 +121,7 @@
 
                 </div>
 
-               
+
 
 
             </div>
