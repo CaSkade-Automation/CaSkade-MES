@@ -12,7 +12,7 @@ export class GraphOperationController {
    * @param queryString The query to run
    */
   @Post('/queries')
-    async postQuery(@StringBody() queryString): Promise<GraphDbResult> {
+    async postQuery(@StringBody() queryString: string): Promise<GraphDbResult> {
         return this.graphDbConnection.executeQuery(queryString);
     }
 
@@ -23,7 +23,7 @@ export class GraphOperationController {
    * @param statementType Type of the statement. Should be either 'update' for a SPARQL update or 'document' for an
    */
   @Post('/statements')
-  async postStatement(@StringBody() statement, @Query('type') statementType: string) {
+  async postStatement(@StringBody() statement: string, @Query('type') statementType: string): Promise<any> {
 
       if (!statementType) {
           throw new Error("Missing parameter 'type'");
@@ -37,7 +37,7 @@ export class GraphOperationController {
               statement = `update=${statement}`;
               break;
           case "document":
-              contentType = "application/rdf+xml";
+              contentType = "application/x-turtle; charset=UTF-8";     // TODO: Get the real contentType, could also be RDF/XML
               break;
           }
 

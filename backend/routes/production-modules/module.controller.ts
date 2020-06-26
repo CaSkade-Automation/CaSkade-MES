@@ -1,15 +1,16 @@
 import { Controller, Get, Post, Delete, Param, Logger } from '@nestjs/common';
 import { ModuleService } from './module.service';
-import { CapabilityService } from '../../routes/capabilities/capability.service';
-import { ProductionModule, ProductionModuleDto } from '@shared/models/production-module/ProductionModule';
-import { Capability, CapabilityDto } from '@shared/models/capability/Capability';
+import { ProductionModuleDto } from '@shared/models/production-module/ProductionModule';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
+import { SkillDto } from '@shared/models/skill/Skill';
+import { SkillService } from '../skills/skill.service';
 
 @Controller('modules')
 export class ModuleController {
-    logger = new Logger(ModuleController.name)
 
-    constructor(private moduleService: ModuleService, private capabilityService: CapabilityService) {}
+    constructor(
+        private moduleService: ModuleService,
+        private skillService: SkillService) {}
 
     /**
      * Register a new module on the platform
@@ -22,8 +23,7 @@ export class ModuleController {
 
     @Get()
     async getAllModules(): Promise<Array<ProductionModuleDto>> {
-        this.logger.warn("Getting all modules");
-        return this.moduleService.getAllModulesWithCapabilitiesAndSkills();
+        return this.moduleService.getAllModulesWithSkills();
     }
 
     @Get(':moduleIri')
@@ -36,35 +36,35 @@ export class ModuleController {
         return this.moduleService.deleteModule(moduleIri);
     }
 
-    // TODO: Big To-Do here: Modules should only be able to add and delete their own capabilities.
+    // TODO: Big To-Do here: Modules should only be able to add and delete their own skills.
     //       Currently, moduleIri is not checked
 
     /**
-     * Add a new capability to a given module
-     * @param moduleIri IRI of the module that this capability is added to
-     * @param newCapability RDF document containing the new capability
+     * Add a new skill to a given module
+     * @param moduleIri IRI of the module that this skill is added to
+     * @param newSkill RDF document containing the new skill
      */
-    @Post(':moduleIri/capabilities')
-    addModuleCapability(@Param('moduleIri') moduleIri: string, @StringBody() newCapability: string): Promise<string> {
-        return this.capabilityService.addCapability(newCapability);
+    @Post(':moduleIri/skills')
+    addModuleSkill(@Param('moduleIri') moduleIri: string, @StringBody() newSkill: string): Promise<string> {
+        return this.skillService.addSkill(newSkill);
     }
 
     /**
-     * Get all capabilities of a module with a given IRI
-     * @param moduleIri IRI of the module to get all capabilities from
+     * Get all skills of a module with a given IRI
+     * @param moduleIri IRI of the module to get all skills from
      */
-    @Get(':moduleIri/capabilities')
-    getAllCapabilitiesOfModule(@Param('moduleIri') moduleIri: string): Promise<Array<CapabilityDto>> {
-        return this.capabilityService.getCapabilitiesOfModule(moduleIri);
+    @Get(':moduleIri/skills')
+    getAllSkillsOfModule(@Param('moduleIri') moduleIri: string): Promise<Array<SkillDto>> {
+        return this.skillService.getSkillsOfModule(moduleIri);
     }
 
     /**
-     * Deletes a capability of a module
-     * @param moduleIri IRI of the module whose capability is deleted
-     * @param capabilityIri IRI of the capability that is deleted
+     * Deletes a skill of a module
+     * @param moduleIri IRI of the module whose skill is deleted
+     * @param skillIri IRI of the skill that is deleted
      */
-    @Delete(':moduleIri/capabilities/:capabilityIri')
-    deleteCapability(@Param('moduleIri') moduleIri: string, @Param('capabilityIri') capabilityIri: string): Promise<string>  {
-        return this.capabilityService.deleteCapability(capabilityIri);
+    @Delete(':moduleIri/skills/:skillIri')
+    deleteModuleSkill(@Param('moduleIri') moduleIri: string, @Param('skillIri') skillIri: string): Promise<string>  {
+        return this.skillService.deleteSkill(skillIri);
     }
 }

@@ -3,13 +3,16 @@ import { SocketService } from "../../shared/services/socket.service";
 import { HttpClient } from '@angular/common/http';
 import { ServiceExecutionDescription, Method, SelectedParameter } from '../../shared/models/self-description';
 import { ModuleService } from '../../shared/services/module.service';
-import { ManufacturingServiceExecutor } from './manufacturing-service-executor.service';
+import { SkillExecutor as SkillExecutor } from '../../shared/services/skill-execution.service';
 import { ProductionModule } from '../../../../shared/models/production-module/ProductionModule';
 import { Command } from '../../../../shared/models/command/Command';
+import { Transition } from '../../../../shared/models/state-machine/Transition';
+import { Skill } from '../../../../shared/models/skill/Skill';
 
 
 @Component({
     selector: 'module-management',
+    styleUrls:['module-management.scss'],
     templateUrl: 'module-management.component.html',
 })
 export class ModuleManagementComponent implements OnInit {
@@ -17,7 +20,7 @@ export class ModuleManagementComponent implements OnInit {
     constructor(private httpClient: HttpClient,
         private socketService: SocketService,
         private moduleService: ModuleService,
-        private mfgServiceExecutor: ManufacturingServiceExecutor) { }
+        private skillExecutor: SkillExecutor) { }
 
     incomingmsg = [];
     modules = new Array<ProductionModule>();
@@ -29,9 +32,9 @@ export class ModuleManagementComponent implements OnInit {
     activeSkillCommands: any;
     skillCommands: any;
     commandName: string;
-    executableCommands= new Array<Command>();
+    executableCommands = new Array<Command>();
     //commandList: {name: string; iri: string; active: boolean};
- 
+
 
 
     ngOnInit(): void {
@@ -39,7 +42,6 @@ export class ModuleManagementComponent implements OnInit {
 
         this.moduleService.getAllModules().subscribe((modules: ProductionModule[]) => {
             this.modules = modules;
-            // console.log(this.modules[0].capabilities[0].skills[0].stateMachine.getActiveCommands());
         });
 
         // TODO (Aljosha): Fix socket service
@@ -66,7 +68,7 @@ export class ModuleManagementComponent implements OnInit {
         {id:"8",name:"Clear", group:"3"},
         {id:"9",name:"Stop", group:"4"}
     ]*/
-    
+
     sendMsg(msg) {
         this.socketService.sendMessage(msg);
     }
@@ -83,104 +85,118 @@ export class ModuleManagementComponent implements OnInit {
             selectedParams.push(new SelectedParameter(param, paramValue));
         }
         const executionDescription = new ServiceExecutionDescription(method.getFullPath(), method.getShortMethodType(), selectedParams);
-        this.mfgServiceExecutor.executeService(executionDescription);
+        this.skillExecutor.executeService(executionDescription);
     }
-    selectSkill(selectedModule, selectedCapability, newSelectedSkill): void{
-        this.selectedSkill=newSelectedSkill;
-        this.selectedModule=selectedModule;
-        this.selectedCapabilty=selectedCapability;
-        console.log(typeof(newSelectedSkill));
-        
+
+    getCommandButtonClass(command: Transition) {
+        const commandName = command.getLocalName();
+        switch (commandName) {
+        case "Start_Command":
+        case "Un-Hold_Command":
+        case "Unsuspend_Command":
+        case "Reset_Command":
+            return "btn-success";
+        case "Clear_Command":
+            return "btn-secondary";
+        case "Suspend_Command":
+        case "Hold_Command":
+            return "btn-dark";
+        case "Abort_Command":
+        case "Stop_Command":
+            return "btn-danger";
+        }
+    }
+
+    isActiveCommand(currentCommand: Transition, skill: Skill) {
+        return skill.stateMachine.getActiveCommands().some(command => command.iri == currentCommand.iri);
+    }
+
+
+    selectSkill(selectedModule, selectedCapability, newSelectedSkill): void {
+        this.selectedSkill = newSelectedSkill;
+        this.selectedModule = selectedModule;
+        this.selectedCapabilty = selectedCapability;
+        console.log(typeof (newSelectedSkill));
+
         /* console.log(this.selectedSkill);
         console.log(selectedModule);
         console.log(selectedCapability);*/
-    
-        this.modules.forEach(module => {
-            if (selectedModule==module) {
-                module.capabilities.forEach(capability => {
-                    if(this.selectedCapabilty==capability){
-                        capability.skills.forEach(skill => {
-                         
-                            if (newSelectedSkill==skill.getLocalName()) {
-                                console.log(newSelectedSkill);
-                             
-                                const activeCommands=skill.stateMachine.getActiveCommands();
-                                const allCommands=skill.stateMachine.getCommands();
-                                this.addCommands(allCommands, activeCommands);
-                                /*this.skillCommands=skill.stateMachine.getCommands();
-                               
-                                this.addCommands(this.activeSkillCommands);
-                                this.skillCommands.forEach(command => {
-                                    this.addCommands(command);
-                                });
-                               */
-                            }
-                            
-                        });
-                    }
 
-                    
-                });
-                
-            }
-            
+        this.modules.forEach(module => {
+            module.skills.forEach(skill => {
+
+                if (newSelectedSkill == skill.getLocalName()) {
+                    console.log(newSelectedSkill);
+
+                    const activeCommands = skill.stateMachine.getActiveCommands();
+                    const allCommands = skill.stateMachine.getCommands();
+                    this.addCommands(allCommands, activeCommands);
+                    /*this.skillCommands=skill.stateMachine.getCommands();
+
+                    this.addCommands(this.activeSkillCommands);
+                    this.skillCommands.forEach(command => {
+                        this.addCommands(command);
+                    });
+                   */
+                }
+
+            });
         });
-        
-       
+
     }
-   
-    addCommands(allCommands, activeCommands){
-        this.executableCommands=[];
-        let active=false;
-        let group=1;
+
+    addCommands(allCommands, activeCommands) {
+        this.executableCommands = [];
+        let active = false;
+        let group = 1;
         allCommands.forEach(command => {
             //generating command-name
-            let name= command.iri.split("#")[1];
-            name=name.split("_")[0];
+            let name = command.iri.split("#")[1];
+            name = name.split("_")[0];
 
             //check if command ist active
-            if (activeCommands.indexOf(command)==-1) {
-                active=false;
+            if (activeCommands.indexOf(command) == -1) {
+                active = false;
 
-                
+
             } else {
-                active=true;
+                active = true;
             }
             // group-assignment
-            switch(name){
+            switch (name) {
             case "Start":
-                group=1; 
+                group = 1;
                 break;
             case "Abort":
-                group=4; 
+                group = 4;
                 break;
             case "Hold":
-                group=2; 
+                group = 2;
                 break;
             case "Reset":
-                group=3; 
+                group = 3;
                 break;
             case "Stop":
-                group=4; 
+                group = 4;
                 break;
             case "Suspend":
-                group=2; 
-                break;case "Un-Hold":
-                group=1; 
-                break;case "Unsuspend":
-                group=1; 
+                group = 2;
+                break; case "Un-Hold":
+                group = 1;
+                break; case "Unsuspend":
+                group = 1;
                 break;
             }
-            const  newCommand= new Command(name, command.iri, active, group);
+            const newCommand = new Command(name, command.iri, active, group);
             console.log(newCommand);
             this.executableCommands.push(newCommand);
         });
-        
+
         /* allCommands.forEach(command => {
             if (activeCommands.includes(command)) {
-                
+
             } else {
-                
+
             }
         });*/
 
@@ -189,11 +205,11 @@ export class ModuleManagementComponent implements OnInit {
         console.log('iri ist: '+ command.iri);
         console.log('Der Name ist:'+name);
        */
-       
+
         //const commandName=commandIris.split('#')[1];
-       
+
         // commandName= commandName.split('#',1);
-        
+
         //return commandName;
     }
     /**
@@ -212,7 +228,7 @@ export class ModuleManagementComponent implements OnInit {
     disconnectModule(moduleIri) {
         // TODO: Post to API to really delete element
         this.httpClient.delete(`api/modules/${moduleIri}`).subscribe(
-            data => {this.removeModuleCard(moduleIri);}),
+            data => { this.removeModuleCard(moduleIri); }),
         error => console.log('An error happened, module could not be disconnected'
         );
     }

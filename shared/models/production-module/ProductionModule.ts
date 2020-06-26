@@ -1,37 +1,37 @@
 import { Capability, CapabilityDto } from "../capability/Capability";
 import { RdfElement } from "../RdfElement";
-import { Skill } from "../skill/Skill";
+import { Skill, SkillDto } from "../skill/Skill";
 
 export class ProductionModule extends RdfElement{
     iri: string;
     interfaces? = Array<ModuleInterface>();
     components? = new Array<Component>();
-    capabilities? = new Array<Capability>();
+    skills? = new Array<Skill>();
 
     constructor(moduleDto: ProductionModuleDto) {
         super(moduleDto.iri);
-        this.capabilities = moduleDto.capabilityDtos.map(capabilityDto => new Capability(capabilityDto));
+        this.skills = moduleDto.skillDtos.map(skillDto => new Skill(skillDto));
         this.interfaces = moduleDto.interfaces;
         this.components = moduleDto.components;
     }
 
-    addCapability(newCapability: Capability): void {
-        this.capabilities.push(newCapability);
+    addSkill(newSkill: Skill): void {
+        this.skills.push(newSkill);
     }
 
-    addCapabilities(newCapabilities: Array<Capability>): void {
-        this.capabilities.push(...newCapabilities);
+    addSkills(newSkills: Array<Skill>): void {
+        this.skills.push(...newSkills);
     }
 
     /**
-     * Utility getter that allows to easily get all skills of this module by looking at all capabilities' skills
+     * Utility getter that allows to easily get all capabilities that can be executed with skills of this module
      */
-    get skills(): Array<Skill> {
-        const skills = new Array<Skill>();
-        this.capabilities.forEach(capability => {
-            skills.push(...capability.skills);
+    get capabilities(): Array<Capability> {
+        const capabilities = new Array<Capability>();
+        this.skills.forEach(skill => {
+            capabilities.push(...skill.relatedCapabilities);
         });
-        return skills;
+        return capabilities;
     }
 }
 
@@ -39,7 +39,7 @@ export class ProductionModuleDto {
     iri: string;
     interfaces? : Array<ModuleInterface>;
     components? : Array<Component>;
-    capabilityDtos?: Array<CapabilityDto>;
+    skillDtos?: Array<SkillDto>;
 }
 
 export interface ModuleInterface {

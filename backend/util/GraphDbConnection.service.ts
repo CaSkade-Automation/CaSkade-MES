@@ -48,7 +48,7 @@ export class GraphDbConnectionService {
     }
 
     async addRdfDocument(rdfDocument: string, context: string) {
-        const contentType = "application/rdf+xml";
+        const contentType = "application/x-turtle; charset=UTF-8";      // TODO: Get the real contentType, could also be RDF/XML
         context = `?context=%3Curn:${context}%3E`;
         return this.executeStatement(rdfDocument, context, contentType);
     }

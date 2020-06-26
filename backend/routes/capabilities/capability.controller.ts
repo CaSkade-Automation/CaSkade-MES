@@ -1,9 +1,9 @@
 import { Controller, Get, Param, Delete, Post } from '@nestjs/common';
 import { CapabilityService } from './capability.service';
-import { Capability, CapabilityDto } from '../../../shared/models/capability/Capability';
+import { CapabilityDto } from '../../../shared/models/capability/Capability';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 import { SkillService } from '../skills/skill.service';
-import { Skill, SkillDto } from '../../../shared/models/skill/Skill';
+import { SkillDto } from '../../../shared/models/skill/Skill';
 
 @Controller('/capabilities')
 export class CapabilityController {
@@ -39,9 +39,13 @@ export class CapabilityController {
     }
 
 
+    /**
+     * Returns all skills that are suited for a given capability
+     * @param capabilityIri: IRI of the capability to find skills for
+     */
     @Get(':capabilityIri/skills')
     getSkillsOfCapability(@Param('capabilityIri') capabilityIri: string): Promise<SkillDto[]>{
-        return this.skillService.getSkillsOfCapability(capabilityIri);
+        return this.skillService.getSkillsForCapability(capabilityIri);
     }
 
     /**
