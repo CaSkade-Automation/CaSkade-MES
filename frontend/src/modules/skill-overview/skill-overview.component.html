@@ -1,0 +1,28 @@
+<h1>Skill-Overview</h1>
+<div class="row">
+  <div class="col-6">
+    <div *ngFor="let skill of skills" class="card border-dark mb-3  border-secondary rounded">
+      <div class="card-header">
+        <h2>{{skill.getLocalName()}}</h2>
+      </div>
+      <div class="card-body">
+        
+        <div class="col-7">
+
+          <div class="card">
+              <h6 class="card-header">Executable commands</h6>
+              <div class="card-body">
+                  <button class="btn btn-sm command-button mr-1 mt-1" style="min-width:120px " [ngClass]="{'disabled': !this.isActiveCommand(command, skill)}" [class]="this.getCommandButtonClass(command)" *ngFor="let command of skill.stateMachine.getCommands()">
+                      {{getShortName(command)}}
+                  </button>
+                 
+              </div>
+          </div>
+
+
+      </div>
+      </div>
+    </div>
+  </div>
+
+</div>
