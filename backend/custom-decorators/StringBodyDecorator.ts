@@ -1,9 +1,13 @@
 import * as rawbody from 'raw-body';
-import { createParamDecorator, HttpException, HttpStatus } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext, BadRequestException } from '@nestjs/common';
 
-export const StringBody = createParamDecorator(async (data, req) => {
-  if (req.readable) {
-    return (await rawbody(req)).toString().trim();
-  }
-  throw new HttpException('Body is not text/plain', HttpStatus.INTERNAL_SERVER_ERROR);
+export const StringBody = createParamDecorator(async (_, context: ExecutionContext) => {
+    const req = context.switchToHttp().getRequest<import("express").Request>();
+    if (!req.readable) {
+        console.log("Invalid Body");
+        throw new BadRequestException("Invalid body");
+    }
+
+    const body = (await rawbody(req)).toString("utf8").trim();
+    return body;
 });
