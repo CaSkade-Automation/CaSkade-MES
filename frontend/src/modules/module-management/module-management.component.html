@@ -19,7 +19,7 @@
                         <div class="card">
                             <h6 class="card-header">Executable commands</h6>
                             <div class="card-body">
-                                <button class="btn btn-sm command-button" [ngClass]="{'grayOut': !this.isActiveCommand(command, skill)}" [class]="this.getCommandButtonClass(command)" *ngFor="let command of skill.stateMachine.getCommands()">
+                                <button class="btn btn-sm command-button" [ngClass]="{'disabled': !this.isActiveCommand(command, skill)}" [class]="this.getCommandButtonClass(command)" *ngFor="let command of skill.stateMachine.getCommands()">
                                     {{command.getLocalName()}}
                                 </button>
                                 <!-- <div [ngSwitch]="executableCommand.group" class="btn-group" role="group"
