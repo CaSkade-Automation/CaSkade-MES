@@ -20,7 +20,7 @@ export class SkillOverviewComponent implements OnInit {
   skills= new Array<Skill>();
 
   ngOnInit() {
-
+      console.log("init");
       this.skillService.getAllSkills().subscribe((skills: Skill[]) =>{
           this.skills=skills;
       });
