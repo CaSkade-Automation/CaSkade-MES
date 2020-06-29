@@ -14,7 +14,7 @@ export class ModuleController {
 
     /**
      * Register a new module on the platform
-     * @param req The complete request. @Body cannot be used because a string is sent
+     * @param newModule: Turtle document describing the new module
      */
     @Post()
     async addModule(@StringBody() newModule: string): Promise<string> {
@@ -58,6 +58,7 @@ export class ModuleController {
         return this.skillService.getSkillsOfModule(moduleIri);
     }
 
+    // TODO: It should be checked that a module can only delete its own skills
     /**
      * Deletes a skill of a module
      * @param moduleIri IRI of the module whose skill is deleted

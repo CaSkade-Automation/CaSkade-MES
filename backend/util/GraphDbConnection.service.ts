@@ -82,10 +82,7 @@ export class GraphDbConnectionService {
 
 
         try {
-            const dbResponse = await Axios.post(
-                url,
-                statement,
-                { 'headers': headers });
+            const dbResponse = await Axios.post(url, statement,{ 'headers': headers });
             return dbResponse.data;
 
         } catch (err) {
