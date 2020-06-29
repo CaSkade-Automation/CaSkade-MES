@@ -18,12 +18,12 @@ export class SkillController {
     }
 
     @Get(':skillIri')
-    getSkillByIri(@Param() skillIri: string): Promise<SkillDto> {
+    getSkillByIri(@Param('skillIri') skillIri: string): Promise<SkillDto> {
         return this.skillService.getSkillByIri(skillIri);
     }
 
     @Delete(':skillIri')
-    deleteSkill(@Param() skillIri: string): Promise<string> {
+    deleteSkill(@Param('skillIri') skillIri: string): Promise<string> {
         return this.skillService.deleteSkill(skillIri);
     }
 }
