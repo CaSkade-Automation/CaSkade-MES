@@ -1,6 +1,6 @@
 <h1>Capability Overview</h1>
 <div class="row">
-    <div class="col-6" *ngFor="let capability of capabilities">
+    <div class="col-6" *ngFor="let capability of executableCapabilities">
         <div class="card mb-5">
             <div class="card-header">
                 <h3 class="card-title" title="{{capability.iri}}">{{capability.getLocalName()}}</h3>
@@ -8,8 +8,8 @@
             <div class="card-body">
                 <!-- For all processes -->
                 <h4 >Skills:</h4>
-                <div *ngIf="capability; then getSkills(capability); else false">
-                <div *ngFor="let skill of skillsOfModule"
+               
+                <div *ngFor="let skill capability.skills"
                     class="card border-dark mb-3  border-secondary rounded">
                     <h5 class="card-header">{{skill.getLocalName()}}</h5>
 
@@ -33,7 +33,7 @@
                 </div>
 
 
-                </div>
+               
 
             </div>
 
