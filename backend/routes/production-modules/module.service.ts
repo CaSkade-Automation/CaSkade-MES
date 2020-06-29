@@ -113,13 +113,15 @@ export class ModuleService {
             // TODO: Make sure descriptions of executable skills get deleted as well
             const graphQueryResults = await this.graphDbConnection.executeQuery(`
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-            SELECT ?s ?g WHERE {
+            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            SELECT ?module ?g WHERE {
                 GRAPH ?g {
-                    BIND(IRI("${moduleIri}") AS ?s).
+                    BIND(IRI("${moduleIri}") AS ?module).
                     {
-                    ?s a VDI3682:TechnicalResource.
+                    ?module a/sesame:directSubClassOf VDI3682:TechnicalResource.
                     } UNION {
-                    ?s VDI3682:TechnicalResourceIsAssignedToProcessOperator ?x.
+                        ?module ?providesSomeSkill ?skill.
+                        ?providesSomeSkill sesame:directSubPropertyOf Cap:providesSkill.
                     }
                 }
             }`);

@@ -22,11 +22,11 @@ export class SkillService {
      */
     async addSkill(newSkill: string): Promise<string> {
         try {
-            // create a graph name for the service (uuid)
-            const skilGraphName = uuidv4();
+            // create a graph name for the skill (uuid)
+            const skillGraphName = uuidv4();
             console.log("Adding Skill");
 
-            this.graphDbConnection.addRdfDocument(newSkill, skilGraphName);
+            this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
             this.socketGateway.emitEvent('new-skill');
             return 'New skill successfully added';
         } catch (error) {
@@ -107,7 +107,7 @@ export class SkillService {
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
             SELECT ?skill ?stateMachine ?currentStateTypeIri WHERE {
-                <${moduleIri}> Cap:hasSkill ?skill.
+                <${moduleIri}> Cap:providesSkill ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
@@ -170,11 +170,10 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             SELECT ?skill ?graph WHERE {
                 GRAPH ?graph {
-                    BIND(IRI("${skillIri}") AS ?skill).
-                    ?skill a Cap:Skill.
+                    BIND(<${skillIri}> AS ?skill)
+                    ?skill a/sesame:directSubClassOf Cap:Skill.
                     }
-                }
-            }`;
+                }`;
 
             const queryResult = await this.graphDbConnection.executeQuery(query);
             const queryResultBindings = queryResult.results.bindings;
