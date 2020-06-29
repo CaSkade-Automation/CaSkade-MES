@@ -33,9 +33,10 @@ export class BroadcastListener {
             const broadcastAnswer = {
                 "id": 1,
                 "port": 9090,
-                "moduleEndpoint": "/api/modules",
-                "capabilityEndpoint": "/api/capabilities",
-                "skillEndpoint": "api/skills"
+                "basePath": "/api",
+                "moduleEndpoint": "/modules",
+                "capabilityEndpoint": "/capabilities",
+                "skillEndpoint": "/skills",
             };
 
 
