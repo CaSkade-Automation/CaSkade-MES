@@ -1,5 +1,5 @@
-import { SkillExecutionRequest } from "./skill-execution.controller";
+import { SkillExecutionRequestDto } from "@shared/models/skill/SkillExecutionRequest";
 
 export interface SkillExecutor {
-    executeSkill(executionRequest: SkillExecutionRequest): void;
+    executeSkill(executionRequest: SkillExecutionRequestDto): void;
 }

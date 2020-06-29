@@ -1,5 +1,6 @@
 import { Controller, Body, Post } from "@nestjs/common";
 import { SkillExecutorFactory } from "./skill-executor-factory.service";
+import { SkillExecutionRequestDto } from "@shared/models/skill/SkillExecutionRequest";
 
 @Controller('skill-execution')
 export class SkillExecutionController{
@@ -10,14 +11,10 @@ export class SkillExecutionController{
     //      to add skills for later execution. In this case, this method could be used for adding and a scheduler
     //      could be added to execute the skill
     @Post()
-    async addNewSkillExecution(@Body() executionRequest: SkillExecutionRequest): Promise<string>{
-        const skillExecutor = await this.executorFactory.getSkillExecutor(executionRequest.skillIri);
+    async addNewSkillExecution(@Body() executionRequest: SkillExecutionRequestDto): Promise<string>{
+        const skillExecutor = await this.executorFactory.getSkillExecutor(executionRequest.skill.skillIri);
         skillExecutor.executeSkill(executionRequest);
         return "asd";
     }
 
-}
-
-export class SkillExecutionRequest {
-    constructor(public skillIri: string, public transitionIri: string){}
 }

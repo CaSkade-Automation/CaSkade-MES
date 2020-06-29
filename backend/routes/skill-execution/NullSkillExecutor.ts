@@ -1,10 +1,10 @@
 import { SkillExecutor } from './SkillExecutor';
-import { SkillExecutionRequest } from './skill-execution.controller';
+import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 
 export class NullSkillExecutor implements SkillExecutor {
 
-    executeSkill(exeuctionRequest: SkillExecutionRequest): void {
-        throw new Error(`Transition '${exeuctionRequest.transitionIri}' of Skill '${exeuctionRequest.skillIri}'
+    executeSkill(exeuctionRequest: SkillExecutionRequestDto): void {
+        throw new Error(`Transition '${exeuctionRequest.command}' of Skill '${exeuctionRequest.skill.skillIri}'
         cannot be executed. There is no matching executor`);
     }
 
