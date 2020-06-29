@@ -5,19 +5,19 @@ import { ModuleManagementComponent } from './module-management.component';
 
 
 const routes: Routes = [
-  {
-    path: '',
-    component: ModuleManagementComponent,
-    data: {
-      title: 'ModuleManagement'
-    },
-    children: []
-  }
+    {
+        path: '',
+        component: ModuleManagementComponent,
+        data: {
+            title: 'ModuleManagement'
+        },
+        children: []
+    }
 ];
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule]
 })
 
 export class ModuleManagementRouter { }
