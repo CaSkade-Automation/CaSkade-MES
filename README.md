@@ -1,14 +1,29 @@
 # Ontology based planning system
 A web based plattform to manage automated modules based on semantic descriptions.  
 The platform consists of two parts: 
-- NodeJS-Backend: The backend is connected with a graph database and provides core functions for modules (registering, adding capabilites, executing services, executing queries against the graph database)
-- Angular fronted: The frontend provides a user interface to interact with connected modules (e.g. to execute their services)
+- NestJS-Backend: The backend is connected with a graph database and provides core functions for modules (registering, adding capabilites, executing services, executing queries against the graph database)
+- Angular-Fronted: The frontend provides a user interface to interact with connected modules (e.g. to execute their services)
 
 
 #### Setup & Install
-- Clone this repository (via SSH)
-- Before running the project for the first time, change into the project's folder and execute `npm install` 
-- After installing, execute `npm run start-all`. This Script starts backend and frontend at the same time. Both are startet in some kind of "watch-mode" where changes on either front- or backend lead to an automatic restart of the server or the web application, respectively. No need to manually restart the server or refresh your browser's page.
+- Clone this repository (via SSH) into a folder on your computer
+- The folder contains three folders:
+  - Backend: A separate project (npm package) containing all the backend stuff
+  - Frontend: A separate project (npm package) containing all the frontend stuf
+  - Shared: A library containing classes that are used by both back- and frontend
+- Note that you have to install dependencies for both backend and frontend and run these two separately, e.g. in two different terminals. The commands described below start backend and frontend in "watch-mode" where changes lead to a restart of backend / frontend. No need to manually restart the server or refresh your browser's page.
+
+
+##### Running the backend
+To run the backend, execute the following commands **inside the "backend"-folder**:
+- When first running, make sure to install all dependencies via `npm install`
+- To start the backend, execute npm run server-start 
+
+##### Running the frontend
+To run the frontend, execute the following commands **inside the "frontend"-folder**:
+- When first running, make sure to install all dependencies via `npm install`
+- To start the frontend, execute npm run `npm run ng-serve`
+
 
 ## API-Documentation
 ### Table of contents
