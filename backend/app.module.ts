@@ -7,6 +7,7 @@ import { GraphRepositoryModule } from './routes/graph-repositories/graph-reposit
 import { GraphOperationModule } from './routes/graph-operations/graph-operation.module';
 import { CapabilityModule } from './routes/capabilities/capability.module';
 import { SkillModule } from './routes/skills/skill.module';
+import { SkillExecutionModule } from './routes/skill-execution/skill-execution.module';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { SkillModule } from './routes/skills/skill.module';
         SkillModule,
         GraphRepositoryModule,
         GraphOperationModule,
+        SkillExecutionModule
     ],
     controllers: [AppController],
     providers: [],

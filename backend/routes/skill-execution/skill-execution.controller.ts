@@ -2,7 +2,7 @@ import { Controller, Body, Post } from "@nestjs/common";
 import { SkillExecutorFactory } from "./skill-executor-factory.service";
 import { SkillExecutionRequestDto } from "@shared/models/skill/SkillExecutionRequest";
 
-@Controller('skill-execution')
+@Controller('skill-executions')
 export class SkillExecutionController{
 
     constructor(private executorFactory: SkillExecutorFactory) {}
