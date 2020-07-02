@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,13 +26,14 @@ export class ModuleService {
         const graphName = uuidv4();
         try {
             const dbResult = await this.graphDbConnection.addRdfDocument(newModule, graphName);
+
             if(dbResult) {
                 // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-                this.socketService.emitEvent('new-production-module');
+                this.socketService.emitEvent('newProductionModule');
                 return 'mfgModule successfully registered';
             }
         } catch (error) {
-            throw new Error(`Error while registering new production module. Error: ${error.toString()}`);
+            throw new BadRequestException(`Error while registering new production module. Error: ${error.toString()}`);
         }
     }
 

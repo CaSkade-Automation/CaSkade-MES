@@ -8,6 +8,8 @@ import { ProductionModule } from '../../../../shared/models/production-module/Pr
 import { Command } from '../../../../shared/models/command/Command';
 import { Transition } from '../../../../shared/models/state-machine/Transition';
 import { Skill } from '../../../../shared/models/skill/Skill';
+import { pipe } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 
 @Component({
@@ -44,18 +46,21 @@ export class ModuleManagementComponent implements OnInit {
             this.modules = modules;
         });
 
-        // TODO (Aljosha): Fix socket service
-        // this.socketService.getMessage().subscribe(msg => {
-        //     this.moduleService.getAllModules().subscribe(data => {
-        //         const currentModules: Array<ProductionModule> = data;
-        //         this.modules = currentModules;
-        //         this.modules.forEach(manufacturingModule => {
-        //             this.moduleService.getAllCapabilitiesOfModule(manufacturingModule.iri).subscribe(moduleProcesses => {
-        //                 manufacturingModule.addCapabilities(moduleProcesses);
-        //             });
-        //         });
-        //     });
-        // });
+        //TODO Socket service could be used better if we could get the new module from the socket server
+        this.socketService.getMessage('newProductionModule').subscribe(msg => {
+            const modules = this.moduleService.getAllModules().pipe(take(1)).subscribe(newModules => {
+                this.addNewModules(newModules);
+            });
+
+            // this.moduleService.getAllModules().subscribe((newModules: ProductionModule[]) => {
+            //     this.addNewModules(newModules);
+            //     // this.modules.forEach(manufacturingModule => {
+            //     //     this.moduleService.getAllCapabilitiesOfModule(manufacturingModule.iri).subscribe(moduleProcesses => {
+            //     //         manufacturingModule.addCapabilities(moduleProcesses);
+            //     //     });
+            //     // });
+            // });
+        });
     }
     /*executableCommands=[
         {id:"1", name:"Start", group:"1"},
@@ -216,11 +221,14 @@ export class ModuleManagementComponent implements OnInit {
      * Compares the existing modules-array with a new new list of all currently connected modules, finds out which modules are new and adds them to the modules-array
      * @param newModule Array of all modules that are currently connected
      */
-
-    addNewModules(newModule: ProductionModule): void {
-        // Add the new module
-        this.modules.push(newModule);
+    addNewModules(newModules: ProductionModule[]): void {
+        newModules.forEach(module => {
+            if (!this.modules.some(currentModule => currentModule.iri == module.iri)) {
+                this.modules.push(module);
+            }
+        });
     }
+
     getShortName(command: Transition): string{
         let name = command.iri.split("#")[1];
         name = name.split("_")[0];

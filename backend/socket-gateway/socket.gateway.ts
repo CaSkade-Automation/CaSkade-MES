@@ -1,17 +1,18 @@
 import {OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse} from '@nestjs/websockets';
-import {Client, Server} from 'socket.io';
+import { Server} from 'socket.io';
 
 @WebSocketGateway()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
+
   @WebSocketServer() server: Server;
   connectedClients = 0;
 
-  handleConnection(client: any, ...args: any[]) {
+  handleConnection(client: any, ...args: any[]): void {
       this.connectedClients++;
   }
 
-  handleDisconnect(client: any) {
+  handleDisconnect(client: any): void {
       this.connectedClients--;
   }
 
@@ -26,7 +27,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * @param {string} message The message to be emitted
    */
   emitEvent(message) {
-      this.server.emit('moduleregistration', message);
+      console.log("emitting event");
+      this.server.emit("message", message);
   }
 
 }
