@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
+import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 
 
 @Injectable({
@@ -12,10 +13,8 @@ export class SocketService {
         this.sendMessage("asdasd");
     }
 
-    getMessage(topic: string): Observable<any> {
-        this.socket.on("clients", (data) => {
-            console.log(data);});
-        return this.socket.fromEvent("message");
+    getMessage(topic: SocketEventName): Observable<any> {
+        return this.socket.fromEvent(topic);
     }
 
     // Alternativ so:

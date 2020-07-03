@@ -1,5 +1,6 @@
 import {OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse} from '@nestjs/websockets';
 import { Server} from 'socket.io';
+import { SocketEventName } from "@shared/socket-communication/SocketEventName";
 
 @WebSocketGateway()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -26,9 +27,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * Emits an event with a given message
    * @param {string} message The message to be emitted
    */
-  emitEvent(message) {
-      console.log("emitting event");
-      this.server.emit("message", message);
+  emitEvent(eventName: SocketEventName, message?): void {
+      this.server.emit(eventName, message);
   }
 
 }

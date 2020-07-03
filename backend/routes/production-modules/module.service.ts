@@ -8,6 +8,7 @@ import { moduleMapping } from './module-mappings';
 
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { SkillService } from '../skills/skill.service';
+import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 const converter = new SparqlResultConverter();
 
 @Injectable()
@@ -29,7 +30,7 @@ export class ModuleService {
 
             if(dbResult) {
                 // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-                this.socketService.emitEvent('newProductionModule');
+                this.socketService.emitEvent(SocketEventName.ProductionModules_Added);
                 return 'mfgModule successfully registered';
             }
         } catch (error) {

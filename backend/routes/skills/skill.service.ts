@@ -8,6 +8,7 @@ import { SocketGateway } from '../../socket-gateway/socket.gateway';
 
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { CapabilityService } from '../capabilities/capability.service';
+import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 const converter = new SparqlResultConverter();
 
 @Injectable()
@@ -27,7 +28,7 @@ export class SkillService {
             console.log("Adding Skill");
 
             this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
-            this.socketGateway.emitEvent('new-skill');
+            this.socketGateway.emitEvent(SocketEventName.Skills_Added);
             return 'New skill successfully added';
         } catch (error) {
             throw new Error(`Error while registering a new skill. Error: ${error}`);

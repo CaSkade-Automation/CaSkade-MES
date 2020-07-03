@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
 
 import {SparqlResultConverter} from "sparql-result-converter";
+import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 
 const converter = new SparqlResultConverter();
 
@@ -26,7 +27,7 @@ export class CapabilityService {
             const capabilityGraphName = uuidv4();
 
             this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
-            this.socketGateway.emitEvent('new-capability');
+            this.socketGateway.emitEvent(SocketEventName.Capabilities_Added);
             return 'New capability successfully added';
         } catch (error) {
             throw new Error(`Error while registering a new capability. Error: ${error}`);
