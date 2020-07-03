@@ -14,6 +14,11 @@
             "es2018",
             "dom"
         ],
+        "paths": {
+            "@shared/*": [
+                "../shared/*"
+            ]
+        }
     },
     "references": [
         {
@@ -24,3 +29,5 @@
         "fullTemplateTypeCheck": true,
     }
 }
+
+// Note that paths is added here and in tsconfig.app.json. It's necessary here for VSCode intellisense and in tsconfig.app.json for Angular

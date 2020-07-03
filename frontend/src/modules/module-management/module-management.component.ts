@@ -4,11 +4,11 @@ import { HttpClient } from '@angular/common/http';
 import { ServiceExecutionDescription, Method, SelectedParameter } from '../../shared/models/self-description';
 import { ModuleService } from '../../shared/services/module.service';
 import { SkillExecutor as SkillExecutor } from '../../shared/services/skill-execution.service';
-import { ProductionModule } from '../../../../shared/models/production-module/ProductionModule';
-import { Command } from '../../../../shared/models/command/Command';
-import { Transition } from '../../../../shared/models/state-machine/Transition';
-import { Skill } from '../../../../shared/models/skill/Skill';
-import { pipe } from 'rxjs';
+import { ProductionModule } from '@shared/models/production-module/ProductionModule';
+import { Command } from '@shared/models/command/Command';
+import { Transition } from '@shared/models/state-machine/Transition';
+import { Skill } from '@shared/models/skill/Skill';
+import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 import { take } from 'rxjs/operators';
 
 
@@ -47,7 +47,7 @@ export class ModuleManagementComponent implements OnInit {
         });
 
         //TODO Socket service could be used better if we could get the new module from the socket server
-        this.socketService.getMessage('newProductionModule').subscribe(msg => {
+        this.socketService.getMessage(SocketEventName.ProductionModules_Added).subscribe(msg => {
             const modules = this.moduleService.getAllModules().pipe(take(1)).subscribe(newModules => {
                 this.addNewModules(newModules);
             });
