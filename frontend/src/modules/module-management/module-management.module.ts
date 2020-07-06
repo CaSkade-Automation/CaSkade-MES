@@ -8,6 +8,8 @@ import { FormsModule }   from '@angular/forms';
 import { ModuleManagementRouter } from './module-management.routing';
 import { ModuleManagementComponent } from './module-management.component';
 import { SkillExecutor } from '../../shared/services/skill-execution.service';
+import { CommandFeatureComponent } from 'src/shared/command-feature/command-feature.component';
+
 
 
 @NgModule({
@@ -19,6 +21,8 @@ import { SkillExecutor } from '../../shared/services/skill-execution.service';
     ],
     declarations: [
         ModuleManagementComponent,
+        CommandFeatureComponent
+        
     ],
     providers: [
         SkillExecutor

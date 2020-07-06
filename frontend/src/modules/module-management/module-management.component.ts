@@ -88,7 +88,7 @@ export class ModuleManagementComponent implements OnInit {
         this.skillExecutor.executeService(executionDescription);
     }
 
-    getCommandButtonClass(command: Transition) {
+    /* getCommandButtonClass(command: Transition) {
         const commandName = command.getLocalName();
         switch (commandName) {
         case "Start_Command":
@@ -110,7 +110,8 @@ export class ModuleManagementComponent implements OnInit {
     isActiveCommand(currentCommand: Transition, skill: Skill) {
         return skill.stateMachine.getActiveCommands().some(command => command.iri == currentCommand.iri);
     }
-
+*/
+    /*
 
     selectSkill(selectedModule, selectedCapability, newSelectedSkill): void {
         this.selectedSkill = newSelectedSkill;
@@ -118,9 +119,9 @@ export class ModuleManagementComponent implements OnInit {
         this.selectedCapabilty = selectedCapability;
         console.log(typeof (newSelectedSkill));
 
-        /* console.log(this.selectedSkill);
+        console.log(this.selectedSkill);
         console.log(selectedModule);
-        console.log(selectedCapability);*/
+        console.log(selectedCapability);
 
         this.modules.forEach(module => {
             module.skills.forEach(skill => {
@@ -137,13 +138,13 @@ export class ModuleManagementComponent implements OnInit {
                     this.skillCommands.forEach(command => {
                         this.addCommands(command);
                     });
-                   */
+                   
                 }
 
             });
         });
 
-    }
+    }*/
 
     addCommands(allCommands, activeCommands) {
         this.executableCommands = [];
@@ -221,11 +222,11 @@ export class ModuleManagementComponent implements OnInit {
         // Add the new module
         this.modules.push(newModule);
     }
-    getShortName(command: Transition): string{
+    /*getShortName(command: Transition): string{
         let name = command.iri.split("#")[1];
         name = name.split("_")[0];
         return name;
-    }
+    }*/
 
 
 
