@@ -83,7 +83,9 @@ export class GraphDbConnectionService {
 
         try {
             const dbResponse = await Axios.post(url, statement,{ 'headers': headers });
-            return dbResponse.data;
+
+            return {"statusCode": dbResponse.request.res.statusCode,
+                "msg": dbResponse.data};
 
         } catch (err) {
             if (err.response.status == 400) {       // On error: If its just a query mistake (graphdb 400) -> return this query mistake
