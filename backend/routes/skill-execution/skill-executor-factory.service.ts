@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { SkillExecutor } from "./SkillExecutor";
-import { OpcUaSkillExecutionService } from "./OpcUaSkillExecutor";
-import { RestSkillExecutionService } from "./RestSkillExecutor";
-import { NullSkillExecutor } from "./NullSkillExecutor";
+import { OpcUaSkillExecutionService } from "./executors/OpcUaSkillExecutor";
+import { RestSkillExecutionService } from "./executors/RestSkillExecutor";
+import { NullSkillExecutor } from "./executors/NullSkillExecutor";
 import { GraphDbConnectionService } from "../../util/GraphDbConnection.service";
+import { RdfElement } from "../../../shared/models/RdfElement";
 
 @Injectable()
 export class SkillExecutorFactory {
@@ -15,13 +16,14 @@ export class SkillExecutorFactory {
      * @param skillIri IRI of the skill to get the executor for
      */
     async getSkillExecutor(skillIri: string): Promise<SkillExecutor> {
-        const skillType = await this.getSkillType(skillIri);
 
-        switch (skillType) {
-        case 'OpcUaSkill':
+        const skillTypeIri = await this.getSkillType(skillIri);
+
+        switch (skillTypeIri) {
+        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaSkill':
             return new OpcUaSkillExecutionService();
-        case 'RestSkill':
-            return new RestSkillExecutionService();
+        case 'http://www.hsu-ifa.de/ontologies/capability-model#RestSkill':
+            return new RestSkillExecutionService(this.graphDbConnection);
         default:
             return new NullSkillExecutor();
         }
@@ -38,13 +40,13 @@ export class SkillExecutorFactory {
         PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
         SELECT ?skill ?skillType WHERE {
             ?skill a Cap:Skill.
-            FILTER(?skillIri = IRI("${skillIri}"))
+            FILTER(?skill = IRI("${skillIri}"))
             ?skill a ?skillType.
             ?skillType sesame:directSubClassOf Cap:Skill.
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const skillType = queryResult.results.bindings["skillType"].value as string;
-        return skillType;
+        const skillTypeIri = queryResult.results.bindings[0]["skillType"].value;
+        return skillTypeIri;
     }
 
 }
