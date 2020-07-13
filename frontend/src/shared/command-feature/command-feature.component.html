@@ -1,0 +1,18 @@
+
+
+                    <div class="col-7">
+
+                        <div class="card">
+                            <h6 class="card-header">Executable commands</h6>
+                            <div class="card-body">
+                                <button class="btn btn-sm command-button mr-1 mt-1" style="min-width: 120px" [ngClass]="{'disabled': !this.isActiveCommand(command, skill)}" [class]="this.getCommandButtonClass(command)" *ngFor="let command of skill.stateMachine.getCommands()">
+                                    {{getShortName(command)}}
+                                </button>
+                            
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    

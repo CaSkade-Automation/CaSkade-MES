@@ -1,33 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { SkillService } from 'src/shared/services/skill.service';
-//import { Skill } from 'src/shared/models/module';
-import { ModuleService } from 'src/shared/services/module.service';
+import { Component, OnInit, Input } from '@angular/core';
 import { Skill } from '../../../../shared/models/skill/Skill';
 import { Transition } from '../../../../shared/models/state-machine/Transition';
 
 
-@Component({
-    selector: 'app-skill-overview',
-    templateUrl: './skill-overview.component.html',
-    styleUrls: ['./skill-overview.component.scss']
-})
-export class SkillOverviewComponent implements OnInit {
 
-    constructor(
-    private skillService: SkillService,
-    private moduleService: ModuleService
-    ) {}
-  skills= new Array<Skill>();
+@Component({
+    selector: 'app-command-feature',
+    templateUrl: './command-feature.component.html',
+    styleUrls: ['./command-feature.component.scss']
+})
+export class CommandFeatureComponent implements OnInit {
+  @Input() skill: Skill;
+
+  constructor() { }
 
   ngOnInit() {
-      console.log("init");
-      this.skillService.getAllSkills().subscribe((skills: Skill[]) =>{
-          this.skills=skills;
-      });
-
   }
-
-    /*getCommandButtonClass(command: Transition) {
+  getCommandButtonClass(command: Transition) {
       const commandName = command.getLocalName();
       switch (commandName) {
       case "Start_Command":
@@ -54,5 +43,5 @@ export class SkillOverviewComponent implements OnInit {
       let name = command.iri.split("#")[1];
       name = name.split("_")[0];
       return name;
-  }*/
+  }
 }
