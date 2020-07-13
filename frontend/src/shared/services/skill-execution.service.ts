@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpRequest, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { ServiceExecutionDescription } from "../models/self-description";
+import { SkillExecutionRequest } from '@shared/models/skill/SkillExecutionRequest';
 import { map } from 'rxjs/operators';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class SkillExecutor {
 
     constructor(private http: HttpClient) {}
 
-    executeService(executionDescription: ServiceExecutionDescription) {
+    executeService(executionDescription: SkillExecutionRequest) {
         console.log(`service called`);
         console.log(executionDescription);
 
@@ -34,7 +34,7 @@ export class SkillExecutor {
         // })
 
         // Send
-        this.http.post(`api/service-executions`, executionDescription).subscribe(res => {console.log(JSON.stringify(res));});
+        this.http.post(`api/service-executions`, executionDescription);
     }
 
 
