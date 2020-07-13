@@ -25,7 +25,6 @@ export class ModuleManagementComponent implements OnInit {
 
     incomingmsg = [];
     modules = new Array<ProductionModule>();
-    serviceExecutionDescription: ServiceExecutionDescription;
     parameterValues = new Array<string>();
     selectedSkill: any;
     selectedCapabilty: any;
@@ -78,77 +77,7 @@ export class ModuleManagementComponent implements OnInit {
     }
 
 
-    executeModuleService(method: Method) {
-        const selectedParams = new Array<SelectedParameter>();
 
-        // Create the selected parameters
-        for (let i = 0; i < method.parameters.length; i++) {
-            const param = method.parameters[i];
-            const paramValue = this.parameterValues[i];
-
-            selectedParams.push(new SelectedParameter(param, paramValue));
-        }
-        const executionDescription = new ServiceExecutionDescription(method.getFullPath(), method.getShortMethodType(), selectedParams);
-        this.skillExecutor.executeService(executionDescription);
-    }
-
-    /* getCommandButtonClass(command: Transition) {
-        const commandName = command.getLocalName();
-        switch (commandName) {
-        case "Start_Command":
-        case "Un-Hold_Command":
-        case "Unsuspend_Command":
-        case "Reset_Command":
-            return "btn-success";
-        case "Clear_Command":
-            return "btn-secondary";
-        case "Suspend_Command":
-        case "Hold_Command":
-            return "btn-dark";
-        case "Abort_Command":
-        case "Stop_Command":
-            return "btn-danger";
-        }
-    }
-
-    isActiveCommand(currentCommand: Transition, skill: Skill) {
-        return skill.stateMachine.getActiveCommands().some(command => command.iri == currentCommand.iri);
-    }
-*/
-    /*
-
-    selectSkill(selectedModule, selectedCapability, newSelectedSkill): void {
-        this.selectedSkill = newSelectedSkill;
-        this.selectedModule = selectedModule;
-        this.selectedCapabilty = selectedCapability;
-        console.log(typeof (newSelectedSkill));
-
-        console.log(this.selectedSkill);
-        console.log(selectedModule);
-        console.log(selectedCapability);
-
-        this.modules.forEach(module => {
-            module.skills.forEach(skill => {
-
-                if (newSelectedSkill == skill.getLocalName()) {
-                    console.log(newSelectedSkill);
-
-                    const activeCommands = skill.stateMachine.getActiveCommands();
-                    const allCommands = skill.stateMachine.getCommands();
-                    this.addCommands(allCommands, activeCommands);
-                    /*this.skillCommands=skill.stateMachine.getCommands();
-
-                    this.addCommands(this.activeSkillCommands);
-                    this.skillCommands.forEach(command => {
-                        this.addCommands(command);
-                    });
-
-                }
-
-            });
-        });
-
-    }*/
 
     addCommands(allCommands, activeCommands) {
         this.executableCommands = [];
