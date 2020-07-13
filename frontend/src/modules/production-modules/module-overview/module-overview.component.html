@@ -1,0 +1,26 @@
+<div class="row">
+    <div class="col-6" *ngFor="let module of modules">
+        <div class="card mb-5">
+            <div class="card-header">
+                <h3 class="card-title" title="{{module.iri}}">{{module.getLocalName()}}</h3>
+                <button class="btn btn-danger" style="position:absolute; right:10px;top:10px;" title="Disconnect Module"
+                    (click)="disconnectModule(module.iri)"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="card-body">
+                <!-- For all processes -->
+                <h4>Skills:</h4>
+                <ng-container *ngFor="let skill of module.skills">
+                    <app-command-feature [skill]="skill"></app-command-feature>
+                </ng-container>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--
+<input #socketInput type="text" (keyup)="this.socketMsg=socketInput.value">
+<button (click)="sendMsg(socketInput.value)">Send message via socket</button>
+
+
+<a href="api/server/uploaded-files/asd.txt">Download</a> -->

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { SocketService } from "../../shared/services/socket.service";
+import { SocketService } from "../../../shared/services/socket.service";
 import { HttpClient } from '@angular/common/http';
-import { ModuleService } from '../../shared/services/module.service';
-import { SkillExecutor as SkillExecutor } from '../../shared/services/skill-execution.service';
+import { ModuleService } from '../../../shared/services/module.service';
+import { SkillExecutor as SkillExecutor } from '../../../shared/services/skill-execution.service';
 import { ProductionModule } from '@shared/models/production-module/ProductionModule';
 import { Command } from '@shared/models/command/Command';
 import { Transition } from '@shared/models/state-machine/Transition';
@@ -10,13 +10,12 @@ import { Skill } from '@shared/models/skill/Skill';
 import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 import { take } from 'rxjs/operators';
 
-
 @Component({
-    selector: 'module-management',
-    styleUrls:['module-management.scss'],
-    templateUrl: 'module-management.component.html',
+    selector: 'app-module-overview',
+    templateUrl: './module-overview.component.html',
+    styleUrls: ['./module-overview.component.scss']
 })
-export class ModuleManagementComponent implements OnInit {
+export class ModuleOverviewComponent implements OnInit {
 
     constructor(private httpClient: HttpClient,
         private socketService: SocketService,
