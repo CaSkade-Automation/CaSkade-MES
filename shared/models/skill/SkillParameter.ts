@@ -1,6 +1,8 @@
 export class SkillParameter {
-    required: boolean;
+    name: string;
     type: string;
+    required: boolean;
+    default?: any;
     value?: any;
-
+    options?: any[];
 }
