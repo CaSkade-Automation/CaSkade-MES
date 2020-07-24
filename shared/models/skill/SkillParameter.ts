@@ -6,7 +6,7 @@ export class SkillParameter extends RdfElement {
     required: boolean;
     default?: any;
     value?: any;
-    optionValues?: any[];
+    optionValues? = new Array<any>();
 
     constructor(paramDto: SkillParameterDto) {
         super(paramDto.parameterIri)
