@@ -45,13 +45,26 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?required ?default ?paramOptionValue WHERE {
                 ?skill a Cap:Skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
+                }
+                OPTIONAL {
+                    ?skill Cap:hasSkillParameter ?parameterIri.
+                    ?parameterIri Cap:hasVariableName ?parameterName;
+                        Cap:hasVariableType ?parameterType;
+                        Cap:isRequired ?required.
+                    OPTIONAL {
+                        ?parameterIri Cap:hasDefaultValue ?default.
+                    }
+                    OPTIONAL {
+                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
+
+                    }
                 }
             }`;
             const queryResult = await this.graphDbConnection.executeQuery(query);
@@ -78,7 +91,7 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?required ?default ?paramOptionValue WHERE {
                 ?skill a Cap:Skill.
                 FILTER(?skill = IRI("${skillIri}"))
                 ?skill Cap:hasStateMachine ?stateMachine.
@@ -86,6 +99,19 @@ export class SkillService {
                     ?skill Cap:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
+                }
+                OPTIONAL {
+                    ?skill Cap:hasSkillParameter ?parameterIri.
+                    ?parameterIri Cap:hasVariableName ?parameterName;
+                        Cap:hasVariableType ?parameterType;
+                        Cap:isRequired ?required.
+                    OPTIONAL {
+                        ?parameterIri Cap:hasDefaultValue ?default.
+                    }
+                    OPTIONAL {
+                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
+
+                    }
                 }
             }`;
 
@@ -107,13 +133,26 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?required ?default ?paramOptionValue WHERE {
                 <${moduleIri}> Cap:providesSkill ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
+                }
+                OPTIONAL {
+                    ?skill Cap:hasSkillParameter ?parameterIri.
+                    ?parameterIri Cap:hasVariableName ?parameterName;
+                        Cap:hasVariableType ?parameterType;
+                        Cap:isRequired ?required.
+                    OPTIONAL {
+                        ?parameterIri Cap:hasDefaultValue ?default.
+                    }
+                    OPTIONAL {
+                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
+
+                    }
                 }
             }`;
             const queryResult = await this.graphDbConnection.executeQuery(query);
@@ -135,7 +174,7 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?required ?default ?paramOptionValue  WHERE {
                 <${capabilityIri}> Cap:isExecutableVia ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
@@ -145,6 +184,19 @@ export class SkillService {
                 }
                 OPTIONAL {
                     ?skill Cap:hasSkillParameter ?parameter.
+                }
+                OPTIONAL {
+                    ?skill Cap:hasSkillParameter ?parameterIri.
+                    ?parameterIri Cap:hasVariableName ?parameterName;
+                        Cap:hasVariableType ?parameterType;
+                        Cap:isRequired ?required.
+                    OPTIONAL {
+                        ?parameterIri Cap:hasDefaultValue ?default.
+                    }
+                    OPTIONAL {
+                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
+
+                    }
                 }
             }`;
             const queryResult = await this.graphDbConnection.executeQuery(query);
@@ -188,6 +240,31 @@ export class SkillService {
         } catch (error) {
             throw new Error(
                 `Error while trying to delete skill with IRI ${skillIri}. Error: ${error}`
+            );
+        }
+    }
+
+    async updateState(skillIri:string, newState: string): Promise<string> {
+        // delete old current State
+        try {
+            const deleteQuery = `
+            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            DELETE WHERE {
+                <${skillIri}> Cap:hasCurrentState ?oldCurrentState.
+            }`;
+            await this.graphDbConnection.executeQuery(deleteQuery);
+
+            const insertQuery = `
+            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            DELETE WHERE {
+                <${skillIri}> Cap:hasCurrentState <${newState}>.
+            }`;
+            const queryResult = await this.graphDbConnection.executeQuery(insertQuery);
+
+            return `Sucessfully updated currentState of skill ${skillIri}`;
+        } catch (error) {
+            throw new Error(
+                `Error while trying to update currentState of skill: ${skillIri}. Error: ${error}`
             );
         }
     }
