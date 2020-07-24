@@ -21,7 +21,7 @@ export class SkillExecutorFactory {
 
         switch (skillTypeIri) {
         case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaSkill':
-            return new OpcUaSkillExecutionService();
+            return new OpcUaSkillExecutionService(this.graphDbConnection);
         case 'http://www.hsu-ifa.de/ontologies/capability-model#RestSkill':
             return new RestSkillExecutionService(this.graphDbConnection);
         default:

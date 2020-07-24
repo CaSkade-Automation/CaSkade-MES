@@ -5,7 +5,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 export class NullSkillExecutor implements SkillExecutor {
 
     executeSkill(exeuctionRequest: SkillExecutionRequestDto): void {
-        throw new InternalServerErrorException(`Transition '${exeuctionRequest.command}' of Skill '${exeuctionRequest.skill.skillIri}'
+        throw new InternalServerErrorException(`Transition '${exeuctionRequest.commandTypeIri}' of Skill '${exeuctionRequest.skillIri}'
         cannot be executed. There is no matching executor`);
     }
 

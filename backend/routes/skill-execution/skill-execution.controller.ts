@@ -12,7 +12,7 @@ export class SkillExecutionController{
     //      could be added to execute the skill
     @Post()
     async addNewSkillExecution(@Body() executionRequest: SkillExecutionRequestDto): Promise<string>{
-        const skillExecutor = await this.executorFactory.getSkillExecutor(executionRequest.skill.skillIri);
+        const skillExecutor = await this.executorFactory.getSkillExecutor(executionRequest.skillIri);
         skillExecutor.executeSkill(executionRequest);
         return "asd";
     }
