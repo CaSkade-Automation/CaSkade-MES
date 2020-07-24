@@ -30,6 +30,7 @@
         "moment": "2.24.0",
         "morgan": "^1.9.1",
         "mutationobserver-shim": "^0.3.3",
+        "node-opcua": "^2.8.0",
         "reflect-metadata": "0.1.13",
         "request": "^2.88.0",
         "rimraf": "3.0.2",

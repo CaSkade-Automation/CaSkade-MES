@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Logger, Patch, Body } from '@nestjs/common';
 import { ModuleService } from './module.service';
 import { ProductionModuleDto } from '@shared/models/production-module/ProductionModule';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
@@ -67,5 +67,13 @@ export class ModuleController {
     @Delete(':moduleIri/skills/:skillIri')
     deleteModuleSkill(@Param('moduleIri') moduleIri: string, @Param('skillIri') skillIri: string): Promise<string>  {
         return this.skillService.deleteSkill(skillIri);
+    }
+
+    // TODO: This is pretty bad...
+    // Furthermore, it is currently only used to update the currentState. It should be checked what is changed before calling a skillmethod
+    @Patch(':moduleIri/skills/:skillIri')
+    updateSkillState(@Param('skillIri') skillIri:string, @Body() change: Record<string, unknown>): Promise<string> {
+        const newState = change['newState'] as string;
+        return this.skillService.updateState(skillIri, newState);
     }
 }
