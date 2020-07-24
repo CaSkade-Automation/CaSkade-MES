@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Skill } from '../../../../shared/models/skill/Skill';
 import { Transition } from '../../../../shared/models/state-machine/Transition';
+import { SkillParameter } from '@shared/models/skill/SkillParameter';
+import { analyzeAndValidateNgModules } from '@angular/compiler';
 
 
 
@@ -15,6 +17,7 @@ export class CommandFeatureComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+      console.log(this.skill);
   }
   getCommandButtonClass(command: Transition) {
       const commandName = command.getLocalName();
@@ -43,5 +46,23 @@ export class CommandFeatureComponent implements OnInit {
       let name = command.iri.split("#")[1];
       name = name.split("_")[0];
       return name;
+  }
+
+  getSteps(parameter: SkillParameter){
+      switch(parameter.type){
+      case "float": return "any";
+      case "int": return "1";
+      }
+  }
+  getDefault(parameter: SkillParameter){
+      if (parameter.default== undefined) {
+          return "";
+      } else {
+          return parameter.default;
+      }
+  }
+
+  executeSkill() {
+      console.log(this.skill.skillParameters);
   }
 }

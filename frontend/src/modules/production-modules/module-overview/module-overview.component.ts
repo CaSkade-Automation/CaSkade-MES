@@ -13,7 +13,7 @@ import { take } from 'rxjs/operators';
 @Component({
     selector: 'app-module-overview',
     templateUrl: './module-overview.component.html',
-    styleUrls: ['./module-overview.component.scss']
+
 })
 export class ModuleOverviewComponent implements OnInit {
 
