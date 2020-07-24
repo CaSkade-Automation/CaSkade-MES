@@ -45,7 +45,8 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?required ?default ?paramOptionValue WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?parameterRequired
+                    ?parameterDefault ?paramOptionValue WHERE {
                 ?skill a Cap:Skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
@@ -57,9 +58,9 @@ export class SkillService {
                     ?skill Cap:hasSkillParameter ?parameterIri.
                     ?parameterIri Cap:hasVariableName ?parameterName;
                         Cap:hasVariableType ?parameterType;
-                        Cap:isRequired ?required.
+                        Cap:isRequired ?parameterRequired.
                     OPTIONAL {
-                        ?parameterIri Cap:hasDefaultValue ?default.
+                        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
                     }
                     OPTIONAL {
                         ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
@@ -91,7 +92,8 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?required ?default ?paramOptionValue WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault
+                ?paramOptionValue WHERE {
                 ?skill a Cap:Skill.
                 FILTER(?skill = IRI("${skillIri}"))
                 ?skill Cap:hasStateMachine ?stateMachine.
@@ -104,9 +106,9 @@ export class SkillService {
                     ?skill Cap:hasSkillParameter ?parameterIri.
                     ?parameterIri Cap:hasVariableName ?parameterName;
                         Cap:hasVariableType ?parameterType;
-                        Cap:isRequired ?required.
+                        Cap:isRequired ?parameterRequired.
                     OPTIONAL {
-                        ?parameterIri Cap:hasDefaultValue ?default.
+                        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
                     }
                     OPTIONAL {
                         ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
@@ -133,7 +135,8 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?required ?default ?paramOptionValue WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault
+                ?paramOptionValue WHERE {
                 <${moduleIri}> Cap:providesSkill ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
@@ -145,9 +148,9 @@ export class SkillService {
                     ?skill Cap:hasSkillParameter ?parameterIri.
                     ?parameterIri Cap:hasVariableName ?parameterName;
                         Cap:hasVariableType ?parameterType;
-                        Cap:isRequired ?required.
+                        Cap:isRequired ?parameterRequired.
                     OPTIONAL {
-                        ?parameterIri Cap:hasDefaultValue ?default.
+                        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
                     }
                     OPTIONAL {
                         ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
@@ -174,7 +177,8 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?required ?default ?paramOptionValue  WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType
+            ?parameterRequired ?parameterDefault ?paramOptionValue WHERE {
                 <${capabilityIri}> Cap:isExecutableVia ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
@@ -189,9 +193,9 @@ export class SkillService {
                     ?skill Cap:hasSkillParameter ?parameterIri.
                     ?parameterIri Cap:hasVariableName ?parameterName;
                         Cap:hasVariableType ?parameterType;
-                        Cap:isRequired ?required.
+                        Cap:isRequired ?parameterRequired.
                     OPTIONAL {
-                        ?parameterIri Cap:hasDefaultValue ?default.
+                        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
                     }
                     OPTIONAL {
                         ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue

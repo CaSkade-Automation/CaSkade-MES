@@ -7,15 +7,20 @@ import { SkillParameter, SkillParameterDto } from './SkillParameter';
 export class Skill extends RdfElement{
     public relatedCapabilities: Array<Capability>;
     public stateMachine: StateMachine;
-    public skillParameters: Array<SkillParameter>;
-    public skillOutputs: Array<SkillParameter>;
+    public skillParameters = new Array<SkillParameter>();
+    public skillOutputs = new Array<SkillParameter>();
 
     constructor(skillDto: SkillDto) {
         super(skillDto.skillIri);
         this.relatedCapabilities = skillDto.capabilityDtos.map(capDto => new Capability(capDto));
         this.stateMachine = Isa88StateMachineBuilder.buildDefault(skillDto.stateMachineIri, skillDto.currentStateTypeIri);
-        this.skillParameters = skillDto.skillParameterDtos.map(paramDto => new SkillParameter(paramDto));
-        this.skillOutputs = skillDto.skillOutputsDtos.map(outputDto => new SkillParameter(outputDto));
+
+        if(skillDto.skillParameterDtos) {
+            this.skillParameters = skillDto.skillParameterDtos.map(paramDto => new SkillParameter(paramDto));
+        }
+        if(skillDto.skillOutputsDtos) {
+            this.skillOutputs = skillDto.skillOutputsDtos.map(outputDto => new SkillParameter(outputDto));
+        }
     }
 
     /**
@@ -45,8 +50,8 @@ export class Skill extends RdfElement{
 export class SkillDto {
     skillIri: string;
     capabilityDtos: CapabilityDto[];
-    skillParameterDtos: SkillParameterDto[];
-    skillOutputsDtos: SkillParameterDto[];
+    skillParameterDtos?: SkillParameterDto[];
+    skillOutputsDtos?: SkillParameterDto[];
     stateMachineIri: string;
     currentStateTypeIri: string;
 }
