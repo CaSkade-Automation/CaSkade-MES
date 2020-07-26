@@ -18,13 +18,11 @@
                 </div>
             </div>
         </div>
-        <div class="col-5">
+        <div  class="col-5">
             <div class="card">
                 <h6 class="card-header">Parameters</h6>
-                <div class="card-body">
-                   
-                        
-                    <form class="was-validated">
+                <div class="card-body">      
+                    <form *ngIf="skill.skillParameters?.length>0" class="was-validated">
                         <div *ngFor="let parameter of skill.skillParameters">
                         <div class="form-group">
                             <label>{{parameter.name}}</label>
@@ -62,6 +60,7 @@
                         </div>
                         </div>
                        <!--<button class="btn btn-primary" type="menu">Submit</button>-->
+                       <button (click)="setParameters()" class="btn btn-primary">Set parameters</button>
                     </form>
               
                 </div>
