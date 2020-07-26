@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { SocketService } from "../../../shared/services/socket.service";
 import { HttpClient } from '@angular/common/http';
 import { ModuleService } from '../../../shared/services/module.service';
-import { SkillExecutor as SkillExecutor } from '../../../shared/services/skill-execution.service';
 import { ProductionModule } from '@shared/models/production-module/ProductionModule';
 import { Command } from '@shared/models/command/Command';
 import { Transition } from '@shared/models/state-machine/Transition';
 import { Skill } from '@shared/models/skill/Skill';
 import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 import { take } from 'rxjs/operators';
+import { SkillExecutionService } from 'src/shared/services/skill-execution.service';
 
 @Component({
     selector: 'app-module-overview',
@@ -20,7 +20,7 @@ export class ModuleOverviewComponent implements OnInit {
     constructor(private httpClient: HttpClient,
         private socketService: SocketService,
         private moduleService: ModuleService,
-        private skillExecutor: SkillExecutor) { }
+        private skillExecutionService: SkillExecutionService) { }
 
     incomingmsg = [];
     modules = new Array<ProductionModule>();

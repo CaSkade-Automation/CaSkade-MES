@@ -5,7 +5,7 @@ import { SkillExecutionRequest } from '@shared/models/skill/SkillExecutionReques
 import { map } from 'rxjs/operators';
 
 @Injectable()
-export class SkillExecutor {
+export class SkillExecutionService {
 
     constructor(private http: HttpClient) {}
 
