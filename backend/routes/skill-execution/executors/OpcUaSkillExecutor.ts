@@ -1,13 +1,10 @@
-import { SkillExecutor } from '../SkillExecutor';
+import { SkillExecutor } from './SkillExecutor';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { opcUaSkillExecutionMapping } from './skill-execution-mappings';
-import { MessageSecurityMode, SecurityPolicy, OPCUAClient, ConnectionStrategy, UserIdentityToken, UserTokenType, UserNameIdentityToken } from 'node-opcua';
+import { MessageSecurityMode, SecurityPolicy, OPCUAClient, ConnectionStrategy, UserNameIdentityToken } from 'node-opcua';
 import { InternalServerErrorException } from '@nestjs/common';
-import { Skill } from '../../../../shared/models/skill/Skill';
-import { exec } from 'child_process';
-import { SkillParameter } from '../../../../shared/models/skill/SkillParameter';
 
 export class OpcUaSkillExecutionService implements SkillExecutor{
 
@@ -15,7 +12,7 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
         initialDelay: 1000,
         maxRetry: 1,
         maxDelay: 10000,
-        randomisationFactor: 2
+        randomisationFactor: 0.5
     };
 
     constructor(
@@ -58,21 +55,27 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
             console.log("session created !");
 
             // step 3: write all variables
-            console.log("params of description");
-            console.log(skillDescription.parameters);
 
-            console.log("params of req");
-            console.log(executionRequest.parameters);
+            for (const param of skillDescription.parameters) {
+                const foundReqParam = executionRequest.parameters.find(reqParam => reqParam.name == param.parameterName);
+                if(foundReqParam) {
+                    const dataToWrite: any = {
+                        dataType: "Int32",
+                        value: foundReqParam.value
+                    };
+                    console.log("data to write");
+                    console.log(dataToWrite);
 
-            // for (const param of skillDescription.parameters) {
-            //     const paramValue = executionRequest.parameters.find(reqParam => {reqParam.name == param.name;});
-            //     const dataToWrite: any = {
-            //         dataType: param.type,
-            //         value: paramValue
-            //     };
-            //     await session.writeSingleNode(param.paramNodeId, dataToWrite);
-            //     console.log("value written");
-            // }
+                    await session.writeSingleNode(param.parameterNodeId, dataToWrite, (err, res) => {
+                        console.log("value written");
+                        console.log(err);
+                        console.log(res);
+                        console.log("asdasda \n");
+                    });
+
+                }
+
+            }
 
 
             //       // step 3 : browse
@@ -123,13 +126,17 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
             };
 
             session.call(methodToCall, (err, res) => {
+                console.log("method called");
+
                 console.log(err);
                 console.log(res);
             });
 
             session.close(true);
             client.disconnect();
-        } catch {
+        } catch (err) {
+            console.log(err);
+
             throw new InternalServerErrorException();
         }
 
@@ -233,33 +240,33 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
         PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
-        SELECT ?skillNodeId ?skillMethod ?methodNodeId ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password
-            ?parameter ?paramRequired ?paramName ?paramType ?paramNodeId WHERE {
-            <${skillIri}> a Cap:OpcUaSkill;
+        SELECT ?skillIri ?skillMethodIri ?skillNodeId ?methodNodeId ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password
+            ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
+            BIND(<${skillIri}> AS ?skillIri).
+            ?skillIri a Cap:OpcUaSkill;
                         OpcUa:nodeId ?skillNodeId.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode <${skillIri}>;
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillIri;
                                       OpcUa:hasEndpointUrl ?endpointUrl;
                                       OpcUa:hasMessageSecurityMode ?messageSecurityMode;
                                       OpcUa:hasSecurityPolicy ?securityPolicy.
             <${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
             ?command a <${commandTypeIri}>;
-                Cap:invokedBy ?skillMethod.
-            ?skillMethod a OpcUa:UAMethod;
-                OpcUa:componentOf <${skillIri}>;
+                Cap:invokedBy ?skillMethodIri.
+            ?skillMethodIri a OpcUa:UAMethod;
+                OpcUa:componentOf ?skillIri;
                 OpcUa:nodeId ?methodNodeId.
             OPTIONAL {
-                <${skillIri}> Cap:hasSkillParameter ?parameter.
-                ?parameter a Cap:SkillParameter;
-                    Cap:hasVariableName ?paramName;
-                    Cap:hasVariableType ?paramType;
-                    Cap:isRequired ?paramRequired;
-                    OpcUa:nodeId ?paramNodeId.
+                ?skillIri Cap:hasSkillParameter ?parameterIri.
+                ?parameterIri a Cap:SkillParameter;
+                    Cap:hasVariableName ?parameterName;
+                    Cap:hasVariableType ?parameterType;
+                    Cap:isRequired ?parameterRequired;
+                    OpcUa:nodeId ?parameterNodeId;
+                    OpcUa:hasDataType ?parameterUaType.
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
         const mappedResult = <unknown>this.converter.convert(queryResult.results.bindings, opcUaSkillExecutionMapping)[0] as OpcUaSkillQueryResult;
-
-        console.log(mappedResult);
 
         const opcUaSkillDescription = new OpcUaSkill(skillIri, commandTypeIri, mappedResult);
         return opcUaSkillDescription;
@@ -301,7 +308,7 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
 }
 
 
-
+// TODO: Align with SkillParameter
 class OpcUaSkillQueryResult {
     skillNodeId: string;
     skillMethod: string;
@@ -311,11 +318,11 @@ class OpcUaSkillQueryResult {
     securityPolicy: string;
     username: string;
     password: string;
-    params: {
-        paramName: string,
-        paramType: string,
-        isRequired: boolean,
-        paramNodeId: string
+    parameters: {
+        parameterName: string,
+        parameterType: string,
+        parameterRequired: boolean,
+        parameterNodeId: string
     }[];
 }
 
@@ -333,7 +340,7 @@ class OpcUaSkill {
     get securityPolicy():string { return this.skillQueryResult.securityPolicy;}
     get username(): string { return this.skillQueryResult.username;}
     get password(): string { return this.skillQueryResult.password;}
-    get parameters(): any[] { return this.skillQueryResult.params;}
+    get parameters(): any[] { return this.skillQueryResult.parameters;}
 }
 
 
