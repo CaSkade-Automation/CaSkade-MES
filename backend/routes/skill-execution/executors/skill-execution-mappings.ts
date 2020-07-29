@@ -1,15 +1,15 @@
 
 const opcUaSkillExecutionMapping = [
     {
-        objectToGroup: 'skill',
-        name: 'skillMethod',
-        toCollect: ['methodNodeId', 'skillNodeId', 'endpointUrl', 'userName', 'password'],
+        objectToGroup: 'skillIri',
+        name: 'skillIri',
+        toCollect: ['skillMethodIri','methodNodeId', 'skillNodeId', 'endpointUrl', 'userName', 'password', 'messageSecurityMode', 'securityPolicy'],
         childRoot: 'parameters'
     },
     {
-        objectToGroup: 'parameter',
-        name: 'parameter',
-        toCollect: ['paramName', 'paramType', 'paramRequired', 'paramNodeId'],
+        objectToGroup: 'parameterIri',
+        name: 'parameterIri',
+        toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired', 'parameterNodeId', 'parameterUaType'],
         childRoot: 'parameters'
     },
 ];
