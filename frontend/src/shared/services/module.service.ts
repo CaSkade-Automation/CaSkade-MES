@@ -72,6 +72,9 @@ export class ModuleService {
             map((data: ProductionModuleDto) => new ProductionModule(data))
         );
     }
-
+    addModule(ontologyString: string): Observable<Record<string, any>> {
+        const apiURL = `${this.apiRoot}/modules`;
+        return this.http.post<ProductionModuleDto>(apiURL, ontologyString);
+    }
 
 }
