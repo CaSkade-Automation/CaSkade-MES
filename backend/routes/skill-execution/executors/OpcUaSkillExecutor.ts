@@ -5,6 +5,7 @@ import { SparqlResultConverter } from 'sparql-result-converter';
 import { opcUaSkillExecutionMapping } from './skill-execution-mappings';
 import { MessageSecurityMode, SecurityPolicy, OPCUAClient, ConnectionStrategy, UserNameIdentityToken } from 'node-opcua';
 import { InternalServerErrorException } from '@nestjs/common';
+import { SkillParameterDto } from '@shared/models/skill/SkillParameter';
 
 export class OpcUaSkillExecutionService implements SkillExecutor{
 
@@ -18,6 +19,9 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
     constructor(
         private graphDbConnection: GraphDbConnectionService,
         private converter = new SparqlResultConverter()) {
+    }
+    setSkillParameters(parameters: SkillParameterDto[]): void {
+        throw new Error("Method not implemented.");
     }
 
 

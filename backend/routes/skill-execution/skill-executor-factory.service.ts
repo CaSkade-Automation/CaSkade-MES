@@ -1,10 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { SkillExecutor } from "./SkillExecutor";
+import { SkillExecutor } from "./executors/SkillExecutor";
 import { OpcUaSkillExecutionService } from "./executors/OpcUaSkillExecutor";
 import { RestSkillExecutionService } from "./executors/RestSkillExecutor";
 import { NullSkillExecutor } from "./executors/NullSkillExecutor";
 import { GraphDbConnectionService } from "../../util/GraphDbConnection.service";
-import { RdfElement } from "../../../shared/models/RdfElement";
 
 @Injectable()
 export class SkillExecutorFactory {
