@@ -1,10 +1,11 @@
 <div class="card border-dark mb-3  border-secondary rounded">
     <h5 class="card-header">{{skill.getLocalName()}}</h5>
     <div class="card-body">
-        <div class="row p-6 mb-2 mr-1 ml-1 bg-light text-dark">
-            <p class="font-weight-bold mr-1">Current state: </p>{{skill.stateMachine.getCurrentState().getLocalName()}}</div>
+       
         <div class="row">
         <div class="col-7">
+            <div class="row p-6 mb-2 mr-1 ml-1 bg-light text-dark">
+                <p class="font-weight-bold mr-1">Current state: </p>{{skill.stateMachine.getCurrentState().getLocalName()}}</div>
             <div class="card">
                 <h6 class="card-header">Executable commands</h6>
                 <div class="card-body">
@@ -12,10 +13,13 @@
                         [disabled]="!this.isActiveCommand(command, skill)"
                         [class]="this.getCommandButtonClass(command)"
                         *ngFor="let command of skill.stateMachine.getCommands()"
-                        (click)="executeSkill(command)">
+                        (click)="executeSkill(command); executionRequested=true">
                         {{getShortName(command)}}
                     </button>
                 </div>
+            </div>
+            <div *ngIf="executionRequested" class="row p-6 mt-2 mb-2 mr-1 ml-1 bg-light text-dark"> 
+                <p class="font-weight-bold mr-1">Requested: </p>{{getShortName(command)}} 
             </div>
             
         </div>
@@ -68,8 +72,8 @@
             </div>
 
         </div>
+            
     </div>
     </div>
 
 </div>
-

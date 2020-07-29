@@ -24,6 +24,7 @@ export class CommandFeatureComponent implements OnInit {
   ) {}
 request: SkillExecutionRequestDto;
  parameterSettings= new Array<any>();
+ command: Transition;
 
  ngOnInit() {
      
@@ -77,13 +78,10 @@ request: SkillExecutionRequestDto;
      newRequest.commandTypeIri=command.iri;
      newRequest.parameters=this.skill.skillParameters;
      newRequest.skillIri=this.skill.iri;
-     //this.request.commandTypeIri=command.iri;
-    
-     // this.request.skillIri=this.skill.iri;  
-     // this.request.parameters=this.skill.skillParameters;       
-     
      this.skillExecutionService.executeService(newRequest);
-     console.log(newRequest);    
+     console.log(newRequest);  
+    
+     this.command=command;
      
       
  }
