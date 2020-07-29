@@ -1,15 +1,19 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpRequest, HttpHeaders, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { SkillExecutionRequest } from '@shared/models/skill/SkillExecutionRequest';
+import {  SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import { map } from 'rxjs/operators';
 
-@Injectable()
-export class SkillExecutor {
+@Injectable({
+    providedIn: 'root'
+}
+
+)
+export class SkillExecutionService {
 
     constructor(private http: HttpClient) {}
 
-    executeService(executionDescription: SkillExecutionRequest) {
+    executeService(executionDescription: SkillExecutionRequestDto) {
         console.log(`service called`);
         console.log(executionDescription);
 

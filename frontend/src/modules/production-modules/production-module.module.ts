@@ -7,7 +7,7 @@ import { FormsModule }   from '@angular/forms';
 // Routing
 import { ModuleManagementRouter } from './production-module.routing';
 import { ProductionModuleComponent } from './production-module.component';
-import { SkillExecutor } from '../../shared/services/skill-execution.service';
+import { SkillExecutionService } from '../../shared/services/skill-execution.service';
 import { CommandFeatureModule } from 'src/shared/command-feature/command-feature.module';
 import { ModuleGraphVisuComponent } from './module-graph-visu/module-graph-visu.component';
 import { ModuleOverviewComponent } from './module-overview/module-overview.component';
@@ -30,7 +30,7 @@ import { ModuleRegistrationComponent } from './module-registration/module-regist
         ModuleRegistrationComponent
     ],
     providers: [
-        SkillExecutor
+        SkillExecutionService
     ]
 })
 export class ModuleManagementModule { }
