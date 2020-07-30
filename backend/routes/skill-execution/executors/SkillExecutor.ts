@@ -3,5 +3,5 @@ import { SkillParameterDto } from "../../../../shared/models/skill/SkillParamete
 
 export interface SkillExecutor {
     executeSkill(executionRequest: SkillExecutionRequestDto): void;
-    setSkillParameters(parameters: SkillParameterDto[]): void;
+    setSkillParameters(skillIri: string, parameters: SkillParameterDto[]): void;
 }
