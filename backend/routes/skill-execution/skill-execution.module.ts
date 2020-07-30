@@ -6,5 +6,6 @@ import { SkillExecutorFactory } from './skill-executor-factory.service';
     imports: [],
     controllers: [SkillExecutionController],
     providers: [SkillExecutorFactory],
+    exports: [SkillExecutorFactory]
 })
 export class SkillExecutionModule {}
