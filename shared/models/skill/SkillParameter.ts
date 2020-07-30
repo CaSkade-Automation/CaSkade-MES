@@ -16,6 +16,18 @@ export class SkillParameter extends RdfElement {
         this.default = paramDto.parameterDefault;
         this.optionValues = paramDto.parameterOptionValues;
     }
+
+    toSkillParameterDto(): SkillParameterDto {
+        return {
+            parameterIri: super.iri,
+            parameterName: this.name,
+            parameterRequired: this.required,
+            parameterType: this.type,
+            parameterDefault: this.default,
+            parameterValue: this.value,
+            parameterOptionValues: this.optionValues
+            }
+    }
 }
 
 

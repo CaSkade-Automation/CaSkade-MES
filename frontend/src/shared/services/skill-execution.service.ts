@@ -3,6 +3,7 @@ import { HttpClient, HttpRequest, HttpHeaders, HttpParams } from "@angular/commo
 import { Observable } from "rxjs";
 import {  SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import { map } from 'rxjs/operators';
+import { SkillParameterDto } from "@shared/models/skill/SkillParameter";
 
 @Injectable({
     providedIn: 'root'
@@ -13,33 +14,14 @@ export class SkillExecutionService {
 
     constructor(private http: HttpClient) {}
 
-    executeService(executionDescription: SkillExecutionRequestDto) {
-        console.log(`service called`);
-        console.log(executionDescription);
-
-        // // construct the request
-        // let headers = new HttpHeaders();
-        // executionDescription.parameters.forEach(parameter => {
-        //   if (parameter.getShortType() == "HeaderParameter") {
-        //     headers.set(parameter.name, parameter.value);
-        //   }
-        // });
-
-        // let queryParams = new HttpParams();
-        // executionDescription.parameters.forEach(parameter => {
-        //   if (parameter.getShortType() == "QueryParameter") {
-        //     queryParams.set(parameter.name, parameter.value);
-        //   }
-        // });
-
-        // let request = new HttpRequest(executionDescription.methodType, executionDescription.fullPath, {
-        //   "headers": headers,
-        //   "params": queryParams
-        // })
-
-        // Send
-        this.http.post(`api/service-executions`, executionDescription);
+    executeService(executionDescription: SkillExecutionRequestDto): Observable<any> {
+        return this.http.post(`api/skill-executions`, executionDescription);
     }
 
+    setParameters(skillIri: string, skillParameters: SkillParameterDto[]): Observable<any> {
+        const encodedIri = encodeURIComponent(skillIri);
+        console.log(`trying to send to: ${encodedIri}`);
+        return this.http.put(`api/skills/${encodedIri}/parameters`, skillParameters);
+    }
 
 }
