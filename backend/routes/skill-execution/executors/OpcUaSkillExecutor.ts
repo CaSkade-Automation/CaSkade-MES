@@ -2,8 +2,8 @@ import { SkillExecutor } from './SkillExecutor';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
-import { opcUaSkillExecutionMapping } from './skill-execution-mappings';
-import { MessageSecurityMode, SecurityPolicy, OPCUAClient, ConnectionStrategy, UserNameIdentityToken } from 'node-opcua';
+import { opcUaSkillExecutionMapping, opcUaSkillParameterMapping } from './skill-execution-mappings';
+import { MessageSecurityMode, SecurityPolicy, OPCUAClient, ConnectionStrategy, UserNameIdentityToken, NodeId, NodeIdType } from 'node-opcua';
 import { InternalServerErrorException } from '@nestjs/common';
 import { SkillParameterDto } from '@shared/models/skill/SkillParameter';
 
@@ -20,13 +20,76 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
         private graphDbConnection: GraphDbConnectionService,
         private converter = new SparqlResultConverter()) {
     }
-    setSkillParameters(parameters: SkillParameterDto[]): void {
-        throw new Error("Method not implemented.");
+
+    async setSkillParameters(skillIri: string, parameters: SkillParameterDto[]): Promise<void> {
+        const parameterDescription = await this.getOpcUaParameterDescription(skillIri);
+
+        const messageSecurityMode = this.getMessageSecurityMode(parameterDescription.messageSecurityMode);
+        const securityPolicy = this.getSecurityPolicy(parameterDescription.securityPolicy);
+        // Set options e.g. for security and similar things
+        const options = {
+            applicationName: "OPS OPC UA Capability Executor",
+            connectionStrategy: this.connectionStrategy,
+            securityMode: messageSecurityMode,
+            securityPolicy: SecurityPolicy.None,
+            endpoint_must_exist: false,
+        };
+
+        // Create a userIdentityToken depending on the securityPolicy
+        // const userIdToken = this.createUserIdentityToken(securityPolicy, parameterDescription);
+        try {
+
+            const client = OPCUAClient.create(options);
+            const endpointUrl = parameterDescription.endpointUrl;
+
+            // step 1 : connect to the endpoint url
+            await client.connect(endpointUrl);
+            console.log("connected !");
+
+            // step 2 : createSession
+            // const session = await client.createSession(userIdentityToken);
+            const session = await client.createSession();
+            console.log("session created !");
+
+            for (const param of parameterDescription.parameters) {
+                const foundReqParam = parameters.find(reqParam => reqParam.parameterName == param.parameterName);
+                if(foundReqParam && foundReqParam.parameterValue) {
+                    const dataToWrite: any = {
+                        dataType: "UInt32",
+                        value: foundReqParam.parameterValue
+                    };
+                    console.log("data to write");
+                    console.log(dataToWrite);
+
+                    // Note: This is how you create a node ID
+                    const paramNodeId = new NodeId(NodeIdType.STRING, param.parameterNodeId,4);
+
+                    console.log("nodeId");
+
+                    console.log(paramNodeId);
+
+                    await session.writeSingleNode(paramNodeId, dataToWrite, (err, res) => {
+                        console.log("value written");
+                        console.log(err);
+                        console.log(res);
+                        console.log("asdasda \n");
+                    });
+
+                }
+
+            }
+        } catch(err) {
+            console.log(err);
+        }
     }
+
+
 
 
     // TODO: Make sure that all required variables are present and that variables get sent first before calling the method
     async executeSkill(executionRequest: SkillExecutionRequestDto): Promise<any> {
+        console.log("trying to set params");
+
         const skillDescription = await this.getOpcUaSkillDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
 
         const messageSecurityMode = this.getMessageSecurityMode(skillDescription.messageSecurityMode);
@@ -62,7 +125,7 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
 
             for (const param of skillDescription.parameters) {
                 const foundReqParam = executionRequest.parameters.find(reqParam => reqParam.name == param.parameterName);
-                if(foundReqParam) {
+                if(foundReqParam && foundReqParam.value) {
                     const dataToWrite: any = {
                         dataType: "Int32",
                         value: foundReqParam.value
@@ -276,6 +339,38 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
         return opcUaSkillDescription;
     }
 
+    private async getOpcUaParameterDescription(skillIri: string): Promise<OpcUaSkillParameterResult> {
+        const query = `
+        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
+        SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password ?parameterIri ?parameterRequired
+            ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
+            BIND(<${skillIri}> AS ?skillIri).
+            ?skillIri a Cap:OpcUaSkill.
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillIri;
+                                      OpcUa:hasEndpointUrl ?endpointUrl;
+                                      OpcUa:hasMessageSecurityMode ?messageSecurityMode;
+                                      OpcUa:hasSecurityPolicy ?securityPolicy.
+            OPTIONAL {
+                ?skillIri Cap:hasSkillParameter ?parameterIri.
+                ?parameterIri a Cap:SkillParameter;
+                    Cap:hasVariableName ?parameterName;
+                    Cap:hasVariableType ?parameterType;
+                    Cap:isRequired ?parameterRequired;
+                    OpcUa:nodeId ?parameterNodeId;
+            }
+        }`;
+        //OpcUa:hasDataType ?parameterUaType.
+        const queryResult = await this.graphDbConnection.executeQuery(query);
+        const mappedResult = <unknown>this.converter.convert(queryResult.results.bindings, opcUaSkillParameterMapping)[0] as OpcUaSkillParameterResult;
+
+        // const opcUaSkillDescription = new OpcUaSkill(skillIri, commandTypeIri, mappedResult);
+        return mappedResult;
+    }
+
+
     private getMessageSecurityMode(messageSecurityModeString: string): MessageSecurityMode {
         switch (messageSecurityModeString) {
         case "http://www.hsu-ifa.de/ontologies/OpcUaMessageSecurityMode_None":
@@ -312,7 +407,7 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
 }
 
 
-// TODO: Align with SkillParameter
+// TODO: Align with SkillParameter, fix this mess
 class OpcUaSkillQueryResult {
     skillNodeId: string;
     skillMethod: string;
@@ -322,12 +417,23 @@ class OpcUaSkillQueryResult {
     securityPolicy: string;
     username: string;
     password: string;
-    parameters: {
-        parameterName: string,
-        parameterType: string,
-        parameterRequired: boolean,
-        parameterNodeId: string
-    }[];
+    parameters: OpcUaSkillParameter[];
+}
+
+class OpcUaSkillParameterResult {
+    endpointUrl: string;
+    messageSecurityMode: string;
+    securityPolicy: string;
+    username: string;
+    password: string;
+    parameters: OpcUaSkillParameter[];
+}
+
+class OpcUaSkillParameter {
+    parameterName: string;
+    parameterType: string;
+    parameterRequired: boolean;
+    parameterNodeId: string
 }
 
 class OpcUaSkill {
