@@ -4,7 +4,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { SkillParameterDto } from '@shared/models/skill/SkillParameter';
 
 export class NullSkillExecutor implements SkillExecutor {
-    setSkillParameters(parameters: SkillParameterDto[]): void {
+    setSkillParameters(skillIri: string, parameters: SkillParameterDto[]): void {
         throw new Error("Method not implemented.");
     }
 

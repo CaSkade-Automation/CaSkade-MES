@@ -6,23 +6,23 @@ import { DebugElement } from '@angular/core';
 import { CommandFeatureComponent } from './command-feature.component';
 
 describe('CommandFeatureComponent', () => {
-  let component: CommandFeatureComponent;
-  let fixture: ComponentFixture<CommandFeatureComponent>;
+    let component: CommandFeatureComponent;
+    let fixture: ComponentFixture<CommandFeatureComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ CommandFeatureComponent ]
-    })
-    .compileComponents();
-  }));
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [ CommandFeatureComponent ]
+        })
+            .compileComponents();
+    }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CommandFeatureComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(CommandFeatureComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

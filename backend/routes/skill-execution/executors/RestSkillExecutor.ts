@@ -13,7 +13,7 @@ export class RestSkillExecutionService implements SkillExecutor {
         private graphDbConnection: GraphDbConnectionService,
         private converter = new SparqlResultConverter()) {}
 
-    setSkillParameters(parameters: SkillParameterDto[]): void {
+    setSkillParameters(skillIri: string, parameters: SkillParameterDto[]): void {
         throw new Error("Method not implemented.");
     }
 

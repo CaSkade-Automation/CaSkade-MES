@@ -19,15 +19,15 @@ export class CommandFeatureComponent implements OnInit {
 
   constructor(
       private skillExecutionService: SkillExecutionService
-      
-  
+
+
   ) {}
 request: SkillExecutionRequestDto;
  parameterSettings= new Array<any>();
  command: Transition;
 
  ngOnInit() {
-     
+
  }
  getCommandButtonClass(command: Transition) {
      const commandName = command.getLocalName();
@@ -72,22 +72,24 @@ request: SkillExecutionRequestDto;
      }
  }
 
- executeSkill(command: Transition) {   
-     console.log(command.iri) ;   
+ executeSkill(command: Transition) {
+     console.log(command.iri) ;
      const newRequest= new SkillExecutionRequestDto;
      newRequest.commandTypeIri=command.iri;
      newRequest.parameters=this.skill.skillParameters;
      newRequest.skillIri=this.skill.iri;
-     this.skillExecutionService.executeService(newRequest);
-     console.log(newRequest);  
-    
+     this.skillExecutionService.executeService(newRequest).subscribe(data => console.log(data));
+     console.log(newRequest);
+
      this.command=command;
-     
-      
+
+
  }
+
  setParameters(){
      this.parameterSettings=this.skill.skillParameters;
-     console.log(this.skill.skillParameters);
+     const parameterDtos = this.skill.skillParameters.map(parameter =>  parameter.toSkillParameterDto());
+     this.skillExecutionService.setParameters(this.skill.iri, parameterDtos).subscribe(data => console.log(data));
  }
 
 }
