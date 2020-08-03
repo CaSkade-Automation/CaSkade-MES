@@ -69,6 +69,9 @@ export class SkillService {
                 })
             ));
     }
-
+    addSkill(ontologyString: string): Observable<Record<string, any>> {
+        const apiURL = `${this.apiRoot}/skills`;
+        return this.http.post<SkillDto>(apiURL, ontologyString);
+    }
 
 }

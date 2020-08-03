@@ -12,6 +12,7 @@ import { CommandFeatureModule } from 'src/shared/command-feature/command-feature
 import { ModuleGraphVisuComponent } from './module-graph-visu/module-graph-visu.component';
 import { ModuleOverviewComponent } from './module-overview/module-overview.component';
 import { ModuleRegistrationComponent } from './module-registration/module-registration.component';
+import { ManualRegistrationModule } from 'src/shared/modules/manual-registration/manual-registration.module';
 
 
 
@@ -21,7 +22,8 @@ import { ModuleRegistrationComponent } from './module-registration/module-regist
         HttpClientModule,
         ModuleManagementRouter,
         FormsModule,
-        CommandFeatureModule
+        CommandFeatureModule,
+        ManualRegistrationModule
     ],
     declarations: [
         ProductionModuleComponent,

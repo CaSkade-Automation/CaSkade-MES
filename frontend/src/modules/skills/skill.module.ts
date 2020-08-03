@@ -6,13 +6,17 @@ import { CommandFeatureModule } from 'src/shared/command-feature/command-feature
 import { SkillOverviewComponent } from './skill-overview/skill-overview.component';
 import { SkillGraphVisuComponent } from './skill-graph-visu/skill-graph-visu.component';
 import { SkillRegistrationComponent } from './skill-registration/skill-registration.component';
+import { ManualRegistrationModule } from 'src/shared/modules/manual-registration/manual-registration.module';
+
 
 
 @NgModule({
     imports: [
         SkillRoutes,
         CommonModule,
-        CommandFeatureModule
+        CommandFeatureModule,
+        ManualRegistrationModule
+
     ],
     declarations: [
         SkillComponent,

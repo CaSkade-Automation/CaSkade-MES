@@ -6,12 +6,14 @@ import { CapabilityOverviewComponent } from './capability-overview/capability-ov
 import { CapabilityGraphVisuComponent } from './capability-graph-visu/capability-graph-visu.component';
 import { CapabilityRegistrationComponent } from './capability-registration/capability-registration.component';
 import { CommandFeatureModule } from 'src/shared/command-feature/command-feature.module';
+import { ManualRegistrationModule } from 'src/shared/modules/manual-registration/manual-registration.module';
 
 @NgModule({
     imports: [
         CommonModule,
         CapabilityRoutes,
-        CommandFeatureModule
+        CommandFeatureModule,
+        ManualRegistrationModule
     ],
     declarations: [
         CapabilityComponent,
