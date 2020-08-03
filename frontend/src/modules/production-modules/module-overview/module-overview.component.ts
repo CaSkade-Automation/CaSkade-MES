@@ -9,6 +9,7 @@ import { Skill } from '@shared/models/skill/Skill';
 import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 import { take } from 'rxjs/operators';
 import { SkillExecutionService } from 'src/shared/services/skill-execution.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-module-overview',
@@ -33,31 +34,22 @@ export class ModuleOverviewComponent implements OnInit {
     commandName: string;
     executableCommands = new Array<Command>();
     //commandList: {name: string; iri: string; active: boolean};
-
+    moduleSubscription: Subscription;
 
 
     ngOnInit(): void {
         console.log("init");
 
-        this.moduleService.getAllModules().subscribe((modules: ProductionModule[]) => {
+        this.moduleSubscription = this.moduleService.getAllModules().subscribe((modules: ProductionModule[]) => {
             this.modules = modules;
         });
 
         //TODO Socket service could be used better if we could get the new module from the socket server
-        this.socketService.getMessage(SocketEventName.ProductionModules_Added).subscribe(msg => {
-            const modules = this.moduleService.getAllModules().pipe(take(1)).subscribe(newModules => {
-                this.addNewModules(newModules);
-            });
-
-            // this.moduleService.getAllModules().subscribe((newModules: ProductionModule[]) => {
-            //     this.addNewModules(newModules);
-            //     // this.modules.forEach(manufacturingModule => {
-            //     //     this.moduleService.getAllCapabilitiesOfModule(manufacturingModule.iri).subscribe(moduleProcesses => {
-            //     //         manufacturingModule.addCapabilities(moduleProcesses);
-            //     //     });
-            //     // });
-            // });
-        });
+        // this.socketService.getMessage(SocketEventName.ProductionModules_Added).subscribe(msg => {
+        //     const modules = this.moduleService.getAllModules().pipe(take(1)).subscribe(newModules => {
+        //         this.addNewModules(newModules);
+        //     });
+        // });
     }
     /*executableCommands=[
         {id:"1", name:"Start", group:"1"},
@@ -181,5 +173,9 @@ export class ModuleOverviewComponent implements OnInit {
                 break;
             }
         }
+    }
+
+    ngOnDestroy(): void {
+        this.moduleSubscription.unsubscribe();
     }
 }
