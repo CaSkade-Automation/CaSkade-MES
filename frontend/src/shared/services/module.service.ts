@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable, forkJoin } from "rxjs";
+import { Observable, forkJoin, Observer } from "rxjs";
 import { ProductionModule, ProductionModuleDto } from "../../../../shared/models/production-module/ProductionModule";
-import { map, flatMap, toArray, tap } from 'rxjs/operators';
+import { map, flatMap, toArray, tap, take } from 'rxjs/operators';
 import { Module } from "../models/module";
 import { CapabilityService } from "./capability.service";
 import { FpbElement } from "../../../../shared/models/fpb/FpbElement";
@@ -11,6 +11,8 @@ import { Capability } from "../../../../shared/models/capability/Capability";
 import { StateMachine } from "../../../../shared/models/state-machine/StateMachine";
 import { State } from "../../../../shared/models/state-machine/State";
 import { Transition } from "../../../../shared/models/state-machine/Transition";
+import { SocketService } from "./socket.service";
+import { SocketEventName } from "@shared/socket-communication/SocketEventName";
 
 @Injectable({
     providedIn: 'root'
@@ -18,9 +20,12 @@ import { Transition } from "../../../../shared/models/state-machine/Transition";
 export class ModuleService {
     apiRoot = "/api";
 
+    observer: Observer<ProductionModule[]>;
+
     constructor(
         private http: HttpClient,
-        private capabilityService: CapabilityService) { }
+        private capabilityService: CapabilityService,
+        private socketService: SocketService) { }
 
 
     // Returns fake data for Tom
@@ -52,6 +57,35 @@ export class ModuleService {
      * Get all modules currently registered
      */
     getAllModules(): Observable<ProductionModule[]> {
+        let modules;
+        this.loadModules().pipe(take(1)).subscribe(initialModules => {
+            modules = initialModules;
+            this.observer.next(modules);
+        });
+
+        this.socketService.getMessage(SocketEventName.ProductionModules_Added).subscribe(msg => {
+            this.loadModules().pipe(take(1)).subscribe((newModules: any) => {
+                // if(modules) {
+                //     this.addNewModules(modules, newModules);
+                // }
+                this.observer.next(newModules);
+            });
+        });
+        return this.createObservable();
+    }
+
+    // addNewModules(oldModules: ProductionModule[], newModules: ProductionModule[]): ProductionModule[] {
+    //     newModules.forEach(module => {
+    //         if (!oldModules.some(currentModule => currentModule.iri == module.iri)) {
+    //             this.modules.push(module);
+    //         }
+    //     });
+    // }
+
+    /**
+     * Loads all modules from GraphDB with an HTTP Rest
+     */
+    private loadModules(): Observable<ProductionModule[]> {
         const apiURL = `${this.apiRoot}/modules`;
         return this.http.get<ProductionModuleDto[]>(apiURL).pipe(
             map(
@@ -59,6 +93,14 @@ export class ModuleService {
                     return new ProductionModule(productionModuleDto);
                 })
             ));
+    }
+
+
+
+    createObservable(): Observable<ProductionModule[]> {
+        return new Observable(observer => {
+            this.observer = observer;
+        });
     }
 
     /**
