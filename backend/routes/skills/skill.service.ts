@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 
 import { SkillDto} from "@shared/models/skill/Skill";
@@ -26,12 +26,12 @@ export class SkillService {
             // create a graph name for the skill (uuid)
             const skillGraphName = uuidv4();
             console.log("Adding Skill");
-
-            this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
+            
+            await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
             this.socketGateway.emitEvent(SocketEventName.Skills_Added);
             return 'New skill successfully added';
         } catch (error) {
-            throw new Error(`Error while registering a new skill. Error: ${error}`);
+            throw new BadRequestException(`Error while registering a new skill. Error: ${error.toString()}`);
         }
     }
 

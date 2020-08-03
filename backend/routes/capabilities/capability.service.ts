@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
@@ -26,11 +26,11 @@ export class CapabilityService {
             // create a graph name for the service (uuid)
             const capabilityGraphName = uuidv4();
 
-            this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
+            await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
             this.socketGateway.emitEvent(SocketEventName.Capabilities_Added);
             return 'New capability successfully added';
         } catch (error) {
-            throw new Error(`Error while registering a new capability. Error: ${error}`);
+            throw new BadRequestException(`Error while registering a new capability. Error: ${error.tostring()}`);
         }
     }
 
