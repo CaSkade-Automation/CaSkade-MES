@@ -136,7 +136,7 @@ export class SkillService {
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
             SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault
-                ?paramOptionValue WHERE {
+                ?parameterOptionValue WHERE {
                 <${moduleIri}> Cap:providesSkill ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
@@ -153,13 +153,19 @@ export class SkillService {
                         ?parameterIri Cap:hasDefaultValue ?parameterDefault.
                     }
                     OPTIONAL {
-                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
+                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?parameterOptionValue
 
                     }
                 }
             }`;
             const queryResult = await this.graphDbConnection.executeQuery(query);
+            console.log("raw result");
+            console.log(queryResult.results.bindings);
+
             const skillDtos = converter.convert(queryResult.results.bindings, skillMapping) as SkillDto[];
+            console.log("converted");
+            console.log(skillDtos[0].skillParameterDtos);
+
             for (const skillDto of skillDtos) {
                 const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
                 skillDto.capabilityDtos = capabilityDtos;

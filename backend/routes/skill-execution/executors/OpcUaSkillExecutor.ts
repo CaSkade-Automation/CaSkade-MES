@@ -3,7 +3,7 @@ import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionReq
 import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { opcUaSkillExecutionMapping, opcUaSkillParameterMapping } from './skill-execution-mappings';
-import { MessageSecurityMode, SecurityPolicy, OPCUAClient, ConnectionStrategy, UserNameIdentityToken, NodeId, NodeIdType } from 'node-opcua';
+import { MessageSecurityMode, SecurityPolicy, OPCUAClient, ConnectionStrategy, UserNameIdentityToken, NodeId, NodeIdType, DataType, decodeNodeId, resolveNodeId } from 'node-opcua';
 import { InternalServerErrorException } from '@nestjs/common';
 import { SkillParameterDto } from '@shared/models/skill/SkillParameter';
 
@@ -44,35 +44,27 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
 
             // step 1 : connect to the endpoint url
             await client.connect(endpointUrl);
-            console.log("connected !");
 
             // step 2 : createSession
             // const session = await client.createSession(userIdentityToken);
             const session = await client.createSession();
-            console.log("session created !");
 
             for (const param of parameterDescription.parameters) {
                 const foundReqParam = parameters.find(reqParam => reqParam.parameterName == param.parameterName);
                 if(foundReqParam && foundReqParam.parameterValue) {
+                    // get node data type. TODO: Check if there's a better way...
+                    const node = NodeId.resolveNodeId(param.parameterNodeId);
+                    const nodeType = await session.getBuiltInDataType(node);
+
                     const dataToWrite: any = {
-                        dataType: "UInt32",
+                        dataType: nodeType,
                         value: foundReqParam.parameterValue
                     };
-                    console.log("data to write");
-                    console.log(dataToWrite);
 
-                    // Note: This is how you create a node ID
-                    const paramNodeId = new NodeId(NodeIdType.STRING, param.parameterNodeId,4);
-
-                    console.log("nodeId");
-
-                    console.log(paramNodeId);
-
-                    await session.writeSingleNode(paramNodeId, dataToWrite, (err, res) => {
+                    await session.writeSingleNode(node, dataToWrite, (err, res) => {
                         console.log("value written");
                         console.log(err);
                         console.log(res);
-                        console.log("asdasda \n");
                     });
 
                 }
@@ -88,8 +80,6 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
 
     // TODO: Make sure that all required variables are present and that variables get sent first before calling the method
     async executeSkill(executionRequest: SkillExecutionRequestDto): Promise<any> {
-        console.log("trying to set params");
-
         const skillDescription = await this.getOpcUaSkillDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
 
         const messageSecurityMode = this.getMessageSecurityMode(skillDescription.messageSecurityMode);
@@ -114,35 +104,34 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
         try {
             // step 1 : connect to the endpoint url
             await client.connect(endpointUrl);
-            console.log("connected !");
 
             // step 2 : createSession
             // const session = await client.createSession(userIdentityToken);
             const session = await client.createSession();
-            console.log("session created !");
 
             // step 3: write all variables
 
             for (const param of skillDescription.parameters) {
                 const foundReqParam = executionRequest.parameters.find(reqParam => reqParam.name == param.parameterName);
                 if(foundReqParam && foundReqParam.value) {
+                    const node = NodeId.resolveNodeId(param.parameterNodeId);
+                    const nodeType = await session.getBuiltInDataType(node);
+
                     const dataToWrite: any = {
-                        dataType: "Int32",
+                        dataType: nodeType,
                         value: foundReqParam.value
                     };
-                    console.log("data to write");
-                    console.log(dataToWrite);
 
                     await session.writeSingleNode(param.parameterNodeId, dataToWrite, (err, res) => {
                         console.log("value written");
                         console.log(err);
                         console.log(res);
-                        console.log("asdasda \n");
                     });
 
                 }
 
             }
+
 
 
             //       // step 3 : browse
@@ -186,21 +175,24 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
             //       console.log("value written");
 
             // step 5: call a method. First construct a methodToCall object
+            const skillNode = NodeId.resolveNodeId(skillDescription.skillNodeId);
+            const methodNode = NodeId.resolveNodeId(skillDescription.methodNodeId);
+
             const methodToCall = {
-                objectId: skillDescription.skillNodeId,
-                methodId: skillDescription.methodNodeId,
+                objectId: skillNode,
+                methodId: methodNode,
                 inputArguments: []
             };
 
             session.call(methodToCall, (err, res) => {
                 console.log("method called");
-
                 console.log(err);
                 console.log(res);
             });
 
             session.close(true);
             client.disconnect();
+
         } catch (err) {
             console.log(err);
 

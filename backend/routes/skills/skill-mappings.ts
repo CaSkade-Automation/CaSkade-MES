@@ -3,19 +3,19 @@ const skillMapping = [
     {
         objectToGroup: 'skill',
         name: 'skillIri',
-        toCollect: ['stateMachine', 'currentStateTypeIri', 'skillParameters', 'skillResults'],
+        toCollect: ['stateMachine', 'currentStateTypeIri'],
         childRoot: 'skillParameterDtos'
     },
     {
-        objectToGroup: 'parameter',
+        objectToGroup: 'parameterIri',
         name: 'parameterIri',
-        toCollect: ['parameterName', 'parameterType', 'required', 'default'],
-        childRoot: 'options'
+        toCollect: ['parameterIri', 'parameterName', 'parameterType', 'parameterRequired', 'parameterDefault'],
+        childRoot: 'parameterOptionValues'
     },
     {
-        objectToGroup: 'paramOptionValue',
-        name: 'optionValue',
-        toCollect: [],
+        objectToGroup: 'parameterOptionValue',
+        name: 'parameterOptionValue',
+        toCollect: ['parameterOptionValue'],
         childRoot: 'options'
     }
 ];
