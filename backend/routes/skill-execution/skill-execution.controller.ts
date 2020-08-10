@@ -14,7 +14,7 @@ export class SkillExecutionController{
     async addNewSkillExecution(@Body() executionRequest: SkillExecutionRequestDto): Promise<string>{
         const skillExecutor = await this.executorFactory.getSkillExecutor(executionRequest.skillIri);
         skillExecutor.executeSkill(executionRequest);
-        return "asd";
+        return "Execution successful. This should return SkillOutputs soon...";
     }
 
 }
