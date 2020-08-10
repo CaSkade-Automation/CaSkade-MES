@@ -29,9 +29,7 @@ import { throwError } from 'rxjs';
 
 @Component({
     selector: 'app-diagram',
-    template: `
-    <div #ref class="diagram-container"></div>
-  `,
+    templateUrl: './bpmn-diagram.component.html',
     styles: [
         `
       .diagram-container {
