@@ -7,10 +7,10 @@ import { Component} from '@angular/core';
     styleUrls: ['./skill-processes.component.scss']
 })
 export class SkillProcessesComponent {
-    diagramUrl = 'https://cdn.staticaly.com/gh/bpmn-io/bpmn-js-examples/dfceecba/starter/diagram.bpmn';
+    // diagramUrl = 'https://cdn.staticaly.com/gh/bpmn-io/bpmn-js-examples/dfceecba/starter/diagram.bpmn';
     importError?: Error;
 
-    handleImported(event) {
+    handleImported(event): void {
 
         const {
             type,
