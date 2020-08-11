@@ -3,16 +3,15 @@ import {
     Component,
     ElementRef,
     Input,
-    OnChanges,
     OnDestroy,
     Output,
     ViewChild,
-    SimpleChanges,
     EventEmitter
 } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
 import { catchError } from 'rxjs/operators';
+import { emptyXml} from './emptyDiagram';
 
 /**
  * You may include a different variant of BpmnJS:
@@ -21,7 +20,7 @@ import { catchError } from 'rxjs/operators';
  *                to navigate them
  * bpmn-modeler - bootstraps a full-fledged BPMN editor
  */
-import * as BpmnJS from 'bpmn-js/dist/bpmn-modeler.production.min.js';
+import * as BpmnModeler from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
 import { importDiagram } from './rx';
 
@@ -39,63 +38,93 @@ import { throwError } from 'rxjs';
     `
     ]
 })
-export class BpmnDiagramComponent implements AfterContentInit, OnChanges, OnDestroy {
-  private bpmnJS: BpmnJS;
+export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
+  private bpmnModeler: BpmnModeler;
 
   @ViewChild('ref', { static: true }) private el: ElementRef;
   @Output() private importDone: EventEmitter<any> = new EventEmitter();
 
   @Input() private url: string;
 
+  clickedElement: any;
+  showPropertiesPanel: boolean;
+
   constructor(private http: HttpClient) {
 
-      this.bpmnJS = new BpmnJS();
+      this.bpmnModeler = new BpmnModeler({
+          //   container: '#canvas',
+          //   width: '100vw',
+          //   height: '100vh',
+          //   additionalModules: [
+          //       // {[InjectionNames.elementTemplates]: ['type', ElementTemplates.elementTemplates[1]]},
+          //       // {[InjectionNames.propertiesProvider]: ['type', CamundaPropertiesProvider.propertiesProvider[1]]},
 
-      this.bpmnJS.on('import.done', ({ error }) => {
+          //       // {[InjectionNames.originalPaletteProvider]: ['type', OriginalPaletteProvider]},
+
+          //       PropertiesPanelModule
+          //   ],
+          //   propertiesPanel: {
+          //       parent: '#properties'
+          //   },
+          //   moddleExtensions: {
+          //       // camunda: CamundaModdleDescriptor
+          //   }
+      });
+
+
+      this.bpmnModeler.importXML(emptyXml);
+      const eventBus = this.bpmnModeler.get('eventBus');
+      console.log(eventBus);
+      this.bpmnModeler.on('element.click', (event) => this.onDiagramElementClicked(event));
+
+      this.bpmnModeler.on('import.done', ({ error }) => {
           if (!error) {
-              this.bpmnJS.get('canvas').zoom('fit-viewport');
+              this.bpmnModeler.get('canvas').zoom('fit-viewport');
           }
       });
   }
 
   ngAfterContentInit(): void {
-      this.bpmnJS.attachTo(this.el.nativeElement);
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-      // re-import whenever the url changes
-      if (changes.url) {
-          this.loadUrl(changes.url.currentValue);
-      }
+      this.bpmnModeler.attachTo(this.el.nativeElement);
   }
 
   ngOnDestroy(): void {
-      this.bpmnJS.destroy();
+      this.bpmnModeler.destroy();
   }
 
-  /**
+
+  onDiagramElementClicked(event) {
+      console.log("showingPanel");
+      this.clickedElement = event.element;
+      console.log(this.clickedElement);
+
+
+      this.showPropertiesPanel = !this.showPropertiesPanel;
+  }
+
+    /**
    * Load diagram from URL and emit completion event
    */
-  loadUrl(url: string) {
+    //   loadUrl(url: string) {
 
-      return (
-          this.http.get(url, { responseType: 'text' }).pipe(
-              catchError(err => throwError(err)),
-              importDiagram(this.bpmnJS)
-          ).subscribe(
-              (warnings) => {
-                  this.importDone.emit({
-                      type: 'success',
-                      warnings
-                  });
-              },
-              (err) => {
-                  this.importDone.emit({
-                      type: 'error',
-                      error: err
-                  });
-              }
-          )
-      );
-  }
+//       return (
+//           this.http.get(url, { responseType: 'text' }).pipe(
+//               catchError(err => throwError(err)),
+//               importDiagram(this.bpmnJS)
+//           ).subscribe(
+//               (warnings) => {
+//                   this.importDone.emit({
+//                       type: 'success',
+//                       warnings
+//                   });
+//               },
+//               (err) => {
+//                   this.importDone.emit({
+//                       type: 'error',
+//                       error: err
+//                   });
+//               }
+//           )
+//       );
+//   }
 }
