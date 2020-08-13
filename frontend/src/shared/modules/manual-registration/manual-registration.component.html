@@ -1,0 +1,16 @@
+<html>
+  <h1>Manual Registration</h1>
+  <body>
+    <form>
+      Insert Ontology :<br>
+      <div class="text-danger">{{errMessage}}</div>
+      <textarea class="form-control" [(ngModel)]="ontologyString" name="ontologyString" rows="15" ></textarea>
+      <div class="box box-info">
+        <form class="form-horizontal">
+            <button class="btn btn-primary" (click)="saveOntology()" >Submit Ontology </button> 
+            <button class="btn btn-primary" style="margin-left: 10px;" (click)="ontologyString=''" >Clear </button> 
+        </form>
+      </div>
+    </form>
+  </body>
+</html>

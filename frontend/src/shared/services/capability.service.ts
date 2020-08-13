@@ -51,5 +51,8 @@ export class CapabilityService {
             map((data: CapabilityDto[]) => data.map(capabilityDto => new Capability(capabilityDto))
             ));
     }
-
+    addCapability(ontologyString: string): Observable<Record<string, any>> {
+        const apiURL = `${this.apiRoot}/capabilities`;
+        return this.http.post<CapabilityDto>(apiURL, ontologyString);
+    }
 }
