@@ -1,7 +1,7 @@
 <div class="card border-dark mb-3  border-secondary rounded">
-    <h5 class="card-header">{{skill.getLocalName()}}</h5>
+    <h5 class="card-header" title="{{skill.iri}}">{{skill.getLocalName()}}</h5>
     <div class="card-body">
-       
+
         <div class="row">
         <div class="col-lg-7 col-md-12">
             <div class="row p-6 mb-2 mr-1 ml-1 bg-light text-dark">
@@ -18,15 +18,15 @@
                     </button>
                 </div>
             </div>
-            <div *ngIf="executionRequested" class="row p-6 mt-2 mb-2 mr-1 ml-1 bg-light text-dark"> 
-                <p class="font-weight-bold mr-1">Requested: </p>{{getShortName(command)}} 
+            <div *ngIf="executionRequested" class="row p-6 mt-2 mb-2 mr-1 ml-1 bg-light text-dark">
+                <p class="font-weight-bold mr-1">Requested: </p>{{getShortName(command)}}
             </div>
-            
+
         </div>
         <div  class="col-lg-5 col-md-12">
             <div class="card">
                 <h6 class="card-header">Parameters</h6>
-                <div class="card-body">      
+                <div class="card-body">
                     <form *ngIf="skill.skillParameters?.length>0" class="was-validated">
                         <div *ngFor="let parameter of skill.skillParameters">
                         <div class="form-group">
@@ -38,41 +38,41 @@
                                 <ng-template #notRequired>
                                     <input type="number"  step="{{getSteps(parameter)}}" class="form-control is-invalid" placeholder="{{parameter.name}}" >
                                 </ng-template>
-                                
+
                             </ng-container>
                             <ng-template #defined>
                                 <select class="form-control" placeholder="Chose an option">
                                     <option *ngFor="let optionValue of parameter.optionValues">{{optionValue}}</option>
-                                  
+
                                 </select>
                             </ng-template>
-                            
 
 
 
 
-                           
-                            
+
+
+
                         <!--<label>Parameter Number <label>
-                            <input type="number" class="form-control is-invalid" placeholder="Bohrtiefe in mm" required> 
+                            <input type="number" class="form-control is-invalid" placeholder="Bohrtiefe in mm" required>
                             <div class="invalid-feedback"></div>
                             <label>Parameter options</label>
                             <select class="form-control" placeholder="Chose an option">
                                 <option>Option 1</option>
                                 <option>Option 2</option>
                                 <option>Option 3</option>
-                            </select>--> 
+                            </select>-->
                         </div>
                         </div>
                        <!--<button class="btn btn-primary" type="menu">Submit</button>-->
                        <button (click)="setParameters()" class="btn btn-primary">Set parameters</button>
                     </form>
-              
+
                 </div>
             </div>
 
         </div>
-            
+
     </div>
     </div>
 
