@@ -26,7 +26,7 @@ export class SkillService {
             // create a graph name for the skill (uuid)
             const skillGraphName = uuidv4();
             console.log("Adding Skill");
-            
+
             await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
             this.socketGateway.emitEvent(SocketEventName.Skills_Added);
             return 'New skill successfully added';
@@ -159,12 +159,7 @@ export class SkillService {
                 }
             }`;
             const queryResult = await this.graphDbConnection.executeQuery(query);
-            console.log("raw result");
-            console.log(queryResult.results.bindings);
-
             const skillDtos = converter.convert(queryResult.results.bindings, skillMapping) as SkillDto[];
-            console.log("converted");
-            console.log(skillDtos[0].skillParameterDtos);
 
             for (const skillDto of skillDtos) {
                 const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
