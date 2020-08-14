@@ -116,23 +116,28 @@ export class ModuleService {
             const graphQueryResults = await this.graphDbConnection.executeQuery(`
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
+
             SELECT ?module ?g WHERE {
                 GRAPH ?g {
                     BIND(IRI("${moduleIri}") AS ?module).
                     {
-                    ?module a/sesame:directSubClassOf VDI3682:TechnicalResource.
-                    } UNION {
-                        ?module ?providesSomeSkill ?skill.
-                        ?providesSomeSkill sesame:directSubPropertyOf Cap:providesSkill.
+                        ?module a ?type.
+                    }   UNION {
+                        ?module Cap:providesSkill ?skill.
                     }
                 }
+                VALUES ?type {VDI2206:Module VDI2206:System VDI3682:TechnicalResource}
             }`);
 
+            console.log(graphQueryResults);
+
             const resultBindings = graphQueryResults.results.bindings;
-            resultBindings.forEach(binding => {
+            for (const binding of resultBindings) {
                 const graphName = binding.g.value;
-                this.graphDbConnection.clearGraph(graphName); // clear graph
-            });
+                console.log(graphName);
+                await this.graphDbConnection.clearGraph(graphName); // clear graph
+            }
             return `Successfully deleted module with IRI ${moduleIri}`;
         } catch (error) {
             throw new Error(`Error while deleting module with IRI ${moduleIri}. Error: ${error}`);
