@@ -109,6 +109,8 @@ export class ModuleService {
      * @param moduleIri IRI of the module to delete
      */
     async deleteModule(moduleIri: string): Promise<string> {
+        console.log("deleting module");
+
         try {
             // Get module's graph
             // TODO: This could be moved into a separate graph model
@@ -117,17 +119,26 @@ export class ModuleService {
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
+            PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-            SELECT ?module ?g WHERE {
+            SELECT * WHERE {
+                # Get the type with which module was registered
+                # This has to be made before getting the graph because inferred facts are not stored in any graph and lead to problems
+                BIND(IRI(<${moduleIri}>) AS ?module)
+                ?module a ?type.
+                ?type sesame:directSubClassOf VDI3682:TechnicalResource.
+                ?module ?prop ?skill.
+                ?skill a Cap:Skill.
+                ?prop sesame:directSubPropertyOf Cap:providesSkill.
                 GRAPH ?g {
-                    BIND(IRI("${moduleIri}") AS ?module).
                     {
                         ?module a ?type.
                     }   UNION {
-                        ?module Cap:providesSkill ?skill.
+                        ?module ?prop ?skill.
                     }
                 }
-                VALUES ?type {VDI2206:Module VDI2206:System VDI3682:TechnicalResource}
             }`);
 
             console.log(graphQueryResults);
@@ -135,6 +146,7 @@ export class ModuleService {
             const resultBindings = graphQueryResults.results.bindings;
             for (const binding of resultBindings) {
                 const graphName = binding.g.value;
+                console.log("deleting graph");
                 console.log(graphName);
                 await this.graphDbConnection.clearGraph(graphName); // clear graph
             }

@@ -157,22 +157,25 @@ export class ModuleOverviewComponent implements OnInit {
 
 
 
-    disconnectModule(moduleIri) {
-        // TODO: Post to API to really delete element
-        this.httpClient.delete(`api/modules/${moduleIri}`).subscribe(
-            data => { this.removeModuleCard(moduleIri); }),
-        error => console.log('An error happened, module could not be disconnected'
-        );
-    }
+    deleteModule(moduleIri) {
+        const encodedModuleIri = encodeURIComponent(moduleIri);
+        console.log(encodedModuleIri);
+
+        this.httpClient.delete(`api/modules/${encodedModuleIri}`).subscribe(
+            error => console.log(`Module could not be deleted, error: ${error}`),
+            complete => this.removeModuleCard(moduleIri)
+
+            // next => console.log("next value"),
+            // error => {this.removeModuleCard(moduleIri); });
+            // complete => {console.log('An error happened, module could not be deleted');};
+        );}
 
     removeModuleCard(moduleIri) {
+        console.log("removing module card");
+
         // remove module with that id from the list
-        for (let i = 0; i < this.modules.length; i++) {
-            if (this.modules[i].iri == moduleIri) {
-                this.modules.splice(i, 1);
-                break;
-            }
-        }
+        const moduleIndex = this.modules.findIndex(module => module.iri == moduleIri);
+        this.modules.splice(moduleIndex, 1);
     }
 
     ngOnDestroy(): void {
