@@ -3,19 +3,23 @@
         <h3>Properties</h3>
     </div>
     <div class="card-body">
-        <form>
-            <div class="form-group form-row">
-              <label class="col-sm-4 col-form-label">Type:</label>
-              <div class="col-sm-6">
-                <input type="text" readonly class="form-control-plaintext form-control-sm" value="{{element.type}}">
+        <div>
+            <form (ngSubmit)="onSubmit()" [formGroup]="form">
+
+              <div *ngFor="let property of properties" class="form-row">
+                <dynamic-property [property]="property" [form]="form"></dynamic-property>
               </div>
-            </div>
-            <div class="form-group form-row">
-              <label class="col-sm-4 col-form-label">ID:</label>
-              <div class="col-sm-6">
-                <input type="text" readonly class="form-control-plaintext form-control-sm" value="{{element.id}}">
+
+              <div class="form-row">
+                <button class="btn btn-primary" type="submit" [disabled]="!form.valid">Save</button>
               </div>
+            </form>
+
+            <div *ngIf="payLoad" class="form-row">
+              <strong>Saved the following values</strong><br>{{payLoad}}
             </div>
-          </form>
+          </div>
     </div>
 </div>
+
+
