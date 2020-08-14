@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { GraphDbRepoService, DbConfig } from '../../../shared/services/GraphDbRepoService.service'
-import { Observable } from 'rxjs';
-import { take, catchError } from 'rxjs/operators';
-import { HttpErrorResponse } from '@angular/common/http';
-
+import { GraphDbRepoService, DbConfig, GraphDbRepositoryInfo } from '../../../shared/services/GraphDbRepoService.service';
+import { take } from 'rxjs/operators';
 
 @Component({
     selector: 'graphdb-settings',
@@ -11,7 +8,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 
 export class GraphDbSettingsComponent implements OnInit{
-    repositories: String[];
+    repositories: GraphDbRepositoryInfo[];
 
     dbConfig: DbConfig = {
         host: "",
@@ -26,7 +23,7 @@ export class GraphDbSettingsComponent implements OnInit{
 
     constructor(private repoService: GraphDbRepoService) {}
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.repoService.getCurrentConfig().pipe(take(1)).subscribe(config => {
             this.dbConfig = config;
         });
@@ -34,27 +31,27 @@ export class GraphDbSettingsComponent implements OnInit{
             this.repositories = repos;
         });
     }
-    
-    changeConfig(){
+
+    changeConfig(): void{
         this.startLoading();
         this.showWarning = false;
-        
+
         this.repoService.changeConfig(this.dbConfig)
-        .subscribe(
-            (response:any) => {          
-                this.endLoading()
+            .subscribe(
+                (response: any) => {
+                    this.endLoading();
                     this.repoService.getRepositories().pipe(take(1)).subscribe(repos => {
                         this.repositories = repos;
-                });
-            }, 
-            (err:any) => {
-                this.endLoading();
-                this.showWarning = true;
-            }
-        );
+                    });
+                },
+                (err: any) => {
+                    this.endLoading();
+                    this.showWarning = true;
+                }
+            );
     }
 
-    changeRepository(newRepoId) {       
+    changeRepository(newRepoId) {
         this.repoService.changeRepository(newRepoId).subscribe();
     }
 

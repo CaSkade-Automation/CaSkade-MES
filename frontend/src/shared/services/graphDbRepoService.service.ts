@@ -22,8 +22,8 @@ export class GraphDbRepoService {
             })) as Observable<DbConfig>;
     }
 
-    getRepositories(): Observable<string[]> {
-        return <Observable<string[]>>this.httpClient.get('/api/graph-repositories');
+    getRepositories(): Observable<GraphDbRepositoryInfo[]> {
+        return this.httpClient.get('/api/graph-repositories') as Observable<GraphDbRepositoryInfo[]>;
     }
 
     changeRepository(newRepoId: string) {
@@ -40,4 +40,12 @@ export interface DbConfig {
   user: string;
   password: string;
   selectedRepo: string;
+}
+
+export interface GraphDbRepositoryInfo {
+    id: string;
+    readable: string;
+    title: string;
+    uri: string;
+    writable: string;
 }
