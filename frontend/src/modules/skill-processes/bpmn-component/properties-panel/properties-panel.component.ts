@@ -1,5 +1,11 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { FormGroup } from '@angular/forms';
+import { BaseProperty, SkillSelectionProperty } from './properties-subcomponents/Property';
+import { PropertyController } from './properties-subcomponents/property-controller/PropertyController';
+import { SkillService } from 'src/shared/services/skill.service';
+import { FlowPropertyController } from './properties-subcomponents/property-controller/FlowPropertyController';
+import { ServiceTaskPropertyController } from './properties-subcomponents/property-controller/ServiceTaskPropertyController';
 
 @Component({
     selector: 'properties-panel',
@@ -20,22 +26,51 @@ import { trigger, transition, style, animate } from '@angular/animations';
     templateUrl: './properties-panel.component.html',
     styleUrls: ['./properties-panel.component.scss'],
 })
-export class PropertiesPanelComponent {
+export class PropertiesPanelComponent implements OnChanges {
     @Input() show: boolean;
-    @Input() element: any;
+    @Input() bpmnElement: any;
+
+    propertyController: PropertyController;
+    properties: BaseProperty<string>[];
 
     isMenuOpen = false;
 
-    clickedDivState = 'start';
+    form: FormGroup;
+    payLoad = '';
 
-    changeDivState() {
-        this.clickedDivState = 'end';
-        setTimeout(() => {
-            this.clickedDivState = 'start';
-        }, 3000);
+    constructor(private skillService: SkillService) {}
+
+    ngOnChanges(changes: SimpleChanges): void {
+        switch (this.bpmnElement.type) {
+        case "bpmn:SequenceFlow":
+            this.propertyController = new FlowPropertyController();
+            break;
+        case "bpmn:ServiceTask":
+            this.propertyController = new ServiceTaskPropertyController(this.skillService);
+            break;
+        default:
+            this.propertyController = new PropertyController();
+            break;
+        }
+
+        this.properties = this.propertyController.createProperties(this.bpmnElement);
+        this.form = this.propertyController.toFormGroup(this.properties);
     }
 
-    toggleMenu(): void {
-        this.isMenuOpen = !this.isMenuOpen;
+
+    onSubmit() {
+        this.payLoad = this.form.getRawValue();
+        console.log("form value");
+        console.log(this.form.value);
+        console.log("the form");
+        console.log(this.form);
+
+        // apply some transformations to make sure input matches BPMN
+        const transformedValues = this.propertyController.transformFormValues(this.payLoad);
+
     }
+
+    // toggleMenu(): void {
+    //     this.isMenuOpen = !this.isMenuOpen;
+    // }
 }
