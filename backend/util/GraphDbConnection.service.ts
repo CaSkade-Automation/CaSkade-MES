@@ -34,6 +34,10 @@ export class GraphDbConnectionService {
         }
     }
 
+    updateConfig(key: string, value: string) {
+        this.config[key] = value;
+    }
+
 
     getConfig(): GraphDbConfig {
         return this.config;

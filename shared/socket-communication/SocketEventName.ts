@@ -5,7 +5,7 @@ export enum SocketEventName {
 
     Skills_Added = "skills/added",
     Skills_Deleted = "skills/deleted",
-    Skills_Changed = "skills/changed",
+    Skills_StateChanged = "skills/state-changed",
 
     Capabilities_Added = "capabilities/added",
     Capabilities_Deleted = "capabilities/deleted",
