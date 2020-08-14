@@ -80,7 +80,6 @@ export class GraphDbConnectionService {
             'Content-Type': contentType
         };
 
-
         try {
             const dbResponse = await Axios.post(url, statement,{ 'headers': headers });
 
@@ -101,11 +100,11 @@ export class GraphDbConnectionService {
      * Execute a query against the currently selected repository
      * @param {*} queryString The query to execute
      */
-    async executeQuery(queryString): Promise<GraphDbResult> {
+    private async executeSparqlRequest(queryString:string, contentType: string): Promise<GraphDbResult> {
         const headers = {
             "Authorization": this.createBase64AuthString(),
             "Accept": "application/sparql-results+json",
-            "Content-Type": "application/sparql-query"
+            "Content-Type": contentType
         };
 
         try {
@@ -125,6 +124,17 @@ export class GraphDbConnectionService {
             }
         }
     }
+
+    executeQuery(sparqlQuery: string) : Promise<GraphDbResult> {
+        return this.executeSparqlRequest(sparqlQuery, "application/sparql-query");
+    }
+
+    executeUpdate(sparqlUpdate: string) {
+        return this.executeStatement(sparqlUpdate,"","application/sparql-update");
+    }
+
+
+
 
 
     /**
