@@ -254,23 +254,24 @@ export class SkillService {
         }
     }
 
-    async updateState(skillIri:string, newState: string): Promise<string> {
-        // delete old current State
+    async updateState(skillIri:string, newStateType: string): Promise<string> {
         try {
             const deleteQuery = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             DELETE WHERE {
                 <${skillIri}> Cap:hasCurrentState ?oldCurrentState.
             }`;
-            await this.graphDbConnection.executeQuery(deleteQuery);
+            await this.graphDbConnection.executeUpdate(deleteQuery);
 
             const insertQuery = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-            DELETE WHERE {
-                <${skillIri}> Cap:hasCurrentState <${newState}>.
+            INSERT {
+                <${skillIri}> Cap:hasCurrentState ?newState.
+            } WHERE {
+                ?newState a <${newStateType}>.
             }`;
-            const queryResult = await this.graphDbConnection.executeQuery(insertQuery);
-
+            const queryResult = await this.graphDbConnection.executeUpdate(insertQuery);
+            this.socketGateway.emitEvent(SocketEventName.Skills_Changed, {skillIri: skillIri});
             return `Sucessfully updated currentState of skill ${skillIri}`;
         } catch (error) {
             throw new Error(

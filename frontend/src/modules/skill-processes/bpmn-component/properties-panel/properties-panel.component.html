@@ -1,0 +1,25 @@
+<div class="card properties-container" *ngIf="show" [@enterAnimation]>
+    <div class="card-header">
+        <h3>Properties</h3>
+    </div>
+    <div class="card-body">
+        <div>
+            <form (ngSubmit)="onSubmit()" [formGroup]="form">
+
+              <div *ngFor="let property of properties" class="form-row">
+                <dynamic-property [property]="property" [form]="form"></dynamic-property>
+              </div>
+
+              <div class="form-row">
+                <button class="btn btn-primary" type="submit" [disabled]="!form.valid">Save</button>
+              </div>
+            </form>
+
+            <div *ngIf="payLoad" class="form-row">
+              <strong>Saved the following values</strong><br>{{payLoad}}
+            </div>
+          </div>
+    </div>
+</div>
+
+
