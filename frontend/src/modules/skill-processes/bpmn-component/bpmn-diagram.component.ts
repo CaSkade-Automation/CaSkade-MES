@@ -102,6 +102,12 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
       this.showPropertiesPanel = !this.showPropertiesPanel;
   }
 
+  saveProcess(): void {
+      this.bpmnModeler.saveXML({ format: true }, function (err, xml) {
+          const processXml = xml;
+      });
+  }
+
     /**
    * Load diagram from URL and emit completion event
    */
