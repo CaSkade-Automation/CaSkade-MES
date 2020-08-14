@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -26,14 +26,12 @@ export class GraphDbRepoService {
         return this.httpClient.get('/api/graph-repositories') as Observable<GraphDbRepositoryInfo[]>;
     }
 
-    changeRepository(newRepoId: string) {
+    changeRepository(newRepoId: string): Observable<Record<string, any>> {
         const newRepo = {"selectedRepo" : newRepoId};
         return this.httpClient.patch('/api/graph-repositories/config', newRepo);
     }
 
 }
-
-
 
 export interface DbConfig {
   host: string;
