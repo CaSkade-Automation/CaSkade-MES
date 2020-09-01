@@ -95,7 +95,7 @@ export class ModuleService {
                     ${filterClause}
                 }`;
             const queryResult = await this.graphDbConnection.executeQuery(query);
-            const productionModules = converter.convert(queryResult.results.bindings, moduleMapping) as Array<ProductionModuleDto>;
+            const productionModules = converter.convertToDefinition(queryResult.results.bindings, moduleMapping).modules as Array<ProductionModuleDto>;
             return productionModules;
         } catch (error) {
             console.error(`Error while returning all mfgModules, ${error}`);

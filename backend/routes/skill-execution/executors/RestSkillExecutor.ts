@@ -88,7 +88,7 @@ export class RestSkillExecutionService implements SkillExecutor {
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const mappedResult = this.converter.convert(queryResult.results.bindings, opcUaSkillExecutionMapping);
+        // const mappedResult = this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillExecutionMapping);
         return null;
     }
 

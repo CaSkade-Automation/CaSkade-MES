@@ -1,23 +1,42 @@
+import { MappingDefinition } from "sparql-result-converter";
 
-const skillMapping = [
+const skillMapping: MappingDefinition[] = [
     {
-        objectToGroup: 'skill',
+        rootName: 'skills',
+        propertyToGroup: 'skill',
         name: 'skillIri',
         toCollect: ['stateMachine', 'currentStateTypeIri'],
-        childRoot: 'skillParameterDtos'
+        childMappings: [
+            {
+                rootName: 'skillParameterDtos',
+                propertyToGroup: 'parameterIri',
+                name: 'parameterIri',
+                toCollect: ['parameterIri', 'parameterName', 'parameterType', 'parameterRequired', 'parameterDefault'],
+                childMappings: [
+                    {
+                        rootName: 'parameterOptionValues',
+                        propertyToGroup: 'parameterOptionValue',
+                        name: 'parameterOptionValue',
+                    }
+                ]
+            },
+            {
+                rootName: 'skillOutputDtos',
+                propertyToGroup: 'outputIri',
+                name: 'outputIri',
+                toCollect: ['outputIri', 'outputName', 'outputType', 'outputRequired', 'outputDefault'],
+                childMappings: [
+                    {
+                        rootName: 'outputOptionValues',
+                        propertyToGroup: 'outputOptionValue',
+                        name: 'outputOptionValues',
+                    }
+                ]
+            },
+        ]
     },
-    {
-        objectToGroup: 'parameterIri',
-        name: 'parameterIri',
-        toCollect: ['parameterIri', 'parameterName', 'parameterType', 'parameterRequired', 'parameterDefault'],
-        childRoot: 'parameterOptionValues'
-    },
-    {
-        objectToGroup: 'parameterOptionValue',
-        name: 'parameterOptionValue',
-        toCollect: ['parameterOptionValue'],
-        childRoot: 'options'
-    }
+
+
 ];
 
 export {

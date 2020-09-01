@@ -325,7 +325,7 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const mappedResult = <unknown>this.converter.convert(queryResult.results.bindings, opcUaSkillExecutionMapping)[0] as OpcUaSkillQueryResult;
+        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillExecutionMapping).skillExecutionInfos[0] as OpcUaSkillQueryResult;
 
         const opcUaSkillDescription = new OpcUaSkill(skillIri, commandTypeIri, mappedResult);
         return opcUaSkillDescription;
@@ -356,7 +356,7 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
         }`;
         //OpcUa:hasDataType ?parameterUaType.
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const mappedResult = <unknown>this.converter.convert(queryResult.results.bindings, opcUaSkillParameterMapping)[0] as OpcUaSkillParameterResult;
+        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillParameterMapping).skillParameters[0] as OpcUaSkillParameterResult;
 
         // const opcUaSkillDescription = new OpcUaSkill(skillIri, commandTypeIri, mappedResult);
         return mappedResult;
