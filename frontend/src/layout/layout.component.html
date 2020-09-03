@@ -1,6 +1,8 @@
 <app-header></app-header>
 <app-sidebar (collapsedEvent)="receiveCollapsed($event)"></app-sidebar>
 <section class="main-container" [ngClass]="{collapsed: collapedSideBar}">
-    <div><app-registration-message></app-registration-message></div>
+    <div style="position: fixed; top: 60px; right: 50px; width: fit-content;">
+     <app-registration-message></app-registration-message>
+    </div>
     <router-outlet></router-outlet>
 </section>
