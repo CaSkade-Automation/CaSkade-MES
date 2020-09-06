@@ -23,6 +23,7 @@
             </div>
 
         </div>
+
         <div  class="col-lg-5 col-md-12">
             <div class="card">
                 <h6 class="card-header">Parameters</h6>
@@ -42,35 +43,45 @@
                             </ng-container>
                             <ng-template #defined>
                                 <select class="form-control" placeholder="Chose an option">
-                                    <option *ngFor="let optionValue of parameter.optionValues">{{optionValue}}</option>
+                                    <option *ngFor="let optionValue of parameter.optionValues" value="{{optionValue}}">{{optionValue}}</option>
 
                                 </select>
                             </ng-template>
-
-
-
-
-
-
-
-                        <!--<label>Parameter Number <label>
-                            <input type="number" class="form-control is-invalid" placeholder="Bohrtiefe in mm" required>
-                            <div class="invalid-feedback"></div>
-                            <label>Parameter options</label>
-                            <select class="form-control" placeholder="Chose an option">
-                                <option>Option 1</option>
-                                <option>Option 2</option>
-                                <option>Option 3</option>
-                            </select>-->
                         </div>
                         </div>
                        <!--<button class="btn btn-primary" type="menu">Submit</button>-->
                        <button (click)="setParameters()" class="btn btn-primary">Set parameters</button>
                     </form>
-
                 </div>
             </div>
 
+            <div class="card">
+                <h6 class="card-header">Outputs</h6>
+                <div class="card-body">
+                    <form *ngIf="skill.skillOutputs?.length>0" class="was-validated">
+                        <div *ngFor="let output of skill.skillOutputs">
+                        <div class="form-group">
+                            <label>{{output.name}}</label>
+                            <ng-container *ngIf="output.optionValues==undefined; else defined">
+                                <ng-container *ngIf="output.required; else notRequired">
+                                    <input type="number" step="{{getSteps(output)}}" [(ngModel)]="output.value" name="{{output.name}}" class="form-control " placeholder="{{getDefault(output)}}"  required>
+                                </ng-container>
+                                <ng-template #notRequired>
+                                    <input type="number"  step="{{getSteps(output)}}" class="form-control is-invalid" placeholder="{{output.name}}" >
+                                </ng-template>
+
+                            </ng-container>
+                            <ng-template #defined>
+                                <select class="form-control" placeholder="Chose an option">
+                                    <option *ngFor="let optionValue of output.optionValues">{{optionValue}}</option>
+
+                                </select>
+                            </ng-template>
+                        </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
     </div>

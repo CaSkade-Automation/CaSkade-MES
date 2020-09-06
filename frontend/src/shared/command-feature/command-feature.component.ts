@@ -14,7 +14,7 @@ import { SkillExecutionRequest, SkillExecutionRequestDto } from '@shared/models/
     templateUrl: './command-feature.component.html',
     styleUrls: ['./command-feature.component.scss']
 })
-export class CommandFeatureComponent implements OnInit {
+export class CommandFeatureComponent {
   @Input() skill: Skill;
 
   constructor(
