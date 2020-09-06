@@ -5,7 +5,7 @@ import { SparqlResultConverter } from 'sparql-result-converter';
 import { opcUaSkillExecutionMapping, opcUaSkillParameterMapping } from './skill-execution-mappings';
 import { MessageSecurityMode, SecurityPolicy, OPCUAClient, ConnectionStrategy, UserNameIdentityToken, NodeId, NodeIdType, DataType, decodeNodeId, resolveNodeId } from 'node-opcua';
 import { InternalServerErrorException } from '@nestjs/common';
-import { SkillParameterDto } from '@shared/models/skill/SkillParameter';
+import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
 
 export class OpcUaSkillExecutionService implements SkillExecutor{
 
@@ -21,7 +21,7 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
         private converter = new SparqlResultConverter()) {
     }
 
-    async setSkillParameters(skillIri: string, parameters: SkillParameterDto[]): Promise<void> {
+    async setSkillParameters(skillIri: string, parameters: SkillVariableDto[]): Promise<void> {
         const parameterDescription = await this.getOpcUaParameterDescription(skillIri);
 
         const messageSecurityMode = this.getMessageSecurityMode(parameterDescription.messageSecurityMode);
@@ -50,15 +50,15 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
             const session = await client.createSession();
 
             for (const param of parameterDescription.parameters) {
-                const foundReqParam = parameters.find(reqParam => reqParam.parameterName == param.parameterName);
-                if(foundReqParam && foundReqParam.parameterValue) {
+                const foundReqParam = parameters.find(reqParam => reqParam.name == param.parameterName);
+                if(foundReqParam && foundReqParam.value) {
                     // get node data type. TODO: Check if there's a better way...
                     const node = NodeId.resolveNodeId(param.parameterNodeId);
                     const nodeType = await session.getBuiltInDataType(node);
 
                     const dataToWrite: any = {
                         dataType: nodeType,
-                        value: foundReqParam.parameterValue
+                        value: foundReqParam.value
                     };
 
                     await session.writeSingleNode(node, dataToWrite, (err, res) => {
@@ -325,7 +325,7 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillExecutionMapping).skillExecutionInfos[0] as OpcUaSkillQueryResult;
+        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillExecutionMapping).getFirstRootElement()[0] as OpcUaSkillQueryResult;
 
         const opcUaSkillDescription = new OpcUaSkill(skillIri, commandTypeIri, mappedResult);
         return opcUaSkillDescription;
@@ -356,7 +356,7 @@ export class OpcUaSkillExecutionService implements SkillExecutor{
         }`;
         //OpcUa:hasDataType ?parameterUaType.
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillParameterMapping).skillParameters[0] as OpcUaSkillParameterResult;
+        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillParameterMapping).getFirstRootElement()[0] as OpcUaSkillParameterResult;
 
         // const opcUaSkillDescription = new OpcUaSkill(skillIri, commandTypeIri, mappedResult);
         return mappedResult;

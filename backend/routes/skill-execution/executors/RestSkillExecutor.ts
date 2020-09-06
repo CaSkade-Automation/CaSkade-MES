@@ -1,7 +1,7 @@
 import { SkillExecutor } from './SkillExecutor';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import axios, { AxiosRequestConfig } from 'axios';
-import { SkillParameter, SkillParameterDto } from '@shared/models/skill/SkillParameter';
+import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { opcUaSkillExecutionMapping } from './skill-execution-mappings';
@@ -13,12 +13,12 @@ export class RestSkillExecutionService implements SkillExecutor {
         private graphDbConnection: GraphDbConnectionService,
         private converter = new SparqlResultConverter()) {}
 
-    setSkillParameters(skillIri: string, parameters: SkillParameterDto[]): void {
+    setSkillParameters(skillIri: string, parameters: SkillVariableDto[]): void {
         throw new Error("Method not implemented.");
     }
 
     executeSkill(executionRequest: SkillExecutionRequestDto): void {
-        // throw new Error("Method not implemented.");
+        // set parameters
 
         // // get the full REST service description
         const serviceDescription = this.getRestServiceDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
@@ -97,5 +97,5 @@ export class RestSkillExecutionService implements SkillExecutor {
 interface RestSkillDescription {
    httpMethod: string;
    fullPath: string;
-   parameters: SkillParameter[];
+   parameters: SkillVariable[];
 }

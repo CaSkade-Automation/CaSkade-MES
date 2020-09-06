@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Skill } from '../../../../shared/models/skill/Skill';
 import { Transition } from '../../../../shared/models/state-machine/Transition';
-import { SkillParameter } from '@shared/models/skill/SkillParameter';
+import { SkillVariable } from '@shared/models/skill/SkillVariable';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { SkillExecutionService } from '../services/skill-execution.service';
 import { SkillExecutionRequest, SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
@@ -26,9 +26,7 @@ request: SkillExecutionRequestDto;
  parameterSettings= new Array<any>();
  command: Transition;
 
- ngOnInit() {
 
- }
  getCommandButtonClass(command: Transition) {
      const commandName = command.getLocalName();
      switch (commandName) {
@@ -58,13 +56,13 @@ request: SkillExecutionRequestDto;
      return name;
  }
 
- getSteps(parameter: SkillParameter){
+ getSteps(parameter: SkillVariable){
      switch(parameter.type){
      case "float": return "any";
      case "int": return "1";
      }
  }
- getDefault(parameter: SkillParameter){
+ getDefault(parameter: SkillVariable){
      if (parameter.default== undefined) {
          return "";
      } else {

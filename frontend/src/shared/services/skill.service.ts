@@ -44,7 +44,6 @@ export class SkillService {
     }
 
 
-    // TODO: Implement
     getAllSkillsOfModule(moduleIri: string): Observable<Skill[]> {
         const encodedModuleIri = encodeURIComponent(moduleIri);
         const apiURL = `${this.apiRoot}/modules/${encodedModuleIri}/skills`;
