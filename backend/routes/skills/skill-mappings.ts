@@ -8,20 +8,20 @@ const skillMapping: MappingDefinition[] = [
         toCollect: ['stateMachine', 'currentStateTypeIri'],
         childMappings: [
             {
-                rootName: 'skillParameterDtos',
+                rootName: 'skillParameters',
                 propertyToGroup: 'parameterIri',
                 name: 'parameterIri',
                 toCollect: ['parameterIri', 'parameterName', 'parameterType', 'parameterRequired', 'parameterDefault'],
                 childMappings: [
                     {
                         rootName: 'parameterOptionValues',
-                        propertyToGroup: 'parameterOptionValue',
-                        name: 'parameterOptionValue',
+                        propertyToGroup: 'paramOptionValue',
+                        name: 'value',
                     }
                 ]
             },
             {
-                rootName: 'skillOutputDtos',
+                rootName: 'skillOutputs',
                 propertyToGroup: 'outputIri',
                 name: 'outputIri',
                 toCollect: ['outputIri', 'outputName', 'outputType', 'outputRequired', 'outputDefault'],
@@ -29,7 +29,7 @@ const skillMapping: MappingDefinition[] = [
                     {
                         rootName: 'outputOptionValues',
                         propertyToGroup: 'outputOptionValue',
-                        name: 'outputOptionValues',
+                        name: 'value',
                     }
                 ]
             },

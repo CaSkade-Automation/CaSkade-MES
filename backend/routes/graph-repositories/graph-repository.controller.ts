@@ -25,7 +25,7 @@ export class GraphRepositoryController {
             const repos = await this.graphDbConnection.getRepositories();
             const repositories = repos.data.results.bindings;
 
-            const mappedRepositories = converter.convertToDefinition(repositories, this.repositoryMapping).repositories;
+            const mappedRepositories = converter.convertToDefinition(repositories, this.repositoryMapping).getFirstRootElement();
             return mappedRepositories;
         } catch (error) {
             return {
