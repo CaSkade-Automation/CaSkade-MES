@@ -21,7 +21,7 @@ export const outputQueryFragment = `OPTIONAL {
         ?outputIri Cap:hasDefaultValue ?outputDefault.
     }
     OPTIONAL {
-        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?outputOptionValue
+        ?outputIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?outputOptionValue
     }
 }`;
 
