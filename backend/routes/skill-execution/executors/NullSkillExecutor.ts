@@ -1,15 +1,20 @@
 import { SkillExecutor } from './SkillExecutor';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import { InternalServerErrorException } from '@nestjs/common';
-import { SkillParameterDto } from '@shared/models/skill/SkillParameter';
+import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
 
-export class NullSkillExecutor implements SkillExecutor {
-    setSkillParameters(skillIri: string, parameters: SkillParameterDto[]): void {
-        throw new Error("Method not implemented.");
+export class NullSkillExecutor extends SkillExecutor {
+    setSkillParameters(skillIri: string, parameters: SkillVariableDto[]): void {
+        throw new InternalServerErrorException(`Parameters of Skill '${skillIri}' cannot be set. There is no matching executor`);
     }
 
-    executeSkill(exeuctionRequest: SkillExecutionRequestDto): void {
-        throw new InternalServerErrorException(`Transition '${exeuctionRequest.commandTypeIri}' of Skill '${exeuctionRequest.skillIri}'
+    getSkillOutputs(executionRequest: SkillExecutionRequestDto): unknown {
+        throw new InternalServerErrorException(`Method ${executionRequest.commandTypeIri} of Skill '${executionRequest.skillIri}'
+        cannot be executed. There is no matching executor`);
+    }
+
+    invokeTransition(executionRequest: SkillExecutionRequestDto): void {
+        throw new InternalServerErrorException(`Transition '${executionRequest.commandTypeIri}' of Skill '${executionRequest.skillIri}'
         cannot be executed. There is no matching executor`);
     }
 

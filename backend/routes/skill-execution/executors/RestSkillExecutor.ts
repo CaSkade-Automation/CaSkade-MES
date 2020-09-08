@@ -1,24 +1,30 @@
 import { SkillExecutor } from './SkillExecutor';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import axios, { AxiosRequestConfig } from 'axios';
-import { SkillParameter, SkillParameterDto } from '@shared/models/skill/SkillParameter';
+import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { opcUaSkillExecutionMapping } from './skill-execution-mappings';
 
-export class RestSkillExecutionService implements SkillExecutor {
+export class RestSkillExecutionService extends SkillExecutor {
 
 
     constructor(
         private graphDbConnection: GraphDbConnectionService,
-        private converter = new SparqlResultConverter()) {}
+        private converter = new SparqlResultConverter()) {
+        super();
+    }
 
-    setSkillParameters(skillIri: string, parameters: SkillParameterDto[]): void {
+    setSkillParameters(skillIri: string, parameters: SkillVariableDto[]): void {
         throw new Error("Method not implemented.");
     }
 
-    executeSkill(executionRequest: SkillExecutionRequestDto): void {
-        // throw new Error("Method not implemented.");
+    getSkillOutputs(executionRequest: SkillExecutionRequestDto): void {
+        throw new Error("Method not implemented.");
+    }
+
+    invokeTransition(executionRequest: SkillExecutionRequestDto): void {
+        // set parameters
 
         // // get the full REST service description
         const serviceDescription = this.getRestServiceDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
@@ -88,7 +94,7 @@ export class RestSkillExecutionService implements SkillExecutor {
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const mappedResult = this.converter.convert(queryResult.results.bindings, opcUaSkillExecutionMapping);
+        // const mappedResult = this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillExecutionMapping);
         return null;
     }
 
@@ -97,5 +103,5 @@ export class RestSkillExecutionService implements SkillExecutor {
 interface RestSkillDescription {
    httpMethod: string;
    fullPath: string;
-   parameters: SkillParameter[];
+   parameters: SkillVariable[];
 }

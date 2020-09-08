@@ -1,7 +1,7 @@
 import { Controller, Get, Put, Body, Patch } from "@nestjs/common";
 import { GraphDbConnectionService, GraphDbConfig } from "../../util/GraphDbConnection.service";
 
-import {SparqlResultConverter} from 'sparql-result-converter';
+import {SparqlResultConverter, MappingDefinition} from 'sparql-result-converter';
 const converter = new SparqlResultConverter();
 
 @Controller('graph-repositories')
@@ -9,10 +9,10 @@ export class GraphRepositoryController {
 
     constructor(private graphDbConnection: GraphDbConnectionService) { }
 
-    mapObjectArray = [{
-        objectToGroup: 'uri',
+    repositoryMapping: MappingDefinition[] = [{
+        rootName: 'repositories',
+        propertyToGroup: 'uri',
         name: 'uri',
-        childRoot: 'properties',
         toCollect: ['readable', 'writable', 'id', 'title'],
     },];
 
@@ -25,7 +25,7 @@ export class GraphRepositoryController {
             const repos = await this.graphDbConnection.getRepositories();
             const repositories = repos.data.results.bindings;
 
-            const mappedRepositories = converter.convert(repositories, this.mapObjectArray);
+            const mappedRepositories = converter.convertToDefinition(repositories, this.repositoryMapping).getFirstRootElement();
             return mappedRepositories;
         } catch (error) {
             return {
@@ -77,15 +77,8 @@ export class GraphRepositoryController {
 
 
         if (reqKeys.length == 1 && this.graphDbConnection.config[reqKeys[0]] != undefined) {
-            console.log("before");
-            console.log(this.graphDbConnection.config);
-
 
             this.graphDbConnection.updateConfig(reqKeys[0], propertyToUpdate[reqKeys[0]]);
-            //   this.graphDbConnection[reqKeys[0]] = propertyToUpdate[reqKeys[0]];
-            console.log("after");
-            console.log(this.graphDbConnection.config);
-
 
             return (this.graphDbConnection.config);
         } else {

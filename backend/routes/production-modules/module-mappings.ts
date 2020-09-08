@@ -1,9 +1,13 @@
+import {MappingDefinition} from "sparql-result-converter";
 
-const moduleMapping = [
+const moduleMapping:MappingDefinition[] = [
     {
-        objectToGroup: 'module',
+        rootName: 'modules',
+        propertyToGroup: 'module',
         name: 'iri',
-        childRoot: 'components'
+        childMappings: [{
+            rootName: 'components'
+        }]
     },
 ];
 

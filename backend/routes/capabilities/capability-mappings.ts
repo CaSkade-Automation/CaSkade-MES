@@ -1,20 +1,27 @@
+import { MappingDefinition } from "sparql-result-converter";
 
-const capabilityMapping = [
+const capabilityMapping: MappingDefinition[] = [
     {
-        objectToGroup: 'capability',
+        rootName: 'capabilities',
+        propertyToGroup: 'capability',
         name: 'iri',
-        childRoot: 'inputs'
+        childMappings: [
+            {
+                rootName: 'inputs',
+                propertyToGroup: 'input',
+                name: 'inputs',
+                childMappings: [
+                    {
+                        rootName: 'outputs',
+                        propertyToGroup: 'output',
+                        name: 'outputs',
+                    }
+                ]
+            },
+        ]
     },
-    {
-        objectToGroup: 'input',
-        name: 'inputs',
-        childRoot: 'outputs'
-    },
-    {
-        objectToGroup: 'output',
-        name: 'outputs',
-        childRoot: 'outputs'
-    }
+
+
 ];
 
 export {

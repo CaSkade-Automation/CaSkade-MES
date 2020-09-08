@@ -1,32 +1,39 @@
+import { MappingDefinition } from "sparql-result-converter";
 
-const opcUaSkillExecutionMapping = [
+const opcUaSkillExecutionMapping: MappingDefinition[] = [
     {
-        objectToGroup: 'skillIri',
+        rootName: 'skillExecutionInfos',
+        propertyToGroup: 'skillIri',
         name: 'skillIri',
         toCollect: ['skillMethodIri','methodNodeId', 'skillNodeId', 'endpointUrl', 'userName', 'password', 'messageSecurityMode', 'securityPolicy'],
-        childRoot: 'parameters'
+        childMappings: [
+            {
+                rootName: 'parameters',
+                propertyToGroup: 'parameterIri',
+                name: 'parameterIri',
+                toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired', 'parameterNodeId', 'parameterUaType'],
+            },
+        ]
     },
-    {
-        objectToGroup: 'parameterIri',
-        name: 'parameterIri',
-        toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired', 'parameterNodeId', 'parameterUaType'],
-        childRoot: 'parameters'
-    },
+
 ];
 
-const opcUaSkillParameterMapping = [
+const opcUaSkillParameterMapping: MappingDefinition[] = [
     {
-        objectToGroup: 'skillIri',
+        rootName: 'skillParameters',
+        propertyToGroup: 'skillIri',
         name: 'skillIri',
         toCollect: ['endpointUrl', 'userName', 'password', 'messageSecurityMode', 'securityPolicy'],
-        childRoot: 'parameters'
+        childMappings: [
+            {
+                rootName: 'parameters',
+                propertyToGroup: 'parameterIri',
+                name: 'parameterIri',
+                toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired', 'parameterNodeId'],
+            },
+        ]
     },
-    {
-        objectToGroup: 'parameterIri',
-        name: 'parameterIri',
-        toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired', 'parameterNodeId'],
-        childRoot: 'parameters'
-    },
+
 ];
 
 export {

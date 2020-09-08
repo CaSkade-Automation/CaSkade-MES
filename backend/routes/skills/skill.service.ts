@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 
-import { SkillDto} from "@shared/models/skill/Skill";
+import { SkillDto, SkillQueryResult} from "@shared/models/skill/Skill";
 import { skillMapping } from './skill-mappings';
 import { v4 as uuidv4 } from 'uuid';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
@@ -9,13 +9,15 @@ import { SocketGateway } from '../../socket-gateway/socket.gateway';
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { CapabilityService } from '../capabilities/capability.service';
 import { SocketEventName } from '@shared/socket-communication/SocketEventName';
+import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
 const converter = new SparqlResultConverter();
 
 @Injectable()
 export class SkillService {
     constructor(private graphDbConnection: GraphDbConnectionService,
         private socketGateway: SocketGateway,
-        private capabilityService: CapabilityService) { }
+        private capabilityService: CapabilityService){}
+
 
     /**
      * Register a new skill
@@ -45,8 +47,10 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?parameterRequired
-                    ?parameterDefault ?paramOptionValue WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri
+                ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
+                ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
+            WHERE {
                 ?skill a Cap:Skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
@@ -54,22 +58,12 @@ export class SkillService {
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
-                OPTIONAL {
-                    ?skill Cap:hasSkillParameter ?parameterIri.
-                    ?parameterIri Cap:hasVariableName ?parameterName;
-                        Cap:hasVariableType ?parameterType;
-                        Cap:isRequired ?parameterRequired.
-                    OPTIONAL {
-                        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
-                    }
-                    OPTIONAL {
-                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
-
-                    }
-                }
+                ${parameterQueryFragment}
+                ${outputQueryFragment}
             }`;
             const queryResult = await this.graphDbConnection.executeQuery(query);
-            const skillDtos = converter.convert(queryResult.results.bindings, skillMapping) as Array<SkillDto>;
+            const mappedResults = converter.convertToDefinition(queryResult.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
+            const skillDtos = mappedResults.map(result => new SkillDto(result));
 
             for (const skillDto of skillDtos) {
                 const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
@@ -92,8 +86,10 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault
-                ?paramOptionValue WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri
+                ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
+                ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
+            WHERE {
                 ?skill a Cap:Skill.
                 FILTER(?skill = IRI("${skillIri}"))
                 ?skill Cap:hasStateMachine ?stateMachine.
@@ -102,23 +98,13 @@ export class SkillService {
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
-                OPTIONAL {
-                    ?skill Cap:hasSkillParameter ?parameterIri.
-                    ?parameterIri Cap:hasVariableName ?parameterName;
-                        Cap:hasVariableType ?parameterType;
-                        Cap:isRequired ?parameterRequired.
-                    OPTIONAL {
-                        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
-                    }
-                    OPTIONAL {
-                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
-
-                    }
-                }
+                ${parameterQueryFragment}
+                ${outputQueryFragment}
             }`;
 
-            const queryResult = await this.graphDbConnection.executeQuery(query);
-            const skillDto = converter.convert(queryResult.results.bindings, skillMapping)[0] as SkillDto;
+            const rawResults = await this.graphDbConnection.executeQuery(query);
+            const mappedResult = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement()[0] as SkillQueryResult;
+            const skillDto = new SkillDto(mappedResult);
 
             const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
             skillDto.capabilityDtos = capabilityDtos;
@@ -135,8 +121,10 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault
-                ?parameterOptionValue WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri
+                ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
+                ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
+            WHERE {
                 <${moduleIri}> Cap:providesSkill ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
@@ -144,22 +132,12 @@ export class SkillService {
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
-                OPTIONAL {
-                    ?skill Cap:hasSkillParameter ?parameterIri.
-                    ?parameterIri Cap:hasVariableName ?parameterName;
-                        Cap:hasVariableType ?parameterType;
-                        Cap:isRequired ?parameterRequired.
-                    OPTIONAL {
-                        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
-                    }
-                    OPTIONAL {
-                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?parameterOptionValue
-
-                    }
-                }
+                ${parameterQueryFragment}
+                ${outputQueryFragment}
             }`;
-            const queryResult = await this.graphDbConnection.executeQuery(query);
-            const skillDtos = converter.convert(queryResult.results.bindings, skillMapping) as SkillDto[];
+            const rawResults = await this.graphDbConnection.executeQuery(query);
+            const mappedResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
+            const skillDtos = mappedResults.map(result => new SkillDto(result));
 
             for (const skillDto of skillDtos) {
                 const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
@@ -178,8 +156,10 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri ?parameterIri ?parameterName ?parameterType
-            ?parameterRequired ?parameterDefault ?paramOptionValue WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri
+                ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
+                ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
+                WHERE {
                 <${capabilityIri}> Cap:isExecutableVia ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
@@ -190,22 +170,12 @@ export class SkillService {
                 OPTIONAL {
                     ?skill Cap:hasSkillParameter ?parameter.
                 }
-                OPTIONAL {
-                    ?skill Cap:hasSkillParameter ?parameterIri.
-                    ?parameterIri Cap:hasVariableName ?parameterName;
-                        Cap:hasVariableType ?parameterType;
-                        Cap:isRequired ?parameterRequired.
-                    OPTIONAL {
-                        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
-                    }
-                    OPTIONAL {
-                        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
-
-                    }
-                }
+                ${parameterQueryFragment}
+                ${outputQueryFragment}
             }`;
-            const queryResult = await this.graphDbConnection.executeQuery(query);
-            const skillDtos = converter.convert(queryResult.results.bindings, skillMapping) as SkillDto[];
+            const rawResults = await this.graphDbConnection.executeQuery(query);
+            const skillResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
+            const skillDtos = skillResults.map(result => new SkillDto(result));
 
             for (const skillDto of skillDtos) {
                 const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);

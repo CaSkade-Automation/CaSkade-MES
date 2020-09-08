@@ -56,7 +56,7 @@ export class CapabilityService {
                     VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
             }`);
-            const capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as Array<CapabilityDto>;
+            const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
             return capabilities;
         } catch (error) {
             console.error(`Error while returning all capabilities, ${error}`);
@@ -86,7 +86,7 @@ export class CapabilityService {
                     VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
             }`);
-            const capability = converter.convert(queryResult.results.bindings, capabilityMapping)[0] as CapabilityDto;
+            const capability = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
             return capability;
         } catch (error) {
             console.error(`Error while returning capability with IRI ${capabilityIri}, ${error}`);
@@ -146,7 +146,7 @@ export class CapabilityService {
                     VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
             }`);
-            const capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as CapabilityDto[];
+            const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as CapabilityDto[];
             return capabilities;
         } catch (error) {
             console.error(`Error while returning capabilities of skill ${skillIri}, ${error}`);

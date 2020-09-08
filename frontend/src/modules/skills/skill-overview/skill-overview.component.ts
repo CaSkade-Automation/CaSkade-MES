@@ -23,7 +23,6 @@ export class SkillOverviewComponent implements OnInit {
 
 
     ngOnInit() {
-        console.log("init");
         this.skillService.getAllSkills().subscribe((skills: Skill[]) =>{
             this.skills=skills;
         });

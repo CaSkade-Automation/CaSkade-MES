@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Skill } from '../../../../shared/models/skill/Skill';
 import { Transition } from '../../../../shared/models/state-machine/Transition';
-import { SkillParameter } from '@shared/models/skill/SkillParameter';
+import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { SkillExecutionService } from '../services/skill-execution.service';
 import { SkillExecutionRequest, SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
@@ -14,7 +14,7 @@ import { SkillExecutionRequest, SkillExecutionRequestDto } from '@shared/models/
     templateUrl: './command-feature.component.html',
     styleUrls: ['./command-feature.component.scss']
 })
-export class CommandFeatureComponent implements OnInit {
+export class CommandFeatureComponent {
   @Input() skill: Skill;
 
   constructor(
@@ -26,9 +26,7 @@ request: SkillExecutionRequestDto;
  parameterSettings= new Array<any>();
  command: Transition;
 
- ngOnInit() {
 
- }
  getCommandButtonClass(command: Transition) {
      const commandName = command.getLocalName();
      switch (commandName) {
@@ -58,13 +56,13 @@ request: SkillExecutionRequestDto;
      return name;
  }
 
- getSteps(parameter: SkillParameter){
+ getSteps(parameter: SkillVariable){
      switch(parameter.type){
      case "float": return "any";
      case "int": return "1";
      }
  }
- getDefault(parameter: SkillParameter){
+ getDefault(parameter: SkillVariable){
      if (parameter.default== undefined) {
          return "";
      } else {
@@ -82,8 +80,18 @@ request: SkillExecutionRequestDto;
      console.log(newRequest);
 
      this.command=command;
+ }
 
-
+ getSkillOutputs() {
+     const request= new SkillExecutionRequestDto;
+     request.commandTypeIri="http://www.hsu-ifa.de/ontologies/capability-model#GetOutputs";
+     request.skillIri=this.skill.iri;
+     this.skillExecutionService.executeService(request).subscribe((data: SkillVariableDto[]) => {
+         data.forEach(element => {
+             const skillOutput = this.skill.skillOutputs.find(output => output.name == element.name);
+             skillOutput.value = element.value;
+         });
+     });
  }
 
  setParameters(){
