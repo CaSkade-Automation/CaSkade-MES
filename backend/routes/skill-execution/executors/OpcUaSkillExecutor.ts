@@ -88,9 +88,6 @@ export class OpcUaSkillExecutionService extends SkillExecutor{
 
         const skillMethodDescription = await this.getStatelessOpcUaMethodDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
 
-        console.log("stateless skil");
-        console.log(skillMethodDescription);
-
         const messageSecurityMode = this.getMessageSecurityMode(skillMethodDescription.messageSecurityMode);
         const securityPolicy = this.getSecurityPolicy(skillMethodDescription.securityPolicy);
         // Set options e.g. for security and similar things
@@ -135,11 +132,6 @@ export class OpcUaSkillExecutionService extends SkillExecutor{
             ];
             const [outputArgumentValue]  = await session.read(nodesToRead);
 
-            console.log("output");
-            console.dir(outputArgumentValue.value, {depth:null});
-            console.log("output name");
-            console.log(outputArgumentValue.value.value);
-
             // get the raw method output that does not contain output argument names
             const result = (await session.call(methodToCall)).outputArguments;
 
@@ -147,21 +139,10 @@ export class OpcUaSkillExecutionService extends SkillExecutor{
                 result[i]["name"] = outputArgumentValue.value.value[i].name;
             }
 
-
-
             outputDtos.forEach(output => {
-                console.log("result");
-                console.log(result);
-
                 const matchingResult = result.find(res => res["name"] == output.name);
                 output.value = matchingResult.value;
             });
-
-
-            // TODO: Create real skill outputs here..
-            console.log("final result");
-            console.log(result);
-
 
             session.close(true);
             client.disconnect();
@@ -220,11 +201,7 @@ export class OpcUaSkillExecutionService extends SkillExecutor{
                         value: foundReqParam.value
                     };
 
-                    await session.writeSingleNode(param.parameterNodeId, dataToWrite, (err, res) => {
-                        console.log("value written");
-                        console.log(err);
-                        console.log(res);
-                    });
+                    await session.writeSingleNode(param.parameterNodeId, dataToWrite);
 
                 }
 
@@ -282,11 +259,7 @@ export class OpcUaSkillExecutionService extends SkillExecutor{
                 inputArguments: []
             };
 
-            session.call(methodToCall, (err, res) => {
-                console.log("method called");
-                console.log(err);
-                console.log(res);
-            });
+            session.call(methodToCall);
 
             session.close(true);
             client.disconnect();

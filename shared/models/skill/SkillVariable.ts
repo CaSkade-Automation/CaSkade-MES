@@ -46,9 +46,6 @@ export class SkillVariableDto {
         this.type = type;
         this.required = required;
         this.default = defaultValue;
-        console.log("skillParamDto");
-        console.log(name);
-        console.dir(options, {depth: null});
 
         if(options && options.length > 0) {
             this.optionValues = options.map(option => option.value);
