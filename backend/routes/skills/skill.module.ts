@@ -7,7 +7,7 @@ import { SkillExecutionModule } from '../skill-execution/skill-execution.module'
 @Module({
     imports: [
         forwardRef(() => CapabilityModule),
-        SkillExecutionModule
+        forwardRef(() => SkillExecutionModule)
     ],
     controllers: [SkillController],
     providers: [SkillService],

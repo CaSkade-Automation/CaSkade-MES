@@ -2,7 +2,7 @@ import { Controller, Get, Param, Post, Delete, Put, Body, Patch } from '@nestjs/
 import { SkillService } from './skill.service';
 import { SkillDto } from '../../../shared/models/skill/Skill';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
-import { SkillVariableDto } from '../../../shared/models/skill/SkillVariable';
+import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { SkillExecutorFactory } from '../skill-execution/skill-executor-factory.service';
 
 @Controller('/skills')

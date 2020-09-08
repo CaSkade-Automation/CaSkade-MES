@@ -6,18 +6,24 @@ import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { opcUaSkillExecutionMapping } from './skill-execution-mappings';
 
-export class RestSkillExecutionService implements SkillExecutor {
+export class RestSkillExecutionService extends SkillExecutor {
 
 
     constructor(
         private graphDbConnection: GraphDbConnectionService,
-        private converter = new SparqlResultConverter()) {}
+        private converter = new SparqlResultConverter()) {
+        super();
+    }
 
     setSkillParameters(skillIri: string, parameters: SkillVariableDto[]): void {
         throw new Error("Method not implemented.");
     }
 
-    executeSkill(executionRequest: SkillExecutionRequestDto): void {
+    getSkillOutputs(executionRequest: SkillExecutionRequestDto): void {
+        throw new Error("Method not implemented.");
+    }
+
+    invokeTransition(executionRequest: SkillExecutionRequestDto): void {
         // set parameters
 
         // // get the full REST service description
