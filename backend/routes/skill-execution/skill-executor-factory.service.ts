@@ -4,11 +4,14 @@ import { OpcUaSkillExecutionService } from "./executors/OpcUaSkillExecutor";
 import { RestSkillExecutionService } from "./executors/RestSkillExecutor";
 import { NullSkillExecutor } from "./executors/NullSkillExecutor";
 import { GraphDbConnectionService } from "../../util/GraphDbConnection.service";
+import { SkillService } from "../skills/skill.service";
 
 @Injectable()
 export class SkillExecutorFactory {
 
-    constructor(private graphDbConnection: GraphDbConnectionService) {}
+    constructor(
+        private graphDbConnection: GraphDbConnectionService,
+        private skillService: SkillService) {}
 
     /**
      * Factory method that returns a matching SkillExecutor for a skill
@@ -20,7 +23,7 @@ export class SkillExecutorFactory {
 
         switch (skillTypeIri) {
         case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaSkill':
-            return new OpcUaSkillExecutionService(this.graphDbConnection);
+            return new OpcUaSkillExecutionService(this.graphDbConnection, this.skillService);
         case 'http://www.hsu-ifa.de/ontologies/capability-model#RestSkill':
             return new RestSkillExecutionService(this.graphDbConnection);
         default:
