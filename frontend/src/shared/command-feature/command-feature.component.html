@@ -7,7 +7,7 @@
             <div class="row p-6 mb-2 mr-1 ml-1 bg-light text-dark">
                 <p class="font-weight-bold mr-1">Current state: </p>{{skill.stateMachine.getCurrentState().getLocalName()}}</div>
             <div class="card">
-                <h6 class="card-header">Executable commands</h6>
+                <h6 class="card-header">Executable transitions</h6>
                 <div class="card-body">
                     <button class="btn btn-sm mr-1 mt-1" style="min-width: 120px"
                         [disabled]="!this.isActiveCommand(command, skill)"
@@ -20,6 +20,12 @@
             </div>
             <div *ngIf="executionRequested" class="row p-6 mt-2 mb-2 mr-1 ml-1 bg-light text-dark">
                 <p class="font-weight-bold mr-1">Requested: </p>{{getShortName(command)}}
+            </div>
+            <div class="card">
+                <h6 class="card-header">Other skill methods</h6>
+                <div class="card-body">
+                    <button class="btn btn-sm btn-primary mr-1 mt-1" style="min-width: 120px" (click)="getSkillOutputs()">Get Outputs</button>
+                </div>
             </div>
 
         </div>
@@ -42,9 +48,8 @@
 
                             </ng-container>
                             <ng-template #defined>
-                                <select class="form-control" placeholder="Chose an option">
+                                <select class="form-control" placeholder="Chose an option" [(ngModel)]="parameter.value" name="{{parameter.name}}">
                                     <option *ngFor="let optionValue of parameter.optionValues" value="{{optionValue}}">{{optionValue}}</option>
-
                                 </select>
                             </ng-template>
                         </div>
@@ -55,7 +60,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card mt-3">
                 <h6 class="card-header">Outputs</h6>
                 <div class="card-body">
                     <form *ngIf="skill.skillOutputs?.length>0" class="was-validated">
