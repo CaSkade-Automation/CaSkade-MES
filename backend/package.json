@@ -36,7 +36,7 @@
         "rimraf": "3.0.2",
         "rxjs": "^6.4.0",
         "socket.io": "^2.2.0",
-        "sparql-result-converter": "^1.0.3",
+        "sparql-result-converter": "^3.0.1",
         "ts-helpers": "1.1.2",
         "uuid": "^3.3.2",
         "zone.js": "0.8.29"

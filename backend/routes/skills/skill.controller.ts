@@ -2,7 +2,7 @@ import { Controller, Get, Param, Post, Delete, Put, Body, Patch } from '@nestjs/
 import { SkillService } from './skill.service';
 import { SkillDto } from '../../../shared/models/skill/Skill';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
-import { SkillParameterDto } from '../../../shared/models/skill/SkillParameter';
+import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { SkillExecutorFactory } from '../skill-execution/skill-executor-factory.service';
 
 @Controller('/skills')
@@ -26,7 +26,7 @@ export class SkillController {
     }
 
     @Put(':skillIri/parameters')
-    async setSkillParameters(@Param('skillIri') skillIri: string, @Body() parameters:SkillParameterDto[]) {
+    async setSkillParameters(@Param('skillIri') skillIri: string, @Body() parameters:SkillVariableDto[]) {
         const skillExecutor = await this.executorFactory.getSkillExecutor(skillIri);
         skillExecutor.setSkillParameters(skillIri, parameters);
     }

@@ -2,24 +2,27 @@ import { RdfElement } from '../RdfElement';
 import { StateMachine } from '../state-machine/StateMachine';
 import { Isa88StateMachineBuilder } from '../state-machine/ISA88/ISA88StateMachineBuilder';
 import { Capability, CapabilityDto } from '../capability/Capability';
-import { SkillParameter, SkillParameterDto } from './SkillParameter';
+import { SkillVariable, SkillVariableDto } from './SkillVariable';
 
 export class Skill extends RdfElement{
     public relatedCapabilities: Array<Capability>;
     public stateMachine: StateMachine;
-    public skillParameters = new Array<SkillParameter>();
-    public skillOutputs = new Array<SkillParameter>();
+    public skillParameters = new Array<SkillVariable>();
+    public skillOutputs = new Array<SkillVariable>();
 
     constructor(skillDto: SkillDto) {
         super(skillDto.skillIri);
-        this.relatedCapabilities = skillDto.capabilityDtos.map(capDto => new Capability(capDto));
         this.stateMachine = Isa88StateMachineBuilder.buildDefault(skillDto.stateMachineIri, skillDto.currentStateTypeIri);
 
+        if(skillDto.capabilityDtos) {
+            this.relatedCapabilities = skillDto.capabilityDtos.map(capDto => new Capability(capDto));
+        }
+
         if(skillDto.skillParameterDtos) {
-            this.skillParameters = skillDto.skillParameterDtos.map(paramDto => new SkillParameter(paramDto));
+            this.skillParameters = skillDto.skillParameterDtos.map(paramDto => new SkillVariable(paramDto));
         }
         if(skillDto.skillOutputsDtos) {
-            this.skillOutputs = skillDto.skillOutputsDtos.map(outputDto => new SkillParameter(outputDto));
+            this.skillOutputs = skillDto.skillOutputsDtos.map(outputDto => new SkillVariable(outputDto));
         }
     }
 
@@ -50,8 +53,48 @@ export class Skill extends RdfElement{
 export class SkillDto {
     skillIri: string;
     capabilityDtos: CapabilityDto[];
-    skillParameterDtos?: SkillParameterDto[];
-    skillOutputsDtos?: SkillParameterDto[];
+    skillParameterDtos?: SkillVariableDto[];
+    skillOutputsDtos?: SkillVariableDto[];
     stateMachineIri: string;
     currentStateTypeIri: string;
+
+    constructor(queryResult: SkillQueryResult) {
+        this.skillIri = queryResult.skillIri;
+        this.stateMachineIri = queryResult.stateMachine;
+        this.currentStateTypeIri = queryResult.currentStateTypeIri;
+        if(queryResult.skillParameters) {
+            this.skillParameterDtos = queryResult.skillParameters.map(param => new SkillVariableDto(param.parameterIri,
+                param.parameterName, param.parameterType, param.parameterRequired, param.parameterDefault, param.parameterOptionValues));
+        }
+        if(queryResult.skillOutputs) {
+            this.skillOutputsDtos = queryResult.skillOutputs.map(output => new SkillVariableDto(output.outputIri,
+                output.outputName, output.outputType, output.outputRequired, output.outputDefault, output.outputOptionValues));
+        }
+    }
+}
+
+export interface SkillQueryResult {
+    skillIri: string,
+    stateMachine: string,
+    currentStateTypeIri: string,
+    skillParameters: {
+        parameterIri: string,
+        parameterName: string,
+        parameterType: string,
+        parameterRequired: boolean
+        parameterDefault: any;
+        parameterOptionValues: {
+            value : any
+        }[]
+    }[],
+    skillOutputs: {
+        outputIri: string,
+        outputName: string,
+        outputType: string,
+        outputRequired: boolean
+        outputDefault: any;
+        outputOptionValues: {
+            value : any
+        }[]
+    }[]
 }
