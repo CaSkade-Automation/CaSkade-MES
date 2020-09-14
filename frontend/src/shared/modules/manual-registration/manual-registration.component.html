@@ -1,16 +1,25 @@
-<html>
-  <h1>Manual Registration</h1>
-  <body>
+
+  <h3>Manual Registration</h3> 
+  <div class="form-check form-check-inline mr-5 " >
+  <label class="form-check-label" for="manualOntology"> 
+    <input class="form-check-input" type="radio" name="options" id="manualOntology"  [value]="'manualOntology'" [(ngModel)]="ontologyType">Manual Ontology   
+  </label>
+  
+  <label class="form-check-label " for="mtp" style="padding-left: 10px;"> 
+    <input class="form-check-input" type="radio" name="options" id="mtp"  [value]="'mtp'" [(ngModel)]="ontologyType"> MTP
+  </label>
+  </div>
+  
     <form>
-      Insert Ontology :<br>
+      <label for="ontologyString"></label>
       <div class="text-danger">{{errMessage}}</div>
-      <textarea class="form-control" [(ngModel)]="ontologyString" name="ontologyString" rows="15" ></textarea>
-      <div class="box box-info">
-        <form class="form-horizontal">
+      <textarea class="form-control" [(ngModel)]="ontologyString" name="ontologyString" id="ontologyString" rows="15" placeholder="Insert Ontology here..."></textarea>
+      <div class="box box-info margin-bottom=50px">
+        <form class="form-horizontal" style="padding-top: 5px">
             <button class="btn btn-primary" (click)="saveOntology()" >Submit Ontology </button> 
-            <button class="btn btn-primary" style="margin-left: 10px;" (click)="ontologyString=''" >Clear </button> 
+            <button class="btn btn-secondary" style="margin-left: 10px;" (click)="ontologyString=''" >Clear </button> 
         </form>
       </div>
     </form>
-  </body>
-</html>
+  
+

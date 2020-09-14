@@ -17,9 +17,23 @@ constructor(private httpClient: HttpClient,
     private skillService: SkillService,
     private capabilityService: CapabilityService) {}
     
-    ontologyString="Enter Ontology here";
+    ontologyString: string;
     errMessage: any;
+    ontologyType= "manualOntology";
+    manual: boolean;
+    ngOnInit(): void {
+        //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
+        //Add 'implements OnInit' to the class.
+        console.log(this.ontologyType);
+    }
+    
+
+    
+    
     saveOntology() { 
+    
+        console.log(this.ontologyType);
+        console.log(this.manual);
         console.log(this.context);
         //Fallunterscheidung
         if(this.context=="module"){
