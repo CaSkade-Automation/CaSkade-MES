@@ -29,7 +29,7 @@ export class SkillService {
             const skillGraphName = uuidv4();
             console.log("Adding Skill");
 
-            await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
+            await this.graphDbConnection.addRdfDocument("",newSkill, skillGraphName);
             this.socketGateway.emitEvent(SocketEventName.Skills_Added);
             return 'New skill successfully added';
         } catch (error) {
@@ -209,7 +209,7 @@ export class SkillService {
             // iterate over graphs and clear every one
             queryResultBindings.forEach(bindings => {
                 const graphName = bindings.graph.value;
-                this.graphDbConnection.clearGraph(graphName);
+                this.graphDbConnection.clearGraph("", graphName);
             });
             return `Sucessfully deleted skill with IRI ${skillIri}`;
         } catch (error) {
