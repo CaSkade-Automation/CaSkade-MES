@@ -41,7 +41,7 @@ export class GraphOperationController {
               break;
           }
 
-          return this.graphDbConnection.executeStatement("",statement, "", contentType);
+          return this.graphDbConnection.executeStatement(statement, "", contentType);
       }
   }
 

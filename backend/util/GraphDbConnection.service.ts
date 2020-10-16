@@ -34,7 +34,7 @@ export class GraphDbConnectionService {
         }
     }
 
-    updateConfig(key: string, value: string): void {
+    updateConfig(key: string, value: string) {
         this.config[key] = value;
     }
 
@@ -43,18 +43,18 @@ export class GraphDbConnectionService {
         return this.config;
     }
 
-    setConfig(newConfig: GraphDbConfig): void {
+    setConfig(newConfig: GraphDbConfig) {
         this.config = newConfig;
     }
 
-    getSelectedRepo(): string {
+    getSelectedRepo() {
         return this.config.selectedRepo;
     }
 
-    async addRdfDocument(repositoryId = "", rdfDocument: string, graphName: string) {
+    async addRdfDocument(rdfDocument: string, context: string) {
         const contentType = "application/x-turtle; charset=UTF-8";      // TODO: Get the real contentType, could also be RDF/XML
-        graphName = `?context=%3Curn:${graphName}%3E`;
-        return this.executeStatement(repositoryId, rdfDocument, graphName, contentType);
+        context = `?context=%3Curn:${context}%3E`;
+        return this.executeStatement(rdfDocument, context, contentType);
     }
 
 
@@ -62,10 +62,10 @@ export class GraphDbConnectionService {
      * Deletes all content from a given graph
      * @param {*} graphName Name of the graph to be deleted
      */
-    async clearGraph(repositoryId = "", graphName: string) {
+    async clearGraph(graphName: string) {
         const contentType = "application/x-www-form-urlencoded";
         const statement = `update=CLEAR GRAPH <${graphName}>`;
-        return this.executeStatement(repositoryId, statement, "", contentType);
+        return this.executeStatement(statement, "", contentType);
     }
 
 
@@ -75,8 +75,8 @@ export class GraphDbConnectionService {
      * @param {*} context Context (=graph) that the statement is executed in
      * @param {*} contentType Content type of the statement (either application/rdf+xml for update strings or application/x-www-form-urlencoded for an rdf document)
      */
-    async executeStatement(repositoryId= "", statement: string, context: string, contentType: string) {
-        const url = this.getStatementEndpointString(repositoryId, context);
+    async executeStatement(statement: string, context: string, contentType: string) {
+        const url = this.getStatementEndpointString(context);
 
         const headers = {
             'Authorization': this.createBase64AuthString(),
@@ -100,8 +100,6 @@ export class GraphDbConnectionService {
     }
 
 
-
-
     /**
      * Execute a query against the currently selected repository
      * @param {*} queryString The query to execute
@@ -115,7 +113,7 @@ export class GraphDbConnectionService {
 
         try {
             const dbResponse = await Axios.post(
-                this.getRepoEndpointString(),
+                this.getCurrentRepoEndpointString(),
                 queryString,
                 { 'headers': headers }
             );
@@ -136,7 +134,7 @@ export class GraphDbConnectionService {
     }
 
     executeUpdate(sparqlUpdate: string) {
-        return this.executeStatement("",sparqlUpdate,"","application/sparql-update");
+        return this.executeStatement(sparqlUpdate,"","application/sparql-update");
     }
 
 
@@ -171,15 +169,12 @@ export class GraphDbConnectionService {
         }
     }
 
+
     /**
-     * Get the endpointString of a given repository. Gets the current repos endpoint string if no repo ID is given
-     * @param repositoryId ID of a repository
+     * Get the currently selected repository endpoint
      */
-    getRepoEndpointString(repositoryId = ""): string {
-        let repoEndpoint = this.getRepositoriesEndpoint() + "/" + this.config.selectedRepo;
-        if(repositoryId != "") {
-            repoEndpoint =  this.getRepositoriesEndpoint() + "/" + repositoryId;
-        }
+    getCurrentRepoEndpointString() {
+        const repoEndpoint = this.getRepositoriesEndpoint() + "/" + this.config.selectedRepo;
         return repoEndpoint;
     }
 
@@ -188,8 +183,8 @@ export class GraphDbConnectionService {
      * Returns the current statement endpoint string with a given context
      * @param {*} context The context (aka named graph) that a statement is to be added to
      */
-    getStatementEndpointString(repositoryId= "", context = "") {
-        let endpointString = `${this.getRepoEndpointString(repositoryId)}/statements`;
+    getStatementEndpointString(context = "") {
+        let endpointString = `${this.getCurrentRepoEndpointString()}/statements`;
         if (context !== "") {
             endpointString += `${context}`;
         }

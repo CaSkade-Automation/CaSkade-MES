@@ -26,7 +26,7 @@ export class ModuleService {
         // create a graph name (uuid)
         const graphName = uuidv4();
         try {
-            const dbResult = await this.graphDbConnection.addRdfDocument("", newModule, graphName);
+            const dbResult = await this.graphDbConnection.addRdfDocument(newModule, graphName);
 
             if(dbResult) {
                 // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
@@ -148,7 +148,7 @@ export class ModuleService {
                 const graphName = binding.g.value;
                 console.log("deleting graph");
                 console.log(graphName);
-                await this.graphDbConnection.clearGraph("", graphName); // clear graph
+                await this.graphDbConnection.clearGraph(graphName); // clear graph
             }
             return `Successfully deleted module with IRI ${moduleIri}`;
         } catch (error) {
