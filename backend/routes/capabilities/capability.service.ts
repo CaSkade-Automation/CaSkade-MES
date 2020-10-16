@@ -26,7 +26,7 @@ export class CapabilityService {
             // create a graph name for the service (uuid)
             const capabilityGraphName = uuidv4();
 
-            await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
+            await this.graphDbConnection.addRdfDocument("", newCapability, capabilityGraphName);
             this.socketGateway.emitEvent(SocketEventName.Capabilities_Added);
             return 'New capability successfully added';
         } catch (error) {
@@ -117,7 +117,7 @@ export class CapabilityService {
             // iterate over graphs and clear every one
             queryResultBindings.forEach(bindings => {
                 const graphName = bindings.graph.value;
-                this.graphDbConnection.clearGraph(graphName);
+                this.graphDbConnection.clearGraph("", graphName);
             });
             return `Sucessfully deleted capability with IRI ${capabilityIri}`;
         } catch (error) {
