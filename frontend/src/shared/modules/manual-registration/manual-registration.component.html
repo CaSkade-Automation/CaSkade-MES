@@ -31,11 +31,18 @@
         <span class="input-group-text">Upload</span>
       </div>
       <div class="custom-file">
-        <input type="file" class="custom-file-input" id="inputGroupFile01">
-        <label class="custom-file-label" for="inputGroupFile01">Choose a MTP-File</label>
+        <input #file accept=".aml" (change)="onFileAdded($event); changed=true" type="file" class="custom-file-input" id="inputGroupFile01">
+        <label class="custom-file-label" for="inputGroupFile01">Select an .aml-File</label>
       </div>
     </div>
-    <button class="btn btn-primary" style="padding-top: 10px;">Submit Ontology</button>
+<ng-container *ngIf="changed; else elseDisabled">
+
+    <button (click)="saveOntology()" class="btn btn-primary" style="padding-top: 10px;">Submit Ontology</button>
+  </ng-container>
+<ng-template #elseDisabled>
+  <button class="btn btn-primary" style="padding-top: 10px;" disabled>Submit Ontology</button>
+</ng-template>
+
   </form>
   </ng-template>
   

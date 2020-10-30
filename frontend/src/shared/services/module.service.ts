@@ -13,11 +13,12 @@ import { State } from "../../../../shared/models/state-machine/State";
 import { Transition } from "../../../../shared/models/state-machine/Transition";
 import { SocketService } from "./socket.service";
 import { SocketEventName } from "@shared/socket-communication/SocketEventName";
+import { stringify } from "@angular/compiler/src/util";
 
 @Injectable({
     providedIn: 'root'
 })
-export class ModuleService {
+export class    ModuleService {
     apiRoot = "/api";
 
     observer: Observer<ProductionModule[]>;
@@ -118,5 +119,18 @@ export class ModuleService {
         const apiURL = `${this.apiRoot}/modules`;
         return this.http.post<ProductionModuleDto>(apiURL, ontologyString);
     }
-
+    // addMtpModule(ontologyFile: File): Observable<File>{
+    //     const apiURL= `${this.apiRoot}/MtpModules`;
+    //     console.log("Module posted (mtp)");
+    //     return this.http.post<File>(apiURL, ontologyFile);
+    //     const  testString="testtesttest";
+    //     //return this.http.post<string>(apiURL,testString);
+       
+    // }
+    addMtpModule(ontologyFile: File): Observable<File>{
+        const apiURL = `${this.apiRoot}/Mtp`;
+        const formData= new FormData;
+        formData.append('file', ontologyFile, ontologyFile.name);
+        return this.http.post<File>(apiURL, formData);
+    }
 }
