@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { GraphDbRepoService, DbConfig, GraphDbRepositoryInfo } from '../../../shared/services/GraphDbRepoService.service';
+import { GraphDbRepoService, DbConfig, GraphDbRepositoryInfo } from '../../../shared/services/graphDbRepoService.service';
 import { take } from 'rxjs/operators';
 
 @Component({
