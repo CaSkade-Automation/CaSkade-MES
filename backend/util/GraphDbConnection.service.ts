@@ -85,10 +85,12 @@ export class GraphDbConnectionService {
         };
 
         try {
-            const dbResponse = await Axios.post(url, statement,{ 'headers': headers });
+            const dbResponse = await Axios.post(url, statement, { 'headers': headers });
 
-            return {"statusCode": dbResponse.request.res.statusCode,
-                "msg": dbResponse.data};
+            return {
+                "statusCode": dbResponse.request.res.statusCode,
+                "msg": dbResponse.data
+            };
 
         } catch (err) {
             if (err.response.status == 400) {       // On error: If its just a query mistake (graphdb 400) -> return this query mistake
@@ -104,7 +106,7 @@ export class GraphDbConnectionService {
      * Execute a query against the currently selected repository
      * @param {*} queryString The query to execute
      */
-    private async executeSparqlRequest(queryString:string, contentType: string): Promise<GraphDbResult> {
+    private async executeSparqlRequest(queryString: string, contentType: string): Promise<GraphDbResult> {
         const headers = {
             "Authorization": this.createBase64AuthString(),
             "Accept": "application/sparql-results+json",
@@ -129,12 +131,33 @@ export class GraphDbConnectionService {
         }
     }
 
-    executeQuery(sparqlQuery: string) : Promise<GraphDbResult> {
+    async getStatements(context: string) {
+        const url = this.getStatementEndpointString(context);
+
+        const headers = {
+            'Authorization': this.createBase64AuthString(),
+            'Accept': 'application/x-turtle',
+        };
+
+        try {
+            const dbResponse = await Axios.get(url, { 'headers': headers });
+            return dbResponse.data;
+
+        } catch (err) {
+            if (err.response.status == 400) {       // On error: If its just a query mistake (graphdb 400) -> return this query mistake
+                throw new Error(`Mistake in your statement: ${err.response.data}`);
+            } else {                                // On error: If something really went wrong: Throw error
+                throw new Error(`Error while getting statements: ${err}`);
+            }
+        }
+    }
+
+    executeQuery(sparqlQuery: string): Promise<GraphDbResult> {
         return this.executeSparqlRequest(sparqlQuery, "application/sparql-query");
     }
 
     executeUpdate(sparqlUpdate: string) {
-        return this.executeStatement(sparqlUpdate,"","application/sparql-update");
+        return this.executeStatement(sparqlUpdate, "", "application/sparql-update");
     }
 
 
