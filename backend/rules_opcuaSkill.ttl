@@ -1,0 +1,32 @@
+@prefix Cap: <http://www.hsu-ifa.de/ontologies/capability-model#> .
+@prefix test: <http://www.hsu-ifa.de/ontologies/consistency-check#> .
+@prefix sh:  <http://www.w3.org/ns/shacl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#> .
+@prefix stateMachine: <http://www.hsu-ifa.de/ontologies/ISA-TR88#> .
+@prefix VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#> .
+
+test:SkillNodeIDShape
+	a sh:NodeShape; 
+	sh:targetClass Cap:OpcUaSkill; 
+	sh:property [
+		sh:path OpcUa:nodeId; 
+		sh:maxCount 1; 
+		sh:minCount 1; 
+		] ;
+	sh:property [
+		sh:path [sh:inversePath OpcUa:containsNode];
+		sh:maxCount 1; 
+		sh:minCount 1;
+		sh:class OpcUa:UANodeSet;
+	]. 
+	
+test:NodeSetServerShape
+	a sh:NodeShape; 
+	sh:targetClass OpcUa:UANodeSet;
+	sh:property [
+		sh:path [sh:inversePath OpcUa:hasNodeSet]; 
+		sh:maxCount 1; 
+		sh:minCount 1;
+		sh:class OpcUa:UAServer;
+	].
