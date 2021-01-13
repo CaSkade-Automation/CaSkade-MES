@@ -1,0 +1,605 @@
+@prefix : <http://www.hsu-ifa.de/WADL#> .
+@prefix DIN8580: <http://www.hsu-ifa.de/ontologies/DIN8580#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix swrlb: <http://www.w3.org/2003/11/swrlb#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ua: <http://www.fortiss.org/kb/opcua/OpcUaNodeSet2.owl#> .
+@prefix swrla: <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#> .
+@prefix ISO22400-2: <http://www.hsu-ifa.de/ontologies/ISO22400-2#> .
+@prefix OPS: <http://www.hsu-ifa.de/ontologies/OPS-KnowledgeBase#> .
+@prefix CapEx: <http://www.hsu-ifa.de/ontologies/capability-example#> .
+@prefix DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#> .
+@prefix capability-model: <http://www.hsu-ifa.de/ontologies/capability-model#> .
+@prefix VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#> .
+@prefix wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix obda: <https://w3id.org/obda/vocabulary#> .
+@prefix OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#> .
+@prefix ifa: <http://www.hsu-ifa.de> .
+@prefix gn: <http://www.geonames.org/ontology#> .
+@prefix ua-core: <http://www.fortiss.org/kb/opcua/OpcUaCore.owl#> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix untitled-ontology-39: <http://www.semanticweb.org/hildebrandt/ontologies/2017/11/untitled-ontology-39#> .
+@prefix OpcUaNodeSet2: <http://www.hsu-ifa.de/kb/opcua/OpcUaNodeSet2.owl#> .
+@prefix stateMachine: <http://www.hsu-ifa.de/ontologies/ISA-TR88#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix WADL1: <http://www.hsu-ifa.de/ontologies/WADL#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix lf: <http://lionFacts#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+rdf:type a rdf:Property;
+  rdfs:subPropertyOf rdf:type;
+  <http://proton.semanticweb.org/protonsys#transitiveOver> rdfs:subClassOf .
+
+rdfs:subPropertyOf a rdf:Property, owl:TransitiveProperty;
+  rdfs:subPropertyOf rdfs:subPropertyOf;
+  <http://proton.semanticweb.org/protonsys#transitiveOver> rdfs:subPropertyOf .
+
+rdfs:subClassOf a rdf:Property, owl:TransitiveProperty;
+  rdfs:subPropertyOf rdfs:subClassOf;
+  rdfs:domain rdfs:Class;
+  rdfs:range rdfs:Class;
+  <http://proton.semanticweb.org/protonsys#transitiveOver> rdfs:subClassOf .
+
+rdfs:domain a rdf:Property;
+  rdfs:subPropertyOf rdfs:domain;
+  rdfs:range rdfs:Class .
+
+rdfs:range a rdf:Property;
+  rdfs:subPropertyOf rdfs:range;
+  rdfs:range rdfs:Class .
+
+owl:equivalentProperty a owl:SymmetricProperty, owl:TransitiveProperty;
+  rdfs:subPropertyOf rdfs:subPropertyOf;
+  <http://proton.semanticweb.org/protonsys#transitiveOver> owl:equivalentProperty;
+  owl:inverseOf owl:equivalentProperty .
+
+owl:equivalentClass a owl:SymmetricProperty, owl:TransitiveProperty;
+  rdfs:subPropertyOf rdfs:subClassOf;
+  <http://proton.semanticweb.org/protonsys#transitiveOver> owl:equivalentClass;
+  owl:inverseOf owl:equivalentClass .
+
+<http://proton.semanticweb.org/protonsys#transitiveOver> a rdf:Property;
+  rdfs:subPropertyOf <http://proton.semanticweb.org/protonsys#transitiveOver> .
+
+owl:inverseOf a rdf:Property, owl:SymmetricProperty;
+  rdfs:subPropertyOf owl:inverseOf;
+  owl:inverseOf owl:inverseOf .
+
+rdf:subject a rdf:Property;
+  rdfs:domain rdf:Statement .
+
+rdf:predicate a rdf:Property;
+  rdfs:domain rdf:Statement .
+
+rdf:object a rdf:Property;
+  rdfs:domain rdf:Statement .
+
+rdf:first a rdf:Property;
+  rdfs:domain rdf:List .
+
+rdf:rest a rdf:Property;
+  rdfs:domain rdf:List;
+  rdfs:range rdf:List .
+
+rdf:value a rdf:Property .
+
+rdf:nil a rdf:List .
+
+rdf:XMLLiteral a rdfs:Class, rdfs:Datatype;
+  rdfs:subClassOf rdfs:Literal, rdf:XMLLiteral .
+
+owl:differentFrom a owl:SymmetricProperty;
+  owl:inverseOf owl:differentFrom .
+
+xsd:nonNegativeInteger a rdfs:Class, rdfs:Datatype;
+  rdfs:subClassOf xsd:nonNegativeInteger .
+
+xsd:string a rdfs:Class, rdfs:Datatype;
+  rdfs:subClassOf xsd:string .
+
+rdf:_1 a rdf:Property, rdfs:ContainerMembershipProperty .
+
+OpcUa:hasComponent a rdf:Property;
+  rdfs:subPropertyOf OpcUa:hasComponent .
+
+OpcUa:containsNode a rdf:Property;
+  rdfs:subPropertyOf OpcUa:containsNode .
+
+OpcUa:hasMessageSecurityMode a rdf:Property;
+  rdfs:subPropertyOf OpcUa:hasMessageSecurityMode .
+
+OpcUa:hasSecurityPolicy a rdf:Property;
+  rdfs:subPropertyOf OpcUa:hasSecurityPolicy .
+
+OpcUa:browseName a rdf:Property;
+  rdfs:subPropertyOf OpcUa:browseName .
+
+OpcUa:nodeId a rdf:Property;
+  rdfs:subPropertyOf OpcUa:nodeId .
+
+OpcUa:requiresPassword a rdf:Property;
+  rdfs:subPropertyOf OpcUa:requiresPassword .
+
+OpcUa:requiresUserName a rdf:Property;
+  rdfs:subPropertyOf OpcUa:requiresUserName .
+
+OpcUa:hasNodeSet a rdf:Property;
+  rdfs:subPropertyOf OpcUa:hasNodeSet .
+
+OpcUa:hasEndpointUrl a rdf:Property;
+  rdfs:subPropertyOf OpcUa:hasEndpointUrl .
+
+OpcUa:organizes a rdf:Property;
+  rdfs:subPropertyOf OpcUa:organizes .
+
+OpcUa:hasDataType a rdf:Property;
+  rdfs:subPropertyOf OpcUa:hasDataType .
+
+OpcUa:accessLevel a rdf:Property;
+  rdfs:subPropertyOf OpcUa:accessLevel .
+
+OpcUa:browseNamespace a rdf:Property;
+  rdfs:subPropertyOf OpcUa:browseNamespace .
+
+OpcUa:displayName a rdf:Property;
+  rdfs:subPropertyOf OpcUa:displayName .
+
+OpcUa:historizing a rdf:Property;
+  rdfs:subPropertyOf OpcUa:historizing .
+
+OpcUa:nodeNamespace a rdf:Property;
+  rdfs:subPropertyOf OpcUa:nodeNamespace .
+
+OpcUa:userAccessLevel a rdf:Property;
+  rdfs:subPropertyOf OpcUa:userAccessLevel .
+
+OpcUa:valueRank a rdf:Property;
+  rdfs:subPropertyOf OpcUa:valueRank .
+
+stateMachine:State_is_connected_with_Transition a rdf:Property;
+  rdfs:subPropertyOf stateMachine:State_is_connected_with_Transition .
+
+stateMachine:Transition_is_connected_with_State a rdf:Property;
+  rdfs:subPropertyOf stateMachine:Transition_is_connected_with_State .
+
+capability-model:hasCapability a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasCapability .
+
+capability-model:hasCurrentState a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasCurrentState .
+
+capability-model:hasStateMachine a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasStateMachine .
+
+capability-model:invokes a rdf:Property;
+  rdfs:subPropertyOf capability-model:invokes .
+
+stateMachine:hasState a rdf:Property;
+  rdfs:subPropertyOf stateMachine:hasState .
+
+stateMachine:hasTransition a rdf:Property;
+  rdfs:subPropertyOf stateMachine:hasTransition .
+
+capability-model:hasVariableName a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasVariableName .
+
+capability-model:hasVariableType a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasVariableType .
+
+capability-model:isRequired a rdf:Property;
+  rdfs:subPropertyOf capability-model:isRequired .
+
+capability-model:hasDefaultValue a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasDefaultValue .
+
+capability-model:hasSkillParameter a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasSkillParameter .
+
+capability-model:hasOptionValue a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasOptionValue .
+
+capability-model:hasSkillVariableOption a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasSkillVariableOption .
+
+capability-model:hasSkillOutput a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasSkillOutput .
+
+<https://hsu-hh.de/modules#ModuleA> a owl:NamedIndividual, VDI2206:Module;
+  capability-model:hasCapability <https://hsu-hh.de/capabilites#bestCapability>;
+  capability-model:providesOpcUaMethodSkill <https://hsu-hh.de/skills#OpcUaSkill> .
+
+<https://hsu-hh.de/skills#OpcUaSkill> a owl:NamedIndividual, capability-model:OpcUaMethodSkill;
+  OpcUa:hasComponent <https://hsu-hh.de/skills#OpcUaSkill_Start>, <https://hsu-hh.de/skills#OpcUaSkill_Hold>,
+    <https://hsu-hh.de/skills#OpcUaSkill_Unhold>, <https://hsu-hh.de/skills#OpcUaSkill_Suspend>,
+    <https://hsu-hh.de/skills#OpcUaSkill_Unsuspend>, <https://hsu-hh.de/skills#OpcUaSkill_Reset>,
+    <https://hsu-hh.de/skills#OpcUaSkill_Stop>, <https://hsu-hh.de/skills#OpcUaSkill_Abort>,
+    <https://hsu-hh.de/skills#OpcUaSkill_Clear>, <https://hsu-hh.de/skills#OpcUaSkill_GetOutputs>;
+  OpcUa:browseName "https://hsu-hh.de/skills#OpcUaSkill";
+  OpcUa:nodeId "ns=2;s=Skills/https://hsu-hh.de/skills#OpcUaSkill";
+  OpcUa:organizes <https://hsu-hh.de/skills#OpcUaSkill_a>, <https://hsu-hh.de/skills#OpcUaSkill_b>,
+    <https://hsu-hh.de/skills#OpcUaSkill_result>;
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "";
+  OpcUa:nodeNamespace 2;
+  capability-model:hasCurrentState <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Idle>;
+  capability-model:hasStateMachine <https://hsu-hh.de/skills#OpcUaSkill_StateMachine>;
+  capability-model:hasSkillParameter <https://hsu-hh.de/skills#OpcUaSkill_a>, <https://hsu-hh.de/skills#OpcUaSkill_b>;
+  capability-model:hasSkillOutput <https://hsu-hh.de/skills#OpcUaSkill_result>;
+  capability-model:hasSkillMethod <https://hsu-hh.de/skills#OpcUaSkill_Start>, <https://hsu-hh.de/skills#OpcUaSkill_Hold>,
+    <https://hsu-hh.de/skills#OpcUaSkill_Unhold>, <https://hsu-hh.de/skills#OpcUaSkill_Suspend>,
+    <https://hsu-hh.de/skills#OpcUaSkill_Unsuspend>, <https://hsu-hh.de/skills#OpcUaSkill_Reset>,
+    <https://hsu-hh.de/skills#OpcUaSkill_Stop>, <https://hsu-hh.de/skills#OpcUaSkill_Abort>,
+    <https://hsu-hh.de/skills#OpcUaSkill_Clear>, <https://hsu-hh.de/skills#OpcUaSkill_GetOutputs> .
+
+<https://hsu-hh.de/modules#ModuleA_OPC_UA_Server> a owl:NamedIndividual, OpcUa:UAServer;
+  OpcUa:hasMessageSecurityMode OpcUa:MessageSecurityMode_None, OpcUa:MessageSecurityMode_SignAndEncrypt;
+  OpcUa:hasSecurityPolicy OpcUa:SecurityPolicy_None, OpcUa:SecurityPolicy_Basic256Sha256;
+  OpcUa:requiresPassword "password1";
+  OpcUa:requiresUserName "user";
+  OpcUa:hasNodeSet <https://hsu-hh.de/modules#ModuleA_OPC_UA_Server_NodeSet>;
+  OpcUa:hasEndpointUrl "opc.tcp://192.168.2.116:4841/hsu" .
+
+<https://hsu-hh.de/modules#ModuleA_OPC_UA_Server_NodeSet> a owl:NamedIndividual, OpcUa:UANodeSet;
+  OpcUa:containsNode <https://hsu-hh.de/skills#OpcUaSkill> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine> a stateMachine:StateMachine;
+  stateMachine:hasState <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Idle>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Aborting>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clearing>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Complete>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Completing>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Execute>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Holding>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Resetting>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Starting>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopping>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspending>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unholding>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspending>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Aborted>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Held>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopped>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspended>;
+  stateMachine:hasTransition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Start_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Hold_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unhold_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspend_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspend_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Reset_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clear_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Aborting_State_Complete>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clearing_State_Complete>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Completing_State_Complete>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Execute_State_Complete>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Holding_State_Complete>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Resetting_State_Complete>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Starting_State_Complete>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopping_State_Complete>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspending_State_Complete>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unholding_State_Complete>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspending_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Idle> a owl:NamedIndividual, stateMachine:Idle;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Start_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command> .
+
+<https://hsu-hh.de/capabilites#bestCapability> a owl:NamedIndividual, capability-model:Capability;
+  capability-model:isExecutableViaOpcUaMethodSkill <https://hsu-hh.de/skills#OpcUaSkill> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_Start> a OpcUa:UAMethod, owl:NamedIndiviual,
+    capability-model:Start;
+  OpcUa:browseName "start";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/start";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "start";
+  OpcUa:nodeNamespace 2;
+  capability-model:invokes <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Start_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Start_Command> a owl:NamedIndividual,
+    stateMachine:Start_Command;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Starting> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_Hold> a OpcUa:UAMethod, owl:NamedIndiviual, capability-model:Hold;
+  OpcUa:browseName "hold";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/hold";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "hold";
+  OpcUa:nodeNamespace 2;
+  capability-model:invokes <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Hold_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Hold_Command> a owl:NamedIndividual,
+    stateMachine:Hold_Command;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Holding> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_Unhold> a OpcUa:UAMethod, owl:NamedIndiviual,
+    capability-model:Unhold;
+  OpcUa:browseName "unhold";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/unhold";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "unhold";
+  OpcUa:nodeNamespace 2;
+  capability-model:invokes <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unhold_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unhold_Command> a owl:NamedIndividual,
+    stateMachine:Un-Hold_Command;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unholding> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_Suspend> a OpcUa:UAMethod, owl:NamedIndiviual,
+    capability-model:Suspend;
+  OpcUa:browseName "suspend";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/suspend";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "suspend";
+  OpcUa:nodeNamespace 2;
+  capability-model:invokes <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspend_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspend_Command> a owl:NamedIndividual,
+    stateMachine:Suspend_Command;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspending> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_Unsuspend> a OpcUa:UAMethod, owl:NamedIndiviual,
+    capability-model:Unsuspend;
+  OpcUa:browseName "unsuspend";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/unsuspend";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "unsuspend";
+  OpcUa:nodeNamespace 2;
+  capability-model:invokes <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspend_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspend_Command> a owl:NamedIndividual,
+    stateMachine:Unsuspend_Command;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspending> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_Reset> a OpcUa:UAMethod, owl:NamedIndiviual,
+    capability-model:Reset;
+  OpcUa:browseName "reset";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/reset";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "reset";
+  OpcUa:nodeNamespace 2;
+  capability-model:invokes <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Reset_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Reset_Command> a owl:NamedIndividual,
+    stateMachine:Reset_Command;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Resetting> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_Stop> a OpcUa:UAMethod, owl:NamedIndiviual, capability-model:Stop;
+  OpcUa:browseName "stop";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/stop";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "stop";
+  OpcUa:nodeNamespace 2;
+  capability-model:invokes <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command> a owl:NamedIndividual,
+    stateMachine:Stop_Command;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopping> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_Abort> a OpcUa:UAMethod, owl:NamedIndiviual,
+    capability-model:Abort;
+  OpcUa:browseName "abort";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/abort";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "abort";
+  OpcUa:nodeNamespace 2;
+  capability-model:invokes <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command> a owl:NamedIndividual,
+    stateMachine:Abort_Command;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Aborting> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_Clear> a OpcUa:UAMethod, owl:NamedIndiviual,
+    capability-model:Clear;
+  OpcUa:browseName "clear";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/clear";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "clear";
+  OpcUa:nodeNamespace 2;
+  capability-model:invokes <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clear_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clear_Command> a owl:NamedIndividual,
+    stateMachine:Clear_Command;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clearing> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_GetOutputs> a OpcUa:UAMethod, owl:NamedIndiviual,
+    capability-model:GetOutputs;
+  OpcUa:browseName "getOutputs";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/getOutputs";
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "getOutputs";
+  OpcUa:nodeNamespace 2 .
+
+<https://hsu-hh.de/skills#OpcUaSkill_a> a owl:NamedIndividual, OpcUa:UAVariable, capability-model:SkillParameter;
+  OpcUa:browseName "a";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/a";
+  OpcUa:hasDataType xsd:integer;
+  OpcUa:accessLevel 3;
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "a";
+  OpcUa:historizing false;
+  OpcUa:nodeNamespace 2;
+  OpcUa:userAccessLevel 3;
+  OpcUa:valueRank -1;
+  capability-model:hasVariableName "a";
+  capability-model:hasVariableType xsd:integer;
+  capability-model:isRequired true;
+  capability-model:hasDefaultValue 0;
+  capability-model:hasSkillVariableOption <https://hsu-hh.de/skills#OpcUaSkill_a_Option1>,
+    <https://hsu-hh.de/skills#OpcUaSkill_a_Option2>, <https://hsu-hh.de/skills#OpcUaSkill_a_Option3> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_a_Option1> a owl:NamedIndividual, capability-model:SkillVariableOption;
+  capability-model:hasOptionValue 4 .
+
+<https://hsu-hh.de/skills#OpcUaSkill_b> a owl:NamedIndividual, OpcUa:UAVariable, capability-model:SkillParameter;
+  OpcUa:browseName "b";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/b";
+  OpcUa:hasDataType xsd:integer;
+  OpcUa:accessLevel 3;
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "b";
+  OpcUa:historizing false;
+  OpcUa:nodeNamespace 2;
+  OpcUa:userAccessLevel 3;
+  OpcUa:valueRank -1;
+  capability-model:hasVariableName "b";
+  capability-model:hasVariableType xsd:integer;
+  capability-model:isRequired true;
+  capability-model:hasDefaultValue 0 .
+
+<https://hsu-hh.de/skills#OpcUaSkill_result> a owl:NamedIndividual, OpcUa:UAVariable,
+    capability-model:SkillOutput;
+  OpcUa:browseName "result";
+  OpcUa:nodeId "ns=2;s=QualifiedName{name=https://hsu-hh.de/skills#OpcUaSkill, namespaceIndex=2}/result";
+  OpcUa:hasDataType xsd:integer;
+  OpcUa:accessLevel 1;
+  OpcUa:browseNamespace 2;
+  OpcUa:displayName "result";
+  OpcUa:historizing false;
+  OpcUa:nodeNamespace 2;
+  OpcUa:userAccessLevel 1;
+  OpcUa:valueRank -1;
+  capability-model:hasVariableName "result";
+  capability-model:hasVariableType OpcUa:integer;
+  capability-model:isRequired false .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Aborting> a owl:NamedIndividual,
+    stateMachine:Aborting;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Aborting_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Aborting_State_Complete> a owl:NamedIndividual,
+    stateMachine:Aborting_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Aborted> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clearing> a owl:NamedIndividual,
+    stateMachine:Clearing;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clearing_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clearing_State_Complete> a owl:NamedIndividual,
+    stateMachine:Clearing_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopped> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Complete> a owl:NamedIndividual,
+    stateMachine:Complete;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Reset_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Completing> a owl:NamedIndividual,
+    stateMachine:Completing;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Completing_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Completing_State_Complete> a owl:NamedIndividual,
+    stateMachine:Completing_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Execute> a owl:NamedIndividual,
+    stateMachine:Execute;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Hold_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspend_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Execute_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Execute_State_Complete> a owl:NamedIndividual,
+    stateMachine:Execute_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Completing> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Holding> a owl:NamedIndividual,
+    stateMachine:Holding;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Holding_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Holding_State_Complete> a owl:NamedIndividual,
+    stateMachine:Holding_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Held> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Resetting> a owl:NamedIndividual,
+    stateMachine:Resetting;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Resetting_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Resetting_State_Complete> a owl:NamedIndividual,
+    stateMachine:Resetting_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Idle> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Starting> a owl:NamedIndividual,
+    stateMachine:Starting;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Starting_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Starting_State_Complete> a owl:NamedIndividual,
+    stateMachine:Starting_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Execute> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopping> a owl:NamedIndividual,
+    stateMachine:Stopping;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopping_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopping_State_Complete> a owl:NamedIndividual,
+    stateMachine:Stopping_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopped> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspending> a owl:NamedIndividual,
+    stateMachine:Suspending;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspending_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspending_State_Complete> a owl:NamedIndividual,
+    stateMachine:Suspending_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspended> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unholding> a owl:NamedIndividual,
+    stateMachine:Unholding;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unholding_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unholding_State_Complete> a owl:NamedIndividual,
+    stateMachine:Unholding_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Execute> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspending> a owl:NamedIndividual,
+    stateMachine:Unsuspending;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspending_State_Complete> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspending_State_Complete> a owl:NamedIndividual,
+    stateMachine:Unsuspending_State_Complete;
+  stateMachine:Transition_is_connected_with_State <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Execute> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Aborted> a owl:NamedIndividual,
+    stateMachine:Aborted;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Clear_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Held> a owl:NamedIndividual, stateMachine:Held;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unhold_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stopped> a owl:NamedIndividual,
+    stateMachine:Stopped;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Reset_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command> .
+
+<https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Suspended> a owl:NamedIndividual,
+    stateMachine:Suspended;
+  stateMachine:State_is_connected_with_Transition <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Unsuspend_Command>,
+    <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Stop_Command>, <https://hsu-hh.de/skills#OpcUaSkill_StateMachine_Abort_Command> .
+
+capability-model:providesOpcUaMethodSkill a rdf:Property;
+  rdfs:subPropertyOf capability-model:providesOpcUaMethodSkill .
+
+capability-model:isExecutableViaOpcUaMethodSkill a rdf:Property;
+  rdfs:subPropertyOf capability-model:isExecutableViaOpcUaMethodSkill .
+
+capability-model:hasSkillMethod a rdf:Property;
+  rdfs:subPropertyOf capability-model:hasSkillMethod .
+
+<https://hsu-hh.de/skills#OpcUaSkill_a_Option2> a owl:NamedIndividual, capability-model:SkillVariableOption;
+  capability-model:hasOptionValue 3 .
+
+<https://hsu-hh.de/skills#OpcUaSkill_a_Option3> a owl:NamedIndividual, capability-model:SkillVariableOption;
+  capability-model:hasOptionValue 2 .
+
+rdfs:isDefinedBy rdfs:subPropertyOf rdfs:seeAlso .
+
+rdf:Alt rdfs:subClassOf rdfs:Container .
+
+rdf:Bag rdfs:subClassOf rdfs:Container .
+
+rdf:Seq rdfs:subClassOf rdfs:Container .
+
+rdfs:ContainerMembershipProperty rdfs:subClassOf rdf:Property .
+
+rdfs:Datatype rdfs:subClassOf rdfs:Class .
+
+rdfs:comment rdfs:range rdfs:Literal .
+
+rdfs:label rdfs:range rdfs:Literal .
