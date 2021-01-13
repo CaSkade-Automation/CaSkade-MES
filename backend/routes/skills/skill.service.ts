@@ -1,12 +1,12 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 
-import { SkillDto, SkillQueryResult} from "@shared/models/skill/Skill";
+import { SkillDto, SkillQueryResult } from "@shared/models/skill/Skill";
 import { skillMapping } from './skill-mappings';
 import { v4 as uuidv4 } from 'uuid';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
 
-import {SparqlResultConverter} from 'sparql-result-converter';
+import { SparqlResultConverter } from 'sparql-result-converter';
 import { CapabilityService } from '../capabilities/capability.service';
 import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
@@ -16,7 +16,7 @@ const converter = new SparqlResultConverter();
 export class SkillService {
     constructor(private graphDbConnection: GraphDbConnectionService,
         private socketGateway: SocketGateway,
-        private capabilityService: CapabilityService){}
+        private capabilityService: CapabilityService) { }
 
 
     /**
@@ -31,12 +31,11 @@ export class SkillService {
 
             await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
             this.socketGateway.emitEvent(SocketEventName.Skills_Added);
-            return 'New skill successfully added';
+            return skillGraphName;
         } catch (error) {
             throw new BadRequestException(`Error while registering a new skill. Error: ${error.toString()}`);
         }
     }
-
 
     /**
      * Gets all skills that are currently registered
@@ -71,7 +70,7 @@ export class SkillService {
             }
 
             return skillDtos;
-        } catch(error) {
+        } catch (error) {
             throw new Error(`Error while returning all skills. Error: ${error}`);
         }
     }
@@ -110,7 +109,7 @@ export class SkillService {
             skillDto.capabilityDtos = capabilityDtos;
 
             return skillDto;
-        } catch(error) {
+        } catch (error) {
             throw new Error(`Error while returning skill with IRI ${skillIri}. Error: ${error}`);
         }
     }
@@ -145,7 +144,7 @@ export class SkillService {
             }
 
             return skillDtos;
-        } catch(error) {
+        } catch (error) {
             throw new Error(`Error while returning skills of module ${moduleIri}. Error: ${error}`);
         }
     }
@@ -183,7 +182,7 @@ export class SkillService {
             }
 
             return skillDtos;
-        } catch(error) {
+        } catch (error) {
             throw new Error(`Error while returning all skills that are suited for capability ${capabilityIri}. Error: ${error}`);
         }
     }
@@ -219,7 +218,7 @@ export class SkillService {
         }
     }
 
-    async updateState(skillIri:string, newStateTypeIri: string): Promise<string> {
+    async updateState(skillIri: string, newStateTypeIri: string): Promise<string> {
         try {
             const deleteQuery = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
@@ -236,7 +235,7 @@ export class SkillService {
                 ?newState a <${newStateTypeIri}>.
             }`;
             const queryResult = await this.graphDbConnection.executeUpdate(insertQuery);
-            this.socketGateway.emitEvent(SocketEventName.Skills_StateChanged, {skillIri: skillIri, newStateTypeIri: newStateTypeIri});
+            this.socketGateway.emitEvent(SocketEventName.Skills_StateChanged, { skillIri: skillIri, newStateTypeIri: newStateTypeIri });
             return `Sucessfully updated currentState of skill ${skillIri}`;
         } catch (error) {
             throw new Error(
