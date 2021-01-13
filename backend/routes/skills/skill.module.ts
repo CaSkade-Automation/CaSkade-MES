@@ -3,6 +3,7 @@ import { SkillController } from './skill.controller';
 import { SkillService } from './skill.service';
 import { CapabilityModule } from '../capabilities/capability.module';
 import { SkillExecutionModule } from '../skill-execution/skill-execution.module';
+import { SkillConsistency } from './skill.consistency';
 
 @Module({
     imports: [
@@ -10,7 +11,7 @@ import { SkillExecutionModule } from '../skill-execution/skill-execution.module'
         forwardRef(() => SkillExecutionModule)
     ],
     controllers: [SkillController],
-    providers: [SkillService],
-    exports: [SkillService],
+    providers: [SkillService, SkillConsistency],
+    exports: [SkillService, SkillConsistency],
 })
 export class SkillModule {}

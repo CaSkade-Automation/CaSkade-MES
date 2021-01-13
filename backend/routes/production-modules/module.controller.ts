@@ -4,13 +4,15 @@ import { ProductionModuleDto } from '@shared/models/production-module/Production
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 import { SkillDto } from '@shared/models/skill/Skill';
 import { SkillService } from '../skills/skill.service';
+import { SkillConsistency } from '../skills/skill.consistency';
 
 @Controller('modules')
 export class ModuleController {
 
     constructor(
         private moduleService: ModuleService,
-        private skillService: SkillService) {}
+        private skillService: SkillService,
+        private skillConsistency: SkillConsistency) { }
 
     /**
      * Register a new module on the platform
@@ -45,8 +47,19 @@ export class ModuleController {
      * @param newSkill RDF document containing the new skill
      */
     @Post(':moduleIri/skills')
-    addModuleSkill(@Param('moduleIri') moduleIri: string, @StringBody() newSkill: string): Promise<string> {
-        return this.skillService.addSkill(newSkill);
+    async addModuleSkill(@Param('moduleIri') moduleIri: string, @StringBody() newSkill: string): Promise<string> {
+        const skillGraphName = await this.skillService.addSkill(newSkill);
+        const validationReport = await this.skillConsistency.validateSkill(skillGraphName);
+        if (validationReport != "")
+            return validationReport;
+
+        const skillType = await this.skillConsistency.getSkillType(newSkill);
+        if (skillType === "OpcUaSkill") {
+            const opcUaReport = await this.skillConsistency.validateOpcUaSkill(skillGraphName);
+            if (opcUaReport != "")
+                return opcUaReport;
+            return "New skill successfully added!";
+        }
     }
 
     /**
@@ -65,14 +78,14 @@ export class ModuleController {
      * @param skillIri IRI of the skill that is deleted
      */
     @Delete(':moduleIri/skills/:skillIri')
-    deleteModuleSkill(@Param('moduleIri') moduleIri: string, @Param('skillIri') skillIri: string): Promise<string>  {
+    deleteModuleSkill(@Param('moduleIri') moduleIri: string, @Param('skillIri') skillIri: string): Promise<string> {
         return this.skillService.deleteSkill(skillIri);
     }
 
     // TODO: This is pretty bad...
     // Furthermore, it is currently only used to update the currentState. It should be checked what is changed before calling a skillmethod
     @Patch(':moduleIri/skills/:skillIri')
-    updateSkillState(@Param('skillIri') skillIri:string, @Body() change: Record<string, unknown>): Promise<string> {
+    updateSkillState(@Param('skillIri') skillIri: string, @Body() change: Record<string, unknown>): Promise<string> {
         const newState = change['newState'] as string;
         return this.skillService.updateState(skillIri, newState);
     }
