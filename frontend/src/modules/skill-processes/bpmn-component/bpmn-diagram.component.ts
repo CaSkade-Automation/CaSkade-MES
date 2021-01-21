@@ -25,6 +25,8 @@ import * as BpmnModeler from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 import { importDiagram } from './rx';
 
 import { throwError } from 'rxjs';
+import { ProcessControlService } from '../process-control/process-control.service';
+import { ProcessDefinition } from '@shared/models/processDefinition/ProcessDefinition';
 
 @Component({
     selector: 'app-diagram',
@@ -49,7 +51,8 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
   clickedElement: any;
   showPropertiesPanel: boolean;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+    private processControlService: ProcessControlService) {
 
       this.bpmnModeler = new BpmnModeler({
           //   container: '#canvas',
@@ -84,6 +87,8 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
       });
   }
 
+  processDefinitions= Array<ProcessDefinition>();
+  xml: string;
   ngAfterContentInit(): void {
       this.bpmnModeler.attachTo(this.el.nativeElement);
   }
@@ -108,29 +113,39 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
       });
   }
 
-    /**
+  /**
    * Load diagram from URL and emit completion event
    */
-    //   loadUrl(url: string) {
+  //   loadUrl(url: string) {
 
-//       return (
-//           this.http.get(url, { responseType: 'text' }).pipe(
-//               catchError(err => throwError(err)),
-//               importDiagram(this.bpmnJS)
-//           ).subscribe(
-//               (warnings) => {
-//                   this.importDone.emit({
-//                       type: 'success',
-//                       warnings
-//                   });
-//               },
-//               (err) => {
-//                   this.importDone.emit({
-//                       type: 'error',
-//                       error: err
-//                   });
-//               }
-//           )
-//       );
-//   }
+  //       return (
+  //           this.http.get(url, { responseType: 'text' }).pipe(
+  //               catchError(err => throwError(err)),
+  //               importDiagram(this.bpmnJS)
+  //           ).subscribe(
+  //               (warnings) => {
+  //                   this.importDone.emit({
+  //                       type: 'success',
+  //                       warnings
+  //                   });
+  //               },
+  //               (err) => {
+  //                   this.importDone.emit({
+  //                       type: 'error',
+  //                       error: err
+  //                   });
+  //               }
+  //           )
+  //       );
+  //   }
+  listAllDeployedProcessDefinitions(): void{
+      this.processControlService.getAllDeployedProcessDefinitions().subscribe((processDefinitions: ProcessDefinition[]) =>{
+          this.processDefinitions=processDefinitions;});}
+  loadProcess(processDefinition: ProcessDefinition): void{
+      this.processControlService.getXMLofProcessDefinition(processDefinition).subscribe(data=>{
+          this.xml= data.bpmn20Xml;});
+  }
+  showSelectedDefinition(): void{
+      this.bpmnModeler.importXML(this.xml);
+  }
 }
