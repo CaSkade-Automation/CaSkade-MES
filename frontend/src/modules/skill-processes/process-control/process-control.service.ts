@@ -11,6 +11,7 @@ import { map } from 'rxjs/operators';
 })
 export class ProcessControlService {
   engineRestRoot= "/engine-rest";
+  xml: string;
   
   //observer: Observer<ProcessDefinitionDto[]>
   constructor(private  http: HttpClient) {}
@@ -39,6 +40,7 @@ export class ProcessControlService {
               data.diagram, data.suspended, data.tenantId, data.versionTag,
               data.historyTimeToLive, data.startableInTasklist))
       );
+
   }
 
   getAllProcessInstances(): Observable<ProcessInstance[]>{
@@ -56,10 +58,25 @@ export class ProcessControlService {
   }
   deleteProcessInstance(processInstance: ProcessInstance): Observable<ProcessInstance[]> {
       const URL= `${this.engineRestRoot}/process-instance/${processInstance.id}`;
-      this.http.delete(URL);
+      console.log(URL);
+    
+      this.http.delete(URL).subscribe();
+
       return this.getAllProcessInstances();
       
   }
+  getXMLofProcessDefinition(processDefinition: ProcessDefinition): any{
+      const URL= `${this.engineRestRoot}/process-definition/${processDefinition.id}/xml`; 
+      
+  
+  
+      return this.http.get<any>(URL);
+      //   .subscribe(data=>{
+      //       this.xml=data.bpmn20Xml;
+      //console.log(this.xml);
+      // });
+  }
+ 
  
 
 }
