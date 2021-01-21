@@ -47,12 +47,12 @@ export class ProcessControlComponent implements OnInit {
         });
     }
     getXmlOfProcessDefinition(processDefinition: ProcessDefinition):  string{
-      
-        return this.processControlService.getXMLofProcessDefinition(processDefinition).subscribe(data=>{
+        this.processControlService.getXMLofProcessDefinition(processDefinition).subscribe(data=>{
             this.bpmnXml= data.bpmn20Xml;
             this.processDefinitionIdOfXml= data.id;
             console.log(this.bpmnXml);
         });
+        return this.bpmnXml;
 
     } 
 
