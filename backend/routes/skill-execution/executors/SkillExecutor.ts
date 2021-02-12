@@ -11,10 +11,10 @@ export abstract class SkillExecutor {
     abstract invokeTransition(executionRequest: SkillExecutionRequestDto): void;
 
     /**
-     * Execute one of the skill methods that is not connected with the state machine
+     * Get all outputs (e.g. by reading the variables or executing a method returning the outputs)
      * @param executionRequest
      */
-    abstract getSkillOutputs(executionRequest: SkillExecutionRequestDto): unknown;
+    abstract getSkillOutputs(executionRequest?: SkillExecutionRequestDto): unknown;
 
     /**
      * Sets parameters of a skill
