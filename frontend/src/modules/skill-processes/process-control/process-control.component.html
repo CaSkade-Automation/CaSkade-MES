@@ -79,8 +79,8 @@
                                 
                             </td>
                             <td>
-                                <i (click)="instanceOperate=instance"class='fas fa-play-circle mr-2' title='Operate with this Instance'></i>
-                                <i class='fas fa-info-circle mr-2' title='Instance Information'></i>
+                                <i (click)="instanceOperate=instance" class='fas fa-play-circle mr-2' title='Operate with this Instance'></i>
+                                <i (click)="instanceInformation=instance" class='fas fa-info-circle mr-2' title='Instance Information'></i>
                                 <i (click)="deleteProcessInstance(instance)" class='fas fa-minus-circle mr-2' title='Delete Process Instance'> </i> 
                             </td>
                             
@@ -113,13 +113,25 @@
                         
                     </ng-container>
                     <ng-template #noSelectedInstance>
-                        <p>Please select an Process Instance for operations.</p>
+                        <p>Please select a Process-Instance for operation.</p>
                     </ng-template>
                     
                     
                 </div>
             </div>
-        </div>
+            <div class="card">
+                <h6 class="card-header">Information about Process-Instance</h6>
+                <div class="card-body">
+                    <ng-container *ngIf="instanceInformation; else noInstanceInformation">
+                        <p>Selected: {{instanceInformation.id}}</p>
+
+                    </ng-container>
+                    <ng-template #noInstanceInformation>
+                        <p>Please select a Process-Instance to get Information about it</p>
+                    </ng-template>
+                    
+                </div>
+            </div>
     </div>
 
     <!-- Pop-up for showing the XML-File of Process-Definition -->

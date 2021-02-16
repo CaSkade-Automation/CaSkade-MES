@@ -55,5 +55,9 @@ export class ProcessControlComponent implements OnInit {
         return this.bpmnXml;
 
     } 
+    startInstance(processDefinition: ProcessDefinition,  variablesBody: string): void{
+        const body=variablesBody;
+        this.processControlService.startNewProcessInstance(processDefinition, body );
+    }
 
 }
