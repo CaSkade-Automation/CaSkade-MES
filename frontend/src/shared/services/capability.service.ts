@@ -55,4 +55,10 @@ export class CapabilityService {
         const apiURL = `${this.apiRoot}/capabilities`;
         return this.http.post<CapabilityDto>(apiURL, ontologyString);
     }
+    addMtpCapability(ontologyFile: File): Observable<File>{
+        const apiURL = `${this.apiRoot}/Mtp`;
+        const formData= new FormData;
+        formData.append('file', ontologyFile, ontologyFile.name);
+        return this.http.post<File>(apiURL, formData);
+    }
 }

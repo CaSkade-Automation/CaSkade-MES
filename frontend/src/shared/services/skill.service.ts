@@ -72,5 +72,11 @@ export class SkillService {
         const apiURL = `${this.apiRoot}/skills`;
         return this.http.post<SkillDto>(apiURL, ontologyString);
     }
+    addMtpSkill(ontologyFile: File): Observable<File>{
+        const apiURL = `${this.apiRoot}/Mtp`;
+        const formData= new FormData;
+        formData.append('file', ontologyFile, ontologyFile.name);
+        return this.http.post<File>(apiURL, formData);
+    }
 
 }

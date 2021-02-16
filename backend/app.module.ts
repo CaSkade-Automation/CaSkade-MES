@@ -8,6 +8,8 @@ import { GraphOperationModule } from './routes/graph-operations/graph-operation.
 import { CapabilityModule } from './routes/capabilities/capability.module';
 import { SkillModule } from './routes/skills/skill.module';
 import { SkillExecutionModule } from './routes/skill-execution/skill-execution.module';
+import { MtpModuleModule } from './routes/mappings/mtp.module.module';
+
 
 @Module({
     imports: [
@@ -18,7 +20,8 @@ import { SkillExecutionModule } from './routes/skill-execution/skill-execution.m
         SkillModule,
         GraphRepositoryModule,
         GraphOperationModule,
-        SkillExecutionModule
+        SkillExecutionModule,
+        MtpModuleModule
     ],
     controllers: [AppController],
     providers: [],
