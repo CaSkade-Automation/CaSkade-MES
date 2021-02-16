@@ -76,6 +76,12 @@ export class ProcessControlService {
       //console.log(this.xml);
       // });
   }
+
+  startNewProcessInstance(processDefinition: ProcessDefinition, variablesBody: string): any{
+      const URL= `${this.engineRestRoot}/process-definition/${processDefinition.id}/start`; 
+      const body= variablesBody;
+      return this.http.post<any>(URL, body);
+  }
  
  
 
