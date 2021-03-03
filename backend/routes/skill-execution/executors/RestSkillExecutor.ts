@@ -4,7 +4,6 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
-import { opcUaSkillExecutionMapping } from './skill-execution-mappings';
 
 export class RestSkillExecutionService extends SkillExecutor {
 

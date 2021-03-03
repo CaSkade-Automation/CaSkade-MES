@@ -199,7 +199,7 @@ export class SkillService {
             SELECT ?skill ?graph WHERE {
                 GRAPH ?graph {
                     BIND(<${skillIri}> AS ?skill)
-                    ?skill a/sesame:directSubClassOf Cap:Skill.
+                    ?skill a/sesame:directSubClassOf* Cap:Skill.
                     }
                 }`;
 

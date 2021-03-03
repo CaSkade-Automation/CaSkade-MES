@@ -1,6 +1,6 @@
 import { MappingDefinition } from "sparql-result-converter";
 
-const opcUaSkillExecutionMapping: MappingDefinition[] = [
+const opcUaMethodSkillMapping: MappingDefinition[] = [
     {
         rootName: 'skillExecutionInfos',
         propertyToGroup: 'skillIri',
@@ -12,6 +12,24 @@ const opcUaSkillExecutionMapping: MappingDefinition[] = [
                 propertyToGroup: 'parameterIri',
                 name: 'parameterIri',
                 toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired', 'parameterNodeId', 'parameterUaType'],
+            },
+        ]
+    },
+];
+
+
+const opcUaVariableSkillMapping: MappingDefinition[] = [
+    {
+        rootName: 'skillExecutionInfos',
+        propertyToGroup: 'skillIri',
+        name: 'skillIri',
+        toCollect: ['skillMethodIri','methodNodeId', 'skillNodeId', 'endpointUrl', 'userName', 'password', 'messageSecurityMode', 'securityPolicy'],
+        childMappings: [
+            {
+                rootName: 'parameters',
+                propertyToGroup: 'parameterIri',
+                name: 'parameterIri',
+                toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired', 'parameterNodeId'],
             },
         ]
     },
@@ -37,6 +55,7 @@ const opcUaSkillParameterMapping: MappingDefinition[] = [
 ];
 
 export {
-    opcUaSkillExecutionMapping,
+    opcUaMethodSkillMapping,
+    opcUaVariableSkillMapping,
     opcUaSkillParameterMapping
 };

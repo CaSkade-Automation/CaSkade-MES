@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { SkillExecutor } from "./executors/SkillExecutor";
-import { OpcUaSkillExecutionService } from "./executors/OpcUaSkillExecutor";
+import { OpcUaMethodSkillExecutionService } from "./executors/opc-ua-executors/OpcUaMethodSkillExecutor";
 import { RestSkillExecutionService } from "./executors/RestSkillExecutor";
 import { NullSkillExecutor } from "./executors/NullSkillExecutor";
 import { GraphDbConnectionService } from "../../util/GraphDbConnection.service";
 import { SkillService } from "../skills/skill.service";
+import { OpcUaVariableSkillExecutionService } from "./executors/opc-ua-executors/OpcUaVariableSkillExecutor";
 
 @Injectable()
 export class SkillExecutorFactory {
@@ -22,11 +23,17 @@ export class SkillExecutorFactory {
         const skillTypeIri = await this.getSkillType(skillIri);
 
         switch (skillTypeIri) {
-        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaSkill':
-            return new OpcUaSkillExecutionService(this.graphDbConnection, this.skillService);
+        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaMethodSkill': {
+            const methodSkillExecutor = new OpcUaMethodSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
+            await methodSkillExecutor.connectAndCreateSession(skillIri);
+            return methodSkillExecutor;
+        }
+        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill':
+            return new OpcUaVariableSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
         case 'http://www.hsu-ifa.de/ontologies/capability-model#RestSkill':
             return new RestSkillExecutionService(this.graphDbConnection);
         default:
+            console.log(`Returning a default SkillExecutor. The given skill type ${skillTypeIri} is not defined`);
             return new NullSkillExecutor();
         }
 
@@ -44,7 +51,10 @@ export class SkillExecutorFactory {
             ?skill a Cap:Skill.
             FILTER(?skill = IRI("${skillIri}"))
             ?skill a ?skillType.
-            ?skillType sesame:directSubClassOf Cap:Skill.
+            FILTER NOT EXISTS {
+                ?someSubSkillSubClass sesame:directSubClassOf ?skillType.
+           }
+           FILTER(?skillType != owl:NamedIndividual)
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
         const skillTypeIri = queryResult.results.bindings[0]["skillType"].value;
