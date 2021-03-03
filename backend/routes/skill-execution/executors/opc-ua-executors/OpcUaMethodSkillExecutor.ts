@@ -31,7 +31,7 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
             for (const param of parameterDescription.parameters) {
                 const foundReqParam = parameters.find(reqParam => reqParam.name == param.parameterName);
                 if(foundReqParam && foundReqParam.value) {
-                    await this.writeSingleNode(param.parameterNodeId, foundReqParam.value);                 // TODO: Check if await is needed here
+                    await this.writeSingleNode(param.parameterNodeId, foundReqParam.value);
                 }
             }
         } catch (err) {
