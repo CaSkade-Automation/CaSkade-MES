@@ -21,8 +21,6 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
     }
 
 
-
-
     /**
      * Invoke a transition by setting a command variable to a certain, required value
      * @param executionRequest Object containing skillIri, transitionIri and all parameters with the values they have to be set to
@@ -33,9 +31,9 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
         try {
             // Write all "normal" parameters first
             for (const param of skillDescription.parameters) {
-                const foundReqParam = executionRequest.parameters.find(reqParam => reqParam.name == param.parameterName);
-                if(foundReqParam && foundReqParam.value) {
-                    await this.writeSingleNode(param.parameterNodeId, foundReqParam.value);
+                const matchedReqParam = executionRequest.parameters.find(reqParam => reqParam.name == param.parameterName);
+                if(matchedReqParam && matchedReqParam.value) {
+                    await this.writeSingleNode(param.parameterNodeId, matchedReqParam.value);
                 }
             }
             // Then write the command parameter
@@ -118,42 +116,42 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 		PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>#
 		PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
-		SELECT ?endpointUrl ?messageSecurityMode ?securityPolicy ?requiredCommandValue ?commandNodeId ?parameterIri
+		SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?requiredCommandValue ?commandNodeId ?parameterIri
 		?parameterRequired ?parameterName ?parameterType ?parameterNodeId WHERE {
 			BIND(<${skillIri}> AS ?skillIri).
-				?skillIri a Cap:OpcUaVariableSkill;
-						  Cap:hasStateMachine/ISA88:hasTransition ?command.
-				?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?commandParameter;
-                    OpcUa:hasEndpointUrl ?endpointUrl;
-                    OpcUa:hasMessageSecurityMode ?messageSecurityMode;
-                    OpcUa:hasSecurityPolicy ?securityPolicy.
-                OPTIONAL {
-                    ?uaServer OpcUa:requiresUserName ?userName;
-                    OpcUa:requiresPassword ?password
+			?skillIri a Cap:OpcUaVariableSkill;
+                        Cap:hasStateMachine/ISA88:hasTransition ?command.
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?commandParameter;
+                OpcUa:hasEndpointUrl ?endpointUrl;
+                OpcUa:hasMessageSecurityMode ?messageSecurityMode;
+                OpcUa:hasSecurityPolicy ?securityPolicy.
+            OPTIONAL {
+                ?uaServer OpcUa:requiresUserName ?userName;
+                OpcUa:requiresPassword ?password
+            }
+            <${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
+            ?command a <${commandTypeIri}>;
+                DINEN61360:has_Data_Element ?commandVariableDataElement.
+            ?commandVariableDataElement DINEN61360:has_Type_Description Cap:SkillCommandVariable_TD;
+                DINEN61360:has_Instance_Description ?requiredCommand,
+                ?commandParameter.
+            ?requiredCommand DINEN61360:Expression_Goal "Requirement";
+                DINEN61360:Value ?requiredCommandValue.
+            ?skillIri Cap:hasSkillCommand ?commandParameter.
+            ?commandParameter a Cap:SkillCommand;
+                OpcUa:nodeId ?commandNodeId.
+            # Exclude the commands, just get the other "normal" parameters
+            OPTIONAL {
+                ?skillIri Cap:hasSkillParameter ?parameterIri.
+                ?parameterIri a Cap:SkillParameter;
+                Cap:hasVariableName ?parameterName;
+                Cap:hasVariableType ?parameterType;
+                Cap:isRequired ?parameterRequired;
+                OpcUa:nodeId ?parameterNodeId;
+                FILTER NOT EXISTS {
+                    ?parameterIri a Cap:SkillCommand.
                 }
-				<${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
-				?command a <${commandTypeIri}>;
-					DINEN61360:has_Data_Element ?commandVariableDataElement.
-				?commandVariableDataElement DINEN61360:has_Type_Description Cap:SkillCommandVariable_TD;
-					DINEN61360:has_Instance_Description ?requiredCommand,
-					?commandParameter.
-				?requiredCommand DINEN61360:Expression_Goal "Requirement";
-					DINEN61360:Value ?requiredCommandValue.
-				?skillIri Cap:hasSkillCommand ?commandParameter.
-				?commandParameter a Cap:SkillCommand;
-					OpcUa:nodeId ?commandNodeId.
-				# Exclude the commands, just get the other "normal" parameters
-				OPTIONAL {
-					?skillIri Cap:hasSkillParameter ?parameterIri.
-					?parameterIri a Cap:SkillParameter;
-					Cap:hasVariableName ?parameterName;
-					Cap:hasVariableType ?parameterType;
-					Cap:isRequired ?parameterRequired;
-					OpcUa:nodeId ?parameterNodeId;
-					FILTER NOT EXISTS {
-						?parameterIri a Cap:SkillCommand.
-					}
-				}
+            }
 		}`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
         const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaVariableSkillMapping).getFirstRootElement()[0] as OpcUaVariableSkill;
@@ -170,7 +168,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 		PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>#
 		PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
-		SELECT ?endpointUrl ?messageSecurityMode ?securityPolicy ?requiredCommandValue ?commandNodeId ?parameterIri
+		SELECT ?endpointUrl ?messageSecurityMode ?securityPolicy ?requiredCommandValue ?commandNodeId
 		?parameterRequired ?parameterName ?parameterType ?parameterNodeId WHERE {
 			BIND(<${skillIri}> AS ?skillIri).
 				?skillIri a Cap:OpcUaVariableSkill;
@@ -215,8 +213,6 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 
 }
 
-
-// // TODO: Align with SkillParameter, fix this mess
 class OpcUaVariableSkill {
     endpointUrl: string;
     messageSecurityMode: string;

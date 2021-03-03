@@ -29,7 +29,7 @@ const opcUaVariableSkillMapping: MappingDefinition[] = [
                 rootName: 'parameters',
                 propertyToGroup: 'parameterIri',
                 name: 'parameterIri',
-                toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired', 'parameterNodeId', 'parameterUaType'],
+                toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired', 'parameterNodeId'],
             },
         ]
     },
