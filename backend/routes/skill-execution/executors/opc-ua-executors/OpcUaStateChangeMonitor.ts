@@ -1,4 +1,12 @@
-import { AttributeIds, ClientMonitoredItem, ClientSession, ClientSubscription, DataValue, MonitoringParametersOptions, ReadValueIdLike, TimestampsToReturn } from "node-opcua";
+import { AttributeIds,
+    ClientMonitoredItem,
+    ClientSession,
+    ClientSubscription,
+    DataValue,
+    MonitoringParametersOptions,
+    ReadValueIdOptions,
+    TimestampsToReturn } from "node-opcua";
+
 
 export class OpcUaStateChangeMonitor {
 
@@ -19,7 +27,7 @@ export class OpcUaStateChangeMonitor {
         this.subscription.on("terminated", this.onTerminated);
 
         // install monitored item
-        const itemToMonitor: ReadValueIdLike = {
+        const itemToMonitor: ReadValueIdOptions = {
             nodeId: nodeIdToMonitor,
             attributeId: AttributeIds.Value
         };
@@ -40,8 +48,6 @@ export class OpcUaStateChangeMonitor {
             console.log(" value has changed : ", dataValue.value.toString());
         });
     }
-
-
 
 
 

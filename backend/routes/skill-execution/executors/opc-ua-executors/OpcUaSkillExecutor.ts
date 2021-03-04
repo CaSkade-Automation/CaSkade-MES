@@ -1,4 +1,4 @@
-import { CallMethodResult, ClientSession, ConnectionStrategy, MessageSecurityMode, NodeId, OPCUAClient, OPCUAClientOptions, SecurityPolicy, StatusCode, UserNameIdentityToken } from "node-opcua";
+import { CallMethodResult, ClientSession, ConnectionStrategy, MessageSecurityMode, NodeId, OPCUAClient, OPCUAClientOptions, SecurityPolicy, StatusCode, UserNameIdentityToken, WriteValueOptions } from "node-opcua";
 import { SkillService } from "routes/skills/skill.service";
 import { SparqlResultConverter } from "sparql-result-converter";
 import { GraphDbConnectionService } from "util/GraphDbConnection.service";
@@ -187,7 +187,12 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             value: value
         };
 
-        return this.uaSession.writeSingleNode(node, dataToWrite);
+        const writeOptions: WriteValueOptions = {
+            nodeId: node,
+            value: dataToWrite
+        };
+
+        return this.uaSession.write(writeOptions);
     }
 
 
