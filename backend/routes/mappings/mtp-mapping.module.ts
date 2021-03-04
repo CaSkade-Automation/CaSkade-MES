@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 
 import { SkillModule } from '../skills/skill.module';
-import { MtpModuleService } from './mtp.module.service';
-import { MtpModuleController } from './mtp.module.controler';
+import { MtpMappingController } from './mtp-mapping.controller';
 import { MulterModule } from '@nestjs/platform-express';
+import { MtpMappingService } from './mtp-mapping.service';
 
 @Module({
     imports: [SkillModule, MulterModule.register({
         dest: './uploadedMtpOntology',
     })],
-    controllers: [MtpModuleController],
-    providers: [MtpModuleService],
+    controllers: [MtpMappingController],
+    providers: [MtpMappingService],
 })
-export class MtpModuleModule {}
+export class MtpMappingModule {}
