@@ -1,8 +1,7 @@
 import { Body, Controller, Get, Post,  Put,  UploadedFile, UseInterceptors } from '@nestjs/common';
-
 import {FileInterceptor} from '@nestjs/platform-express';
-
 import { MtpMappingService } from './mtp-mapping.service';
+import {MtpMappingServiceConfig} from '@shared/models/mappings/MtpMappingServiceConfig';
 
 @Controller('mappings')
 export class MtpMappingController {
@@ -16,8 +15,8 @@ export class MtpMappingController {
      * Return the current URL of the MTP Mapping service
      */
     @Get('mtp/config')
-    getConfig(): string {
-        return this.mtpMappingService.getUrl();
+    getConfig(): MtpMappingServiceConfig {
+        return this.mtpMappingService.getConfig();
     }
 
 
