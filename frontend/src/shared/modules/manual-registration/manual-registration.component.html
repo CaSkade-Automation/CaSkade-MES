@@ -1,31 +1,31 @@
 
-  <h3>Manual Registration</h3> 
+  <h3>Manual Registration</h3>
   <div class="form-check form-check-inline mr-5 " >
-  <label class="form-check-label" for="manualOntology"> 
-    <input class="form-check-input" type="radio" name="options" id="manualOntology"  [value]="'manualOntology'" [(ngModel)]="ontologyType">Manual Ontology   
+  <label class="form-check-label" for="manualOntology">
+    <input class="form-check-input" type="radio" name="options" id="manualOntology"  [value]="'manualOntology'" [(ngModel)]="ontologyType">Manual Ontology
   </label>
-  
-  <label class="form-check-label " for="mtp" style="padding-left: 10px;"> 
+
+  <label class="form-check-label " for="mtp" style="padding-left: 10px;">
     <input class="form-check-input" type="radio" name="options" id="mtp"  [value]="'mtp'" [(ngModel)]="ontologyType"> MTP
   </label>
   </div>
 
   <ng-container *ngIf="ontologyType=='manualOntology'; else elseTemplate">
     <form style="padding-top: 20px;" >
-     
+
       <div class="text-danger">{{errMessage}}</div>
       <textarea class="form-control" [(ngModel)]="ontologyString" name="ontologyString" id="ontologyString" rows="15" placeholder="Insert Ontology here..."></textarea>
       <div class="box box-info margin-bottom=50px">
         <form class="form-horizontal" style="padding-top: 10px">
-            <button class="btn btn-primary" (click)="saveOntology()" >Submit Ontology </button> 
-            <button class="btn btn-secondary" style="margin-left: 10px;" (click)="ontologyString=''" >Clear </button> 
+            <button class="btn btn-primary" (click)="saveOntology()" >Submit Ontology </button>
+            <button class="btn btn-secondary" style="margin-left: 10px;" (click)="ontologyString=''" >Clear </button>
         </form>
       </div>
     </form>
   </ng-container>
   <ng-template #elseTemplate>
     <form>
-   
+
     <div class="input-group mb-3" style="padding-top: 20px;">
       <div class="input-group-prepend">
         <span class="input-group-text"><i class="fas fa-file-upload"></i> </span>
@@ -45,6 +45,6 @@
 
   </form>
   </ng-template>
-  
-  
+
+
 
