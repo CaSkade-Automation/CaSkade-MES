@@ -9,7 +9,7 @@
     "e2e": "ng e2e",
     "clean": "if exist dist rd /s /q dist",
     "ng-build": "ng build --watch",
-    "ng-serve": "ng serve --proxy-config proxy.conf.json --open"
+    "ng-serve": "ng serve --proxy-config proxy.conf.json --open --host 0.0.0.0"
   },
   "private": true,
   "dependencies": {

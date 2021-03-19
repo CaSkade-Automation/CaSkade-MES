@@ -1,4 +1,4 @@
-import { CallMethodResult, ClientSession, ConnectionStrategy, MessageSecurityMode, NodeId, OPCUAClient, OPCUAClientOptions, SecurityPolicy, StatusCode, UserNameIdentityToken, WriteValueOptions } from "node-opcua";
+import { AttributeIds, CallMethodResult, ClientSession, ConnectionStrategy, DataType, DataValue, DataValueLike, DataValueOptions, makeBrowsePath, MessageSecurityMode, NodeId, NodeIdType, OPCUAClient, OPCUAClientOptions, SecurityPolicy, StatusCode, UserNameIdentityToken, Variant, VariantOptions, WriteValue, WriteValueOptions } from "node-opcua";
 import { SkillService } from "routes/skills/skill.service";
 import { SparqlResultConverter } from "sparql-result-converter";
 import { GraphDbConnectionService } from "util/GraphDbConnection.service";
@@ -177,22 +177,61 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
      * @param nodeId ID of the Node to write
      * @param value Value to set
      */
-    protected async writeSingleNode(nodeId: string, value: any): Promise<StatusCode> {
+    protected async writeSingleNode(nodeId: string, value: any, namespace?: any): Promise<StatusCode> {
         // Resolve to a proper NodeId and get data type
-        const node = NodeId.resolveNodeId(nodeId);
+        const arr = await this.uaSession.readNamespaceArray();
+        console.log("ns Array");
+        console.log(arr);
+
+        console.log("namespace");
+        console.log(namespace);
+
+        const nsIndex = this.uaSession.getNamespaceIndex(namespace);
+
+        console.log(nsIndex);
+
+
+        const node = new NodeId(NodeIdType.STRING, nodeId, nsIndex);
+        // const node = NodeId.resolveNodeId(nodeId);
+        console.log({"node": nodeId});
+
         const nodeType = await this.uaSession.getBuiltInDataType(node);
 
-        const dataToWrite: any = {
-            dataType: nodeType,
+        console.log("nodeType");
+        console.log(DataType[nodeType]);
+
+
+        const writeValue = new WriteValue(
+            {
+                nodeId: node,
+                attributeId: AttributeIds.Value,
+                value: {
+                    value: {
+                        value: value,
+                        dataType: DataType[nodeType]
+                    }
+                }
+            }
+        );
+
+        const opts : VariantOptions = {
+            dataType: DataType[nodeType],
             value: value
         };
+        const variant = new Variant(opts);
 
         const writeOptions: WriteValueOptions = {
             nodeId: node,
-            value: dataToWrite
+            value: variant,
         };
 
-        return this.uaSession.write(writeOptions);
+        console.log(nodeType);
+
+        console.log("writeOptions");
+        console.log(writeOptions);
+
+
+        return this.uaSession.write(writeValue);
     }
 
 
@@ -215,7 +254,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
         return this.uaSession.call(methodToCall);
     }
 
-    protected endUaConnection() {
+    protected endUaConnection(): void {
         this.uaSession.close(true);
         this.uaClient.disconnect();
     }
