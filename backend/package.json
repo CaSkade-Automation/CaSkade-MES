@@ -24,6 +24,7 @@
         "body-parser": "^1.18.3",
         "class-transformer": "0.2.3",
         "class-validator": "0.12.2",
+        "form-data": "^4.0.0",
         "formidable": "^1.2.1",
         "json-groupby": "^1.1.0",
         "lodash": "^4.17.20",
