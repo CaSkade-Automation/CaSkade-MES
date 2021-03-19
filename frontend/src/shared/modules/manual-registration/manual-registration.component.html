@@ -17,7 +17,7 @@
       <textarea class="form-control" [(ngModel)]="ontologyString" name="ontologyString" id="ontologyString" rows="15" placeholder="Insert Ontology here..."></textarea>
       <div class="box box-info margin-bottom=50px">
         <form class="form-horizontal" style="padding-top: 10px">
-            <button class="btn btn-primary" (click)="saveOntology()" >Submit Ontology </button>
+            <button class="btn btn-primary" (click)="submit()" >Submit Ontology </button>
             <button class="btn btn-secondary" style="margin-left: 10px;" (click)="ontologyString=''" >Clear </button>
         </form>
       </div>
@@ -37,10 +37,10 @@
     </div>
 <ng-container *ngIf="changed; else elseDisabled">
 <div> <span class="fas fa-check-circle"></span> {{addedFile.name}} selected </div>
-    <button (click)="saveOntology()" class="btn btn-primary" style="padding-top: 10px;">Submit Ontology</button>
+    <button (click)="submit()" class="btn btn-primary" style="padding-top: 10px;">Submit</button>
   </ng-container>
 <ng-template #elseDisabled>
-  <button class="btn btn-primary" style="padding-top: 10px;" disabled>Submit Ontology</button>
+  <button class="btn btn-primary" style="padding-top: 10px;" disabled>Submit</button>
 </ng-template>
 
   </form>

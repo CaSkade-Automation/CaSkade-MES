@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post,  Put,  UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post,  Put, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import {FileInterceptor} from '@nestjs/platform-express';
 import { MtpMappingService } from './mtp-mapping.service';
+import * as Request from 'express';
 import {MtpMappingServiceConfig} from '@shared/models/mappings/MtpMappingServiceConfig';
 
 @Controller('mappings')
@@ -35,9 +36,9 @@ export class MtpMappingController {
      * @param file
      */
     @Post('mtp')
-    @UseInterceptors(FileInterceptor('file'))
-    uploadFile(@UploadedFile() file: Express.Multer.File):void {
-        console.log(file);
+    @UseInterceptors(FileInterceptor('mtp-file'))
+    uploadFile(@Req() req: Request, @UploadedFile() file: Express.Multer.File): Promise<string> {
+        return this.mtpMappingService.executeMapping(file, req.headers);
     }
 
 

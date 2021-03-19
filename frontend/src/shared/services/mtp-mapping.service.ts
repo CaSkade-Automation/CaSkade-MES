@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {MtpMappingServiceConfig} from '@shared/models/mappings/MtpMappingServiceConfig';
@@ -39,7 +39,22 @@ export class MtpMappingService {
 	 * @returns The mapped module with skills in turtle syntax
 	 */
     executeMapping(mtpFile): Observable<string> {
-        return this.httpClient.post(this.baseApiRoute, mtpFile) as Observable<string>;
+
+
+        const formData = new FormData();
+        formData.append('mtp-file', mtpFile);
+
+        const params = new HttpParams();
+
+        const options = {
+            params: params,
+            reportProgress: true,
+        };
+
+        // const req = new HttpRequest('POST', url, formData, options);
+        // return this.http.request(req);
+
+        return this.httpClient.post(this.baseApiRoute, formData, options) as Observable<string>;
     }
 
 }

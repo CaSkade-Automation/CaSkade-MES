@@ -45,7 +45,7 @@ export class ManualRegistrationComponent {
     }
 
 
-    saveOntology() {
+    submit() {
 
         console.log(this.ontologyType);
         console.log(this.manual);
@@ -65,15 +65,15 @@ export class ManualRegistrationComponent {
             else {
                 console.log("adding file");
 
-                console.log(this.mtpMappingService.executeMapping(this.addedFile));
 
-                // this.moduleService.addMtpModule(this.addedFile).subscribe(null,
-
-                //     (err) => this.errMessage=err.error.message,
-                //     ()=>{
-                //         this.errMessage="";
-                //         this.ontologyString="Ontology registered";
-                //     });
+                this.mtpMappingService.executeMapping(this.addedFile).subscribe(res => {
+                    console.log(res);
+                },
+                (err) => this.errMessage=err.error.message,
+                ()=>{
+                    this.errMessage="";
+                    this.ontologyString="Ontology registered";
+                });
 
             }
         }
