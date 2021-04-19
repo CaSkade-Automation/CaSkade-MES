@@ -174,36 +174,28 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
     /**
      * Wrapper around the node-opc-ua function writeSingleNode() that takes care of "preparation steps"
      * @param session An active ClientSession to an OPC UA server
-     * @param nodeId ID of the Node to write
+     * @param nodeIdString ID of the Node to write
      * @param value Value to set
      */
-    protected async writeSingleNode(nodeId: string, value: any, namespace?: any): Promise<StatusCode> {
-        // Resolve to a proper NodeId and get data type
-        const arr = await this.uaSession.readNamespaceArray();
-        console.log("ns Array");
-        console.log(arr);
+    protected async writeSingleNode(nodeIdString: string, value: any, namespace?: string): Promise<StatusCode> {
+        // Problem: Some UA servers provide full nodeID string that can be parsed, others don't (they provide namespace separately)
+        // Solution: Try to get a proper nodeId by trying to resolve the whole string. If it fails -> try with the separate namespace
+        let nsIndex: number;
+        let nodeId: NodeId;
 
-        console.log("namespace");
-        console.log(namespace);
+        try {
+            nodeId = NodeId.resolveNodeId(nodeIdString);
+            nsIndex = nodeId.namespace;
+        } catch (error) {
+            nsIndex = this.uaSession.getNamespaceIndex(namespace);
+            nodeId = new NodeId(NodeIdType.STRING, nodeIdString, nsIndex);
+        }
 
-        const nsIndex = this.uaSession.getNamespaceIndex(namespace);
-
-        console.log(nsIndex);
-
-
-        const node = new NodeId(NodeIdType.STRING, nodeId, nsIndex);
-        // const node = NodeId.resolveNodeId(nodeId);
-        console.log({"node": nodeId});
-
-        const nodeType = await this.uaSession.getBuiltInDataType(node);
-
-        console.log("nodeType");
-        console.log(DataType[nodeType]);
-
+        const nodeType = await this.uaSession.getBuiltInDataType(nodeId);
 
         const writeValue = new WriteValue(
             {
-                nodeId: node,
+                nodeId: nodeId,
                 attributeId: AttributeIds.Value,
                 value: {
                     value: {
@@ -221,15 +213,9 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
         const variant = new Variant(opts);
 
         const writeOptions: WriteValueOptions = {
-            nodeId: node,
+            nodeId: nodeId,
             value: variant,
         };
-
-        console.log(nodeType);
-
-        console.log("writeOptions");
-        console.log(writeOptions);
-
 
         return this.uaSession.write(writeValue);
     }
