@@ -3,7 +3,6 @@ import { ModuleService } from '../../../shared/services/module.service';
 import { SkillService } from '../../../shared/services/skill.service';
 import { CapabilityService } from '../../../shared/services/capability.service';
 import { HttpClient } from "@angular/common/http";
-import { NgIf } from '@angular/common';
 import { MtpMappingService } from 'src/shared/services/mtp-mapping.service';
 
 @Component({
@@ -47,24 +46,20 @@ export class ManualRegistrationComponent {
 
     submit() {
 
-        console.log(this.ontologyType);
-        console.log(this.manual);
-        console.log(this.context);
         //Fallunterscheidung
         if(this.context=="module"){
-            if (this.ontologyType=="manualOntolgy"){
-                console.log(this.ontologyString);
-                this.moduleService.addModule(this.ontologyString).subscribe(null,
+            switch (this.ontologyType) {
+            case "manualOntology":
+                this.moduleService.addModule(this.ontologyString).subscribe(
                     (err) => this.errMessage = err.error.message,
                     () => {
                         this.errMessage = "";
                         this.ontologyString="Ontology registered"; //Variablenwert wird nicht in ontologyString gespeichert
                     }
                 );
-            }
-            else {
-                console.log("adding file");
-
+                break;
+            case "mtp":
+                console.log("adding MTP file");
 
                 this.mtpMappingService.executeMapping(this.addedFile).subscribe(res => {
                     console.log(res);
@@ -74,8 +69,14 @@ export class ManualRegistrationComponent {
                     this.errMessage="";
                     this.ontologyString="Ontology registered";
                 });
+                break;
+            default:
+                console.log("Error. Please specify what type of ontology registration you want to perform.");
 
+                break;
             }
+
+
         }
         if(this.context=="skill"){
             if (this.ontologyType=="manualOntology"){
