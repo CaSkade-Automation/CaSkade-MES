@@ -28,8 +28,11 @@ export class SkillExecutorFactory {
             await methodSkillExecutor.connectAndCreateSession(skillIri);
             return methodSkillExecutor;
         }
-        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill':
-            return new OpcUaVariableSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
+        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill': {
+            const variableSkillExecutor = new OpcUaVariableSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
+            await variableSkillExecutor.connectAndCreateSession(skillIri);
+            return variableSkillExecutor;
+        }
         case 'http://www.hsu-ifa.de/ontologies/capability-model#RestSkill':
             return new RestSkillExecutionService(this.graphDbConnection);
         default:

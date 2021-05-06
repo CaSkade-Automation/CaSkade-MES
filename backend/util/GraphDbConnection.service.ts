@@ -154,8 +154,6 @@ export class GraphDbConnectionService {
      * Get all repositories of the currently selected graphdb
      */
     async getRepositories() {
-        console.log("trying to get to: " + this.getRepositoriesEndpoint());
-        console.log(this.createBase64AuthString());
         try {
             const response = Axios.get(this.getRepositoriesEndpoint(), {
                 headers: {

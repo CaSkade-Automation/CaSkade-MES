@@ -3,7 +3,7 @@ import { ModuleService } from '../../../shared/services/module.service';
 import { SkillService } from '../../../shared/services/skill.service';
 import { CapabilityService } from '../../../shared/services/capability.service';
 import { HttpClient } from "@angular/common/http";
-import { NgIf } from '@angular/common';
+import { MtpMappingService } from 'src/shared/services/mtp-mapping.service';
 
 @Component({
     selector: 'manual-registration',
@@ -11,23 +11,28 @@ import { NgIf } from '@angular/common';
     styleUrls: ['./manual-registration.component.scss']
 })
 export class ManualRegistrationComponent {
-@Input() context: string
-constructor(private httpClient: HttpClient,
-    private moduleService: ModuleService,
-    private skillService: SkillService,
-    private capabilityService: CapabilityService) {}
-    
+
+    @Input() context: string
+
+
     addedFile: File;
     ontologyString: string;
     errMessage: any;
     ontologyType= "manualOntology";
     manual: boolean;
+
+
+    constructor(
+        private httpClient: HttpClient,
+        private moduleService: ModuleService,
+        private skillService: SkillService,
+        private capabilityService: CapabilityService,
+        private mtpMappingService: MtpMappingService) {}
+
     ngOnInit(): void {
-        //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-        //Add 'implements OnInit' to the class.
         console.log(this.ontologyType);
     }
-    
+
     onFileAdded(event){
         // for (let i = 0; i < event.target.files.length; i++) {
         //     this.addedFiles.push(event.target.files[i]);
@@ -37,35 +42,41 @@ constructor(private httpClient: HttpClient,
         console.log(this.addedFile);
         //console.log(event);
     }
-    
-    
-    saveOntology() { 
-    
-        console.log(this.ontologyType);
-        console.log(this.manual);
-        console.log(this.context);
+
+
+    submit() {
+
         //Fallunterscheidung
         if(this.context=="module"){
-            if (this.ontologyType=="manualOntolgy"){
-                console.log(this.ontologyString);
-                this.moduleService.addModule(this.ontologyString).subscribe(null,
+            switch (this.ontologyType) {
+            case "manualOntology":
+                this.moduleService.addModule(this.ontologyString).subscribe(
                     (err) => this.errMessage = err.error.message,
                     () => {
                         this.errMessage = "";
                         this.ontologyString="Ontology registered"; //Variablenwert wird nicht in ontologyString gespeichert
                     }
-                ); 
-            }  
-            else {
-                this.moduleService.addMtpModule(this.addedFile).subscribe(null,
-    
-                    (err) => this.errMessage=err.error.message,
-                    ()=>{
-                        this.errMessage="";
-                        this.ontologyString="Ontology registered";
-                    });
+                );
+                break;
+            case "mtp":
+                console.log("adding MTP file");
 
-            }  
+                this.mtpMappingService.executeMapping(this.addedFile).subscribe(res => {
+                    console.log(res);
+                },
+                (err) => this.errMessage=err.error.message,
+                ()=>{
+                    this.errMessage="";
+                    this.ontologyString="Ontology registered";
+                });
+                break;
+            default:
+                console.log("Error. Please specify what type of ontology registration you want to perform.");
+
+                break;
+            }
+
+
         }
         if(this.context=="skill"){
             if (this.ontologyType=="manualOntology"){
@@ -78,14 +89,14 @@ constructor(private httpClient: HttpClient,
                     }
                 );
             }
-            else {
-                this.skillService.addMtpSkill(this.addedFile).subscribe(null,
-                    (err) => this.errMessage=err.error.message,
-                    ()=>{
-                        this.errMessage="";
-                        this.ontologyString="Ontology registered";
-                    });
-            }
+            // else {
+            //     this.skillService.addMtpSkill(this.addedFile).subscribe(null,
+            //         (err) => this.errMessage=err.error.message,
+            //         ()=>{
+            //             this.errMessage="";
+            //             this.ontologyString="Ontology registered";
+            //         });
+            // }
         }
         if(this.context=="capability"){
             if(this.ontologyType=="manualOntology"){
@@ -97,22 +108,22 @@ constructor(private httpClient: HttpClient,
                         this.ontologyString="Ontology registered"; //Variablenwert wird nicht in ontologyString gespeichert
                     }
                 );
-            } 
+            }
             else {
-                this.capabilityService.addMtpCapability(this.addedFile).subscribe(null,
-                    (err) => this.errMessage = err.error.message,
-                    () => {
-                        this.errMessage = "";
-                        this.ontologyString="Ontology registered"; //Variablenwert wird nicht in ontologyString gespeichert
-                    }
-                );
+                // this.capabilityService.addMtpCapability(this.addedFile).subscribe(null,
+                //     (err) => this.errMessage = err.error.message,
+                //     () => {
+                //         this.errMessage = "";
+                //         this.ontologyString="Ontology registered"; //Variablenwert wird nicht in ontologyString gespeichert
+                //     }
+                // );
             }
         }
-      
-            
+
+
     }
     // saveMtpOntology(){
     //     console.log("submitted MTP");
     // }
- 
+
 }

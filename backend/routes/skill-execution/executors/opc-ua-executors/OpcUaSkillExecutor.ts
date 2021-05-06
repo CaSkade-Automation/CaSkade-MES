@@ -1,4 +1,4 @@
-import { CallMethodResult, ClientSession, ConnectionStrategy, MessageSecurityMode, NodeId, OPCUAClient, OPCUAClientOptions, SecurityPolicy, StatusCode, UserNameIdentityToken } from "node-opcua";
+import { AttributeIds, CallMethodResult, ClientSession, ConnectionStrategy, DataType, DataValue, DataValueLike, DataValueOptions, makeBrowsePath, MessageSecurityMode, NodeId, NodeIdType, OPCUAClient, OPCUAClientOptions, SecurityPolicy, StatusCode, UserNameIdentityToken, Variant, VariantOptions, WriteValue, WriteValueOptions } from "node-opcua";
 import { SkillService } from "routes/skills/skill.service";
 import { SparqlResultConverter } from "sparql-result-converter";
 import { GraphDbConnectionService } from "util/GraphDbConnection.service";
@@ -174,20 +174,50 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
     /**
      * Wrapper around the node-opc-ua function writeSingleNode() that takes care of "preparation steps"
      * @param session An active ClientSession to an OPC UA server
-     * @param nodeId ID of the Node to write
+     * @param nodeIdString ID of the Node to write
      * @param value Value to set
      */
-    protected async writeSingleNode(nodeId: string, value: any): Promise<StatusCode> {
-        // Resolve to a proper NodeId and get data type
-        const node = NodeId.resolveNodeId(nodeId);
-        const nodeType = await this.uaSession.getBuiltInDataType(node);
+    protected async writeSingleNode(nodeIdString: string, value: any, namespace?: string): Promise<StatusCode> {
+        // Problem: Some UA servers provide full nodeID string that can be parsed, others don't (they provide namespace separately)
+        // Solution: Try to get a proper nodeId by trying to resolve the whole string. If it fails -> try with the separate namespace
+        let nsIndex: number;
+        let nodeId: NodeId;
 
-        const dataToWrite: any = {
-            dataType: nodeType,
+        try {
+            nodeId = NodeId.resolveNodeId(nodeIdString);
+            nsIndex = nodeId.namespace;
+        } catch (error) {
+            nsIndex = this.uaSession.getNamespaceIndex(namespace);
+            nodeId = new NodeId(NodeIdType.STRING, nodeIdString, nsIndex);
+        }
+
+        const nodeType = await this.uaSession.getBuiltInDataType(nodeId);
+
+        const writeValue = new WriteValue(
+            {
+                nodeId: nodeId,
+                attributeId: AttributeIds.Value,
+                value: {
+                    value: {
+                        value: value,
+                        dataType: DataType[nodeType]
+                    }
+                }
+            }
+        );
+
+        const opts : VariantOptions = {
+            dataType: DataType[nodeType],
             value: value
         };
+        const variant = new Variant(opts);
 
-        return this.uaSession.writeSingleNode(node, dataToWrite);
+        const writeOptions: WriteValueOptions = {
+            nodeId: nodeId,
+            value: variant,
+        };
+
+        return this.uaSession.write(writeValue);
     }
 
 
@@ -210,7 +240,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
         return this.uaSession.call(methodToCall);
     }
 
-    protected endUaConnection() {
+    protected endUaConnection(): void {
         this.uaSession.close(true);
         this.uaClient.disconnect();
     }

@@ -37,13 +37,13 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
                 }
             }
             // Then write the command parameter
-            await this.writeSingleNode(skillDescription.commandNodeId, skillDescription.requiredCommandValue);
+            await this.writeSingleNode(skillDescription.commandNodeId, Number(skillDescription.requiredCommandValue), skillDescription.commandNamespace);
 
             // Specifically for OpcUaVariableSkills: This type of skills doesn't send feedback about state changes, has to be actively tracked here
             ClientSubscription.create(this.uaSession, {});
 
         } catch (err) {
-            console.log(`Error while invoking transition "${executionRequest.commandTypeIri}" on skill "${executionRequest.skillIri}" err`);
+            console.log(`Error while invoking transition "${executionRequest.commandTypeIri}" on skill "${executionRequest.skillIri}": ${err}`);
             throw new InternalServerErrorException();
         } finally {
             this.endUaConnection();
@@ -116,7 +116,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 		PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>#
 		PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
-		SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?requiredCommandValue ?commandNodeId ?parameterIri
+		SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?requiredCommandValue ?commandNodeId ?commandNamespace ?parameterIri
 		?parameterRequired ?parameterName ?parameterType ?parameterNodeId WHERE {
 			BIND(<${skillIri}> AS ?skillIri).
 			?skillIri a Cap:OpcUaVariableSkill;
@@ -140,7 +140,10 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
             ?skillIri Cap:hasSkillCommand ?commandParameter.
             ?commandParameter a Cap:SkillCommand;
                 OpcUa:nodeId ?commandNodeId.
-            # Exclude the commands, just get the other "normal" parameters
+            OPTIONAL {
+                ?commandParameter OpcUa:nodeNamespace ?commandNamespace.
+            }
+            # Find parameters, exclude the commands, just get the other "normal" parameters
             OPTIONAL {
                 ?skillIri Cap:hasSkillParameter ?parameterIri.
                 ?parameterIri a Cap:SkillParameter;
@@ -221,6 +224,7 @@ class OpcUaVariableSkill {
     password: string;
     requiredCommandValue: number;
     commandNodeId: string;
+    commandNamespace: string;
     parameters: OpcUaSkillParameter[];
 }
 
