@@ -4,12 +4,12 @@ import { ActivatedRoute } from '@angular/router';
 import { NodeCreatorService } from './node-creator.service';
 
 
-@Component({
-    selector: 'graph-visualization',
-    encapsulation: ViewEncapsulation.None,
-    templateUrl: './graph-visualization.component.html',
-    styleUrls: ['./graph-visualization.component.scss']
-})
+    @Component({
+        selector: 'graph-visualization',
+        encapsulation: ViewEncapsulation.None,
+        templateUrl: './graph-visualization.component.html',
+        styleUrls: ['./graph-visualization.component.scss']
+    })
 export class GraphVisualizationComponent implements AfterContentInit, OnInit {
     name: string;
     svg: any;
@@ -41,7 +41,8 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
     constructor(
         private route: ActivatedRoute,
         private nodeCreatorService: NodeCreatorService
-    ) {}
+    ) {
+    }
 
     @ViewChild('g') svgContainer: ElementRef;
     moduleName: string;
@@ -49,17 +50,24 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
 
 
     ngAfterContentInit(): void {
-
-
+        console.log("ng after content");
 
         this.route.params.subscribe(p => {
             this.moduleName = p['moduleName'];
         });
-        // this.data = this.nodeCreatorService.getAllNodes(this.moduleName); // load data created by node-creator.service
-        this.data = this.nodeCreatorService.getAllNodes();
+        console.log("moduleName");
+        console.log(this.moduleName);
 
-        this.setSvg();
-        this.setSimulation();
+        this.nodeCreatorService.getAllNodes(this.moduleName).subscribe(data => {
+            this.data = data; // load data created by node-creator.service
+            console.log("data");
+            console.log(this.data);
+
+
+            this.setSvg();
+            this.setSimulation();
+        });
+
     }
 
     /**Defines settings of the simulation */
@@ -112,15 +120,15 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
 
 
     /**
-   * Draws the graph, executed first on AfterContentInit while setSimulation() and on every doubleclick on a node
-   */
+     * Draws the graph, executed first on AfterContentInit while setSimulation() and on every doubleclick on a node
+     */
     refreshSimulation() {
         this.link = this.svg.selectAll(".link").data(this.data.links, function (d){return d.target.id;});
         const linkEnter=this.link.enter()     //enter-selection
             .append("line").style("stroke", "#aaa")
             .attr("class", "links")
             .attr('marker-end', 'url(#arrowhead)') // arrow on end of the link
-      ;
+        ;
         linkEnter.append("title")
             .text(function (d){return d.type;});
         this.link = this.link.merge(linkEnter); // merge old elements with entered elements
@@ -173,156 +181,156 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
         this.simulation.force("link").links(this.data.links);
 
     }
-  /**
- * Function executed on every tick in the simulation. Defines restrictions for positions of node, text, link-text and link. The functions computes the position of each element
- * @param d The position of every graph element (i.e. node, link...)
- */
-  ticked = () => {
-      const centerWidth = this.svgContainer.nativeElement.offsetWidth / 2; // center definitions of the svg
-      const centerHeight = this.svgContainer.nativeElement.offsetHeight / 2;
+    /**
+     * Function executed on every tick in the simulation. Defines restrictions for positions of node, text, link-text and link. The functions computes the position of each element
+     * @param d The position of every graph element (i.e. node, link...)
+     */
+    ticked = () => {
+        const centerWidth = this.svgContainer.nativeElement.offsetWidth / 2; // center definitions of the svg
+        const centerHeight = this.svgContainer.nativeElement.offsetHeight / 2;
 
-      this.text
-          .attr("dx", (d) => {    // restrictions for node text positions in the svg
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
-              const relativeDragX = 100 * d.x / this.svgContainer.nativeElement.offsetWidth;
-              return Math.max(0 + relativeRad, Math.min(relativeDragX + 1.5, this.width - 5 * relativeRad)) + '%';
-          })
-          .attr("dy", (d) => {
-              const relativeDragY = 100 * d.y / this.svgContainer.nativeElement.offsetHeight;
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetHeight;
-              return Math.max(0 + relativeRad, Math.min(relativeDragY, this.height - 5 * relativeRad)) + '%';
-          });
+        this.text
+            .attr("dx", (d) => {    // restrictions for node text positions in the svg
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
+                const relativeDragX = 100 * d.x / this.svgContainer.nativeElement.offsetWidth;
+                return Math.max(0 + relativeRad, Math.min(relativeDragX + 1.5, this.width - 5 * relativeRad)) + '%';
+            })
+            .attr("dy", (d) => {
+                const relativeDragY = 100 * d.y / this.svgContainer.nativeElement.offsetHeight;
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetHeight;
+                return Math.max(0 + relativeRad, Math.min(relativeDragY, this.height - 5 * relativeRad)) + '%';
+            });
 
-      this.linkText
-          .attr("dx", (d) => {  // restrictions for link text positions in the svg
-              d.source.x = Math.max(0 + this.rad, Math.min(d.source.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
-              d.target.x = Math.max(0 + this.rad, Math.min(d.target.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
-              const relativeTargetX = 100 * d.target.x / this.svgContainer.nativeElement.offsetWidth;
-              const relativeSourceX = 100 * d.source.x / this.svgContainer.nativeElement.offsetWidth;
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
-              return Math.min(this.width - 5 * relativeRad, (Math.max(0 + relativeRad, ((relativeSourceX - relativeTargetX) / 2) + relativeTargetX))) + '%';
-          })
-          .attr("dy", (d) => {
-              d.source.y = Math.max(0 + this.rad, Math.min(d.source.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
-              d.target.y = Math.max(0 + this.rad, Math.min(d.target.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
-              const relativeTargetY = 100 * d.target.y / this.svgContainer.nativeElement.offsetHeight;
-              const relativeSourceY = 100 * d.source.y / this.svgContainer.nativeElement.offsetHeight;
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetHeight;
-              return Math.min(this.height - 5 * relativeRad, (Math.max(0 + relativeRad, ((relativeSourceY - relativeTargetY) / 2) + relativeTargetY))) + '%';
-          });
+        this.linkText
+            .attr("dx", (d) => {  // restrictions for link text positions in the svg
+                d.source.x = Math.max(0 + this.rad, Math.min(d.source.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
+                d.target.x = Math.max(0 + this.rad, Math.min(d.target.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
+                const relativeTargetX = 100 * d.target.x / this.svgContainer.nativeElement.offsetWidth;
+                const relativeSourceX = 100 * d.source.x / this.svgContainer.nativeElement.offsetWidth;
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
+                return Math.min(this.width - 5 * relativeRad, (Math.max(0 + relativeRad, ((relativeSourceX - relativeTargetX) / 2) + relativeTargetX))) + '%';
+            })
+            .attr("dy", (d) => {
+                d.source.y = Math.max(0 + this.rad, Math.min(d.source.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
+                d.target.y = Math.max(0 + this.rad, Math.min(d.target.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
+                const relativeTargetY = 100 * d.target.y / this.svgContainer.nativeElement.offsetHeight;
+                const relativeSourceY = 100 * d.source.y / this.svgContainer.nativeElement.offsetHeight;
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetHeight;
+                return Math.min(this.height - 5 * relativeRad, (Math.max(0 + relativeRad, ((relativeSourceY - relativeTargetY) / 2) + relativeTargetY))) + '%';
+            });
 
-      this.link
-          .attr("x1", (d) => {  // restrictions for link positions in the svg
-              d.source.x = Math.max(0 + this.rad, Math.min(d.source.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth; // converting this.radius from absolute to relative
-              const relativeSourceX = 100 * d.source.x / this.svgContainer.nativeElement.offsetWidth;
-              return relativeSourceX + '%';
-          })
-          .attr("y1", (d) => {
-              d.source.y = Math.max(0 + this.rad, Math.min(d.source.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
-              const relativeSourceY = 100 * d.source.y / this.svgContainer.nativeElement.offsetHeight;
-              return relativeSourceY + '%';
-          })
-          .attr("x2", (d) => {
-              d.target.x = Math.max(0 + this.rad, Math.min(d.target.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
-              const relativeTargetX = 100 * d.target.x / this.svgContainer.nativeElement.offsetWidth;
-              return relativeTargetX + '%';
-          })
-          .attr("y2", (d) => {
-              d.target.y = Math.max(0 + this.rad, Math.min(d.target.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
-              const relativeTargetY = 100 * d.target.y / this.svgContainer.nativeElement.offsetHeight;
-              return relativeTargetY + '%';
-          });
+        this.link
+            .attr("x1", (d) => {  // restrictions for link positions in the svg
+                d.source.x = Math.max(0 + this.rad, Math.min(d.source.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth; // converting this.radius from absolute to relative
+                const relativeSourceX = 100 * d.source.x / this.svgContainer.nativeElement.offsetWidth;
+                return relativeSourceX + '%';
+            })
+            .attr("y1", (d) => {
+                d.source.y = Math.max(0 + this.rad, Math.min(d.source.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
+                const relativeSourceY = 100 * d.source.y / this.svgContainer.nativeElement.offsetHeight;
+                return relativeSourceY + '%';
+            })
+            .attr("x2", (d) => {
+                d.target.x = Math.max(0 + this.rad, Math.min(d.target.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
+                const relativeTargetX = 100 * d.target.x / this.svgContainer.nativeElement.offsetWidth;
+                return relativeTargetX + '%';
+            })
+            .attr("y2", (d) => {
+                d.target.y = Math.max(0 + this.rad, Math.min(d.target.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
+                const relativeTargetY = 100 * d.target.y / this.svgContainer.nativeElement.offsetHeight;
+                return relativeTargetY + '%';
+            });
 
-      this.node
-          .attr("cx", (d) => {
-              d.x = Math.max(0 + this.rad, Math.min(d.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
-              const relativeDragX = 100 * d.x / this.svgContainer.nativeElement.offsetWidth;
-              return relativeDragX + '%';
-          })
-          .attr("cy", (d) => {
-              d.y = Math.max(0 + this.rad, Math.min(d.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
-              const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
-              const relativeDragY = 100 * d.y / this.svgContainer.nativeElement.offsetHeight;
-              return relativeDragY + '%';
-          });
-  }
+        this.node
+            .attr("cx", (d) => {
+                d.x = Math.max(0 + this.rad, Math.min(d.x, this.svgContainer.nativeElement.offsetWidth - 5 * this.rad));
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
+                const relativeDragX = 100 * d.x / this.svgContainer.nativeElement.offsetWidth;
+                return relativeDragX + '%';
+            })
+            .attr("cy", (d) => {
+                d.y = Math.max(0 + this.rad, Math.min(d.y, this.svgContainer.nativeElement.offsetHeight - 5 * this.rad));
+                const relativeRad = 100 * this.rad / this.svgContainer.nativeElement.offsetWidth;
+                const relativeDragY = 100 * d.y / this.svgContainer.nativeElement.offsetHeight;
+                return relativeDragY + '%';
+            });
+    }
 
-  /**
- * Function executed on a drag start
- */
-  dragstarted = (d) => {
-      if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
-  }
+    /**
+     * Function executed on a drag start
+     */
+    dragstarted = (d) => {
+        if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+    }
 
-  /**
-   * Drag function, executed on every drag movement
-   * @param d The dragged node
-   */
-  dragged(d) {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
-  }
+    /**
+     * Drag function, executed on every drag movement
+     * @param d The dragged node
+     */
+    dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
 
-  dragended(d) {
+    dragended(d) {
 
-  }
-  /**
- * Mouseover function, executed when mouse over node. The radius of the node will increase.
- * @param d node under the cursor
- */
-  mouseover(d) {
-      if (d.group == 1) { // module-nodes belong to group 1 and are displayed by a bigger node
-          d3.select(this).transition()
-              .duration('2')
-              .attr('r', 20 + 12);
-      }
-      else {
-          d3.select(this).transition()
-              .duration('2')
-              .attr('r', 20 + 6);
-      }
-  }
-  /**
- * Mousout function, executed when mouse cursor leaves the node. Decreases radius to origin.
- * @param d node wich is left by the cursor after mouseover
- */
-  mouseout(d) {
-      if (d.group == 1) { // module-nodes belong to group 1 and are displayed by a bigger node
-          d3.select(this).transition()
-              .attr('r', 20 + 8);
-      }
-      else {
-          d3.select(this).transition()
-              .attr('r', 20);
-      }
-  }
-  /**
- * Doubleclick function, executed on every doubleclick on a node
- *@param d The clicked node
- */
-  nodeDoubleClick=(d)=> {
-      this.index++;
-      const testNode = {  "name": "neighbor"+ this.index, "group": 8 };
-      this.data.nodes.push(testNode);
-      this.data.links.push({ "source": d.id, "target": testNode, "type": "testclick" });
-      this.refreshSimulation();
-  }
+    }
+    /**
+     * Mouseover function, executed when mouse over node. The radius of the node will increase.
+     * @param d node under the cursor
+     */
+    mouseover(d) {
+        if (d.group == 1) { // module-nodes belong to group 1 and are displayed by a bigger node
+            d3.select(this).transition()
+                .duration('2')
+                .attr('r', 20 + 12);
+        }
+        else {
+            d3.select(this).transition()
+                .duration('2')
+                .attr('r', 20 + 6);
+        }
+    }
+    /**
+     * Mousout function, executed when mouse cursor leaves the node. Decreases radius to origin.
+     * @param d node wich is left by the cursor after mouseover
+     */
+    mouseout(d) {
+        if (d.group == 1) { // module-nodes belong to group 1 and are displayed by a bigger node
+            d3.select(this).transition()
+                .attr('r', 20 + 8);
+        }
+        else {
+            d3.select(this).transition()
+                .attr('r', 20);
+        }
+    }
+    /**
+     * Doubleclick function, executed on every doubleclick on a node
+     *@param d The clicked node
+    */
+    nodeDoubleClick=(d)=> {
+        this.index++;
+        const testNode = {  "name": "neighbor"+ this.index, "group": 8 };
+        this.data.nodes.push(testNode);
+        this.data.links.push({ "source": d.id, "target": testNode, "type": "testclick" });
+        this.refreshSimulation();
+    }
 
-  /** Returns the color of the inner circle of a node */
-  setNodeStyle(d){
-      if (d.group == 1) { return "black"; }
-      else { return "whitesmoke"; }
-  }
-  /** Returns the node border color for each node-group */
-  setNodeBorderStyle=(d)=>{
-      return this.color(d.group);
-  }
+    /** Returns the color of the inner circle of a node */
+    setNodeStyle(d){
+        if (d.group == 1) { return "black"; }
+        else { return "whitesmoke"; }
+    }
+    /** Returns the node border color for each node-group */
+    setNodeBorderStyle=(d)=>{
+        return this.color(d.group);
+    }
 
 }
