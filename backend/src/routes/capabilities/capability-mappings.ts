@@ -10,19 +10,29 @@ const capabilityMapping: MappingDefinition[] = [
                 rootName: 'inputs',
                 propertyToGroup: 'input',
                 name: 'inputs',
-                childMappings: [
-                    {
-                        rootName: 'outputs',
-                        propertyToGroup: 'output',
-                        name: 'outputs',
-                    }
-                ]
             },
+            {
+                rootName: 'outputs',
+                propertyToGroup: 'output',
+                name: 'outputs',
+            }
         ]
     },
-
-
 ];
+
+// {
+//     rootName: 'skillParameters',
+//     propertyToGroup: 'parameterIri',
+//     name: 'parameterIri',
+//     toCollect: ['parameterIri', 'parameterName', 'parameterType', 'parameterRequired', 'parameterDefault'],
+//     childMappings: [
+//         {
+//             rootName: 'parameterOptionValues',
+//             propertyToGroup: 'paramOptionValue',
+//             name: 'value',
+//         }
+//     ]
+// },
 
 export {
     capabilityMapping,

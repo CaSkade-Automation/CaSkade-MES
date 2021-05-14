@@ -2,8 +2,8 @@ import { RdfElement, RdfElementDto } from "../RdfElement";
 import { FpbElement } from "../fpb/FpbElement";
 
 export class Capability extends RdfElement {
-    public inputs?: Array<FpbElement>;
-    public outputs?: Array<FpbElement>;
+    public inputs? = new Array<FpbElement>();
+    public outputs? = new Array<FpbElement>();
 
     constructor(dto: CapabilityDto) {
         super(dto.iri);
@@ -15,6 +15,6 @@ export class Capability extends RdfElement {
 
 export class CapabilityDto extends RdfElementDto{
 	public capabilityType: RdfElementDto;
-	public inputs?: Array<FpbElement>;
-	public outputs?: Array<FpbElement>;
+	public inputs? = new Array<FpbElement>();
+	public outputs? = new Array<FpbElement>();
 }

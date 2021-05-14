@@ -49,7 +49,6 @@ export class ModuleService {
             const moduleSkillDtos = await this.skillService.getSkillsOfModule(moduleDto.iri);
             moduleDto.skillDtos = moduleSkillDtos;
         }
-
         return productionModuleDtos;
     }
 
