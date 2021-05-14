@@ -199,6 +199,9 @@ export class CapabilityService {
                 }
             }`);
             const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as CapabilityDto[];
+            console.log("backend caps");
+            console.log(capabilities);
+
             return capabilities;
         } catch (error) {
             console.error(`Error while returning capabilities of skill ${skillIri}, ${error}`);
