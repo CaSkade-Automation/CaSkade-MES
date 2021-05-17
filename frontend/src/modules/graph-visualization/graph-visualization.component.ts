@@ -1,7 +1,9 @@
-import { Component, OnInit, AfterContentInit, ViewEncapsulation, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterContentInit, ViewEncapsulation, HostListener, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import * as d3 from "d3";
 import { ActivatedRoute } from '@angular/router';
 import { NodeCreatorService } from './node-creator.service';
+import { Observable, Subscription } from 'rxjs';
+import { D3GraphData } from './D3GraphData';
 
 
     @Component({
@@ -10,7 +12,8 @@ import { NodeCreatorService } from './node-creator.service';
         templateUrl: './graph-visualization.component.html',
         styleUrls: ['./graph-visualization.component.scss']
     })
-export class GraphVisualizationComponent implements AfterContentInit, OnInit {
+export class GraphVisualizationComponent implements AfterContentInit, OnDestroy {
+    $graphDataSubscription: Subscription;
     name: string;
     svg: any;
     link: any;
@@ -45,27 +48,50 @@ export class GraphVisualizationComponent implements AfterContentInit, OnInit {
     }
 
     @ViewChild('g') svgContainer: ElementRef;
-    moduleName: string;
-    ngOnInit(): void {}
 
+    ngOnDestroy(): void {
+        // Kill data subscription and stop simulation -> Otherwise killing performance
+        this.$graphDataSubscription.unsubscribe();
+        this.simulation.stop();
+    }
 
     ngAfterContentInit(): void {
-        console.log("ng after content");
-
         this.route.params.subscribe(p => {
-            this.moduleName = p['moduleName'];
-        });
-        console.log("moduleName");
-        console.log(this.moduleName);
+            console.log(p);
 
-        this.nodeCreatorService.getAllNodes(this.moduleName).subscribe(data => {
-            this.data = data; // load data created by node-creator.service
-            console.log("data");
-            console.log(this.data);
+            const elementType = p['elementType'];
+            const elementIri = p['elementIri'];
+            console.log("elementType");
+            console.log(elementType);
+            console.log("elementIri");
+            console.log(elementIri);
 
 
-            this.setSvg();
-            this.setSimulation();
+            switch (elementType) {
+            case "modules":
+                this.$graphDataSubscription = this.nodeCreatorService.getAllModuleNodes(elementIri).subscribe(data => {
+                    this.data = data; // load data created by node-creator.service
+                    this.setSvg();
+                    this.setSimulation();
+                });
+                break;
+            case "skills":
+                this.$graphDataSubscription = this.nodeCreatorService.getAllSkillNodes(elementIri).subscribe(data => {
+                    this.data = data; // load data created by node-creator.service
+                    this.setSvg();
+                    this.setSimulation();
+                });
+                break;
+            case "capabilities":
+                this.$graphDataSubscription = this.nodeCreatorService.getAllCapabilityNodes(elementIri).subscribe(data => {
+                    this.data = data; // load data created by node-creator.service
+                    this.setSvg();
+                    this.setSimulation();
+                });
+                break;
+            }
+
+
         });
 
     }

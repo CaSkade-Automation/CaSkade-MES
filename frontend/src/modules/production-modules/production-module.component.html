@@ -2,13 +2,13 @@
 
 <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
-        <a class="nav-link" routerLinkActive="active" routerLink="overview">Module Overview</a>
+        <a class="nav-link" [routerLinkActive]="['active']" routerLink="overview">Module Overview</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" routerLinkActive="active" routerLink="graph-visualization">Graph Visualization</a>
+        <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/graph-visualization/', 'modules', '']" router >Graph Visualization</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" routerLinkActive="active" routerLink="register">Register Module</a>
+        <a class="nav-link" [routerLinkActive]="['active']" routerLink="register">Register Module</a>
     </li>
 </ul>
 
