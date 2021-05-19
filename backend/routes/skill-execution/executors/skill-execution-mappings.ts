@@ -54,8 +54,26 @@ const opcUaSkillParameterMapping: MappingDefinition[] = [
 
 ];
 
+const restSkillMapping: MappingDefinition[] = [
+    {
+        rootName: 'restSkillExecutionInfs',
+        propertyToGroup: 'basePath',
+        name: 'basePath',
+        toCollect: ['basePath','path', 'httpMethod'],
+        childMappings: [
+            {
+                rootName: 'parameters',
+                propertyToGroup: 'parameterIri',
+                name: 'parameterIri',
+                toCollect: ['parameterIri','parameterName', 'parameterType', 'parameterRequired'],
+            },
+        ]
+    },
+];
+
 export {
     opcUaMethodSkillMapping,
     opcUaVariableSkillMapping,
-    opcUaSkillParameterMapping
+    opcUaSkillParameterMapping,
+    restSkillMapping
 };
