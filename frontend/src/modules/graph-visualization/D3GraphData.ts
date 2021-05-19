@@ -52,6 +52,8 @@ export class D3GraphData {
     }
 
     getNodes(): D3Node[] {return this.nodes;}
+    getLinks(): D3Link[] {return this.links;}
+
     getNodesById(id: string): D3Node[] {
         return this.nodes.filter(node => node.id == id);
     }
@@ -60,7 +62,6 @@ export class D3GraphData {
         return this.nodes.filter(node => node.type === type);
     }
 
-    getLinks(): D3Link[] {return this.links;}
 
     // Adds another D3GraphData object to the current one
     appendAndConnectData(data: D3GraphData, idToConnectTo: string, nodeType: NodeType, connectionType: string): void {

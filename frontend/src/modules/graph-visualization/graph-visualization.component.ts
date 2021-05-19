@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import { ActivatedRoute } from '@angular/router';
 import { NodeCreatorService } from './node-creator.service';
 import { Observable, Subscription } from 'rxjs';
-import { D3GraphData } from './D3GraphData';
+import { D3GraphData, D3Link, D3Node } from './D3GraphData';
 
 
     @Component({
@@ -24,7 +24,7 @@ export class GraphVisualizationComponent implements AfterContentInit, OnDestroy 
     /** The displayed node */
     node: any;
     /** Loaded data: Connected modules with their capabilities and skills*/
-    data: any;
+    data: D3GraphData;
     /**Returns different colors automatically. The node-border color is the same for all node-group members*/
     color: any;
     /**Simulation of the force directed graph */
@@ -98,12 +98,12 @@ export class GraphVisualizationComponent implements AfterContentInit, OnDestroy 
 
     /**Defines settings of the simulation */
     setSimulation(){
-        this.simulation = d3.forceSimulation(this.data.nodes);
+        this.simulation = d3.forceSimulation(this.data.getNodes());
         this.simulation
             .force("link", d3.forceLink()
                 .id(function (d) { return d.id; })
                 .distance(80)
-                .links(this.data.links))
+                .links(this.data.getLinks()))
             .force("collision", d3.forceCollide(40))
             .on("tick", this.ticked) // tick on every step of the simulation
             .force("charge", d3.forceManyBody().strength(-400)) // node magnetism / attraction
@@ -149,7 +149,7 @@ export class GraphVisualizationComponent implements AfterContentInit, OnDestroy 
      * Draws the graph, executed first on AfterContentInit while setSimulation() and on every doubleclick on a node
      */
     refreshSimulation() {
-        this.link = this.svg.selectAll(".link").data(this.data.links, function (d){return d.target.id;});
+        this.link = this.svg.selectAll(".link").data(this.data.getLinks(), function (d){return d.target.id;});
         const linkEnter=this.link.enter()     //enter-selection
             .append("line").style("stroke", "#aaa")
             .attr("class", "links")
@@ -160,7 +160,7 @@ export class GraphVisualizationComponent implements AfterContentInit, OnDestroy 
         this.link = this.link.merge(linkEnter); // merge old elements with entered elements
         this.link.exit().remove(); // remove data-elements of exit-selection(all old elements, wich are not in the new dataset)
 
-        this.node = this.svg.selectAll(".node").data(this.data.nodes, function (d){return d.id;});
+        this.node = this.svg.selectAll(".node").data(this.data.getNodes(), function (d){return d.id;});
 
         const nodeEnter= this.node.enter().append("circle")
             .attr("r", (d) => {
@@ -181,9 +181,9 @@ export class GraphVisualizationComponent implements AfterContentInit, OnDestroy 
         this.node.exit().remove(); // remove data-elements of exit-selection(all old elements, wich are not in the new dataset)
 
 
-        this.text = this.svg.selectAll("text").data(this.data.nodes);
+        this.text = this.svg.selectAll("text").data(this.data.getNodes());
         const textEnter=this.text.enter().append("text")
-            .data(this.data.nodes, function (d){return d.name;})
+            .data(this.data.getNodes(), function (d){return d.name;})
 
             .attr("font-weight", function (d) {
                 if (d.group == 1) { return "bold"; }
@@ -194,7 +194,7 @@ export class GraphVisualizationComponent implements AfterContentInit, OnDestroy 
         this.text=this.text.merge(textEnter);
         this.text.exit().remove();
 
-        this.linkText = this.svg.selectAll("links").data(this.data.links, function (d){ return d.type;});
+        this.linkText = this.svg.selectAll("links").data(this.data.getLinks(), function (d){ return d.type;});
         const linkTextEnter=this.linkText.enter().append("text")
             .style("fill", "#999")
             .attr("font-style", "italic")
@@ -203,8 +203,8 @@ export class GraphVisualizationComponent implements AfterContentInit, OnDestroy 
         this.linkText.exit().remove();
 
 
-        this.simulation.nodes(this.data.nodes); // simualtion uses current data
-        this.simulation.force("link").links(this.data.links);
+        this.simulation.nodes(this.data.getNodes()); // simualtion uses current data
+        this.simulation.force("link").links(this.data.getLinks());
 
     }
     /**
@@ -343,9 +343,9 @@ export class GraphVisualizationComponent implements AfterContentInit, OnDestroy 
     */
     nodeDoubleClick=(d)=> {
         this.index++;
-        const testNode = {  "name": "neighbor"+ this.index, "group": 8 };
-        this.data.nodes.push(testNode);
-        this.data.links.push({ "source": d.id, "target": testNode, "type": "testclick" });
+        const testNode = new D3Node(this.index.toString(), "neighbor", 8);
+        this.data.addNode(testNode);
+        this.data.addLink(new D3Link(d.id, testNode.id, "testclick"));
         this.refreshSimulation();
     }
 
