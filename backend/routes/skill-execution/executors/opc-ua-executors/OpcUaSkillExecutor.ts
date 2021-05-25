@@ -193,14 +193,14 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
 
         const nodeType = await this.uaSession.getBuiltInDataType(nodeId);
 
-        const writeValue = new WriteValue(
+        const writeValue =  new WriteValue(
             {
-                nodeId: nodeId,
-                attributeId: AttributeIds.Value,
-                value: {
-                    value: {
-                        value: value,
-                        dataType: DataType[nodeType]
+                "nodeId": nodeId,
+                "attributeId": AttributeIds.Value,
+                "value": {
+                    "value": {
+                        "value": value,
+                        "dataType": DataType[nodeType]
                     }
                 }
             }
