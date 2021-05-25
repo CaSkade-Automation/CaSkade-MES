@@ -1,11 +1,12 @@
 import { SkillExecutor } from './SkillExecutor';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import axios, { AxiosRequestConfig, Method } from 'axios';
-import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
+import { SkillVariable, SkillVariableDto, ParameterQueryResult, OutputQueryResult } from '@shared/models/skill/SkillVariable';
 import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { restSkillMapping } from './skill-execution-mappings';
-import { Dictionary } from 'lodash';
+import { query } from 'express';
+import { getRestSkillMethodQuery, getRestStatefulMethodQuerySnippet, getRestStatelessMethodQuerySnippet } from './RestSkillQueries';
 
 export class RestSkillExecutionService extends SkillExecutor {
 
@@ -20,15 +21,30 @@ export class RestSkillExecutionService extends SkillExecutor {
         throw new Error("Method not implemented.");
     }
 
-    getSkillOutputs(executionRequest: SkillExecutionRequestDto): void {
-        throw new Error("Method not implemented.");
+    async getSkillOutputs(executionRequest: SkillExecutionRequestDto): Promise<void> {
+        const skillDescription = await this.getStatelessRestMethodDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
+
+        const requestConfig: AxiosRequestConfig = {
+            headers: {'content-type' : 'application/json'},
+            url: skillDescription.fullPath,
+            method: <Method>skillDescription.httpMethod,
+        };
+
+        try {
+            const response = await axios(requestConfig);
+            console.log(response.data);
+
+            return response.data;
+        } catch (error) {
+            throw new Error(`Error while executing skill '${executionRequest.skillIri}'. Error ${error}`);
+        }
     }
 
     async invokeTransition(executionRequest: SkillExecutionRequestDto): Promise<void> {
         // set parameters
 
         // // get the full REST service description
-        const restSkillDescription = await this.getRestServiceDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
+        const skillDescription = await this.getRestServiceDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
 
         // const queryParams = [];
         // serviceDescription.parameters.filter(parameter => {
@@ -39,17 +55,15 @@ export class RestSkillExecutionService extends SkillExecutor {
 
 
         // Create a simple json object for all body parameters
-        const matchedParameters = this.findMatchingParameters(executionRequest.parameters, restSkillDescription.parameters);
+        const matchedParameters = this.findMatchingParameters(executionRequest.parameters, skillDescription.parameters);
 
 
-
-        const fullPath = basePath + path;
 
         //     // Execute the service request
         const requestConfig: AxiosRequestConfig = {
             headers: {'content-type' : 'application/json'},
-            url: fullPath,
-            method: <Method>restSkillDescription.httpMethod,
+            url: skillDescription.fullPath,
+            method: <Method>skillDescription.httpMethod,
             data: matchedParameters
         };
 
@@ -63,61 +77,46 @@ export class RestSkillExecutionService extends SkillExecutor {
     }
 
 
-    private async getRestServiceDescription(skillIri: string, commandTypeIri: string): Promise<RestSkillDescription> {
-        const query = `
-        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-        PREFIX WADL: <http://www.hsu-ifa.de/ontologies/WADL#>
-        PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-        PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        SELECT ?basePath ?path  ?httpMethod ?parameterIri ?parameterName ?parameterType ?parameterRequired WHERE {
-            <${skillIri}> a Cap:RestSkill;
-                WADL:hasBase ?basePath;
-                WADL:hasResource ?resource.
-            ?resource WADL:hasPath ?path;
-                WADL:hasMethod ?skillMethod.
-            ?skillMethod a ?wadlMethod.
-            ?wadlMethod sesame:directSubClassOf WADL:Method.
-            BIND(strafter(str(?wadlMethod), "#") AS ?httpMethod).
-            ?wadlMethod sesame:directSubClassOf WADL:Method.
-            <${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
-            ?command a <${commandTypeIri}>;
-            Cap:invokedBy ?skillMethod.
-            OPTIONAL {
-                ?skill Cap:hasSkillParameter ?parameterIri.
-                ?skillMethod WADL:hasRequest/WADL:hasRepresentation/WADL:hasParameter ?parameterIri.    # Make sure the skill's parameters are availabe over the method
-                ?parameterIri a Cap:SkillParameter;
-                    Cap:hasVariableName ?parameterName;
-                    Cap:hasVariableType ?parameterType;
-                    Cap:isRequired ?parameterRequired;
-            }
-        }`;
+    private async getRestServiceDescription(skillIri: string, commandTypeIri: string): Promise<RestSkillMethodDescription> {
+        const query = getRestSkillMethodQuery(skillIri) + getRestStatefulMethodQuerySnippet(commandTypeIri) + '}';
         const queryResult = await this.graphDbConnection.executeQuery(query);
 
         const mappedResult = this.converter.convertToDefinition(queryResult.results.bindings, restSkillMapping).getFirstRootElement()[0] as RestSkillQueryResult;
-        return mappedResult;
+        const restSkillMethodDescription = new RestSkillMethodDescription(skillIri, commandTypeIri, mappedResult);
+
+        return restSkillMethodDescription;
     }
+
+    private async getStatelessRestMethodDescription(skillIri: string, commandTypeIri: string): Promise<RestSkillMethodDescription> {
+        const query = getRestSkillMethodQuery(skillIri) + getRestStatelessMethodQuerySnippet(commandTypeIri) + '}';
+        const queryResult = await this.graphDbConnection.executeQuery(query);
+
+        const mappedResult = this.converter.convertToDefinition(queryResult.results.bindings, restSkillMapping).getFirstRootElement()[0] as RestSkillQueryResult;
+        const restSkillMethodDescription = new RestSkillMethodDescription(skillIri, commandTypeIri, mappedResult);
+
+        return restSkillMethodDescription;
+    }
+
+
 
     private findMatchingParameters(executionParameters: SkillVariable[], describedParameters: SkillVariable[]): Record<string, string>{
         const matchedParameters = {};
 
         // check if all execution parameters are contained in the ontology description
-        executionParameters.forEach(execParam => {
-            const foundParam = describedParameters.find(descParam => descParam.name == execParam.name);
-            if(!foundParam ){
-                throw new Error(`The entered parameter '${execParam.name}' was not found`);
+        describedParameters.forEach(descParam => {
+            const foundParam = executionParameters.find(execParam => descParam.name == execParam.name);
+            if(descParam.required && !foundParam ){
+                throw new Error(`The parameter '${descParam.name}' is required but was not found in the execution`);
             }
             else {
                 matchedParameters[foundParam.name] = foundParam.value;
             }
         });
 
-        // Check that all required parameters of the ontology are set
-        const requiredParams = describedParameters.filter(descParam => descParam.required);
-        requiredParams.forEach(reqParam => {
-            const matchedReqParam = matchedParameters[reqParam.name];
-            if(!matchedReqParam || matchedReqParam.value == undefined) {
-                throw new Error(`The parameter '${reqParam.name}' is required but was not found in the execution`);
+        // Check that all sent parameters exist in the ontology
+        executionParameters.forEach(execParam => {
+            if(!describedParameters.find(descParam => descParam.name == execParam.name)) {
+                throw new Error(`The entered parameter '${execParam.name}' was not found in the ontology`);
             }
         });
 
@@ -130,13 +129,11 @@ interface RestSkillQueryResult {
     basePath: string,
     path: string,
     httpMethod: string,
-    parameters: {
-        parameterIri: string,
-        parameterName: string,
-        parameterType: string,
-        parameterRequired: boolean
-    } []
+    parameters: ParameterQueryResult []
+    outputs: OutputQueryResult []
 }
+
+
 
 class RestSkillMethodDescription {
     httpMethod: string;
@@ -145,9 +142,8 @@ class RestSkillMethodDescription {
 
     constructor(public skillIri: string, public commandTypeIri: string, queryResult: RestSkillQueryResult) {
         this.fullPath = this.createPath(queryResult.basePath, queryResult.path);
-        queryResult.parameters.forEach(queryResultParam => {
-            new SkillVariable(queryResultParam);
-        });
+        this.parameters = queryResult.parameters.map(queryResultParam => SkillVariable.fromParameterQueryResult(queryResultParam));
+        this.httpMethod = queryResult.httpMethod;
     }
 
     private createPath(basePath: string, path: string): string {
