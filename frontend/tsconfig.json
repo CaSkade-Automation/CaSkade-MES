@@ -3,14 +3,13 @@
     "compileOnSave": false,
     "compilerOptions": {
         "outDir": "./dist/out-tsc",
-        "rootDir": ".",
+        "rootDirs": [".", "../shared"],
         "baseUrl": "./",
         "sourceMap": true,
 		"declaration": false,
         "moduleResolution": "node",
         "module": "esnext",
         "target": "es2015",
-        "types": ["jasmine"],
         "lib": [
             "es2018",
             "dom"
