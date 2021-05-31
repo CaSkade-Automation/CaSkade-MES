@@ -1,21 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
 import { v4 as uuidv4 } from 'uuid';
 
-import {ProductionModule, ProductionModuleDto} from "@shared/models/production-module/ProductionModule";
+import { ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
 import { moduleMapping } from './module-mappings';
 
 import {SparqlResultConverter} from 'sparql-result-converter';
-import { CapabilityService } from '../capabilities/capability.service';
 import { SkillService } from '../skills/skill.service';
+import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 const converter = new SparqlResultConverter();
 
 @Injectable()
 export class ModuleService {
     constructor(
         private graphDbConnection: GraphDbConnectionService,
-        private capabilityService: CapabilityService,
         private skillService: SkillService,
         private socketService: SocketGateway) {}
 
@@ -28,30 +27,27 @@ export class ModuleService {
         const graphName = uuidv4();
         try {
             const dbResult = await this.graphDbConnection.addRdfDocument(newModule, graphName);
+
             if(dbResult) {
                 // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-                this.socketService.emitEvent('new-production-module');
+                this.socketService.emitEvent(SocketEventName.ProductionModules_Added);
                 return 'mfgModule successfully registered';
             }
         } catch (error) {
-            throw new Error(`Error while registering new production module. Error: ${error}`);
+            throw new BadRequestException(`Error while registering new production module. Error: ${error.toString()}`);
         }
     }
 
     /**
-     * Get all modules including capabilities and skills. Returns a complete module representation
+     * Get all modules including skills. Returns a complete module representation
      */
-    async getAllModulesWithCapabilitiesAndSkills(): Promise<ProductionModuleDto[]> {
+    async getAllModulesWithSkills(): Promise<ProductionModuleDto[]> {
+        // get all modules "raw" (=)
         const productionModuleDtos = await this.getModules();
 
         for (const moduleDto of productionModuleDtos) {
-            const moduleCapabilityDtos = await this.capabilityService.getCapabilitiesOfModule(moduleDto.iri);
-            moduleDto.capabilityDtos = moduleCapabilityDtos;
-
-            for (const capabilityDto of moduleDto.capabilityDtos) {
-                const skillDtos = await this.skillService.getSkillsOfCapability(capabilityDto.iri);
-                capabilityDto.skillDtos = skillDtos;
-            }
+            const moduleSkillDtos = await this.skillService.getSkillsOfModule(moduleDto.iri);
+            moduleDto.skillDtos = moduleSkillDtos;
         }
 
         return productionModuleDtos;
@@ -66,15 +62,9 @@ export class ModuleService {
         // just get the one result that should be returned for a given IRI
         const moduleDto = (await this.getModules(moduleIri))[0];
 
-        // add capabilies
-        const moduleCapabilityDtos = await this.capabilityService.getCapabilitiesOfModule(moduleDto.iri);
-        moduleDto.capabilityDtos = moduleCapabilityDtos;
-
-        // add skills for each capability
-        for (const capabilityDto of moduleDto.capabilityDtos) {
-            const skillDtos = await this.skillService.getSkillsOfCapability(capabilityDto.iri);
-            capabilityDto.skillDtos = skillDtos;
-        }
+        // add skills
+        const moduleSkillDtos = await this.skillService.getSkillsOfModule(moduleDto.iri);
+        moduleDto.skillDtos = moduleSkillDtos;
 
         return moduleDto;
     }
@@ -82,7 +72,7 @@ export class ModuleService {
 
 
     /**
-     * Get all modules without their capabilities and skills. Returns just the modules with their components and interfaces
+     * Get all modules without their skills. Returns just the modules with their components and interfaces
      */
     private async getModules(moduleIri?: string): Promise<Array<ProductionModuleDto>> {
         let filterClause = "";
@@ -104,9 +94,8 @@ export class ModuleService {
                     }
                     ${filterClause}
                 }`;
-            console.log(query);
             const queryResult = await this.graphDbConnection.executeQuery(query);
-            const productionModules = converter.convert(queryResult.results.bindings, moduleMapping) as Array<ProductionModuleDto>;
+            const productionModules = converter.convertToDefinition(queryResult.results.bindings, moduleMapping).getFirstRootElement() as Array<ProductionModuleDto>;
             return productionModules;
         } catch (error) {
             console.error(`Error while returning all mfgModules, ${error}`);
@@ -120,28 +109,47 @@ export class ModuleService {
      * @param moduleIri IRI of the module to delete
      */
     async deleteModule(moduleIri: string): Promise<string> {
+        console.log("deleting module");
+
         try {
             // Get module's graph
             // TODO: This could be moved into a separate graph model
             // TODO: Make sure descriptions of executable skills get deleted as well
             const graphQueryResults = await this.graphDbConnection.executeQuery(`
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-            SELECT ?s ?g WHERE {
+            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
+            PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+            SELECT * WHERE {
+                # Get the type with which module was registered
+                # This has to be made before getting the graph because inferred facts are not stored in any graph and lead to problems
+                BIND(IRI(<${moduleIri}>) AS ?module)
+                ?module a ?type.
+                ?type sesame:directSubClassOf VDI3682:TechnicalResource.
+                ?module ?prop ?skill.
+                ?skill a Cap:Skill.
+                ?prop sesame:directSubPropertyOf Cap:providesSkill.
                 GRAPH ?g {
-                    BIND(IRI("${moduleIri}") AS ?s).
                     {
-                    ?s a VDI3682:TechnicalResource.
-                    } UNION {
-                    ?s VDI3682:TechnicalResourceIsAssignedToProcessOperator ?x.
+                        ?module a ?type.
+                    }   UNION {
+                        ?module ?prop ?skill.
                     }
                 }
             }`);
 
+            console.log(graphQueryResults);
+
             const resultBindings = graphQueryResults.results.bindings;
-            resultBindings.forEach(binding => {
+            for (const binding of resultBindings) {
                 const graphName = binding.g.value;
-                this.graphDbConnection.clearGraph(graphName); // clear graph
-            });
+                console.log("deleting graph");
+                console.log(graphName);
+                await this.graphDbConnection.clearGraph(graphName); // clear graph
+            }
             return `Successfully deleted module with IRI ${moduleIri}`;
         } catch (error) {
             throw new Error(`Error while deleting module with IRI ${moduleIri}. Error: ${error}`);

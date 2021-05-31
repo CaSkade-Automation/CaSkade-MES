@@ -1,0 +1,50 @@
+
+  <h3>Manual Registration</h3>
+  <div class="form-check form-check-inline mr-5 " >
+  <label class="form-check-label" for="manualOntology">
+    <input class="form-check-input" type="radio" name="options" id="manualOntology"  [value]="'manualOntology'" [(ngModel)]="ontologyType">Manual Ontology
+  </label>
+
+  <label class="form-check-label " for="mtp" style="padding-left: 10px;">
+    <input class="form-check-input" type="radio" name="options" id="mtp"  [value]="'mtp'" [(ngModel)]="ontologyType"> MTP
+  </label>
+  </div>
+
+  <ng-container *ngIf="ontologyType=='manualOntology'; else elseTemplate">
+    <form style="padding-top: 20px;" >
+
+      <div class="text-danger">{{errMessage}}</div>
+      <textarea class="form-control" [(ngModel)]="ontologyString" name="ontologyString" id="ontologyString" rows="15" placeholder="Insert Ontology here..."></textarea>
+      <div class="box box-info margin-bottom=50px">
+        <form class="form-horizontal" style="padding-top: 10px">
+            <button class="btn btn-primary" (click)="submit()" >Submit Ontology </button>
+            <button class="btn btn-secondary" style="margin-left: 10px;" (click)="ontologyString=''" >Clear </button>
+        </form>
+      </div>
+    </form>
+  </ng-container>
+  <ng-template #elseTemplate>
+    <form>
+
+    <div class="input-group mb-3" style="padding-top: 20px;">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><i class="fas fa-file-upload"></i> </span>
+      </div>
+      <div class="custom-file">
+        <input #file accept=".aml" (change)="onFileAdded($event); changed=true" type="file" class="custom-file-input" id="inputGroupFile01">
+        <label class="custom-file-label" for="inputGroupFile01">Select an .aml-File</label>
+      </div>
+    </div>
+<ng-container *ngIf="changed; else elseDisabled">
+<div> <span class="fas fa-check-circle"></span> {{addedFile.name}} selected </div>
+    <button (click)="submit()" class="btn btn-primary" style="padding-top: 10px;">Submit</button>
+  </ng-container>
+<ng-template #elseDisabled>
+  <button class="btn btn-primary" style="padding-top: 10px;" disabled>Submit</button>
+</ng-template>
+
+  </form>
+  </ng-template>
+
+
+

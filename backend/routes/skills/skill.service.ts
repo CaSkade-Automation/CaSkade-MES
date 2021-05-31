@@ -1,18 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 
-import { SkillDto} from "@shared/models/skill/Skill";
+import { SkillDto, SkillQueryResult} from "@shared/models/skill/Skill";
 import { skillMapping } from './skill-mappings';
 import { v4 as uuidv4 } from 'uuid';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
 
-import {SparqlResultConverter} from 'sparql-result-converter';  // strange syntax because SparqlConverter doesn't allow ES6-imports yet
+import {SparqlResultConverter} from 'sparql-result-converter';
+import { CapabilityService } from '../capabilities/capability.service';
+import { SocketEventName } from '@shared/socket-communication/SocketEventName';
+import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
 const converter = new SparqlResultConverter();
 
 @Injectable()
 export class SkillService {
     constructor(private graphDbConnection: GraphDbConnectionService,
-        private socketGateway: SocketGateway) { }
+        private socketGateway: SocketGateway,
+        private capabilityService: CapabilityService){}
+
 
     /**
      * Register a new skill
@@ -20,14 +25,15 @@ export class SkillService {
      */
     async addSkill(newSkill: string): Promise<string> {
         try {
-            // create a graph name for the service (uuid)
-            const skilGraphName = uuidv4();
+            // create a graph name for the skill (uuid)
+            const skillGraphName = uuidv4();
+            console.log("Adding Skill");
 
-            this.graphDbConnection.addRdfDocument(newSkill, skilGraphName);
-            this.socketGateway.emitEvent('new-skill');
+            await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
+            this.socketGateway.emitEvent(SocketEventName.Skills_Added);
             return 'New skill successfully added';
         } catch (error) {
-            throw new Error(`Error while registering a new skill. Error: ${error}`);
+            throw new BadRequestException(`Error while registering a new skill. Error: ${error.toString()}`);
         }
     }
 
@@ -41,7 +47,10 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri
+                ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
+                ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
+            WHERE {
                 ?skill a Cap:Skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
@@ -49,10 +58,19 @@ export class SkillService {
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
+                ${parameterQueryFragment}
+                ${outputQueryFragment}
             }`;
             const queryResult = await this.graphDbConnection.executeQuery(query);
-            const capabilities = converter.convert(queryResult.results.bindings, skillMapping) as Array<SkillDto>;
-            return capabilities;
+            const mappedResults = converter.convertToDefinition(queryResult.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
+            const skillDtos = mappedResults.map(result => new SkillDto(result));
+
+            for (const skillDto of skillDtos) {
+                const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
+                skillDto.capabilityDtos = capabilityDtos;
+            }
+
+            return skillDtos;
         } catch(error) {
             throw new Error(`Error while returning all skills. Error: ${error}`);
         }
@@ -68,7 +86,10 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri WHERE {
+            SELECT ?skill ?stateMachine ?currentStateTypeIri
+                ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
+                ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
+            WHERE {
                 ?skill a Cap:Skill.
                 FILTER(?skill = IRI("${skillIri}"))
                 ?skill Cap:hasStateMachine ?stateMachine.
@@ -77,37 +98,93 @@ export class SkillService {
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
+                ${parameterQueryFragment}
+                ${outputQueryFragment}
             }`;
 
-            const queryResult = await this.graphDbConnection.executeQuery(query);
-            const skill = converter.convert(queryResult.results.bindings, skillMapping)[0] as SkillDto;
-            return skill;
+            const rawResults = await this.graphDbConnection.executeQuery(query);
+            const mappedResult = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement()[0] as SkillQueryResult;
+            const skillDto = new SkillDto(mappedResult);
+
+            const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
+            skillDto.capabilityDtos = capabilityDtos;
+
+            return skillDto;
         } catch(error) {
             throw new Error(`Error while returning skill with IRI ${skillIri}. Error: ${error}`);
         }
     }
 
-    async getSkillsOfCapability(capabilityIri: string): Promise<SkillDto[]> {
+    async getSkillsOfModule(moduleIri: string): Promise<SkillDto[]> {
         try {
             const query = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri WHERE {
-                <${capabilityIri}> Cap:isExecutableViaSkill ?skill.
+            SELECT ?skill ?stateMachine ?currentStateTypeIri
+                ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
+                ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
+            WHERE {
+                <${moduleIri}> Cap:providesSkill ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
+                ${parameterQueryFragment}
+                ${outputQueryFragment}
             }`;
-            const queryResult = await this.graphDbConnection.executeQuery(query);
-            const skillDtos = converter.convert(queryResult.results.bindings, skillMapping) as SkillDto[];
+            const rawResults = await this.graphDbConnection.executeQuery(query);
+            const mappedResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
+            const skillDtos = mappedResults.map(result => new SkillDto(result));
+
+            for (const skillDto of skillDtos) {
+                const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
+                skillDto.capabilityDtos = capabilityDtos;
+            }
 
             return skillDtos;
         } catch(error) {
-            throw new Error(`Error while returning skills of capability ${capabilityIri}. Error: ${error}`);
+            throw new Error(`Error while returning skills of module ${moduleIri}. Error: ${error}`);
+        }
+    }
+
+    async getSkillsForCapability(capabilityIri: string): Promise<SkillDto[]> {
+        try {
+            const query = `
+            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
+            PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
+            SELECT ?skill ?stateMachine ?currentStateTypeIri
+                ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
+                ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
+                WHERE {
+                <${capabilityIri}> Cap:isExecutableVia ?skill.
+                ?skill Cap:hasStateMachine ?stateMachine.
+                OPTIONAL {
+                    ?skill Cap:hasCurrentState ?currentState.
+                    ?currentState rdf:type ?currentStateTypeIri.
+                    ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
+                }
+                OPTIONAL {
+                    ?skill Cap:hasSkillParameter ?parameter.
+                }
+                ${parameterQueryFragment}
+                ${outputQueryFragment}
+            }`;
+            const rawResults = await this.graphDbConnection.executeQuery(query);
+            const skillResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
+            const skillDtos = skillResults.map(result => new SkillDto(result));
+
+            for (const skillDto of skillDtos) {
+                const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
+                skillDto.capabilityDtos = capabilityDtos;
+            }
+
+            return skillDtos;
+        } catch(error) {
+            throw new Error(`Error while returning all skills that are suited for capability ${capabilityIri}. Error: ${error}`);
         }
     }
 
@@ -121,11 +198,10 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             SELECT ?skill ?graph WHERE {
                 GRAPH ?graph {
-                    BIND(IRI("${skillIri}") AS ?skill).
-                    ?skill a Cap:Skill.
+                    BIND(<${skillIri}> AS ?skill)
+                    ?skill a/sesame:directSubClassOf* Cap:Skill.
                     }
-                }
-            }`;
+                }`;
 
             const queryResult = await this.graphDbConnection.executeQuery(query);
             const queryResultBindings = queryResult.results.bindings;
@@ -139,6 +215,32 @@ export class SkillService {
         } catch (error) {
             throw new Error(
                 `Error while trying to delete skill with IRI ${skillIri}. Error: ${error}`
+            );
+        }
+    }
+
+    async updateState(skillIri:string, newStateTypeIri: string): Promise<string> {
+        try {
+            const deleteQuery = `
+            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            DELETE WHERE {
+                <${skillIri}> Cap:hasCurrentState ?oldCurrentState.
+            }`;
+            await this.graphDbConnection.executeUpdate(deleteQuery);
+
+            const insertQuery = `
+            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            INSERT {
+                <${skillIri}> Cap:hasCurrentState ?newState.
+            } WHERE {
+                ?newState a <${newStateTypeIri}>.
+            }`;
+            const queryResult = await this.graphDbConnection.executeUpdate(insertQuery);
+            this.socketGateway.emitEvent(SocketEventName.Skills_StateChanged, {skillIri: skillIri, newStateTypeIri: newStateTypeIri});
+            return `Sucessfully updated currentState of skill ${skillIri}`;
+        } catch (error) {
+            throw new Error(
+                `Error while trying to update currentState of skill: ${skillIri}. Error: ${error}`
             );
         }
     }

@@ -1,13 +1,25 @@
 <nav class="sidebar" [ngClass]="{sidebarPushRight: isActive, collapsed: collapsed}">
   <div class="list-group">
-    <a routerLink="/module-management" [routerLinkActive]="['router-link-active']" class="list-group-item">
+    <a routerLink="/production-modules" [routerLinkActive]="['router-link-active']" class="list-group-item">
       <i class="fas fa-puzzle-piece"></i>&nbsp;
       <span>Module Management</span>
+    </a>
+    <a routerLink="/skills" [routerLinkActive]="['router-link-active']" class="list-group-item">
+      <i class="fas fa-list-alt"></i>&nbsp;
+      <span>Skill-Overview</span>
+    </a>
+    <a routerLink="/capabilities" [routerLinkActive]="['router-link-active']" class="list-group-item">
+      <i class="fas fa-list-alt"></i>&nbsp;
+      <span>Capability-Overview</span>
     </a>
     <a routerLink="/order-management" [routerLinkActive]="['router-link-active']" class="list-group-item">
       <i class="fas fa-cart-plus"></i>&nbsp;
       <span>Order Management</span>
     </a>
+    <a routerLink="/skill-processes" [routerLinkActive]="['router-link-active']" class="list-group-item">
+        <i class="fas fa-project-diagram"></i>&nbsp;
+        <span>Skill-Processes</span>
+      </a>
     <a routerLink="/kpi-dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
       <i class="fas fa-chart-line"></i>&nbsp;
       <span>KPI-Dashboard</span>

@@ -34,6 +34,10 @@ export class GraphDbConnectionService {
         }
     }
 
+    updateConfig(key: string, value: string) {
+        this.config[key] = value;
+    }
+
 
     getConfig(): GraphDbConfig {
         return this.config;
@@ -48,7 +52,7 @@ export class GraphDbConnectionService {
     }
 
     async addRdfDocument(rdfDocument: string, context: string) {
-        const contentType = "application/rdf+xml";
+        const contentType = "application/x-turtle; charset=UTF-8";      // TODO: Get the real contentType, could also be RDF/XML
         context = `?context=%3Curn:${context}%3E`;
         return this.executeStatement(rdfDocument, context, contentType);
     }
@@ -80,13 +84,11 @@ export class GraphDbConnectionService {
             'Content-Type': contentType
         };
 
-
         try {
-            const dbResponse = await Axios.post(
-                url,
-                statement,
-                { 'headers': headers });
-            return dbResponse.data;
+            const dbResponse = await Axios.post(url, statement,{ 'headers': headers });
+
+            return {"statusCode": dbResponse.request.res.statusCode,
+                "msg": dbResponse.data};
 
         } catch (err) {
             if (err.response.status == 400) {       // On error: If its just a query mistake (graphdb 400) -> return this query mistake
@@ -102,11 +104,11 @@ export class GraphDbConnectionService {
      * Execute a query against the currently selected repository
      * @param {*} queryString The query to execute
      */
-    async executeQuery(queryString): Promise<GraphDbResult> {
+    private async executeSparqlRequest(queryString:string, contentType: string): Promise<GraphDbResult> {
         const headers = {
             "Authorization": this.createBase64AuthString(),
             "Accept": "application/sparql-results+json",
-            "Content-Type": "application/sparql-query"
+            "Content-Type": contentType
         };
 
         try {
@@ -127,6 +129,17 @@ export class GraphDbConnectionService {
         }
     }
 
+    executeQuery(sparqlQuery: string) : Promise<GraphDbResult> {
+        return this.executeSparqlRequest(sparqlQuery, "application/sparql-query");
+    }
+
+    executeUpdate(sparqlUpdate: string) {
+        return this.executeStatement(sparqlUpdate,"","application/sparql-update");
+    }
+
+
+
+
 
     /**
      * Create a string pointing to all repositories at the current graphdb
@@ -141,8 +154,6 @@ export class GraphDbConnectionService {
      * Get all repositories of the currently selected graphdb
      */
     async getRepositories() {
-        console.log("trying to get to: " + this.getRepositoriesEndpoint());
-        console.log(this.createBase64AuthString());
         try {
             const response = Axios.get(this.getRepositoriesEndpoint(), {
                 headers: {

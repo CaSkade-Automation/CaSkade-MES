@@ -7,6 +7,9 @@
         "paths": {
             "@angular/*": [
                 "../node_modules/@angular/*"
+            ],
+            "@shared/*": [
+                "../shared/*"
             ]
         }
     },

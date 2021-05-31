@@ -44,7 +44,6 @@ export class SkillService {
     }
 
 
-    // TODO: Implement
     getAllSkillsOfModule(moduleIri: string): Observable<Skill[]> {
         const encodedModuleIri = encodeURIComponent(moduleIri);
         const apiURL = `${this.apiRoot}/modules/${encodedModuleIri}/skills`;
@@ -69,6 +68,15 @@ export class SkillService {
                 })
             ));
     }
-
+    addSkill(ontologyString: string): Observable<Record<string, any>> {
+        const apiURL = `${this.apiRoot}/skills`;
+        return this.http.post<SkillDto>(apiURL, ontologyString);
+    }
+    addMtpSkill(ontologyFile: File): Observable<File>{
+        const apiURL = `${this.apiRoot}/Mtp`;
+        const formData= new FormData;
+        formData.append('file', ontologyFile, ontologyFile.name);
+        return this.http.post<File>(apiURL, formData);
+    }
 
 }

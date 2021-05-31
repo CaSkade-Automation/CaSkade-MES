@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
-import { BroadcastListener } from './registration';
+import { BroadcastListener } from './BroadcastListener';
 
 async function bootstrap(): Promise<void> {
     const port = 9090;

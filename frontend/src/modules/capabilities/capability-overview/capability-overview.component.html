@@ -1,0 +1,42 @@
+<div class="row">
+    <div class="col-6" *ngFor="let capability of executableCapabilities">
+        <div class="card mb-5">
+            <div class="card-header">
+                <h3 class="card-title" title="{{capability.iri}}">{{capability.getLocalName()}}</h3>
+            </div>
+           <!-- <div class="card-body"> -->
+                <!-- For all processes -->
+           <!--<h4 >Skills:</h4>
+
+                <div *ngFor="let skill of capability.skills"
+                    class="card border-dark mb-3  border-secondary rounded">
+                    <h5 class="card-header">{{skill.getLocalName()}}</h5>
+
+                    <div class="col-7">
+
+                        <div class="card">
+                            <h6 class="card-header">Executable commands</h6>
+                            <div class="card-body">
+                                <button class="btn btn-sm command-button mr-1 mt-1" style="min-width: 120px" [ngClass]="{'disabled': !this.isActiveCommand(command, skill)}" [class]="this.getCommandButtonClass(command)" *ngFor="let command of skill.stateMachine.getCommands()">
+                                    {{getShortName(command)}}
+                                </button>
+
+                            </div>
+                        </div>
+
+
+                    </div>
+
+
+
+                </div>
+
+
+
+
+            </div>-->
+
+        </div>
+    </div>
+</div>
+

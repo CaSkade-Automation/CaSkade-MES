@@ -7,16 +7,22 @@ import { GraphRepositoryModule } from './routes/graph-repositories/graph-reposit
 import { GraphOperationModule } from './routes/graph-operations/graph-operation.module';
 import { CapabilityModule } from './routes/capabilities/capability.module';
 import { SkillModule } from './routes/skills/skill.module';
+import { SkillExecutionModule } from './routes/skill-execution/skill-execution.module';
+import { MtpMappingModule } from './routes/mappings/mtp-mapping.module';
+
 
 @Module({
     imports: [
         GraphDbConnectionModule,
+        MtpMappingModule,
         SocketModule,
         ModuleModule,
         CapabilityModule,
         SkillModule,
         GraphRepositoryModule,
         GraphOperationModule,
+        SkillExecutionModule,
+        MtpMappingModule
     ],
     controllers: [AppController],
     providers: [],

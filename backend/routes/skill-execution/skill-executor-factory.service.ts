@@ -1,28 +1,42 @@
 import { Injectable } from "@nestjs/common";
-import { SkillExecutor } from "./SkillExecutor";
-import { OpcUaSkillExecutionService } from "./OpcUaSkillExecutor";
-import { RestSkillExecutionService } from "./RestSkillExecutor";
-import { NullSkillExecutor } from "./NullSkillExecutor";
+import { SkillExecutor } from "./executors/SkillExecutor";
+import { OpcUaMethodSkillExecutionService } from "./executors/opc-ua-executors/OpcUaMethodSkillExecutor";
+import { RestSkillExecutionService } from "./executors/RestSkillExecutor";
+import { NullSkillExecutor } from "./executors/NullSkillExecutor";
 import { GraphDbConnectionService } from "../../util/GraphDbConnection.service";
+import { SkillService } from "../skills/skill.service";
+import { OpcUaVariableSkillExecutionService } from "./executors/opc-ua-executors/OpcUaVariableSkillExecutor";
 
 @Injectable()
 export class SkillExecutorFactory {
 
-    constructor(private graphDbConnection: GraphDbConnectionService) {}
+    constructor(
+        private graphDbConnection: GraphDbConnectionService,
+        private skillService: SkillService) {}
 
     /**
      * Factory method that returns a matching SkillExecutor for a skill
      * @param skillIri IRI of the skill to get the executor for
      */
     async getSkillExecutor(skillIri: string): Promise<SkillExecutor> {
-        const skillType = await this.getSkillType(skillIri);
 
-        switch (skillType) {
-        case 'OpcUaSkill':
-            return new OpcUaSkillExecutionService();
-        case 'RestSkill':
-            return new RestSkillExecutionService();
+        const skillTypeIri = await this.getSkillType(skillIri);
+
+        switch (skillTypeIri) {
+        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaMethodSkill': {
+            const methodSkillExecutor = new OpcUaMethodSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
+            await methodSkillExecutor.connectAndCreateSession(skillIri);
+            return methodSkillExecutor;
+        }
+        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill': {
+            const variableSkillExecutor = new OpcUaVariableSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
+            await variableSkillExecutor.connectAndCreateSession(skillIri);
+            return variableSkillExecutor;
+        }
+        case 'http://www.hsu-ifa.de/ontologies/capability-model#RestSkill':
+            return new RestSkillExecutionService(this.graphDbConnection);
         default:
+            console.log(`Returning a default SkillExecutor. The given skill type ${skillTypeIri} is not defined`);
             return new NullSkillExecutor();
         }
 
@@ -38,13 +52,17 @@ export class SkillExecutorFactory {
         PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
         SELECT ?skill ?skillType WHERE {
             ?skill a Cap:Skill.
-            FILTER(?skillIri = IRI("${skillIri}"))
             ?skill a ?skillType.
-            ?skillType sesame:directSubClassOf Cap:Skill.
+            FILTER(?skill = IRI("${skillIri}")) # Filter for this one specific skill
+            FILTER(!isBlank(?skillType ))       # Filter out all blank nodes
+    		FILTER(STRSTARTS(STR(?skillType), "http://www.hsu-ifa.de/ontologies/capability-model")) # Filter just the classes from cap model
+            FILTER NOT EXISTS {
+                ?someSubSkillSubClass sesame:directSubClassOf ?skillType.
+            }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const skillType = queryResult.results.bindings["skillType"].value as string;
-        return skillType;
+        const skillTypeIri = queryResult.results.bindings[0]["skillType"].value;
+        return skillTypeIri;
     }
 
 }

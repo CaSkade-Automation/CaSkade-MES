@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SocketGateway } from '../../socket-gateway/socket.gateway';
 
 import {SparqlResultConverter} from "sparql-result-converter";
+import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 
 const converter = new SparqlResultConverter();
 
@@ -25,11 +26,11 @@ export class CapabilityService {
             // create a graph name for the service (uuid)
             const capabilityGraphName = uuidv4();
 
-            this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
-            this.socketGateway.emitEvent('new-capability');
+            await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
+            this.socketGateway.emitEvent(SocketEventName.Capabilities_Added);
             return 'New capability successfully added';
         } catch (error) {
-            throw new Error(`Error while registering a new capability. Error: ${error}`);
+            throw new BadRequestException(`Error while registering a new capability. Error: ${error.tostring()}`);
         }
     }
 
@@ -50,12 +51,12 @@ export class CapabilityService {
                     VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
                 OPTIONAL{
-                    ?capability VDI3682:hasInput ?output.
+                    ?capability VDI3682:hasOutput ?output.
                     ?output a ?fpbElement.
                     VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
             }`);
-            const capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as Array<CapabilityDto>;
+            const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
             return capabilities;
         } catch (error) {
             console.error(`Error while returning all capabilities, ${error}`);
@@ -68,51 +69,27 @@ export class CapabilityService {
      * @param capabilityIri IRI of the capability to get
      */
     async getCapabilityByIri(capabilityIri: string): Promise<CapabilityDto> {
-        console.log(capabilityIri);
-
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-            SELECT ?capability WHERE {
-                ?capability a Cap:Capability.
-                FILTER(?capability = IRI("${capabilityIri}")).
-            }`);
-            const capability = converter.convert(queryResult.results.bindings, capabilityMapping)[0] as CapabilityDto;
-            return capability;
-        } catch (error) {
-            console.error(`Error while returning capability with IRI ${capabilityIri}, ${error}`);
-            throw new Error(error);
-        }
-    }
-
-    /**
-     * Get all capabilities of a given module
-     * @param moduleIri IRI of the module to get capabilities of
-     */
-    async getCapabilitiesOfModule(moduleIri: string): Promise<Array<CapabilityDto>> {
-        try {
-            const queryResult = await this.graphDbConnection.executeQuery(`
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
             SELECT ?capability ?input ?output WHERE {
                 ?capability a Cap:Capability.
-                ?resource a VDI3682:TechnicalResource.
+                FILTER(?capability = IRI("${capabilityIri}")).
                 OPTIONAL{
                     ?capability VDI3682:hasInput ?input.
                     ?input a ?fpbElement.
                     VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
                 OPTIONAL{
-                    ?capability VDI3682:hasInput ?output.
+                    ?capability VDI3682:hasOutput ?output.
                     ?output a ?fpbElement.
                     VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
-                FILTER(?resource = IRI("${moduleIri}"))
             }`);
-            const capabilities = converter.convert(queryResult.results.bindings, capabilityMapping) as Array<CapabilityDto>;
-            return capabilities;
+            const capability = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
+            return capability;
         } catch (error) {
-            console.error(`Error while returning all capabilities of module ${moduleIri}, ${error}`);
+            console.error(`Error while returning capability with IRI ${capabilityIri}, ${error}`);
             throw new Error(error);
         }
     }
@@ -147,6 +124,33 @@ export class CapabilityService {
             throw new Error(
                 `Error while trying to delete capability with IRI ${capabilityIri}. Error: ${error}`
             );
+        }
+    }
+
+    async getCapabilitiesOfSkill(skillIri: string): Promise<CapabilityDto[]> {
+        try {
+            const queryResult = await this.graphDbConnection.executeQuery(`
+            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+            SELECT ?capability ?input ?output WHERE {
+                ?capability a Cap:Capability.
+                ?capability Cap:isExecutableViaSkill <${skillIri}>
+                OPTIONAL{
+                    ?capability VDI3682:hasInput ?input.
+                    ?input a ?fpbElement.
+                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                }
+                OPTIONAL{
+                    ?capability VDI3682:hasOutput ?output.
+                    ?output a ?fpbElement.
+                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                }
+            }`);
+            const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as CapabilityDto[];
+            return capabilities;
+        } catch (error) {
+            console.error(`Error while returning capabilities of skill ${skillIri}, ${error}`);
+            throw new Error(error);
         }
     }
 }

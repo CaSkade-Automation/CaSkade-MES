@@ -5,13 +5,19 @@ import { AuthGuard } from './shared';
 import {BrowserModule} from '@angular/platform-browser';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HttpClientModule } from "@angular/common/http";
+import { SocketIoModule } from "ngx-socket-io";
+import { CommandFeatureModule } from "./shared/command-feature/command-feature.module";
+
+const config = { url: 'http://localhost:9090', options: {} };
 
 @NgModule({
     imports: [
         AppRoutingModule,
         BrowserModule,
         BrowserAnimationsModule,
-        HttpClientModule
+        HttpClientModule,
+        SocketIoModule.forRoot(config),
+        CommandFeatureModule
     ],
     declarations: [AppComponent],
     providers: [AuthGuard],

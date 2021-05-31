@@ -1,0 +1,21 @@
+<div class="property-component" [formGroup]="form" class="form-group form-row">
+    <label class="col-sm-4 col-form-label" [attr.for]="property.key">{{property.key}} <i class="far fa-question-circle" title="{{property.label}}"></i></label>
+
+
+    <div [ngSwitch]="property.controlType" class="col-sm-8">
+        <input class=" form-control form-control-sm" *ngSwitchCase="'input'" [formControlName]="property.key"
+                [id]="property.key" [type]="property.type">
+
+        <select class="form-control form-control-sm" [id]="property.key" *ngSwitchCase="'select'" [formControlName]="property.key">
+            <option *ngFor="let opt of property.options" [value]="opt.value">{{opt.key}}</option>
+        </select>
+
+        <input *ngSwitchCase="'readonly'" [type]="property.type" readonly class="form-control-plaintext" [id]="property.key" [value]="property.value">
+    </div>
+
+    <div *ngFor="let childProperty of childProperties.controls">
+        <dynamic-property [property]="childProperty" [form]="form"></dynamic-property>
+    </div>
+
+    <div class="errorMessage" *ngIf="wasTouched && !isValid">{{property.label}} is required</div>
+  </div>

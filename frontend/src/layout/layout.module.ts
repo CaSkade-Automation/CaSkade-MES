@@ -13,6 +13,10 @@ import { HeaderComponent } from './components/header/header.component';
         LayoutRoutingModule,
         NgbDropdownModule
     ],
-    declarations: [LayoutComponent, SidebarComponent, HeaderComponent]
+    declarations: [
+        LayoutComponent,
+        SidebarComponent,
+        HeaderComponent,
+    ]
 })
 export class LayoutModule {}
