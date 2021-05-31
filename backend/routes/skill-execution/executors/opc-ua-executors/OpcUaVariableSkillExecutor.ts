@@ -2,9 +2,8 @@ import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionReq
 import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { opcUaVariableSkillMapping } from '../skill-execution-mappings';
-import { SecurityPolicy, OPCUAClient, NodeId, makeBrowsePath, AttributeIds, ClientSubscription} from 'node-opcua';
+import { ClientSubscription} from 'node-opcua';
 import { InternalServerErrorException } from '@nestjs/common';
-import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { SkillService } from 'routes/skills/skill.service';
 import { OpcUaSkillExecutor, OpcUaSkillParameter } from './OpcUaSkillExecutor';
 

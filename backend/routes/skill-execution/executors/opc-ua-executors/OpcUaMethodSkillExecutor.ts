@@ -23,15 +23,16 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
      * @param skillIri IRI of the skill
      * @param parameters Parameters and the values that are written
      */
-    async setSkillParameters(skillIri: string, parameters: SkillVariableDto[]): Promise<void> {
-        const parameterDescription = await this.getOpcUaParameterDescription(skillIri);
+    async setSkillParameters(executionRequest: SkillExecutionRequestDto): Promise<void> {
+        const parameterDescription = await this.getOpcUaParameterDescription(executionRequest.skillIri);
+        const requestParameters = executionRequest.parameters;
 
         try {
             // Write all parameters
-            for (const param of parameterDescription.parameters) {
-                const foundReqParam = parameters.find(reqParam => reqParam.name == param.parameterName);
+            for (const describedParameter of parameterDescription.parameters) {
+                const foundReqParam = requestParameters.find(reqParam => reqParam.name == describedParameter.parameterName);
                 if(foundReqParam && foundReqParam.value) {
-                    await this.writeSingleNode(param.parameterNodeId, foundReqParam.value);
+                    await this.writeSingleNode(describedParameter.parameterNodeId, foundReqParam.value);
                 }
             }
         } catch (err) {
