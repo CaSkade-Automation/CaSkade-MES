@@ -2,8 +2,10 @@ import { Controller, Get, Param, Post, Delete, Put, Body, Patch } from '@nestjs/
 import { SkillService } from './skill.service';
 import { SkillDto } from '../../../shared/models/skill/Skill';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
-import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { SkillExecutorFactory } from '../skill-execution/skill-executor-factory.service';
+
+import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
+import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
 
 @Controller('/skills')
 export class SkillController {
@@ -26,9 +28,10 @@ export class SkillController {
     }
 
     @Put(':skillIri/parameters')
-    async setSkillParameters(@Param('skillIri') skillIri: string, @Body() parameters:SkillVariableDto[]) {
+    async setSkillParameters(@Param('skillIri') skillIri: string, @Body() parameters:SkillVariableDto[]): Promise<void> {
         const skillExecutor = await this.executorFactory.getSkillExecutor(skillIri);
-        skillExecutor.setSkillParameters(skillIri, parameters);
+        const executionRequest = new SkillExecutionRequestDto(skillIri, "http://www.hsu-ifa.de/ontologies/capability-model#SetParameters", parameters);
+        skillExecutor.setSkillParameters(executionRequest);
     }
 
     @Patch(':skillIri/states')

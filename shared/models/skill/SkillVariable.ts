@@ -8,13 +8,24 @@ export class SkillVariable extends RdfElement {
     value?: any;
     optionValues? = new Array<any>();
 
-    constructor(paramDto: SkillVariableDto) {
+    constructor(paramDto?: SkillVariableDto) {
         super(paramDto.iri)
         this.name = paramDto.name;
         this.type = paramDto.type;
         this.required = paramDto.required;
         this.default = paramDto.default;
         this.optionValues = paramDto.optionValues;
+    }
+
+    static fromParameterQueryResult(queryResult: ParameterQueryResult) {
+        return new this(
+            new SkillVariableDto(
+                queryResult.parameterIri,
+                queryResult.parameterName,
+                queryResult.parameterType,
+                queryResult.parameterRequired,
+                queryResult.parameterDefault,
+                queryResult.parameterOptionValues))
     }
 
     toSkillParameterDto(): SkillVariableDto {
@@ -51,4 +62,23 @@ export class SkillVariableDto {
             this.optionValues = options.map(option => option.value);
         }
     }
+}
+
+
+export interface ParameterQueryResult {
+    parameterIri: string,
+    parameterName: string,
+    parameterType: string,
+    parameterRequired: boolean,
+    parameterDefault: any,
+    parameterOptionValues: any []
+}
+
+export interface OutputQueryResult {
+    outputIri: string,
+    outputName: string,
+    outputType: string,
+    outputRequired: boolean,
+    outputDefault: any,
+    outputOptionValues: any []
 }

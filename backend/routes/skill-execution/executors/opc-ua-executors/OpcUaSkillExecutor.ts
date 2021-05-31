@@ -1,10 +1,14 @@
-import { AttributeIds, CallMethodResult, ClientSession, ConnectionStrategy, DataType, DataValue, DataValueLike, DataValueOptions, makeBrowsePath, MessageSecurityMode, NodeId, NodeIdType, OPCUAClient, OPCUAClientOptions, SecurityPolicy, StatusCode, UserNameIdentityToken, Variant, VariantOptions, WriteValue, WriteValueOptions } from "node-opcua";
+import { AttributeIds, CallMethodResult, ClientSession,
+    ConnectionStrategy, DataType, MessageSecurityMode,
+    NodeId, NodeIdType, OPCUAClient, OPCUAClientOptions,
+    SecurityPolicy, StatusCode, UserNameIdentityToken,
+    Variant, VariantOptions, WriteValue, WriteValueOptions } from "node-opcua";
 import { SkillService } from "routes/skills/skill.service";
 import { SparqlResultConverter } from "sparql-result-converter";
 import { GraphDbConnectionService } from "util/GraphDbConnection.service";
-import { SkillVariableDto } from "@shared/models/skill/SkillVariable";
 import { opcUaSkillParameterMapping } from "../skill-execution-mappings";
 import { SkillExecutor } from "../SkillExecutor";
+import { SkillExecutionRequestDto } from "../../../../../shared/models/skill/SkillExecutionRequest";
 
 /**
  * Abstract skill execution class that contains methods for both types of OPC UA skills
@@ -46,22 +50,22 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
     }
 
 
-    async setSkillParameters(skillIri: string, parameters: SkillVariableDto[]): Promise<void> {
-        const parameterDescription = await this.getOpcUaParameterDescription(skillIri);
+    async setSkillParameters(executionRequest: SkillExecutionRequestDto): Promise<void> {
+        const parameterDescription = await this.getOpcUaParameterDescription(executionRequest.skillIri);
+        const requestParameters = executionRequest.parameters;
 
-        for (const param of parameterDescription.parameters) {
-            const foundReqParam = parameters.find(reqParam => reqParam.name == param.parameterName);
+        // Match the parameters and write them. TODO: Align this with the base class' function "matchParameters"
+        for (const describedParam of parameterDescription.parameters) {
+            const foundReqParam = requestParameters.find(reqParam => reqParam.name == describedParam.parameterName);
             if(foundReqParam && foundReqParam.value) {
 
                 try {
-                    const res = await this.writeSingleNode(param.parameterNodeId, foundReqParam.value);
+                    const res = await this.writeSingleNode(describedParam.parameterNodeId, foundReqParam.value);
                     console.log(res);
                 } catch (err) {
                     console.log(`Error while writing value: ${err}`);
                 }
-
             }
-
         }
 
     }
@@ -193,14 +197,14 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
 
         const nodeType = await this.uaSession.getBuiltInDataType(nodeId);
 
-        const writeValue = new WriteValue(
+        const writeValue =  new WriteValue(
             {
-                nodeId: nodeId,
-                attributeId: AttributeIds.Value,
-                value: {
-                    value: {
-                        value: value,
-                        dataType: DataType[nodeType]
+                "nodeId": nodeId,
+                "attributeId": AttributeIds.Value,
+                "value": {
+                    "value": {
+                        "value": value,
+                        "dataType": DataType[nodeType]
                     }
                 }
             }

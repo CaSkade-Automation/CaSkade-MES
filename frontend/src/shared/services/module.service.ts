@@ -28,32 +28,6 @@ export class    ModuleService {
         private capabilityService: CapabilityService,
         private socketService: SocketService) { }
 
-
-    // Returns fake data for Tom
-    // TODO: Return real data
-    // getAllModulesWithCapabilitiesAndSkills(): ProductionModule[] {
-    //     const dummyState = new State("www.asd.de#dummyState");
-    //     const dummyTransition = new Transition("www.asd.de#dummyTransition");
-
-    //     const fakeModules: ProductionModule[] = [
-    //         new ProductionModule("www.asd.de#Bohrmodul",
-    //             [new Capability("www.asd.de#Bohren",
-    //                 [new FpbElement("www.asd.de#Rohteil"), new FpbElement("www.asd.de#Bohrungsinfos"), new FpbElement("www.asd.de#Information")],
-    //                 [new FpbElement("www.asd.de#Fertigteil")],
-    //                 [new Skill("www.asd.de#Bohren_RestSkill", new StateMachine("www.asd.de#BohrenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState ),  new Skill("www.asd.de#Bohren_OpcUaSkill", new StateMachine("www.asd.de#BohrenOpcUaSkill_StateMachine", [dummyState], [dummyTransition]), dummyState )]
-    //             )]),
-    //         new ProductionModule("www.asd.de#Fräsmodul",
-    //             [new Capability("www.asd.de#Fräsen",
-    //                 [ new FpbElement("www.asd.de#Rohteil"), new FpbElement("www.asd.de#Fräsinfos"), new FpbElement("www.asd.de#Information")],
-    //                 [ new FpbElement("www.asd.de#Fertigteil")],
-    //                 [ new Skill("www.asd.de#Fräsen_RestSkill", new StateMachine("www.asd.de#FräsenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState ),  new Skill("www.asd.de#Fräsen_OpcUaSkill", new StateMachine("www.asd.de#FräsenRestSkill_StateMachine", [dummyState], [dummyTransition]), dummyState )]
-    //             )]),
-    //     ];
-
-    //     return fakeModules;
-    // }
-
-
     /**
      * Get all modules currently registered
      */
@@ -125,7 +99,7 @@ export class    ModuleService {
     //     return this.http.post<File>(apiURL, ontologyFile);
     //     const  testString="testtesttest";
     //     //return this.http.post<string>(apiURL,testString);
-       
+
     // }
     addMtpModule(ontologyFile: File): Observable<File>{
         const apiURL = `${this.apiRoot}/Mtp`;

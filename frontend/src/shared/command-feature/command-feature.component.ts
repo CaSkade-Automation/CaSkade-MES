@@ -1,10 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Skill } from '../../../../shared/models/skill/Skill';
 import { Transition } from '../../../../shared/models/state-machine/Transition';
 import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
-import { analyzeAndValidateNgModules } from '@angular/compiler';
 import { SkillExecutionService } from '../services/skill-execution.service';
-import { SkillExecutionRequest, SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
+import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 
 
 
@@ -71,21 +70,16 @@ request: SkillExecutionRequestDto;
  }
 
  executeSkill(command: Transition) {
-     console.log(command.iri) ;
-     const newRequest= new SkillExecutionRequestDto;
-     newRequest.commandTypeIri=command.iri;
+     const newRequest= new SkillExecutionRequestDto(this.skill.iri, command.iri, this.skill.skillParameters);
      newRequest.parameters=this.skill.skillParameters;
      newRequest.skillIri=this.skill.iri;
      this.skillExecutionService.executeService(newRequest).subscribe(data => console.log(data));
-     console.log(newRequest);
 
      this.command=command;
  }
 
  getSkillOutputs() {
-     const request= new SkillExecutionRequestDto;
-     request.commandTypeIri="http://www.hsu-ifa.de/ontologies/capability-model#GetOutputs";
-     request.skillIri=this.skill.iri;
+     const request= new SkillExecutionRequestDto(this.skill.iri, "http://www.hsu-ifa.de/ontologies/capability-model#GetOutputs");
      this.skillExecutionService.executeService(request).subscribe((data: SkillVariableDto[]) => {
          data.forEach(element => {
              const skillOutput = this.skill.skillOutputs.find(output => output.name == element.name);

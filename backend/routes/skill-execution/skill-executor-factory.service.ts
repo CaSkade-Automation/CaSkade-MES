@@ -52,12 +52,13 @@ export class SkillExecutorFactory {
         PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
         SELECT ?skill ?skillType WHERE {
             ?skill a Cap:Skill.
-            FILTER(?skill = IRI("${skillIri}"))
             ?skill a ?skillType.
+            FILTER(?skill = IRI("${skillIri}")) # Filter for this one specific skill
+            FILTER(!isBlank(?skillType ))       # Filter out all blank nodes
+    		FILTER(STRSTARTS(STR(?skillType), "http://www.hsu-ifa.de/ontologies/capability-model")) # Filter just the classes from cap model
             FILTER NOT EXISTS {
                 ?someSubSkillSubClass sesame:directSubClassOf ?skillType.
-           }
-           FILTER(?skillType != owl:NamedIndividual)
+            }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
         const skillTypeIri = queryResult.results.bindings[0]["skillType"].value;
