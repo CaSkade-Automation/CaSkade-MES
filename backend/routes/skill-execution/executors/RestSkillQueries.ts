@@ -1,4 +1,9 @@
-export function getRestSkillMethodQuery(skillIri: string) {
+/**
+ * Returns the base query snippet that is used in every query of the RestSkillExecutor
+ * @param skillIri IRI of the skill to execute
+ * @returns Base snippet of the RestSkill execution query
+ */
+export function getRestSkillMethodQuery(skillIri: string): string {
     const query = `PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
     PREFIX WADL: <http://www.hsu-ifa.de/ontologies/WADL#>
     PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
@@ -25,6 +30,12 @@ export function getRestSkillMethodQuery(skillIri: string) {
     return query;
 }
 
+/**
+ * Returns a little query snippet for stateful methods to invoke a transition of the state machine.
+ * In this case, the commandTypeIri is a type of command of the ISA 88 state machine which is connected with a skill method.
+ * @param commandTypeIri
+ * @returns
+ */
 export function getRestStatefulMethodQuerySnippet(commandTypeIri: string): string {
     const query = `
         <${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
@@ -34,11 +45,16 @@ export function getRestStatefulMethodQuerySnippet(commandTypeIri: string): strin
     return query;
 }
 
+/**
+ * Returns a little query snippet for stateless methods like "GetOutputs". In this case, there is no interaction with the stateMachine.
+ * The skillMethod is directly given by the commandTypeIri
+ * @param commandTypeIri IRI of a stateless method type such as GetOutputs
+ * @returns
+ */
 export function getRestStatelessMethodQuerySnippet(commandTypeIri: string): string {
     const query = `
         <${commandTypeIri}> rdfs:subClassOf Cap:StatelessMethod.
-        ?command a <${commandTypeIri}>;
-            Cap:invokedBy ?skillMethod.
+        ?skillMethod a <${commandTypeIri}>;
     `;
     return query;
 }
