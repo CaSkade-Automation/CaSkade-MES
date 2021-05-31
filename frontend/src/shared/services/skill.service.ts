@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
-import { Skill, SkillDto } from '../../../../shared/models/skill/Skill';
+import { Skill, SkillDto } from '@shared/models/skill/Skill';
 
 @Injectable({
     providedIn: 'root'

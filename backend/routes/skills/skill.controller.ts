@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Delete, Put, Body, Patch } from '@nestjs/common';
 import { SkillService } from './skill.service';
-import { SkillDto } from '../../../shared/models/skill/Skill';
+import { SkillDto } from '@shared/models/skill/Skill';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 import { SkillExecutorFactory } from '../skill-execution/skill-executor-factory.service';
 

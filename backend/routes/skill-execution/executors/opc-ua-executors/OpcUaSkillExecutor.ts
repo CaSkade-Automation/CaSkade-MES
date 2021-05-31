@@ -8,7 +8,7 @@ import { SparqlResultConverter } from "sparql-result-converter";
 import { GraphDbConnectionService } from "util/GraphDbConnection.service";
 import { opcUaSkillParameterMapping } from "../skill-execution-mappings";
 import { SkillExecutor } from "../SkillExecutor";
-import { SkillExecutionRequestDto } from "../../../../../shared/models/skill/SkillExecutionRequest";
+import { SkillExecutionRequestDto } from "@shared/models/skill/SkillExecutionRequest";
 
 /**
  * Abstract skill execution class that contains methods for both types of OPC UA skills
