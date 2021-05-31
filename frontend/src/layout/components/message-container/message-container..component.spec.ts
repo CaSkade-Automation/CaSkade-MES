@@ -1,5 +1,5 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { MessageContainerComponent } from './message-container.component';
 
@@ -7,7 +7,7 @@ describe('Testing MessageContainerComponent', () => {
     let component: MessageContainerComponent;
     let fixture: ComponentFixture<MessageContainerComponent>;
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             declarations: [ MessageContainerComponent ]
         })
