@@ -10,6 +10,7 @@
         "moduleResolution": "node",
         "module": "esnext",
         "target": "es2015",
+        "types": ["jasmine"],
         "lib": [
             "es2018",
             "dom"
