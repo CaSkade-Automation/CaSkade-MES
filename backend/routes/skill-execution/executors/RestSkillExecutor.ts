@@ -5,7 +5,6 @@ import { SkillVariable, SkillVariableDto, ParameterQueryResult, OutputQueryResul
 import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { restSkillMapping } from './skill-execution-mappings';
-import { query } from 'express';
 import { getRestSkillMethodQuery, getRestStatefulMethodQuerySnippet, getRestStatelessMethodQuerySnippet } from './RestSkillQueries';
 
 export class RestSkillExecutionService extends SkillExecutor {
@@ -17,70 +16,68 @@ export class RestSkillExecutionService extends SkillExecutor {
         super();
     }
 
-    setSkillParameters(skillIri: string, parameters: SkillVariableDto[]): void {
-        throw new Error("Method not implemented.");
-    }
-
-    async getSkillOutputs(executionRequest: SkillExecutionRequestDto): Promise<void> {
+    async setSkillParameters(executionRequest: SkillExecutionRequestDto): Promise<void> {
         const skillDescription = await this.getStatelessRestMethodDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
 
-        const requestConfig: AxiosRequestConfig = {
-            headers: {'content-type' : 'application/json'},
-            url: skillDescription.fullPath,
-            method: <Method>skillDescription.httpMethod,
-        };
+        // Match the described parameters (from ontology) with the ones given in the request
+        const matchedParameters = this.findMatchingParameters(executionRequest.parameters, skillDescription.parameters);
 
-        try {
-            const response = await axios(requestConfig);
-            console.log(response.data);
+        this.sendRequest(skillDescription, matchedParameters);
+    }
 
-            return response.data;
-        } catch (error) {
-            throw new Error(`Error while executing skill '${executionRequest.skillIri}'. Error ${error}`);
-        }
+    /**
+     *
+     */
+    async getSkillOutputs(executionRequest: SkillExecutionRequestDto): Promise<SkillVariableDto[]> {
+        const skillDescription = await this.getStatelessRestMethodDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
+        const outputs = this.sendRequest<SkillVariable[]>(skillDescription);
+        return outputs;
     }
 
     async invokeTransition(executionRequest: SkillExecutionRequestDto): Promise<void> {
-        // set parameters
-
-        // // get the full REST service description
+        // Get the full REST service description
         const skillDescription = await this.getRestServiceDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
 
-        // const queryParams = [];
-        // serviceDescription.parameters.filter(parameter => {
-        //     if((parameter.location == "other") && (parameter.type == "QueryParameter")) {
-        //         queryParams.push(parameter);
-        //     }
-        // });
-
-
-        // Create a simple json object for all body parameters
+        // Match the described parameters (from ontology) with the ones given in the request
         const matchedParameters = this.findMatchingParameters(executionRequest.parameters, skillDescription.parameters);
 
+        return this.sendRequest(skillDescription, matchedParameters);
+
+    }
 
 
-        //     // Execute the service request
+    /**
+     * Sends the actual request to invoke a RestSkill
+     * @param skillDescription Description of the RestSkill with all relevant attributes
+     * @param parameters Matched parameters with their values
+     * @returns
+     */
+    private async sendRequest<T>(skillDescription: RestSkillMethodDescription, parameters: SkillVariable[] = []): Promise<T> {
+
+        // Build the request and send it afterwards
         const requestConfig: AxiosRequestConfig = {
             headers: {'content-type' : 'application/json'},
             url: skillDescription.fullPath,
             method: <Method>skillDescription.httpMethod,
-            data: matchedParameters
+            data: parameters
         };
 
         try {
             const response = await axios(requestConfig);
-            return response.data;
+            return response.data as T;
         } catch (error) {
-            throw new Error(`Error while executing skill '${executionRequest.skillIri}'. Error ${error}`);
+            throw new Error(`Error while executing skill '${skillDescription.skillIri}'. Error ${error}`);
         }
 
     }
 
 
     private async getRestServiceDescription(skillIri: string, commandTypeIri: string): Promise<RestSkillMethodDescription> {
+        // Assemble the query and execute it
         const query = getRestSkillMethodQuery(skillIri) + getRestStatefulMethodQuerySnippet(commandTypeIri) + '}';
         const queryResult = await this.graphDbConnection.executeQuery(query);
 
+        // Get the result, map it and get a valid RestSkillMethodDescription
         const mappedResult = this.converter.convertToDefinition(queryResult.results.bindings, restSkillMapping).getFirstRootElement()[0] as RestSkillQueryResult;
         const restSkillMethodDescription = new RestSkillMethodDescription(skillIri, commandTypeIri, mappedResult);
 
@@ -97,31 +94,6 @@ export class RestSkillExecutionService extends SkillExecutor {
         return restSkillMethodDescription;
     }
 
-
-
-    private findMatchingParameters(executionParameters: SkillVariable[], describedParameters: SkillVariable[]): Record<string, string>{
-        const matchedParameters = {};
-
-        // check if all execution parameters are contained in the ontology description
-        describedParameters.forEach(descParam => {
-            const foundParam = executionParameters.find(execParam => descParam.name == execParam.name);
-            if(descParam.required && !foundParam ){
-                throw new Error(`The parameter '${descParam.name}' is required but was not found in the execution`);
-            }
-            else {
-                matchedParameters[foundParam.name] = foundParam.value;
-            }
-        });
-
-        // Check that all sent parameters exist in the ontology
-        executionParameters.forEach(execParam => {
-            if(!describedParameters.find(descParam => descParam.name == execParam.name)) {
-                throw new Error(`The entered parameter '${execParam.name}' was not found in the ontology`);
-            }
-        });
-
-        return matchedParameters;
-    }
 
 }
 
