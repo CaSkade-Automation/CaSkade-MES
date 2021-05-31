@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { Skill } from '../../../../shared/models/skill/Skill';
-import { Transition } from '../../../../shared/models/state-machine/Transition';
+import { Skill } from '@shared/models/skill/Skill';
+import { Transition } from '@shared/models/state-machine/Transition';
 import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { SkillExecutionService } from '../services/skill-execution.service';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
