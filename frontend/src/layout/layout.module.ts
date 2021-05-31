@@ -6,7 +6,7 @@ import { LayoutRoutingModule } from './layout-routing.module';
 import { LayoutComponent } from './layout.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { HeaderComponent } from './components/header/header.component';
-import { MessageList } from './components/message-container/message-list';
+import { MessageContainerComponent } from './components/message-container/message-list.component';
 import { MessageComponent } from './components/message/message.component';
 
 @NgModule({
@@ -19,7 +19,7 @@ import { MessageComponent } from './components/message/message.component';
         LayoutComponent,
         SidebarComponent,
         HeaderComponent,
-        MessageList,
+        MessageContainerComponent,
         MessageComponent
     ]
 })
