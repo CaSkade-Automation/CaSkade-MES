@@ -1,9 +1,9 @@
 /* tslint:disable:no-unused-variable */
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MessageContainerComponent } from './message-list.component';
+import { MessageContainerComponent } from './message-container.component';
 
-describe('RegistrationMessageComponent', () => {
+describe('Testing MessageContainerComponent', () => {
     let component: MessageContainerComponent;
     let fixture: ComponentFixture<MessageContainerComponent>;
 
