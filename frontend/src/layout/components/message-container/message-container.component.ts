@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MessageService } from '../../../shared/services/message.service';
 
 @Component({
-    selector: 'message-list',
+    selector: 'message-container',
     templateUrl: './message-container.component.html',
     styleUrls: ['./message-container.component.scss']
 })
@@ -19,7 +19,7 @@ export class MessageContainerComponent implements OnInit {
 
     showAllMessages(): void{
         this.messageService.getAllMessages().subscribe(
-            (messagelist) => { console.log(messagelist);
+            (messagelist) => {
                 this.messageList = messagelist;},
             (err) => console.log(`Error during display of Message List. Error: ${err}`),
             null
@@ -28,5 +28,12 @@ export class MessageContainerComponent implements OnInit {
 }
 
 export class Message{
-    constructor(public title: string, public textbody: string) {}
+    constructor(public title: string, public textbody: string, public type: MessageType) {}
+}
+
+export enum MessageType {
+    Success = "alert-success",
+    Danger = "alert-danger",
+    Warning = "alert-warning",
+    Info = "alert-info"
 }

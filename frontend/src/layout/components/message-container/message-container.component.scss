@@ -1,0 +1,11 @@
+#message-container {
+    position: fixed;
+    bottom: 20px;
+    right: 50px;
+    width: 300px;
+}
+
+#message-container > div {
+    width: 100%;
+}
+
