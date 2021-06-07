@@ -1,19 +1,11 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable, forkJoin, Observer } from "rxjs";
-import { ProductionModule, ProductionModuleDto } from "../../../../shared/models/production-module/ProductionModule";
-import { map, flatMap, toArray, tap, take } from 'rxjs/operators';
-import { Module } from "../models/module";
+import { Observable,  Observer } from "rxjs";
+import { ProductionModule, ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
+import { map,  take } from 'rxjs/operators';
 import { CapabilityService } from "./capability.service";
-import { FpbElement } from "../../../../shared/models/fpb/FpbElement";
-import { Skill } from "../../../../shared/models/skill/Skill";
-import { Capability } from "../../../../shared/models/capability/Capability";
-import { StateMachine } from "../../../../shared/models/state-machine/StateMachine";
-import { State } from "../../../../shared/models/state-machine/State";
-import { Transition } from "../../../../shared/models/state-machine/Transition";
 import { SocketService } from "./socket.service";
 import { SocketEventName } from "@shared/socket-communication/SocketEventName";
-import { stringify } from "@angular/compiler/src/util";
 
 @Injectable({
     providedIn: 'root'

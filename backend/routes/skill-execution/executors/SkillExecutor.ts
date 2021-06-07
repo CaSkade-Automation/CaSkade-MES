@@ -1,6 +1,6 @@
 import { SkillExecutionRequestDto } from "@shared/models/skill/SkillExecutionRequest";
 import { RdfElement } from "@shared/models/RdfElement";
-import { SkillVariable } from "../../../../shared/models/skill/SkillVariable";
+import { SkillVariable } from "@shared/models/skill/SkillVariable";
 
 export abstract class SkillExecutor {
 

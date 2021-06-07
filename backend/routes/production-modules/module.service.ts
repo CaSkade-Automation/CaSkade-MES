@@ -31,7 +31,7 @@ export class ModuleService {
             if(dbResult) {
                 // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
                 this.socketService.emitEvent(SocketEventName.ProductionModules_Added);
-                return 'mfgModule successfully registered';
+                return 'ProductionModule successfully registered';
             }
         } catch (error) {
             throw new BadRequestException(`Error while registering new production module. Error: ${error.toString()}`);

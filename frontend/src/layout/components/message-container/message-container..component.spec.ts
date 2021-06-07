@@ -1,20 +1,21 @@
+/* tslint:disable:no-unused-variable */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { ChatComponent } from './chat.component';
+import { MessageContainerComponent } from './message-container.component';
 
-describe('ChatComponent', () => {
-    let component: ChatComponent;
-    let fixture: ComponentFixture<ChatComponent>;
+describe('Testing MessageContainerComponent', () => {
+    let component: MessageContainerComponent;
+    let fixture: ComponentFixture<MessageContainerComponent>;
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [ ChatComponent ]
+            declarations: [ MessageContainerComponent ]
         })
             .compileComponents();
     }));
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(ChatComponent);
+        fixture = TestBed.createComponent(MessageContainerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

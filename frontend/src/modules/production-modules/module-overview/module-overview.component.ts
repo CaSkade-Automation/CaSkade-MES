@@ -4,10 +4,6 @@ import { HttpClient } from '@angular/common/http';
 import { ModuleService } from '../../../shared/services/module.service';
 import { ProductionModule } from '@shared/models/production-module/ProductionModule';
 import { Command } from '@shared/models/command/Command';
-import { Transition } from '@shared/models/state-machine/Transition';
-import { Skill } from '@shared/models/skill/Skill';
-import { SocketEventName } from '@shared/socket-communication/SocketEventName';
-import { take } from 'rxjs/operators';
 import { SkillExecutionService } from 'src/shared/services/skill-execution.service';
 import { Subscription } from 'rxjs';
 

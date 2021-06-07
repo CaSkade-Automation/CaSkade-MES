@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Observable, forkJoin } from 'rxjs';
-import { Capability, CapabilityDto } from '../../../../shared/models/capability/Capability';
+import { Observable } from 'rxjs';
+import { Capability, CapabilityDto } from '@shared/models/capability/Capability';
 import { HttpClient } from '@angular/common/http';
-import { map, flatMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { SkillService } from './skill.service';
 
 @Injectable({

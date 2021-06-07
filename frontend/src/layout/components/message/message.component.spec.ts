@@ -3,21 +3,21 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { CommandFeatureComponent } from './command-feature.component';
+import { MessageComponent } from './message.component';
 
-describe('CommandFeatureComponent', () => {
-    let component: CommandFeatureComponent;
-    let fixture: ComponentFixture<CommandFeatureComponent>;
+describe('MessageComponent', () => {
+    let component: MessageComponent;
+    let fixture: ComponentFixture<MessageComponent>;
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [ CommandFeatureComponent ]
+            declarations: [ MessageComponent ]
         })
             .compileComponents();
     }));
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(CommandFeatureComponent);
+        fixture = TestBed.createComponent(MessageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
