@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Message } from '../message-container/message-container.component';
 
 @Component({
-    selector: 'app-message',
+    selector: 'message',
     templateUrl: './message.component.html',
     styleUrls: ['./message.component.scss']
 })
