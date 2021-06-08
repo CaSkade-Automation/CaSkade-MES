@@ -197,21 +197,28 @@ export class SkillService {
             const query = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             SELECT ?skill ?graph WHERE {
+                BIND(<${skillIri}> AS ?skill)
+                ?skill a ?skillType.
+                ?type rdfs:subClassOf Cap:Skill.
                 GRAPH ?graph {
-                    BIND(<${skillIri}> AS ?skill)
-                    ?skill a/sesame:directSubClassOf* Cap:Skill.
+                    ?skill a ?skillType
                     }
                 }`;
 
             const queryResult = await this.graphDbConnection.executeQuery(query);
             const queryResultBindings = queryResult.results.bindings;
 
+            if (queryResultBindings.length == 0) {
+                throw new Error(`No graph could be found. Deleting skill ${skillIri} failed.`);
+            }
+
             // iterate over graphs and clear every one
             queryResultBindings.forEach(bindings => {
                 const graphName = bindings.graph.value;
                 this.graphDbConnection.clearGraph(graphName);
             });
-            return `Sucessfully deleted skill with IRI ${skillIri}`;
+            this.socketGateway.emitEvent(SocketEventName.Skills_Deleted, `Sucessfully deleted skill with IRI ${skillIri}}`);
+            return `{message: Sucessfully deleted skill with IRI ${skillIri}}`;
         } catch (error) {
             throw new Error(
                 `Error while trying to delete skill with IRI ${skillIri}. Error: ${error}`
