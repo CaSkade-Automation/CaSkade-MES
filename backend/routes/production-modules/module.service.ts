@@ -109,8 +109,6 @@ export class ModuleService {
      * @param moduleIri IRI of the module to delete
      */
     async deleteModule(moduleIri: string): Promise<string> {
-        console.log("deleting module");
-
         try {
             // Get module's graph
             // TODO: This could be moved into a separate graph model
@@ -124,7 +122,7 @@ export class ModuleService {
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
             SELECT * WHERE {
-                # Get the type with which module was registered
+                # Get the type with which the module was registered
                 # This has to be made before getting the graph because inferred facts are not stored in any graph and lead to problems
                 BIND(IRI(<${moduleIri}>) AS ?module)
                 ?module a ?type.
@@ -132,6 +130,8 @@ export class ModuleService {
                 ?module ?prop ?skill.
                 ?skill a Cap:Skill.
                 ?prop sesame:directSubPropertyOf Cap:providesSkill.
+
+                # Finding the graph can now be done using explicit facts
                 GRAPH ?g {
                     {
                         ?module a ?type.
