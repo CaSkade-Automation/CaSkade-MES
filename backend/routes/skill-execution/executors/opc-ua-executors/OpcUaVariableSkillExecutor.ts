@@ -1,12 +1,12 @@
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
-import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
+import { GraphDbConnectionService } from '../../../../util/GraphDbConnection.service';
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { opcUaVariableSkillMapping, opcUaVariableSkillOutputMapping } from '../skill-execution-mappings';
-import { AttributeIds, ClientSubscription, NodeId, ReadValueId} from 'node-opcua';
+import { AttributeIds, ClientSubscription, ReadValueId} from 'node-opcua';
 import { InternalServerErrorException } from '@nestjs/common';
-import { SkillService } from 'routes/skills/skill.service';
+import { SkillService } from '../../../skills/skill.service';
 import { OpcUaSkillExecutor, OpcUaSkillParameter } from './OpcUaSkillExecutor';
-import { SkillVariableDto } from '../../../../models/skill/SkillVariable';
+import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
 
 /**
  * Skill executor for a skill whose transitions are fired by setting a command variable to a certain value
@@ -77,49 +77,6 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
         }
 
         return outputDtos;
-
-        // try {
-        //     // step 3: call the method. First construct a methodToCall object
-        //     const skillNode = NodeId.resolveNodeId(skillMethodDescription.skillNodeId);
-        //     const methodNode = NodeId.resolveNodeId(skillMethodDescription.methodNodeId);
-
-        //     const methodToCall = {
-        //         objectId: skillNode,
-        //         methodId: methodNode,
-        //         inputArguments: []
-        //     };
-
-        //     const [output] =await this.uaSession.translateBrowsePath([
-        //         makeBrowsePath(methodNode,".OutputArguments"),
-        //     ]);
-        //     const outputArgumentNodeId  =  output.targets[0].targetId;
-        //     const nodesToRead = [
-        //         { attributeIds: AttributeIds.Value, nodeId: outputArgumentNodeId },
-        //     ];
-        //     const [outputArgumentValue]  = await this.uaSession.read(nodesToRead);
-
-        //     // get the raw method output that does not contain output argument names
-        //     const result = (await this.uaSession.call(methodToCall)).outputArguments;
-
-        //     for (let i = 0; i < result.length; i++) {
-        //         result[i]["name"] = outputArgumentValue.value.value[i].name;
-        //     }
-
-        //     outputDtos.forEach(output => {
-        //         const matchingResult = result.find(res => res["name"] == output.name);
-        //         output.value = matchingResult.value;
-        //     });
-
-        //     this.uaSession.close(true);
-        //     this.uaClient.disconnect();
-
-        //     return outputDtos;
-        // } catch (err) {
-        //     console.log(err);
-
-        //     throw new InternalServerErrorException();
-        // }
-
     }
 
 
@@ -173,7 +130,6 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
         const queryResult = await this.graphDbConnection.executeQuery(query);
         const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaVariableSkillMapping).getFirstRootElement()[0] as OpcUaVariableSkill;
 
-        // const opcUaSkillDescription = new OpcUaSkillMethod(skillIri, commandTypeIri, mappedResult);
         return mappedResult;
     }
 

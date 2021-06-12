@@ -35,8 +35,9 @@ export class SkillController {
     }
 
     @Patch(':skillIri/states')
-    async updateSkillState(@Param('skillIri') skillIri: string, @Body() newState) {
-        console.log(newState);
+    updateSkillState(@Param('skillIri') skillIri:string, @Body() change: Record<string, unknown>): Promise<string> {
+        const newState = change['newState'] as string;
+        return this.skillService.updateState(skillIri, newState);
     }
 
     @Delete(':skillIri')
