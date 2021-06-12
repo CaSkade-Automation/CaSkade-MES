@@ -51,7 +51,6 @@ const opcUaVariableSkillOutputMapping: MappingDefinition[] = [
             },
         ]
     },
-
 ];
 
 const opcUaSkillParameterMapping: MappingDefinition[] = [

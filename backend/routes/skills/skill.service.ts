@@ -10,6 +10,8 @@ import {SparqlResultConverter} from 'sparql-result-converter';
 import { CapabilityService } from '../capabilities/capability.service';
 import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
+import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
+import { OpcUaStateChangeMonitor } from '../skill-execution/executors/opc-ua-executors/OpcUaStateChangeMonitor';
 const converter = new SparqlResultConverter();
 
 @Injectable()
@@ -27,10 +29,19 @@ export class SkillService {
         try {
             // create a graph name for the skill (uuid)
             const skillGraphName = uuidv4();
-            console.log("Adding Skill");
-
             await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
+
+            // Skill is added, now get its IRI and skill type to setup a state change monitor in case its a variable skill
+            const skillInfo = await this.getSkillInGraph(skillGraphName);
+
+            if (skillInfo.skillTypeIri == "http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill") {
+                const skillExecutor = new OpcUaVariableSkillExecutionService(this.graphDbConnection, this, skillInfo.skillIri);
+                const uaClientSession = await skillExecutor.connectAndCreateSession();
+                const stateChangeMonitor = new OpcUaStateChangeMonitor(uaClientSession, this.graphDbConnection, skillInfo.skillIri);
+            }
+
             this.socketGateway.emitEvent(SocketEventName.Skills_Added);
+
             return 'New skill successfully added';
         } catch (error) {
             throw new BadRequestException(`Error while registering a new skill. Error: ${error.toString()}`);
@@ -250,5 +261,50 @@ export class SkillService {
                 `Error while trying to update currentState of skill: ${skillIri}. Error: ${error}`
             );
         }
+    }
+
+    /**
+     * Returns the skill in the given graph. Can be used to get the latest skill
+     */
+    async getSkillInGraph(graphIri: string): Promise<{skillIri: string, skillTypeIri: string}> {
+        const query = `
+        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT ?skillIri ?skillTypeIri ?g
+        WHERE {
+            ?skillTypeIri rdfs:subClassOf Cap:Skill.   # Get the explicit type that was used to register the skill
+            GRAPH ?g {
+                ?skillIri a ?skillTypeIri.             # Get the graph where the skill was registered
+            }
+            FILTER (?g = <urn:${graphIri}>)         # Only get the skill inside the given graph
+        }`;
+        const queryResult = await this.graphDbConnection.executeQuery(query);
+        const skillIri = queryResult.results.bindings[0]["skillIri"].value as string;
+        const skillTypeIri = queryResult.results.bindings[0]["skillTypeIri"].value as string;
+        return {skillIri, skillTypeIri};
+    }
+
+
+    /**
+     * Get the skill type of a given skill
+     * @param skillIri IRI of the skill to get the type of
+     */
+    public async getSkillType(skillIri: string): Promise<string> {
+        const query = `
+        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
+        SELECT ?skill ?skillType WHERE {
+            ?skill a Cap:Skill.
+            ?skill a ?skillType.
+            FILTER(?skill = IRI("${skillIri}")) # Filter for this one specific skill
+            FILTER(!isBlank(?skillType ))       # Filter out all blank nodes
+    		FILTER(STRSTARTS(STR(?skillType), "http://www.hsu-ifa.de/ontologies/capability-model")) # Filter just the classes from cap model
+            FILTER NOT EXISTS {
+                ?someSubSkillSubClass sesame:directSubClassOf ?skillType.
+            }
+        }`;
+        const queryResult = await this.graphDbConnection.executeQuery(query);
+        const skillTypeIri = queryResult.results.bindings[0]["skillType"].value;
+        return skillTypeIri;
     }
 }
