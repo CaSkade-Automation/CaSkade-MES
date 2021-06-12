@@ -6,24 +6,28 @@ import { AttributeIds,
     MonitoringParametersOptions,
     ReadValueIdOptions,
     TimestampsToReturn } from "node-opcua";
-import { GraphDbConnectionService } from "util/GraphDbConnection.service";
+import { GraphDbConnectionService } from "./GraphDbConnection.service";
 import {MappingDefinition, SparqlResultConverter} from 'sparql-result-converter';
-import Axios from "axios";
+import { HttpService, Injectable } from "@nestjs/common";
 
 /**
  *  A state change monitor that keeps track of state changes for OpcUaVariableSkills. This type of skill doesn't communicate changes in state.
  */
-export class OpcUaStateChangeMonitor {
+@Injectable()
+export class OpcUaStateMonitorService {
 
     subscription: ClientSubscription;
-    skillIri: string;
-    graphDbConnection: GraphDbConnectionService;
     converter = new SparqlResultConverter();
 
 
-    constructor(session: ClientSession, graphDbConnection: GraphDbConnectionService, skillIri: string) {
-        this.skillIri = skillIri;
+    constructor(private httpService: HttpService, private graphDbConnection: GraphDbConnectionService) {
         this.graphDbConnection = graphDbConnection;
+    }
+    // this.subscription.on("started", this.onStarted);
+    // this.subscription.on("keepalive", this.onKeepAlive);
+    // this.subscription.on("terminated", this.onTerminated);
+
+    public async setupItemToMonitor(session: ClientSession, skillIri: string): Promise<void> {
         this.subscription = ClientSubscription.create(session, {
             requestedPublishingInterval: 1000,
             requestedLifetimeCount: 100,
@@ -32,14 +36,7 @@ export class OpcUaStateChangeMonitor {
             publishingEnabled: true,
             priority: 10
         });
-        this.setupItemToMonitor();
-    }
-    // this.subscription.on("started", this.onStarted);
-    // this.subscription.on("keepalive", this.onKeepAlive);
-    // this.subscription.on("terminated", this.onTerminated);
-
-    private async setupItemToMonitor(): Promise<void> {
-        const currentStateInfo = await this.getCurrentStateInfo(this.skillIri);
+        const currentStateInfo = await this.getCurrentStateInfo(skillIri);
 
         // install monitored item
         const itemToMonitor: ReadValueIdOptions = {
@@ -64,8 +61,10 @@ export class OpcUaStateChangeMonitor {
             const newState = (currentStateInfo.values.find(value => value.assuredValue == dataValue.value.value)).stateTypeIri;
 
             // Send a post to the skill state change route to update the state and trigger all functions (e.g. websocket communication)
-            const skillChangeRoute = `/skills/${this.skillIri}/states`;
-            Axios.patch(skillChangeRoute, {'newState': newState});
+            const skillChangeRoute = `/skills/${encodeURIComponent(skillIri)}/states`;
+            console.log("route " + skillChangeRoute);
+
+            this.httpService.patch(skillChangeRoute, {'newState': newState}).subscribe(res => console.log(res));
         });
     }
 
@@ -126,7 +125,7 @@ class CurrentStateInfo {
     nodeId: string;
     values: {
         assuredValue: number;
-        stateTypeIri: number;
+        stateTypeIri: string;
     }[]
 }
 

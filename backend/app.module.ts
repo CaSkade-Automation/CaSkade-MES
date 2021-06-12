@@ -9,6 +9,7 @@ import { CapabilityModule } from './routes/capabilities/capability.module';
 import { SkillModule } from './routes/skills/skill.module';
 import { SkillExecutionModule } from './routes/skill-execution/skill-execution.module';
 import { MtpMappingModule } from './routes/mappings/mtp-mapping.module';
+import { OpcUaStateMonitorModule } from './util/opc-ua-state-monitor.module';
 
 
 @Module({
@@ -22,7 +23,8 @@ import { MtpMappingModule } from './routes/mappings/mtp-mapping.module';
         GraphRepositoryModule,
         GraphOperationModule,
         SkillExecutionModule,
-        MtpMappingModule
+        MtpMappingModule,
+        OpcUaStateMonitorModule
     ],
     controllers: [AppController],
     providers: [],

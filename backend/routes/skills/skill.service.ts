@@ -11,13 +11,14 @@ import { CapabilityService } from '../capabilities/capability.service';
 import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
 import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
-import { OpcUaStateChangeMonitor } from '../skill-execution/executors/opc-ua-executors/OpcUaStateChangeMonitor';
+import { OpcUaStateMonitorService } from '../../util/opc-ua-state-monitor.service';
 const converter = new SparqlResultConverter();
 
 @Injectable()
 export class SkillService {
     constructor(private graphDbConnection: GraphDbConnectionService,
         private socketGateway: SocketGateway,
+        private uaStateChangeMonitor: OpcUaStateMonitorService,
         private capabilityService: CapabilityService){}
 
 
@@ -37,7 +38,7 @@ export class SkillService {
             if (skillInfo.skillTypeIri == "http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill") {
                 const skillExecutor = new OpcUaVariableSkillExecutionService(this.graphDbConnection, this, skillInfo.skillIri);
                 const uaClientSession = await skillExecutor.connectAndCreateSession();
-                const stateChangeMonitor = new OpcUaStateChangeMonitor(uaClientSession, this.graphDbConnection, skillInfo.skillIri);
+                this.uaStateChangeMonitor.setupItemToMonitor(uaClientSession, skillInfo.skillIri);
             }
 
             this.socketGateway.emitEvent(SocketEventName.Skills_Added);
