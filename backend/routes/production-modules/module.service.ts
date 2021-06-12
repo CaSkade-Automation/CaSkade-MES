@@ -141,13 +141,9 @@ export class ModuleService {
                 }
             }`);
 
-            console.log(graphQueryResults);
-
             const resultBindings = graphQueryResults.results.bindings;
             for (const binding of resultBindings) {
                 const graphName = binding.g.value;
-                console.log("deleting graph");
-                console.log(graphName);
                 await this.graphDbConnection.clearGraph(graphName); // clear graph
             }
             return `Successfully deleted module with IRI ${moduleIri}`;
