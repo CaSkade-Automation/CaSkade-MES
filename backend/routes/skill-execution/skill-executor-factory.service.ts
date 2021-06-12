@@ -20,17 +20,17 @@ export class SkillExecutorFactory {
      */
     async getSkillExecutor(skillIri: string): Promise<SkillExecutor> {
 
-        const skillTypeIri = await this.getSkillType(skillIri);
+        const skillTypeIri = await this.skillService.getSkillType(skillIri);
 
         switch (skillTypeIri) {
         case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaMethodSkill': {
             const methodSkillExecutor = new OpcUaMethodSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
-            await methodSkillExecutor.connectAndCreateSession(skillIri);
+            await methodSkillExecutor.connectAndCreateSession();
             return methodSkillExecutor;
         }
         case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill': {
             const variableSkillExecutor = new OpcUaVariableSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
-            await variableSkillExecutor.connectAndCreateSession(skillIri);
+            await variableSkillExecutor.connectAndCreateSession();
             return variableSkillExecutor;
         }
         case 'http://www.hsu-ifa.de/ontologies/capability-model#RestSkill':
@@ -40,29 +40,6 @@ export class SkillExecutorFactory {
             return new NullSkillExecutor();
         }
 
-    }
-
-    /**
-     * Get the skill type of a given skill
-     * @param skillIri IRI of the skill to get the type of
-     */
-    private async getSkillType(skillIri: string): Promise<string> {
-        const query = `
-        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-        PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-        SELECT ?skill ?skillType WHERE {
-            ?skill a Cap:Skill.
-            ?skill a ?skillType.
-            FILTER(?skill = IRI("${skillIri}")) # Filter for this one specific skill
-            FILTER(!isBlank(?skillType ))       # Filter out all blank nodes
-    		FILTER(STRSTARTS(STR(?skillType), "http://www.hsu-ifa.de/ontologies/capability-model")) # Filter just the classes from cap model
-            FILTER NOT EXISTS {
-                ?someSubSkillSubClass sesame:directSubClassOf ?skillType.
-            }
-        }`;
-        const queryResult = await this.graphDbConnection.executeQuery(query);
-        const skillTypeIri = queryResult.results.bindings[0]["skillType"].value;
-        return skillTypeIri;
     }
 
 }
