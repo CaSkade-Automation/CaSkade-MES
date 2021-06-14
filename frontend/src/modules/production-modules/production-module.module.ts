@@ -8,7 +8,7 @@ import { FormsModule }   from '@angular/forms';
 import { ModuleManagementRouter } from './production-module.routing';
 import { ProductionModuleComponent } from './production-module.component';
 import { SkillExecutionService } from '../../shared/services/skill-execution.service';
-import { CommandFeatureModule } from 'src/shared/command-feature/command-feature.module';
+import { SkillModule } from 'src/shared/modules/skill/skill.module';
 import { ModuleGraphVisuComponent } from './module-graph-visu/module-graph-visu.component';
 import { ModuleOverviewComponent } from './module-overview/module-overview.component';
 import { ModuleRegistrationComponent } from './module-registration/module-registration.component';
@@ -22,7 +22,7 @@ import { ManualRegistrationModule } from 'src/shared/modules/manual-registration
         HttpClientModule,
         ModuleManagementRouter,
         FormsModule,
-        CommandFeatureModule,
+        SkillModule,
         ManualRegistrationModule
     ],
     declarations: [

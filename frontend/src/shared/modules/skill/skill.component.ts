@@ -1,31 +1,42 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Skill } from '@shared/models/skill/Skill';
 import { Transition } from '@shared/models/state-machine/Transition';
 import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
-import { SkillExecutionService } from '../services/skill-execution.service';
+import { SkillExecutionService } from '../../services/skill-execution.service';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
-import { SkillService } from '../services/skill.service';
-
-
+import { SkillService } from '../../services/skill.service';
+import { SocketService } from '../../services/socket.service';
 
 
 @Component({
-    selector: 'app-command-feature',
-    templateUrl: './command-feature.component.html',
-    styleUrls: ['./command-feature.component.scss']
+    selector: 'skill',
+    templateUrl: './skill.component.html',
+    styleUrls: ['./skill.component.scss']
 })
-export class CommandFeatureComponent {
+export class SkillComponent implements OnInit {
     @Input() skill: Skill;
 
     request: SkillExecutionRequestDto;
     parameterSettings= new Array<any>();
     transitionTriggered = false;
     command: Transition;
+    blinkStateChange = false;
 
     constructor(
         private skillExecutionService: SkillExecutionService,
+        private socketService: SocketService,
         private skillService: SkillService
     ) {}
+
+    ngOnInit(): void {
+        this.socketService.getStateChangesOfSkill(this.skill.iri).subscribe(newStateTypeIri => {
+            this.skill.stateMachine.setCurrentState(newStateTypeIri);
+            this.blinkStateChange = true;
+            setTimeout(() => {
+                this.blinkStateChange = false;
+            }, 1000);
+        });
+    }
 
 
 

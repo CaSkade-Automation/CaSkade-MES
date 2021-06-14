@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CommandFeatureComponent } from './command-feature.component';
+import { SkillComponent } from './skill.component';
 import { FormsModule } from '@angular/forms';
 
 
@@ -11,10 +11,10 @@ import { FormsModule } from '@angular/forms';
         FormsModule
     ],
     declarations: [
-        CommandFeatureComponent
+        SkillComponent
     ],
     exports: [
-        CommandFeatureComponent
+        SkillComponent
     ]
 })
-export class CommandFeatureModule { }
+export class SkillModule { }

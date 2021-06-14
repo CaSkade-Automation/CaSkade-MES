@@ -1,23 +1,21 @@
 /* tslint:disable:no-unused-variable */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
 
-import { CommandFeatureComponent } from './command-feature.component';
+import { SkillComponent } from './skill.component';
 
 describe('CommandFeatureComponent', () => {
-    let component: CommandFeatureComponent;
-    let fixture: ComponentFixture<CommandFeatureComponent>;
+    let component: SkillComponent;
+    let fixture: ComponentFixture<SkillComponent>;
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [ CommandFeatureComponent ]
+            declarations: [ SkillComponent ]
         })
             .compileComponents();
     }));
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(CommandFeatureComponent);
+        fixture = TestBed.createComponent(SkillComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
