@@ -1,6 +1,7 @@
 import {OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer} from '@nestjs/websockets';
 import { Server} from 'socket.io';
 import { SocketEventName } from "@shared/socket-communication/SocketEventName";
+import { StateChangeInfo } from "@shared/socket-communication/SocketData";
 
 @WebSocketGateway()
 export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -17,10 +18,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.connectedClients--;
     }
 
-
-    // emitNewSelfDescription (selfDescription) {
-    //   this.io.emit('moduleregistration', selfDescription);
-    // };
+    /**
+     * Sends out an info that a state of a skill has changed
+     * @param stateChangeInfo
+     */
+    emitStateChangeInfo(stateChangeInfo: StateChangeInfo): void {
+        this.emitEvent(SocketEventName.Skills_StateChanged, stateChangeInfo);
+    }
 
 
     /**
