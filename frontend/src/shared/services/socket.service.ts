@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
 import { SocketEventName } from '@shared/socket-communication/SocketEventName';
+import { StateChangeInfo } from '@shared/socket-communication/SocketData';
+import { map } from 'rxjs/operators';
 
 
 @Injectable({
@@ -9,22 +11,20 @@ import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 })
 export class SocketService {
 
-    constructor(private socket: Socket) {
-        this.sendMessage("asdasd");
-    }
+    constructor(private socket: Socket) {}
 
-    getMessage(topic: SocketEventName): Observable<any> {
+    getMessage<T>(topic: SocketEventName): Observable<T> {
         return this.socket.fromEvent(topic);
     }
 
-    // Alternativ so:
-    // public getMessages = () => {
-    //     return Observable.create((observer) => {
-    //         this.socket.on('new-message', (message) => {
-    //             observer.next(message);
-    //         });
-    //     });
-    // }
+    getStateChangesOfSkill(skillIri: string): Observable<string> {
+        return this.getMessage<StateChangeInfo>(SocketEventName.Skills_StateChanged).pipe(map(msg => {
+            console.log(msg);
+            if(msg.skillIri == skillIri) {
+                return msg.newStateTypeIri;
+            }
+        }));
+    }
 
 
     sendMessage(msg: string) {
