@@ -10,7 +10,7 @@ const routes: Routes = [
             { path: '', redirectTo: 'dashboard', pathMatch: 'prefix' },
             { path: 'production-modules', loadChildren: () => import('../modules/production-modules/production-module.module').then(m => m.ModuleManagementModule)},
             { path: 'order-management', loadChildren: () => import('../modules/order-management/order-management.module').then(m => m.OrderManagementModule)},
-            { path: 'skills', loadChildren: () => import('../modules/skills/skill.module').then(m => m.SkillModule)},
+            { path: 'skills', loadChildren: () => import('../modules/skills/skill-container.module').then(m => m.SkillContainerModule)},
             { path: 'capabilities', loadChildren: () => import('../modules/capabilities/capability.module').then(m => m.CapabilityModule)},
             { path: 'skill-processes', loadChildren: () => import('../modules/skill-processes/skill-processes.module').then(m => m.SkillProcessesModule)},
             { path: 'kpi-dashboard', loadChildren: () => import('../modules/kpi-dashboard/kpi-dashboard.module').then(m => m.KpiDashboardModule)},

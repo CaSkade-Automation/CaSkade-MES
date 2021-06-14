@@ -10,12 +10,15 @@ import {SparqlResultConverter} from 'sparql-result-converter';
 import { CapabilityService } from '../capabilities/capability.service';
 import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
+import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
+import { OpcUaStateMonitorService } from '../../util/opc-ua-state-monitor.service';
 const converter = new SparqlResultConverter();
 
 @Injectable()
 export class SkillService {
     constructor(private graphDbConnection: GraphDbConnectionService,
         private socketGateway: SocketGateway,
+        private uaStateChangeMonitor: OpcUaStateMonitorService,
         private capabilityService: CapabilityService){}
 
 
@@ -27,10 +30,19 @@ export class SkillService {
         try {
             // create a graph name for the skill (uuid)
             const skillGraphName = uuidv4();
-            console.log("Adding Skill");
-
             await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
+
+            // Skill is added, now get its IRI and skill type to setup a state change monitor in case its a variable skill
+            const skillInfo = await this.getSkillInGraph(skillGraphName);
+
+            if (skillInfo.skillTypeIri == "http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill") {
+                const skillExecutor = new OpcUaVariableSkillExecutionService(this.graphDbConnection, this, skillInfo.skillIri);
+                const uaClientSession = await skillExecutor.connectAndCreateSession();
+                this.uaStateChangeMonitor.setupItemToMonitor(uaClientSession, skillInfo.skillIri);
+            }
+
             this.socketGateway.emitEvent(SocketEventName.Skills_Added);
+
             return 'New skill successfully added';
         } catch (error) {
             throw new BadRequestException(`Error while registering a new skill. Error: ${error.toString()}`);
@@ -197,21 +209,28 @@ export class SkillService {
             const query = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             SELECT ?skill ?graph WHERE {
+                BIND(<${skillIri}> AS ?skill)
+                ?skill a ?skillType.
+                ?type rdfs:subClassOf Cap:Skill.
                 GRAPH ?graph {
-                    BIND(<${skillIri}> AS ?skill)
-                    ?skill a/sesame:directSubClassOf* Cap:Skill.
+                    ?skill a ?skillType
                     }
                 }`;
 
             const queryResult = await this.graphDbConnection.executeQuery(query);
             const queryResultBindings = queryResult.results.bindings;
 
+            if (queryResultBindings.length == 0) {
+                throw new Error(`No graph could be found. Deleting skill ${skillIri} failed.`);
+            }
+
             // iterate over graphs and clear every one
             queryResultBindings.forEach(bindings => {
                 const graphName = bindings.graph.value;
                 this.graphDbConnection.clearGraph(graphName);
             });
-            return `Sucessfully deleted skill with IRI ${skillIri}`;
+            this.socketGateway.emitEvent(SocketEventName.Skills_Deleted, `Sucessfully deleted skill with IRI ${skillIri}}`);
+            return `{message: Sucessfully deleted skill with IRI ${skillIri}}`;
         } catch (error) {
             throw new Error(
                 `Error while trying to delete skill with IRI ${skillIri}. Error: ${error}`
@@ -235,13 +254,58 @@ export class SkillService {
             } WHERE {
                 ?newState a <${newStateTypeIri}>.
             }`;
-            const queryResult = await this.graphDbConnection.executeUpdate(insertQuery);
-            this.socketGateway.emitEvent(SocketEventName.Skills_StateChanged, {skillIri: skillIri, newStateTypeIri: newStateTypeIri});
+            await this.graphDbConnection.executeUpdate(insertQuery);
+            this.socketGateway.emitStateChangeInfo({skillIri: skillIri, newStateTypeIri: newStateTypeIri});
             return `Sucessfully updated currentState of skill ${skillIri}`;
         } catch (error) {
             throw new Error(
                 `Error while trying to update currentState of skill: ${skillIri}. Error: ${error}`
             );
         }
+    }
+
+    /**
+     * Returns the skill in the given graph. Can be used to get the latest skill
+     */
+    async getSkillInGraph(graphIri: string): Promise<{skillIri: string, skillTypeIri: string}> {
+        const query = `
+        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT ?skillIri ?skillTypeIri ?g
+        WHERE {
+            ?skillTypeIri rdfs:subClassOf Cap:Skill.   # Get the explicit type that was used to register the skill
+            GRAPH ?g {
+                ?skillIri a ?skillTypeIri.             # Get the graph where the skill was registered
+            }
+            FILTER (?g = <urn:${graphIri}>)         # Only get the skill inside the given graph
+        }`;
+        const queryResult = await this.graphDbConnection.executeQuery(query);
+        const skillIri = queryResult.results.bindings[0]["skillIri"].value as string;
+        const skillTypeIri = queryResult.results.bindings[0]["skillTypeIri"].value as string;
+        return {skillIri, skillTypeIri};
+    }
+
+
+    /**
+     * Get the skill type of a given skill
+     * @param skillIri IRI of the skill to get the type of
+     */
+    public async getSkillType(skillIri: string): Promise<string> {
+        const query = `
+        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
+        SELECT ?skill ?skillType WHERE {
+            ?skill a Cap:Skill.
+            ?skill a ?skillType.
+            FILTER(?skill = IRI("${skillIri}")) # Filter for this one specific skill
+            FILTER(!isBlank(?skillType ))       # Filter out all blank nodes
+    		FILTER(STRSTARTS(STR(?skillType), "http://www.hsu-ifa.de/ontologies/capability-model")) # Filter just the classes from cap model
+            FILTER NOT EXISTS {
+                ?someSubSkillSubClass sesame:directSubClassOf ?skillType.
+            }
+        }`;
+        const queryResult = await this.graphDbConnection.executeQuery(query);
+        const skillTypeIri = queryResult.results.bindings[0]["skillType"].value;
+        return skillTypeIri;
     }
 }

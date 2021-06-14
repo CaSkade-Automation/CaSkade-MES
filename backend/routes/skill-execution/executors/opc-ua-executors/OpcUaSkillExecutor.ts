@@ -11,13 +11,15 @@ import { SkillExecutor } from "../SkillExecutor";
 import { SkillExecutionRequestDto } from "@shared/models/skill/SkillExecutionRequest";
 
 /**
- * Abstract skill execution class that contains methods for both types of OPC UA skills
+ * Abstract class wrapping OPC UA client functionality that contains methods for both types of OPC UA skills
  */
 export abstract class OpcUaSkillExecutor extends SkillExecutor {
 
     protected graphDbConnection: GraphDbConnectionService;
     protected skillService: SkillService;
     protected converter: SparqlResultConverter;
+
+    protected skillIri: string;
 
     protected uaClient: OPCUAClient;
     protected uaSession: ClientSession;
@@ -31,11 +33,12 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
 
     constructor(graphDbConnection: GraphDbConnectionService, skillIri: string) {
         super();
+        this.skillIri = skillIri;
         this.graphDbConnection = graphDbConnection;
     }
 
-    async connectAndCreateSession(skillIri: string): Promise<void> {
-        const uaServerInfo = await this.getOpcUaServerInfo(skillIri);
+    async connectAndCreateSession(): Promise<ClientSession> {
+        const uaServerInfo = await this.getOpcUaServerInfo(this.skillIri);
         const options = this.createOptionsObject(uaServerInfo.messageSecurityMode, uaServerInfo.securityPolicy);
         const userIdToken = this.createUserIdentityToken(uaServerInfo.securityPolicy, uaServerInfo.username, uaServerInfo.password);
         this.uaClient = OPCUAClient.create(options);
@@ -47,6 +50,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
         }
 
         this.uaSession = await this.uaClient.createSession();             // TODO: Integrate user identity token here
+        return this.uaSession;
     }
 
 

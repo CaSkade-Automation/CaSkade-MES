@@ -10,9 +10,11 @@ export class Isa88StateMachine extends StateMachine {
     getCommands(): Transition[] {
         return this.commands;
     }
+
     getActiveCommands(): Transition[] {
         return this.currentState.getActiveCommands();
     }
+
     getStates(): State[] {
         return this.states;
     }

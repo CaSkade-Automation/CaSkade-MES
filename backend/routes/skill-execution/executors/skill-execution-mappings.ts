@@ -36,6 +36,23 @@ const opcUaVariableSkillMapping: MappingDefinition[] = [
 
 ];
 
+const opcUaVariableSkillOutputMapping: MappingDefinition[] = [
+    {
+        rootName: 'skillExecutionInfos',
+        propertyToGroup: 'skillIri',
+        name: 'skillIri',
+        toCollect: ['endpointUrl', 'userName', 'password', 'messageSecurityMode', 'securityPolicy'],
+        childMappings: [
+            {
+                rootName: 'outputs',
+                propertyToGroup: 'outputIri',
+                name: 'outputIri',
+                toCollect: ['outputIri','outputNodeId', 'outputName'],
+            },
+        ]
+    },
+];
+
 const opcUaSkillParameterMapping: MappingDefinition[] = [
     {
         rootName: 'skillParameters',
@@ -75,5 +92,6 @@ export {
     opcUaMethodSkillMapping,
     opcUaVariableSkillMapping,
     opcUaSkillParameterMapping,
-    restSkillMapping
+    restSkillMapping,
+    opcUaVariableSkillOutputMapping
 };
