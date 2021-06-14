@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SkillComponent } from './skill.component';
-import { SkillRoutes } from './skill.routing';
-import { CommandFeatureModule } from 'src/shared/command-feature/command-feature.module';
-import { SkillOverviewComponent } from './skill-overview/skill-overview.component';
+import { SkillContainerComponent } from './skill-container.component';
+import { SkillRoutes } from './skill-container.routing';
+import { SkillModule } from 'src/shared/modules/skill/skill.module';
 import { SkillGraphVisuComponent } from './skill-graph-visu/skill-graph-visu.component';
 import { SkillRegistrationComponent } from './skill-registration/skill-registration.component';
 import { ManualRegistrationModule } from 'src/shared/modules/manual-registration/manual-registration.module';
+import { SkillOverviewComponent } from './skill-overview/skill-overview.component';
 
 
 
@@ -14,15 +14,14 @@ import { ManualRegistrationModule } from 'src/shared/modules/manual-registration
     imports: [
         SkillRoutes,
         CommonModule,
-        CommandFeatureModule,
+        SkillModule,
         ManualRegistrationModule
-
     ],
     declarations: [
-        SkillComponent,
         SkillOverviewComponent,
+        SkillContainerComponent,
         SkillGraphVisuComponent,
         SkillRegistrationComponent
     ]
 })
-export class SkillModule { }
+export class SkillContainerModule { }

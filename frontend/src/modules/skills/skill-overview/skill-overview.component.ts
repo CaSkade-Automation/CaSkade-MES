@@ -1,14 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { SkillService } from 'src/shared/services/skill.service';
-//import { Skill } from 'src/shared/models/module';
-import { ModuleService } from 'src/shared/services/module.service';
 import { Skill } from '@shared/models/skill/Skill';
-import { Transition } from '@shared/models/state-machine/Transition';
 
 
 
 @Component({
-    selector: 'app-skill-overview',
+    selector: 'skill-overview',
     templateUrl: './skill-overview.component.html',
     styleUrls: ['./skill-overview.component.scss']
 })
@@ -17,8 +14,7 @@ export class SkillOverviewComponent implements OnInit {
     skills= new Array<Skill>();
 
     constructor(
-        private skillService: SkillService,
-        private moduleService: ModuleService
+        private skillService: SkillService
     ) {}
 
 
