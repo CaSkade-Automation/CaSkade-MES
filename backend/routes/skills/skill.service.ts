@@ -254,8 +254,8 @@ export class SkillService {
             } WHERE {
                 ?newState a <${newStateTypeIri}>.
             }`;
-            const queryResult = await this.graphDbConnection.executeUpdate(insertQuery);
-            this.socketGateway.emitEvent(SocketEventName.Skills_StateChanged, {skillIri: skillIri, newStateTypeIri: newStateTypeIri});
+            await this.graphDbConnection.executeUpdate(insertQuery);
+            this.socketGateway.emitStateChangeInfo({skillIri: skillIri, newStateTypeIri: newStateTypeIri});
             return `Sucessfully updated currentState of skill ${skillIri}`;
         } catch (error) {
             throw new Error(
