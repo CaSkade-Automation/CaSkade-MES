@@ -24,7 +24,7 @@ export class Isa88StateMachineBuilder {
         });
         stateMachine.setStates(Array.from(this.states.values()));
 
-        stateMachine.setCurrentState(this.getStateByIri(currentStateTypeIri));
+        stateMachine.setCurrentState(currentStateTypeIri);
 
         return stateMachine;
     }
