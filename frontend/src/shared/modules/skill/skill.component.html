@@ -9,7 +9,7 @@
         <div class="row">
         <div class="col-lg-7 col-md-12">
             <div class="row p-6 mb-2 mr-1 ml-1 bg-light text-dark">
-                <p class="font-weight-bold mr-1">Current state: </p>{{skill.stateMachine.getCurrentState().getLocalName()}}</div>
+                <p class="font-weight-bold mr-1">Current state: </p> <p [ngClass]="{'blink-bg': this.blinkStateChange}"   >{{skill.stateMachine.getCurrentState().getLocalName()}}</p></div>
             <div class="card">
                 <h6 class="card-header">Executable transitions</h6>
                 <div class="card-body">

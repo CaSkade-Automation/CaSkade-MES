@@ -9,7 +9,7 @@
             <div class="card-body">
                 <h4>Skills:</h4>
                 <ng-container *ngFor="let skill of module.skills">
-                    <app-command-feature [skill]="skill"></app-command-feature>
+                    <skill [skill]="skill"></skill>
                 </ng-container>
             </div>
 

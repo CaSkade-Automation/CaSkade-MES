@@ -6,7 +6,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HttpClientModule } from "@angular/common/http";
 import { SocketIoModule } from "ngx-socket-io";
-import { CommandFeatureModule } from "./shared/command-feature/command-feature.module";
+import { SkillModule } from "./shared/modules/skill/skill.module";
 
 const config = { url: 'http://localhost:9090', options: {} };
 
@@ -17,7 +17,7 @@ const config = { url: 'http://localhost:9090', options: {} };
         BrowserAnimationsModule,
         HttpClientModule,
         SocketIoModule.forRoot(config),
-        CommandFeatureModule
+        SkillModule
     ],
     declarations: [AppComponent],
     providers: [AuthGuard],
