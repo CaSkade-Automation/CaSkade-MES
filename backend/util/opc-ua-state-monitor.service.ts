@@ -9,6 +9,7 @@ import { AttributeIds,
 import { GraphDbConnectionService } from "./GraphDbConnection.service";
 import {MappingDefinition, SparqlResultConverter} from 'sparql-result-converter';
 import { HttpService, Injectable } from "@nestjs/common";
+import { take } from "rxjs/operators";
 
 /**
  *  A state change monitor that keeps track of state changes for OpcUaVariableSkills. This type of skill doesn't communicate changes in state.
@@ -23,9 +24,6 @@ export class OpcUaStateMonitorService {
     constructor(private httpService: HttpService, private graphDbConnection: GraphDbConnectionService) {
         this.graphDbConnection = graphDbConnection;
     }
-    // this.subscription.on("started", this.onStarted);
-    // this.subscription.on("keepalive", this.onKeepAlive);
-    // this.subscription.on("terminated", this.onTerminated);
 
     public async setupItemToMonitor(session: ClientSession, skillIri: string): Promise<void> {
         this.subscription = ClientSubscription.create(session, {
@@ -57,17 +55,13 @@ export class OpcUaStateMonitorService {
         );
 
         monitoredItem.on("changed", (dataValue: DataValue) => {
-            console.log(" value has changed : ", dataValue.value.toString());
             const newState = (currentStateInfo.values.find(value => value.assuredValue == dataValue.value.value)).stateTypeIri;
 
             // Send a post to the skill state change route to update the state and trigger all functions (e.g. websocket communication)
             const skillChangeRoute = `/skills/${encodeURIComponent(skillIri)}/states`;
-            console.log("route " + skillChangeRoute);
-
-            this.httpService.patch(skillChangeRoute, {'newState': newState}).subscribe(res => console.log(res));
+            this.httpService.patch(skillChangeRoute, {'newState': newState}).pipe(take(1)).subscribe();
         });
     }
-
 
 
 
@@ -100,23 +94,6 @@ export class OpcUaStateMonitorService {
 
         return mappedResult;
     }
-
-    private async createStateValueMap(skillIri: string) {
-
-    }
-
-
-    // onStarted() {
-    //     console.log(`subscription started for 2 seconds - subscriptionId= ${this.subscription.subscriptionId}`);
-    // }
-
-    // onKeepAlive() {
-    //     console.log("keepalive");
-    // }
-
-    // onTerminated() {
-    //     console.log("terminated");
-    // }
 
 }
 
