@@ -8,10 +8,9 @@
     "scripts": {
         "clean": "if exist dist rd /s /q dist",
         "lint": "eslint routes --ext .ts",
-        "server-build": "nest build",
-        "server-start": "tsc-watch --build --onSuccess \"node -r tsconfig-paths/register dist/main.js dist/main.js \"",
-        "server-start:dev": "nest start --watch",
-        "server-start:debug": "nest start --debug --watch"
+        "build": "nest build",
+        "start:dev": "tsc-watch --build --onSuccess \"node -r tsconfig-paths/register dist/main.js dist/main.js \"",
+        "start:debug": "nest start --debug --watch"
     },
     "private": true,
     "dependencies": {
@@ -52,10 +51,10 @@
         "@types/node": "^14.14.31",
         "@types/socket.io": "^2.1.4",
         "@types/supertest": "^2.0.8",
-        "@typescript-eslint/eslint-plugin": "^3.3.0",
-        "@typescript-eslint/parser": "^3.3.0",
-        "eslint": "^6.8.0",
-        "eslint-plugin-import": "^2.20.1",
+        "@typescript-eslint/eslint-plugin": "^4.28.1",
+        "@typescript-eslint/parser": "^4.28.1",
+        "eslint": "^7.30.0",
+        "eslint-plugin-import": "^2.23.4",
         "jest": "^25.1.0",
         "supertest": "^4.0.2",
         "ts-jest": "^25.2.1",
