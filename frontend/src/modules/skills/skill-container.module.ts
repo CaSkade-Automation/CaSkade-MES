@@ -5,7 +5,7 @@ import { SkillRoutes } from './skill-container.routing';
 import { SkillModule } from 'src/shared/modules/skill/skill.module';
 import { SkillGraphVisuComponent } from './skill-graph-visu/skill-graph-visu.component';
 import { SkillRegistrationComponent } from './skill-registration/skill-registration.component';
-import { ManualRegistrationModule } from 'src/shared/modules/manual-registration/manual-registration.module';
+import { OntologyRegistrationModule } from 'src/shared/modules/ontology-registration/ontology-registration.module';
 import { SkillOverviewComponent } from './skill-overview/skill-overview.component';
 
 
@@ -15,7 +15,7 @@ import { SkillOverviewComponent } from './skill-overview/skill-overview.componen
         SkillRoutes,
         CommonModule,
         SkillModule,
-        ManualRegistrationModule
+        OntologyRegistrationModule
     ],
     declarations: [
         SkillOverviewComponent,
