@@ -28,7 +28,7 @@
     "body-parser": "^1.18.3",
     "bootstrap": "^4.3.1",
     "bootstrap-select": "^1.13.10",
-    "bpmn-js": "^6.5.1",
+    "bpmn-js": "^8.7.1",
     "chart.js": "2.7.3",
     "core-js": "2.6.5",
     "flag-icon-css": "3.2.1",
