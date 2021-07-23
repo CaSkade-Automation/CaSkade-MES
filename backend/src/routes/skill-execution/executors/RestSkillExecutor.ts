@@ -2,7 +2,7 @@ import { SkillExecutor } from './SkillExecutor';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import axios, { AxiosRequestConfig, Method } from 'axios';
 import { SkillVariable, SkillVariableDto, ParameterQueryResult, OutputQueryResult } from '@shared/models/skill/SkillVariable';
-import { GraphDbConnectionService } from 'util/GraphDbConnection.service';
+import { GraphDbConnectionService } from "../../../util/GraphDbConnection.service";
 import { SparqlResultConverter } from 'sparql-result-converter';
 import { restSkillMapping } from './skill-execution-mappings';
 import { getRestSkillMethodQuery, getRestStatefulMethodQuerySnippet, getRestStatelessMethodQuerySnippet } from './RestSkillQueries';
