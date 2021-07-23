@@ -1,0 +1,40 @@
+<form>
+    <div class="row mt-4">
+        <div class="col">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Endpoint URL</span>
+                </div>
+                <input type="text" class="form-control" id="endpointUrl" name="endpointUrl" [(ngModel)]="endpointUrl">
+            </div>
+        </div>
+        <div class="col">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Node ID root</span>
+                </div>
+                <input type="text" class="form-control" id="nodeIdRoot" name="nodeIdRoot" [(ngModel)]="nodeIdRoot">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="input-group mb-3 mt-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fas fa-file-upload"></i> </span>
+        </div>
+        <div class="custom-file">
+            <input #file accept=".xml" (change)="onFileAdded($event); changed=true" type="file"
+                class="custom-file-input" id="inputGroupFile01">
+            <label class="custom-file-label" for="inputGroupFile01">Select a PLCopen XML file (.xml)</label>
+        </div>
+    </div>
+    <ng-container *ngIf="changed; else elseDisabled">
+        <div> <span class="fas fa-check-circle"></span> {{addedFile.name}} selected </div>
+        <button (click)="submit()" class="btn btn-primary">Submit</button>
+    </ng-container>
+    <ng-template #elseDisabled>
+        <button class="btn btn-primary" disabled>Submit</button>
+    </ng-template>
+
+</form>

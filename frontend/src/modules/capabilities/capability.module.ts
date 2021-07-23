@@ -6,14 +6,14 @@ import { CapabilityOverviewComponent } from './capability-overview/capability-ov
 import { CapabilityGraphVisuComponent } from './capability-graph-visu/capability-graph-visu.component';
 import { CapabilityRegistrationComponent } from './capability-registration/capability-registration.component';
 import { SkillModule } from 'src/shared/modules/skill/skill.module';
-import { ManualRegistrationModule } from 'src/shared/modules/manual-registration/manual-registration.module';
+import { OntologyRegistrationModule } from 'src/shared/modules/ontology-registration/ontology-registration.module';
 
 @NgModule({
     imports: [
         CommonModule,
         CapabilityRoutes,
         SkillModule,
-        ManualRegistrationModule
+        OntologyRegistrationModule
     ],
     declarations: [
         CapabilityComponent,
