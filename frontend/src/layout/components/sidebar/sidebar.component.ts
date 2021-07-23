@@ -1,5 +1,5 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router, NavigationEnd, IsActiveMatchOptions } from '@angular/router';
 
 @Component({
     selector: 'app-sidebar',
@@ -11,6 +11,13 @@ export class SidebarComponent implements OnInit {
     collapsed: boolean;
     showMenu: string;
     pushRightClass: string;
+
+    matchSubPathOption: IsActiveMatchOptions = {
+        matrixParams: 'exact',
+        queryParams: 'exact',
+        paths: 'subset',
+        fragment: 'exact'
+    }
 
     @Output() collapsedEvent = new EventEmitter<boolean>();
 
