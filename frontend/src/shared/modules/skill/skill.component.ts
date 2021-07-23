@@ -99,8 +99,14 @@ export class SkillComponent implements OnInit {
     }
 
     setParameters(): void{
+        console.log("setting params");
+        console.log(this.skill.skillParameters);
+
+
         this.parameterSettings=this.skill.skillParameters;
         const parameterDtos = this.skill.skillParameters.map(parameter =>  parameter.toSkillParameterDto());
+        console.log(parameterDtos);
+
         this.skillExecutionService.setParameters(this.skill.iri, parameterDtos).subscribe(data => console.log(data));
     }
 
