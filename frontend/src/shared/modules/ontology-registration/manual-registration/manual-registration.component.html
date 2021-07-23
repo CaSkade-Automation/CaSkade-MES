@@ -1,0 +1,11 @@
+<form style="padding-top: 20px;">
+
+    <textarea class="form-control" [(ngModel)]="ontologyString" name="ontologyString" id="ontologyString" rows="15"
+        placeholder="Insert Ontology here..."></textarea>
+    <div class="box box-info margin-bottom=50px">
+        <form class="form-horizontal" style="padding-top: 10px">
+            <button class="btn btn-primary" (click)="submit()">Submit Ontology </button>
+            <button class="btn btn-secondary" style="margin-left: 10px;" (click)="ontologyString=''">Clear </button>
+        </form>
+    </div>
+</form>

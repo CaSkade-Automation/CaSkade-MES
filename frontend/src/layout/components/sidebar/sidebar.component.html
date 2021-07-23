@@ -1,5 +1,9 @@
 <nav class="sidebar" [ngClass]="{sidebarPushRight: isActive, collapsed: collapsed}">
   <div class="list-group">
+    <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
+        <i class="fas fa-tachometer-alt"></i>&nbsp;
+        <span>Dashboard</span>
+      </a>
     <a routerLink="/production-modules" [routerLinkActive]="['router-link-active']" class="list-group-item">
       <i class="fas fa-puzzle-piece"></i>&nbsp;
       <span>Module Management</span>
@@ -9,15 +13,15 @@
       <span>Skill-Overview</span>
     </a>
     <a routerLink="/capabilities" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="fas fa-list-alt"></i>&nbsp;
+      <i class="fas fa-project-diagram"></i>&nbsp;
       <span>Capability-Overview</span>
     </a>
     <a routerLink="/order-management" [routerLinkActive]="['router-link-active']" class="list-group-item">
       <i class="fas fa-cart-plus"></i>&nbsp;
-      <span>Order Management</span>
+      <span>Manufacturability Check</span>
     </a>
     <a routerLink="/skill-processes" [routerLinkActive]="['router-link-active']" class="list-group-item">
-        <i class="fas fa-project-diagram"></i>&nbsp;
+        <i class="fas fa-random"></i>&nbsp;
         <span>Skill-Processes</span>
       </a>
     <a routerLink="/kpi-dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
@@ -30,50 +34,17 @@
     </a>
     <a routerLink="/ops-configuration" [routerLinkActive]="['router-link-active']" class="list-group-item">
       <i class="fas fa-cogs"></i>&nbsp;
-      <span>OPS Configuration</span>
+      <span>SkillMeX Configuration</span>
     </a>
-    <a class="list-group-item">
-      <hr class="bg-light" style="height:1px;"></a>
-    <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="fas fa-tachometer-alt"></i>&nbsp;
-      <span>Dashboard</span>
-    </a>
-    <a [routerLink]="['/charts']" [routerLinkActive]="['router-link-active']" class="list-group-item">
+    <!-- <a class="list-group-item">
+        <hr class="bg-light" style="height:1px;">
+    </a> -->
+
+    <!-- <a [routerLink]="['/charts']" [routerLinkActive]="['router-link-active']" class="list-group-item">
       <i class="fas fa-chart-bar"></i>&nbsp;
       <span>Charts</span>
-    </a>
-    <div class="nested-menu">
-      <a class="list-group-item" (click)="addExpandClass('pages')">
-        <i class="fa fa-plus"></i>&nbsp;
-        <span>Menu</span>
-      </a>
-      <li class="nested" [class.expand]="showMenu === 'pages'">
-        <ul class="submenu">
-          <li>
-            <a href="javascript:void(0)">
-              <i class="fas fa-caret-square-down"></i>&nbsp;
-              <span>Submenu</span>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0)">
-              <i class="fas fa-caret-square-down"></i>&nbsp;
-              <span>Submenu</span>
-            </a>
-          </li>
-          <li>
-            <a href="javascript:void(0)">
-              <i class="fas fa-caret-square-down"></i>&nbsp;
-              <span>Submenu</span>
-            </a>
-          </li>
-        </ul>
-      </li>
-    </div>
-    <a [routerLink]="['/blank-page']" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="far fa-file"></i>&nbsp;
-      <span>Blank Page</span>
-    </a>
+    </a> -->
+
   </div>
   <div class="toggle-button" [ngClass]="{collapsed: collapsed}" (click)="toggleCollapsed()">
     <i class="fa fa-fw fa-angle-double-{{collapsed?'right':'left'}}"></i>&nbsp;

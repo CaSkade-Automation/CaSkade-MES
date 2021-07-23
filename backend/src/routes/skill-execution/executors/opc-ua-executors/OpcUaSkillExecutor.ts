@@ -3,9 +3,9 @@ import { AttributeIds, CallMethodResult, ClientSession,
     NodeId, NodeIdType, OPCUAClient, OPCUAClientOptions,
     SecurityPolicy, StatusCode, UserNameIdentityToken,
     Variant, VariantOptions, WriteValue, WriteValueOptions } from "node-opcua";
-import { SkillService } from "routes/skills/skill.service";
+import { SkillService } from "../../../../routes/skills/skill.service";
 import { SparqlResultConverter } from "sparql-result-converter";
-import { GraphDbConnectionService } from "util/GraphDbConnection.service";
+import { GraphDbConnectionService } from "../../../../util/GraphDbConnection.service";
 import { opcUaSkillParameterMapping } from "../skill-execution-mappings";
 import { SkillExecutor } from "../SkillExecutor";
 import { SkillExecutionRequestDto } from "@shared/models/skill/SkillExecutionRequest";

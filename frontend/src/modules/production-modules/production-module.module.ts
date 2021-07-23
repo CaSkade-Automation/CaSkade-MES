@@ -12,7 +12,7 @@ import { SkillModule } from 'src/shared/modules/skill/skill.module';
 import { ModuleGraphVisuComponent } from './module-graph-visu/module-graph-visu.component';
 import { ModuleOverviewComponent } from './module-overview/module-overview.component';
 import { ModuleRegistrationComponent } from './module-registration/module-registration.component';
-import { ManualRegistrationModule } from 'src/shared/modules/manual-registration/manual-registration.module';
+import { OntologyRegistrationModule } from 'src/shared/modules/ontology-registration/ontology-registration.module';
 
 
 
@@ -23,7 +23,7 @@ import { ManualRegistrationModule } from 'src/shared/modules/manual-registration
         ModuleManagementRouter,
         FormsModule,
         SkillModule,
-        ManualRegistrationModule
+        OntologyRegistrationModule
     ],
     declarations: [
         ProductionModuleComponent,

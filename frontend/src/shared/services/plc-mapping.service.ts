@@ -1,14 +1,14 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import {MappingServiceConfig} from '@shared/models/mappings/MappingServiceConfig';
+import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 
 @Injectable({
     providedIn: 'root'
 })
-export class MtpMappingService {
+export class PlcMappingService {
 
-    baseApiRoute = '/api/mappings/mtp';
+    baseApiRoute = '/api/mappings/plc';
 
     constructor(
         private httpClient: HttpClient
@@ -35,14 +35,16 @@ export class MtpMappingService {
 
     /**
 	 * Execute a mapping
-	 * @param mtpFile MTP file that will be mapped
+	 * @param plcFile MTP file that will be mapped
 	 * @returns The mapped module with skills in turtle syntax
 	 */
-    executeMapping(mtpFile): Observable<string> {
+    executeMapping(plcFile: File, endpointUrl: string, nodeIdRoot: string): Observable<string> {
 
 
         const formData = new FormData();
-        formData.append('mtp-file', mtpFile);
+        formData.append('endpointUrl', endpointUrl);
+        formData.append('nodeIdRoot', nodeIdRoot);
+        formData.append('plc-file', plcFile);
 
         const params = new HttpParams();
 

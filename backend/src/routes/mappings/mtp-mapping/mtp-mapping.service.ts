@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import Axios, { AxiosRequestConfig } from 'axios';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import {MtpMappingServiceConfig} from '@shared/models/mappings/MtpMappingServiceConfig';
-import { ModuleService } from '../production-modules/module.service';
+import {MappingServiceConfig} from '@shared/models/mappings/MappingServiceConfig';
+import { ModuleService } from '../../production-modules/module.service';
+import { Request } from 'express';
 
 @Injectable()
 export class MtpMappingService {
 
-    private config: MtpMappingServiceConfig = {
+    private config: MappingServiceConfig = {
         url: "http://localhost:9191"
     }
 
@@ -20,7 +21,7 @@ export class MtpMappingService {
      * Set a new URL
      * @param {*} newUrl The new URL of the mapping service
      */
-    setUrl(newUrl: string): MtpMappingServiceConfig {
+    setUrl(newUrl: string): MappingServiceConfig {
         this.config.url = newUrl;
         return this.config;
     }
@@ -28,7 +29,7 @@ export class MtpMappingService {
     /**
      * Returns the current URL
      */
-    getConfig(): MtpMappingServiceConfig{
+    getConfig(): MappingServiceConfig{
         return this.config;
     }
 
@@ -36,7 +37,7 @@ export class MtpMappingService {
      * Execute a mapping with a given file
      * @param mtpFile File containing an MTP
      */
-    async executeMapping(mtpFile: Express.Multer.File, requestHeaders: Headers): Promise<string> {
+    async executeMapping(mtpFile: Express.Multer.File): Promise<string> {
         const formData = new FormData();
         formData.append("mtp-file", fs.createReadStream(mtpFile.path), {filename: mtpFile.originalname});
 

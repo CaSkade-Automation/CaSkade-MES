@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { MtpMappingService } from 'src/shared/services/mtp-mapping.service';
-import {MtpMappingServiceConfig} from '@shared/models/mappings/MtpMappingServiceConfig';
+import {MappingServiceConfig} from '@shared/models/mappings/MappingServiceConfig';
 
 @Component({
     selector: 'mtp-mapping-settings',
@@ -19,7 +19,7 @@ export class MtpMappingSettingsComponent implements OnInit{
     constructor(private mtpMappingService: MtpMappingService) {}
 
     ngOnInit(): void {
-        this.mtpMappingService.getConfig().subscribe((config: MtpMappingServiceConfig) => {
+        this.mtpMappingService.getConfig().subscribe((config: MappingServiceConfig) => {
             console.log(config);
             console.log(config.url);
 
