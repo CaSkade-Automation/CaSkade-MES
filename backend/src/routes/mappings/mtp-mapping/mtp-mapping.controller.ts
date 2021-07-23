@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Post,  Put, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
 import {FileInterceptor} from '@nestjs/platform-express';
 import { MtpMappingService } from './mtp-mapping.service';
-import * as Request from 'express';
-import {MtpMappingServiceConfig} from '@shared/models/mappings/MtpMappingServiceConfig';
+import {MappingServiceConfig} from '@shared/models/mappings/MappingServiceConfig';
+import { Request } from 'express';
 
-@Controller('mappings')
+@Controller('mappings/mtp')
 export class MtpMappingController {
 
     constructor(
@@ -15,8 +15,8 @@ export class MtpMappingController {
     /**
      * Return the current URL of the MTP Mapping service
      */
-    @Get('mtp/config')
-    getConfig(): MtpMappingServiceConfig {
+    @Get('config')
+    getConfig(): MappingServiceConfig {
         return this.mtpMappingService.getConfig();
     }
 
@@ -25,7 +25,7 @@ export class MtpMappingController {
      * Add a new file to be mapped. Will be mapped directly using the MTP mapping service
      * @param file
      */
-    @Put('mtp/config')
+    @Put('config')
     changeConfig(@Body() newConfing: {url:string}): void {
         this.mtpMappingService.setUrl(newConfing.url);
     }
@@ -35,10 +35,10 @@ export class MtpMappingController {
      * Add a new file to be mapped. Will be mapped directly using the MTP mapping service
      * @param file
      */
-    @Post('mtp')
+    @Post()
     @UseInterceptors(FileInterceptor('mtp-file'))
     uploadFile(@Req() req: Request, @UploadedFile() file: Express.Multer.File): Promise<string> {
-        return this.mtpMappingService.executeMapping(file, req.headers);
+        return this.mtpMappingService.executeMapping(file);
     }
 
 
