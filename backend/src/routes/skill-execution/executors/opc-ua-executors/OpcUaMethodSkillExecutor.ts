@@ -57,7 +57,7 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
 
         try {
             // Call the method and get the output values. Note that these are just values without names (fail of OPC UA)
-            const methodResult = await this.callMethod(skillMethodDescription.skillNodeId, skillMethodDescription.methodNodeId);
+            const methodResult = await this.callMethod(skillMethodDescription.methodNodeId);
             const methodOutput = methodResult.outputArguments;
 
             // Read the nodes of the output arguments to get an array including names (but without values)
@@ -109,7 +109,7 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
             }
 
             // Call the method
-            await this.callMethod(skillDescription.skillNodeId, skillDescription.methodNodeId);
+            await this.callMethod(skillDescription.methodNodeId);
 
         } catch (err) {
             console.log(`Error while invoking transition ${executionRequest.commandTypeIri} on skill ${executionRequest.skillIri}`);
