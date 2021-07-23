@@ -6,6 +6,7 @@ import { SkillExecutionService } from '../../services/skill-execution.service';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import { SkillService } from '../../services/skill.service';
 import { SocketService } from '../../services/socket.service';
+import { take } from 'rxjs/operators';
 
 
 @Component({
@@ -99,15 +100,9 @@ export class SkillComponent implements OnInit {
     }
 
     setParameters(): void{
-        console.log("setting params");
-        console.log(this.skill.skillParameters);
-
-
         this.parameterSettings=this.skill.skillParameters;
-        const parameterDtos = this.skill.skillParameters.map(parameter =>  parameter.toSkillParameterDto());
-        console.log(parameterDtos);
-
-        this.skillExecutionService.setParameters(this.skill.iri, parameterDtos).subscribe(data => console.log(data));
+        const parameterDtos = this.skill.skillParameters.map(parameter =>  parameter.toSkillVariableDto());
+        this.skillExecutionService.setParameters(this.skill.iri, parameterDtos).pipe(take(1)).subscribe();
     }
 
 
