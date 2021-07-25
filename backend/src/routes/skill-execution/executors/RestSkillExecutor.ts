@@ -114,7 +114,7 @@ class RestSkillMethodDescription {
 
     constructor(public skillIri: string, public commandTypeIri: string, queryResult: RestSkillQueryResult) {
         this.fullPath = this.createPath(queryResult.basePath, queryResult.path);
-        this.parameters = queryResult.parameters.map(queryResultParam => SkillVariable.fromParameterQueryResult(queryResultParam));
+        this.parameters = queryResult.parameters.map(queryResultParam => SkillVariable.fromVariableQueryResult(queryResultParam));
         this.httpMethod = queryResult.httpMethod;
     }
 
