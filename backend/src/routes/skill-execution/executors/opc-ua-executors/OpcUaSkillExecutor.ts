@@ -214,16 +214,16 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             }
         );
 
-        const opts : VariantOptions = {
-            dataType: DataType[nodeType],
-            value: value
-        };
-        const variant = new Variant(opts);
+        // const opts : VariantOptions = {
+        //     dataType: DataType[nodeType],
+        //     value: value
+        // };
+        // const variant = new Variant(opts);
 
-        const writeOptions: WriteValueOptions = {
-            nodeId: nodeId,
-            value: variant,
-        };
+        // const writeOptions: WriteValueOptions = {
+        //     nodeId: nodeId,
+        //     value: variant,
+        // };
 
         return this.uaSession.write(writeValue);
     }
