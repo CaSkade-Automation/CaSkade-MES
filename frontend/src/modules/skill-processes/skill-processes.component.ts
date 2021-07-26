@@ -1,7 +1,7 @@
 import { AfterContentInit, Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ProcessDefinition } from '../../../models/processDefinition/ProcessDefinition';
-import { ProcessControlService } from './process-control/process-control.service';
+import { ProcessDefinitionService } from '../../shared/services/process-definition.service';
 
 
 @Component({
@@ -19,13 +19,13 @@ export class SkillProcessesComponent implements AfterContentInit{
     processSelector = new FormControl("");
     selectedProcessDefinition: ProcessDefinition;
 
-    constructor(private processControlService: ProcessControlService) {}
+    constructor(private processDefinitionService: ProcessDefinitionService) {}
 
     ngAfterContentInit(): void {
         this.processSelector.valueChanges.subscribe(selectedProcess => {
             console.log(selectedProcess);
 
-            this.processControlService.getXMLofProcessDefinition(selectedProcess.id).subscribe(data => {
+            this.processDefinitionService.getXMLofProcessDefinition(selectedProcess.id).subscribe(data => {
                 this.previewXml  = data.bpmn20Xml;
             });
         });
@@ -53,11 +53,11 @@ export class SkillProcessesComponent implements AfterContentInit{
     }
 
     listAllDeployedProcessDefinitions(): void{
-        this.processControlService.getAllDeployedProcessDefinitions().subscribe((processDefinitions: ProcessDefinition[]) =>{
+        this.processDefinitionService.getAllDeployedProcessDefinitions().subscribe((processDefinitions: ProcessDefinition[]) =>{
             this.processDefinitions=processDefinitions;});}
 
     loadProcess(): void{
-        this.processControlService.getXMLofProcessDefinition(this.selectedProcessDefinition.id).subscribe(data => {
+        this.processDefinitionService.getXMLofProcessDefinition(this.selectedProcessDefinition.id).subscribe(data => {
             this.bpmnXml= data.bpmn20Xml;
             console.log(this.bpmnXml);
 
