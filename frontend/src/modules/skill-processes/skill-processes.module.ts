@@ -7,7 +7,7 @@ import { ProcessControlComponent } from './process-control/process-control.compo
 import { BpmnDiagramComponent } from './bpmn-diagram/bpmn-modeler.component';
 import { PropertiesPanelComponent } from './bpmn-diagram/properties-panel/properties-panel.component';
 import { DynamicPropertyComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/dynamic-property/dynamic-property.component';
-import { BpmnViewerComponent } from './bpmn-viewer/bpmn-viewer.component';
+import { BpmnViewerModule } from '../../shared/modules/bpmn-viewer/bpmn-viewer.module';
 
 
 @NgModule({
@@ -15,12 +15,12 @@ import { BpmnViewerComponent } from './bpmn-viewer/bpmn-viewer.component';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
+        BpmnViewerModule,
         SkillProcessesRoutingModule,
     ],
     declarations: [
         SkillProcessesComponent,
         BpmnDiagramComponent,
-        BpmnViewerComponent,
         PropertiesPanelComponent,
         DynamicPropertyComponent,
     ],
