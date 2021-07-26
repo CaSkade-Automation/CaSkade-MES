@@ -1,7 +1,4 @@
 import { AfterContentInit, Component, ElementRef, Input, OnDestroy, Output, ViewChild, EventEmitter } from '@angular/core';
-
-import { HttpClient } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
 import { emptyXml } from './emptyDiagram';
 
 /**
@@ -13,23 +10,10 @@ import { emptyXml } from './emptyDiagram';
  */
 import * as BpmnModeler from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 
-import { importDiagram } from './rx';
-
-import { throwError } from 'rxjs';
-import { ProcessControlService } from '../process-control/process-control.service';
-import { ProcessDefinition } from '@shared/models/processDefinition/ProcessDefinition';
-
 @Component({
     selector: 'bpmn-modeler',
     templateUrl: './bpmn-modeler.component.html',
-    styles: [
-        `
-      .diagram-container {
-        height: 100%;
-        width: 100%;
-      }
-    `
-    ]
+    styleUrls: ['./bpmn-modeler.component.scss']
 })
 export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
     private bpmnModeler: BpmnModeler;
@@ -37,42 +21,51 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
     @ViewChild('ref', { static: true }) private el: ElementRef;
     @Output() private importDone: EventEmitter<any> = new EventEmitter();
 
-    @Input() private url: string;
+
+    @Input() set bpmnXml(bpmnXml: string) {
+        if (bpmnXml) {
+            this.bpmnModeler.importXML(bpmnXml);
+        }
+    }
 
     clickedElement: any;
     showPropertiesPanel: boolean;
 
     constructor() {
 
-        this.bpmnModeler = new BpmnModeler({
-            //   container: '#canvas',
-            //   width: '100vw',
-            //   height: '100vh',
-            //   additionalModules: [
-            //       // {[InjectionNames.elementTemplates]: ['type', ElementTemplates.elementTemplates[1]]},
-            //       // {[InjectionNames.propertiesProvider]: ['type', CamundaPropertiesProvider.propertiesProvider[1]]},
+        this.bpmnModeler = new BpmnModeler(
+            // {
+            //     container: '#canvas',
+            //     width: '100vw',
+            //     height: '100vh',
+            //     additionalModules: [
+            //         // {[InjectionNames.elementTemplates]: ['type', ElementTemplates.elementTemplates[1]]},
+            //         // {[InjectionNames.propertiesProvider]: ['type', CamundaPropertiesProvider.propertiesProvider[1]]},
 
-            //       // {[InjectionNames.originalPaletteProvider]: ['type', OriginalPaletteProvider]},
+            //         // {[InjectionNames.originalPaletteProvider]: ['type', OriginalPaletteProvider]},
 
-            //       PropertiesPanelModule
-            //   ],
-            //   propertiesPanel: {
-            //       parent: '#properties'
-            //   },
-            //   moddleExtensions: {
-            //       // camunda: CamundaModdleDescriptor
-            //   }
-        });
+            //         PropertiesPanelModule
+            //     ],
+            //     propertiesPanel: {
+            //         parent: '#properties'
+            //     },
+            //     moddleExtensions: {
+            //         // camunda: CamundaModdleDescriptor
+            //     }
+            // }
+        );
 
 
         this.bpmnModeler.importXML(emptyXml);
         const eventBus = this.bpmnModeler.get('eventBus');
         console.log(eventBus);
+
         this.bpmnModeler.on('element.click', (event) => this.onDiagramElementClicked(event));
 
         this.bpmnModeler.on('import.done', ({ error }) => {
+
             if (!error) {
-                this.bpmnModeler.get('canvas').zoom('fit-viewport');
+                // this.bpmnModeler.get('canvas').zoom('fit-viewport');
             }
         });
     }
@@ -95,11 +88,7 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
         this.showPropertiesPanel = !this.showPropertiesPanel;
     }
 
-    saveProcess(): void {
-        this.bpmnModeler.saveXML({ format: true }, function (err, xml) {
-            const processXml = xml;
-        });
-    }
+
 
     /**
      * Load diagram from URL and emit completion event
