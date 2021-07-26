@@ -2,13 +2,17 @@
     height: 600px;
     border: solid 3px #EEE;
     position: relative;
-  }
+}
 
-  .import-error {
-    color: red;
-    padding: 20px;
+.import-error {
+color: red;
+padding: 20px;
 
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
+position: absolute;
+top: 0;
+left: 0;
+}
+
+.viewer-container {
+    height: 500px;
+}

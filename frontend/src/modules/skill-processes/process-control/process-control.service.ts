@@ -7,17 +7,16 @@ import { map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
-   
+
 })
 export class ProcessControlService {
   engineRestRoot= "/engine-rest";
   xml: string;
-  
+
   //observer: Observer<ProcessDefinitionDto[]>
   constructor(private  http: HttpClient) {}
 
   getAllDeployedProcessDefinitions(): Observable<ProcessDefinition[]>{
-      console.log("Loading deployed Process-Definitions...");
       const URL=`${this.engineRestRoot}/process-definition`;
       return this.http.get<ProcessDefinitionDto[]>(URL).pipe(
           map((data: ProcessDefinitionDto[]) => data.map(processDefDto => new ProcessDefinition(
@@ -27,7 +26,7 @@ export class ProcessControlService {
               processDefDto.diagram, processDefDto.suspended, processDefDto.tenantId, processDefDto.versionTag,
               processDefDto.historyTimeToLive, processDefDto.startableInTasklist))
           ));
-          
+
   }
   getDeployedProcessDefinitionById(processDefinitionId: string): Observable<ProcessDefinition>{
       console.log("Searching Def:"+processDefinitionId);
@@ -45,31 +44,29 @@ export class ProcessControlService {
 
   getAllProcessInstances(): Observable<ProcessInstance[]>{
       console.log("Loading Process-Instances...");
-      const URL=`${this.engineRestRoot}/process-instance`; 
+      const URL=`${this.engineRestRoot}/process-instance`;
       return this.http.get<ProcessInstanceDto[]>(URL).pipe(
           map((data: ProcessInstanceDto[]) => data.map(processInstDto => new ProcessInstance(processInstDto.links,
-              processInstDto.id, processInstDto.definitionId, processInstDto.businessKey, processInstDto.caseInstanceId, 
+              processInstDto.id, processInstDto.definitionId, processInstDto.businessKey, processInstDto.caseInstanceId,
               processInstDto.ended, processInstDto.suspended, processInstDto.tenantId
-    
+
           ))
           ));
-    
+
 
   }
   deleteProcessInstance(processInstance: ProcessInstance): Observable<ProcessInstance[]> {
       const URL= `${this.engineRestRoot}/process-instance/${processInstance.id}`;
       console.log(URL);
-    
+
       this.http.delete(URL).subscribe();
 
       return this.getAllProcessInstances();
-      
+
   }
-  getXMLofProcessDefinition(processDefinition: ProcessDefinition): any{
-      const URL= `${this.engineRestRoot}/process-definition/${processDefinition.id}/xml`; 
-      
-  
-  
+  getXMLofProcessDefinition(processDefinitionId: string): any{
+      const URL= `${this.engineRestRoot}/process-definition/${processDefinitionId}/xml`;
+
       return this.http.get<any>(URL);
       //   .subscribe(data=>{
       //       this.xml=data.bpmn20Xml;
@@ -78,14 +75,13 @@ export class ProcessControlService {
   }
 
   startNewProcessInstance(processDefinition: ProcessDefinition, variablesBody: string): any{
-      const URL= `${this.engineRestRoot}/process-definition/${processDefinition.id}/start`; 
+      const URL= `${this.engineRestRoot}/process-definition/${processDefinition.id}/start`;
       const body= variablesBody;
       return this.http.post<any>(URL, body);
   }
- 
- 
+
+
 
 }
 
 
-  

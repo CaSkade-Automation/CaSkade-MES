@@ -1,0 +1,92 @@
+<div class='row p-2'>
+    <div class='col-4'>
+
+    </div>
+    <div class='col-5'>
+        <ul class='card'>
+            <h6 class='card-header'>Process Instances</h6>
+            <div class='card-body'>
+                <table class='table table-bordered table-striped'>
+                    <thead>
+                        <tr>
+                            <th scope="col">Process Instance ID</th>
+                            <th scope="col">Root Process Definition ID</th>
+                            <th scope="col">State</th>
+                            <th scope="col">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                     <tr *ngFor="let instance of processInstances">
+                        <td>{{instance.id}}</td>
+                        <td>{{instance.definitionId}}</td>
+                        <td>
+                            <ng-container *ngIf="instance.ended; else notEnded">
+                                <span class="badge badge-pill badge-dark">ended</span>
+                            </ng-container>
+                            <ng-template #notEnded>
+                                <ng-container *ngIf="instance.suspended; else notSuspended">
+                                    <span class="badge badge-pill badge-warning">suspended</span>
+                                </ng-container>
+                                <ng-template #notSuspended>
+                                    <span class="badge badge-pill badge-success">active</span>
+                                </ng-template>
+
+
+                            </ng-template>
+
+                        </td>
+                        <td>
+                            <i (click)="instanceOperate=instance" class='fas fa-play-circle mr-2' title='Operate with this Instance'></i>
+                            <i (click)="instanceInformation=instance" class='fas fa-info-circle mr-2' title='Instance Information'></i>
+                            <i (click)="deleteProcessInstance(instance)" class='fas fa-minus-circle mr-2' title='Delete Process Instance'> </i>
+                        </td>
+
+                    </tr>
+
+
+                    </tbody>
+                </table>
+            </div>
+
+        </ul>
+    </div>
+    <div class="col-3">
+        <div class="card">
+            <h6 class='card-header'>Process Instance Operations</h6>
+            <div class='card-body'>
+
+                <ng-container *ngIf="instanceOperate; else noSelectedInstance">
+                    <p>Selected: {{instanceOperate.id}}</p>
+                    <ng-container *ngIf="instanceOperate.suspended; else active">
+                        <button (click)="activate(instanceOperate)"type="button" class="btn btn-success mr-2">activate</button>
+                    <button type="button"class="btn btn-warning" disabled>suspend</button>
+                    </ng-container>
+                    <ng-template #active>
+                        <button type="button" class="btn btn-success mr-2" disabled>activate</button>
+                    <button (click)="suspend(instanceOperate)" type="button" class="btn btn-warning">suspend</button>
+                    </ng-template>
+
+
+
+                </ng-container>
+                <ng-template #noSelectedInstance>
+                    <p>Please select a Process-Instance for operation.</p>
+                </ng-template>
+
+
+            </div>
+        </div>
+        <div class="card">
+            <h6 class="card-header">Information about Process-Instance</h6>
+            <div class="card-body">
+                <ng-container *ngIf="instanceInformation; else noInstanceInformation">
+                    <p>Selected: {{instanceInformation.id}}</p>
+
+                </ng-container>
+                <ng-template #noInstanceInformation>
+                    <p>Please select a Process-Instance to get Information about it</p>
+                </ng-template>
+
+            </div>
+        </div>
+</div>
