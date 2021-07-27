@@ -1,7 +1,10 @@
-import { AfterContentInit, Component, OnInit } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { AfterContentInit, Component, ComponentRef, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProcessDefinition } from '../../../models/processDefinition/ProcessDefinition';
-import { ProcessDefinitionService } from '../../shared/services/process-definition.service';
+import { DeploymentRequest, DeploymentService } from '../../shared/services/bpmn/deployment.service';
+import { ProcessDefinitionService } from '../../shared/services/bpmn/process-definition.service';
+import { MessageService } from '../../shared/services/message.service';
+import { BpmnDiagramComponent } from './bpmn-diagram/bpmn-modeler.component';
 
 
 @Component({
@@ -16,10 +19,21 @@ export class SkillProcessesComponent implements AfterContentInit{
     bpmnXml: string;
     previewXml = "";
 
+    deploymentForm = new FormGroup({
+        deploymentName: new FormControl("", [Validators.required]),
+        tenantId: new FormControl("")
+    })
+    xmlToDeploy: string;
+
+    @ViewChild('modelerComponent') modelerComponent: BpmnDiagramComponent;
+
     processSelector = new FormControl("");
     selectedProcessDefinition: ProcessDefinition;
 
-    constructor(private processDefinitionService: ProcessDefinitionService) {}
+    constructor(
+        private processDefinitionService: ProcessDefinitionService,
+        private deploymentService: DeploymentService,
+        private messageService: MessageService) {}
 
     ngAfterContentInit(): void {
         this.processSelector.valueChanges.subscribe(selectedProcess => {
@@ -31,25 +45,22 @@ export class SkillProcessesComponent implements AfterContentInit{
         });
     }
 
-    handleImported(event): void {
-        const { type, error, warnings } = event;
-
-        if (type === 'success') {
-            console.log(`Rendered diagram (%s warnings)`, warnings.length);
-        }
-
-        if (type === 'error') {
-            console.error('Failed to render diagram', error);
-        }
-
-        this.importError = error;
+    clearDiagram() {
+        this.modelerComponent.clear();
     }
 
+    async prepareForDeployment(): Promise<void> {
+        this.xmlToDeploy = (await this.modelerComponent.saveXml()).xml;
+    }
 
-    saveProcess(): void {
-        // this.bpmnModeler.saveXML({ format: true }, function (err, xml) {
-        //     const processXml = xml;
-        // });
+    deployProcess(): void {
+        const deploymentName = this.deploymentForm.get('deploymentName').value;
+        const tenantId = this.deploymentForm.get('tenantId').value;
+        const deploymentRequest = new DeploymentRequest(deploymentName, "data", this.xmlToDeploy, false, false, tenantId);
+        this.deploymentService.deployProcess(deploymentRequest).subscribe(data => {
+            this.messageService.info("New Process deployed", "Deployed a new process to the BPMN engine");
+            console.log(data);
+        });
     }
 
     listAllDeployedProcessDefinitions(): void{

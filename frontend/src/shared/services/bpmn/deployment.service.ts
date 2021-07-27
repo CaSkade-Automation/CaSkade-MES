@@ -12,7 +12,19 @@ export class DeploymentService {
     constructor(private http: HttpClient) { }
 
     deployProcess(req: DeploymentRequest): Observable<any> {
-        return this.http.post<any>(this.engineRestRoot, req);
+        // Request has to be sent as multipart/form-data
+        const formData = new FormData();
+        formData.append("deployment-name", req.deploymentName);
+        formData.append("enable-duplicate-filtering", req.enableDuplicateFiltering.toString());
+        formData.append("deploy-changed-only", req.deployChangedOnly.toString());
+        formData.append("deployment-source", "local");
+
+        // XML has to be converted to a file
+        const blob = new Blob([req.data], { type: 'text/plain' });
+        const file = new File([blob], "bpmnFile",);
+        formData.append("bpmnFile", file, "bpmnFile.bpmn");
+
+        return this.http.post<any>(this.engineRestRoot, formData);
     }
 }
 

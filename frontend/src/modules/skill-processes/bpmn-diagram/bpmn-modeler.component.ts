@@ -1,5 +1,4 @@
 import { AfterContentInit, Component, ElementRef, Input, OnDestroy, Output, ViewChild, EventEmitter } from '@angular/core';
-import { emptyXml } from './emptyDiagram';
 
 /**
  * You may include a different variant of BpmnJS:
@@ -9,6 +8,8 @@ import { emptyXml } from './emptyDiagram';
  * bpmn-modeler - bootstraps a full-fledged BPMN editor
  */
 import * as BpmnModeler from 'bpmn-js/dist/bpmn-modeler.production.min.js';
+import { Observable } from 'rxjs';
+import { emptyXml } from './emptyDiagram';
 
 @Component({
     selector: 'bpmn-modeler',
@@ -17,10 +18,10 @@ import * as BpmnModeler from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 })
 export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
     private bpmnModeler: BpmnModeler;
+    private dataModel;
+    private elementRegistry;
 
     @ViewChild('ref', { static: true }) private el: ElementRef;
-    @Output() private importDone: EventEmitter<any> = new EventEmitter();
-
 
     @Input() set bpmnXml(bpmnXml: string) {
         if (bpmnXml) {
@@ -32,42 +33,33 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
     showPropertiesPanel: boolean;
 
     constructor() {
-
-        this.bpmnModeler = new BpmnModeler(
-            // {
-            //     container: '#canvas',
-            //     width: '100vw',
-            //     height: '100vh',
-            //     additionalModules: [
-            //         // {[InjectionNames.elementTemplates]: ['type', ElementTemplates.elementTemplates[1]]},
-            //         // {[InjectionNames.propertiesProvider]: ['type', CamundaPropertiesProvider.propertiesProvider[1]]},
-
-            //         // {[InjectionNames.originalPaletteProvider]: ['type', OriginalPaletteProvider]},
-
-            //         PropertiesPanelModule
-            //     ],
-            //     propertiesPanel: {
-            //         parent: '#properties'
-            //     },
-            //     moddleExtensions: {
-            //         // camunda: CamundaModdleDescriptor
-            //     }
-            // }
-        );
-
+        this.bpmnModeler = new BpmnModeler();
+        this.dataModel = this.bpmnModeler.get('modeling');
+        this.elementRegistry = this.bpmnModeler.get('elementRegistry');
 
         this.bpmnModeler.importXML(emptyXml);
-        const eventBus = this.bpmnModeler.get('eventBus');
-        console.log(eventBus);
 
+
+
+        console.log(this.elementRegistry);
+        console.log(this.dataModel);
+
+        // this.dataModel.updateProperties()
+
+        // this.bpmnModeler.on('import.done', ({ error }) => {
+        //     if (!error) {
+        //         // this.bpmnModeler.get('canvas').zoom('fit-viewport');
+        //     }
+        // });
         this.bpmnModeler.on('element.click', (event) => this.onDiagramElementClicked(event));
+    }
 
-        this.bpmnModeler.on('import.done', ({ error }) => {
+    clear() {
+        this.bpmnModeler.importXML(emptyXml);
+    }
 
-            if (!error) {
-                // this.bpmnModeler.get('canvas').zoom('fit-viewport');
-            }
-        });
+    saveXml(): Promise<{xml: string}> {
+        return this.bpmnModeler.saveXML({ format: true },);
     }
 
     ngAfterContentInit(): void {
@@ -87,34 +79,6 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
 
         this.showPropertiesPanel = !this.showPropertiesPanel;
     }
-
-
-
-    /**
-     * Load diagram from URL and emit completion event
-     */
-    //   loadUrl(url: string) {
-
-    //       return (
-    //           this.http.get(url, { responseType: 'text' }).pipe(
-    //               catchError(err => throwError(err)),
-    //               importDiagram(this.bpmnJS)
-    //           ).subscribe(
-    //               (warnings) => {
-    //                   this.importDone.emit({
-    //                       type: 'success',
-    //                       warnings
-    //                   });
-    //               },
-    //               (err) => {
-    //                   this.importDone.emit({
-    //                       type: 'error',
-    //                       error: err
-    //                   });
-    //               }
-    //           )
-    //       );
-    //   }
 
 
 }
