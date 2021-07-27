@@ -1,7 +1,7 @@
 import { AfterContentInit, Component, ElementRef, Input, OnDestroy, ViewChild } from '@angular/core';
 import * as BpmnViewer from 'bpmn-js/dist/bpmn-viewer.production.min.js';
-import { ProcessDefinitionService } from '../../services/process-definition.service';
-import { ActivityInstanceTree } from '../../services/process-instance.service';
+import { ProcessDefinitionService } from '../../services/bpmn/process-definition.service';
+import { ActivityInstanceTree } from '../../services/bpmn/process-instance.service';
 
 @Component({
     selector: 'bpmn-viewer',

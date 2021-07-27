@@ -5,7 +5,7 @@ import { ProcessDefinition } from '@shared/models/processDefinition/ProcessDefin
 import { ProcessInstance } from '@shared/models/processInstance/ProcessInstance';
 import { take } from 'rxjs/operators';
 import { MessageService } from '../../../../shared/services/message.service';
-import { ProcessDefinitionService } from '../../../../shared/services/process-definition.service';
+import { ProcessDefinitionService } from '../../../../shared/services/bpmn/process-definition.service';
 
 @Component({
     selector: 'process-definitions',
