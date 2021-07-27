@@ -41,7 +41,7 @@ export class PropertiesPanelComponent implements OnChanges {
     constructor(private skillService: SkillService) {}
 
     ngOnChanges(changes: SimpleChanges): void {
-        switch (this.bpmnElement.type) {
+        switch (this.bpmnElement?.type) {
         case "bpmn:SequenceFlow":
             this.propertyController = new FlowPropertyController();
             break;

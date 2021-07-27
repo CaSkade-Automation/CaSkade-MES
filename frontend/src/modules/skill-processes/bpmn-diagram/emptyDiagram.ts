@@ -1,5 +1,5 @@
 // Note: This is just an empty diagram with a start event.
-// It's needed to get the BPMN diagram started, it doesn't work without any diagram XML
+// It's better than using modeler.createDiagram() because it sets 'isExecutable' which is necessary to execute processes
 
 export const emptyXml = `<?xml version="1.0" encoding="UTF-8"?>
     <bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -8,7 +8,7 @@ export const emptyXml = `<?xml version="1.0" encoding="UTF-8"?>
         xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
         id="Definitions_0o8r9mb"
         targetNamespace="http://bpmn.io/schema/bpmn">
-        <bpmn:process id="Process_1wd9uqr" isExecutable="false">
+        <bpmn:process id="Process_1wd9uqr" isExecutable="true">
           <bpmn:startEvent id="StartEvent_0cuddor" />
         </bpmn:process>
         <bpmndi:BPMNDiagram id="BPMNDiagram_1">
