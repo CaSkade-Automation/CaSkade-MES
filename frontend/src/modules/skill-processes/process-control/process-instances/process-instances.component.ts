@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { forkJoin, merge, Observable } from 'rxjs';
 import { combineAll, map, take } from 'rxjs/operators';
 import { ProcessInstance, ProcessInstanceDto } from '../../../../../models/ProcessInstance/ProcessInstance';
-import { BpmnXmlResult, ProcessDefinitionService } from '../../../../shared/services/process-definition.service';
-import { ActivityInstanceTree, ProcessInstanceService } from '../../../../shared/services/process-instance.service';
+import { BpmnXmlResult, ProcessDefinitionService } from '../../../../shared/services/bpmn/process-definition.service';
+import { ActivityInstanceTree, ProcessInstanceService } from '../../../../shared/services/bpmn/process-instance.service';
 
 @Component({
     selector: 'process-instances',
