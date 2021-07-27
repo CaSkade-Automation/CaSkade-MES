@@ -11,9 +11,7 @@ import { map } from 'rxjs/operators';
 })
 export class ProcessDefinitionService {
     engineRestRoot = "/engine-rest";
-    xml: string;
 
-    //observer: Observer<ProcessDefinitionDto[]>
     constructor(private http: HttpClient) { }
 
     getAllDeployedProcessDefinitions(): Observable<ProcessDefinition[]> {
@@ -42,18 +40,7 @@ export class ProcessDefinitionService {
 
     }
 
-    getAllProcessInstances(): Observable<ProcessInstance[]> {
-        console.log("Loading Process-Instances...");
-        const URL = `${this.engineRestRoot}/process-instance`;
-        return this.http.get<ProcessInstanceDto[]>(URL).pipe(
-            map((data: ProcessInstanceDto[]) => data.map(processInstDto => new ProcessInstance(processInstDto.links,
-                processInstDto.id, processInstDto.definitionId, processInstDto.businessKey, processInstDto.caseInstanceId,
-                processInstDto.ended, processInstDto.suspended, processInstDto.tenantId
 
-            ))
-            ));
-
-    }
 
     /**
      * Deletes a process definition with a given ID

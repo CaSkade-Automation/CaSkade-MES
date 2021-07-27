@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ProcessDefinition } from  '@shared/models/processDefinition/ProcessDefinition';
+import { ProcessDefinition } from '@shared/models/processDefinition/ProcessDefinition';
 import { ProcessInstance } from '@shared/models/processInstance/ProcessInstance';
 import { take } from 'rxjs/operators';
 import { MessageService } from '../../../../shared/services/message.service';
@@ -21,8 +21,8 @@ export class ProcessDefinitionsComponent implements OnInit {
     processDefinitionToDelete: ProcessDefinition;       // A definition that has been selected to be deleted
     deleteCascading = new FormControl(false);
 
-    processDefinitions= Array<ProcessDefinition>();
-    processInstances= Array<ProcessInstance>();
+    processDefinitions = Array<ProcessDefinition>();
+
     selectedDefinition: ProcessDefinition;
     instanceOperate: ProcessInstance;
     jsn: string;
@@ -32,24 +32,20 @@ export class ProcessDefinitionsComponent implements OnInit {
     constructor(
         private processDefinitionService: ProcessDefinitionService,
         private messageService: MessageService
-    ) {}
+    ) { }
 
 
     ngOnInit(): void {
-        this.processDefinitionService.getAllDeployedProcessDefinitions().subscribe((processDefinitions: ProcessDefinition[]) =>{
+        this.processDefinitionService.getAllDeployedProcessDefinitions().subscribe((processDefinitions: ProcessDefinition[]) => {
             this.detailsShown = new Array<boolean>(processDefinitions.length);
             this.processDetails = new Array<ProcessDetail>(processDefinitions.length);
-            this.processDefinitions=processDefinitions;
-        }
-        );
-        this.processDefinitionService.getAllProcessInstances().subscribe((processInstances: ProcessInstance[])=>{
-            this.processInstances=processInstances;
+            this.processDefinitions = processDefinitions;
         });
-
     }
-    getDiagram(processDefinitionId: string): void{
-        this.processDefinitionService.getDeployedProcessDefinitionById(processDefinitionId).subscribe((processDefinition: ProcessDefinition) =>{
-            this.selectedDefinition=processDefinition;
+
+    getDiagram(processDefinitionId: string): void {
+        this.processDefinitionService.getDeployedProcessDefinitionById(processDefinitionId).subscribe((processDefinition: ProcessDefinition) => {
+            this.selectedDefinition = processDefinition;
         });
         console.log("Diagram:");
 
@@ -65,7 +61,7 @@ export class ProcessDefinitionsComponent implements OnInit {
         }
 
         this.processDefinitionService.getXMLofProcessDefinition(processDefinition.id).subscribe(res => {
-            this.processDetails[i] = new ProcessDetail(res.bpmn20Xml,processDefinition);
+            this.processDetails[i] = new ProcessDetail(res.bpmn20Xml, processDefinition);
             this.detailsShown[i] = true;
         });
 
@@ -76,7 +72,7 @@ export class ProcessDefinitionsComponent implements OnInit {
         this.processDefinitionToDelete = processDefinition;
     }
 
-    deleteProcessDefinition(): void{
+    deleteProcessDefinition(): void {
         const idToDelete = this.processDefinitionToDelete.id;
         const cascade = this.deleteCascading.value;
 
@@ -95,9 +91,9 @@ export class ProcessDefinitionsComponent implements OnInit {
         });
     }
 
-    setModalXml(processDefinitionId: string): void{
-        this.processDefinitionService.getXMLofProcessDefinition(processDefinitionId).subscribe(data=>{
-            this.modalXml= data.bpmn20Xml;
+    setModalXml(processDefinitionId: string): void {
+        this.processDefinitionService.getXMLofProcessDefinition(processDefinitionId).subscribe(data => {
+            this.modalXml = data.bpmn20Xml;
         });
     }
 
@@ -105,8 +101,8 @@ export class ProcessDefinitionsComponent implements OnInit {
         this.processDefinitionToStart = processDefinition;
     }
 
-    startProcessInstance(): void{
-        const body="";
+    startProcessInstance(): void {
+        const body = "";
         this.processDefinitionService.startNewProcessInstance(this.processDefinitionToStart, body).subscribe(res => console.log(res));
     }
 
