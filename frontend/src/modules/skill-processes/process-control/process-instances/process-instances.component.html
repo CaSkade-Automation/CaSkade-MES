@@ -1,92 +1,69 @@
+<div class="row">
+    <div class="col-12" style="height: 500px;">
+        <bpmn-viewer [bpmnXml]="selectedInstance?.xml" [activeActivityId]="selectedInstance?.activity"></bpmn-viewer>
+    </div>
+</div>
+
 <div class='row p-2'>
-    <div class='col-4'>
+    <div class='col-12'>
+        <h6>Filter</h6>
+        <div class="input-group mb-2">
+            <select name="filterValue" class="form-select">
+                <option value="asd">asd</option>
+            </select>
+            <select name="filterCriteria" class="form-select">
+                <option value="qwe">qwe</option>
+            </select>
+            <button class="btn btn-outline-secondary" type="button" id="button-addon2">Button</button>
+        </div>
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Process Instances</th>
+                    <th scope="col">State</th>
+                    <th scope="col">Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let instance of processInstances, let i = index" class="pointer" (click)="showInViewer(instance)">
+                    <td>{{instance.id}}
+                        <span class="align-middle">
+                            <b class="align-middle">{{instance.id}}</b>
+                            <a class="btn btn-sm btn-outline-secondary float-end"
+                                (click)="showDetails(i, instance)">
+                                Details
+                            </a>
+                        </span>
+                        <div class="mt-4 mb-2" *ngIf="detailsShown[i]">
+                            <div class="card card-body">
+                                <div class="row">
+                                    <div class="col-sm-12"><b>Instance ID: </b>{{instance.id}}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12"><b>Process Definition ID: </b>{{instance.definitionId}}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-8"><b>Activity: </b></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-10"><b>Instance ID: </b>{{instanceDetails[i].activity.id}}</div>
+                                    <div class="col-sm-10"><b>ID: </b>{{instanceDetails[i].activity.activityId}}</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-10"><b>Child activity instances: </b>{{instanceDetails[i].activity.childActivityInstances | json}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td [innerHTML]="instance.getStateBadge()"></td>
+                    <td>
+                        <button *ngIf="instance.state === 'active'" class="btn btn-sm btn-danger" (click)="suspendInstance(instance.id)"><i class="fas fa-pause"></i>&nbsp;Suspend</button>
+                        <button *ngIf="instance.state === 'suspended'" class="btn btn-sm btn-success" (click)="activateInstance(instance.id)"><i class="fas fa-play"></i>&nbsp;Activate</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
     </div>
-    <div class='col-5'>
-        <ul class='card'>
-            <h6 class='card-header'>Process Instances</h6>
-            <div class='card-body'>
-                <table class='table table-bordered table-striped'>
-                    <thead>
-                        <tr>
-                            <th scope="col">Process Instance ID</th>
-                            <th scope="col">Root Process Definition ID</th>
-                            <th scope="col">State</th>
-                            <th scope="col">Options</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                     <tr *ngFor="let instance of processInstances">
-                        <td>{{instance.id}}</td>
-                        <td>{{instance.definitionId}}</td>
-                        <td>
-                            <ng-container *ngIf="instance.ended; else notEnded">
-                                <span class="badge badge-pill badge-dark">ended</span>
-                            </ng-container>
-                            <ng-template #notEnded>
-                                <ng-container *ngIf="instance.suspended; else notSuspended">
-                                    <span class="badge badge-pill badge-warning">suspended</span>
-                                </ng-container>
-                                <ng-template #notSuspended>
-                                    <span class="badge badge-pill badge-success">active</span>
-                                </ng-template>
-
-
-                            </ng-template>
-
-                        </td>
-                        <td>
-                            <i (click)="instanceOperate=instance" class='fas fa-play-circle mr-2' title='Operate with this Instance'></i>
-                            <i (click)="instanceInformation=instance" class='fas fa-info-circle mr-2' title='Instance Information'></i>
-                            <i (click)="deleteProcessInstance(instance)" class='fas fa-minus-circle mr-2' title='Delete Process Instance'> </i>
-                        </td>
-
-                    </tr>
-
-
-                    </tbody>
-                </table>
-            </div>
-
-        </ul>
-    </div>
-    <div class="col-3">
-        <div class="card">
-            <h6 class='card-header'>Process Instance Operations</h6>
-            <div class='card-body'>
-
-                <ng-container *ngIf="instanceOperate; else noSelectedInstance">
-                    <p>Selected: {{instanceOperate.id}}</p>
-                    <ng-container *ngIf="instanceOperate.suspended; else active">
-                        <button (click)="activate(instanceOperate)"type="button" class="btn btn-success mr-2">activate</button>
-                    <button type="button"class="btn btn-warning" disabled>suspend</button>
-                    </ng-container>
-                    <ng-template #active>
-                        <button type="button" class="btn btn-success mr-2" disabled>activate</button>
-                    <button (click)="suspend(instanceOperate)" type="button" class="btn btn-warning">suspend</button>
-                    </ng-template>
-
-
-
-                </ng-container>
-                <ng-template #noSelectedInstance>
-                    <p>Please select a Process-Instance for operation.</p>
-                </ng-template>
-
-
-            </div>
-        </div>
-        <div class="card">
-            <h6 class="card-header">Information about Process-Instance</h6>
-            <div class="card-body">
-                <ng-container *ngIf="instanceInformation; else noInstanceInformation">
-                    <p>Selected: {{instanceInformation.id}}</p>
-
-                </ng-container>
-                <ng-template #noInstanceInformation>
-                    <p>Please select a Process-Instance to get Information about it</p>
-                </ng-template>
-
-            </div>
-        </div>
 </div>
