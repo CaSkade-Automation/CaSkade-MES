@@ -72,12 +72,7 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
 
 
     onDiagramElementClicked(event): void {
-        console.log("showingPanel");
         this.clickedElement = event.element;
-        console.log(this.clickedElement);
-
-
-        this.showPropertiesPanel = !this.showPropertiesPanel;
     }
 
 
