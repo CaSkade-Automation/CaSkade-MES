@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { trigger, transition, style, animate } from '@angular/animations';
+import { trigger, transition, style, animate, state, group, animateChild, query } from '@angular/animations';
 import { FormGroup } from '@angular/forms';
 import { BaseProperty, SkillSelectionProperty } from './properties-subcomponents/Property';
 import { PropertyController } from './properties-subcomponents/property-controller/PropertyController';
@@ -12,28 +12,56 @@ import { ServiceTaskPropertyController } from './properties-subcomponents/proper
     animations: [
         trigger(
             'enterAnimation', [
-                transition(':enter', [
-                    style({transform: 'translateX(100%)', opacity: 0}),
-                    animate('500ms', style({transform: 'translateX(0)', opacity: 1}))
+                state('true',
+                    // state when div is shown
+                    style({transform: 'translateX(0)', height: "100%"}),
+                ),
+                state('false',
+                    // state when div is hidden
+                    style({transform: 'translateX(92%)', height: "100%"})
+                ),
+                transition('false => true', [
+                    // animation to show
+                    group([
+                        animate('500ms', style({transform: 'translateX(0%)', opacity: 1})),
+                        query('@theChildAnimation', animateChild())
+                    ])
                 ]),
-                transition(':leave', [
-                    style({transform: 'translateX(0)', opacity: 1}),
-                    animate('500ms', style({transform: 'translateX(100%)', opacity: 0}))
-                ])
+                transition('true => false', [
+                    // animation to hide
+                    group([
+                        animate('500ms', style({transform: 'translateX(90%)', opacity: 1})),
+                        // query('@theChildAnimation', animateChild())
+                    ])
+                ]),
             ]
-        )
+        ),
+        // Separate animation of the content which is separately faded
+        trigger('theChildAnimation', [
+            state('true',
+            // state when div is shown
+                style({opacity: 1}),
+            ),
+            state('false',
+            // state when div is hidden
+                style({opacity: 0}),
+            ),
+            transition( '* <=> *', [
+                animate('500ms'),
+            ],
+            ),
+        ] ),
     ],
     templateUrl: './properties-panel.component.html',
     styleUrls: ['./properties-panel.component.scss'],
 })
 export class PropertiesPanelComponent implements OnChanges {
-    @Input() show: boolean;
+    @Input() shown = true;
     @Input() bpmnElement: any;
 
     propertyController: PropertyController;
     properties: BaseProperty<string>[];
 
-    isMenuOpen = false;
 
     form: FormGroup;
     payLoad = '';
@@ -70,7 +98,13 @@ export class PropertiesPanelComponent implements OnChanges {
 
     }
 
-    // toggleMenu(): void {
-    //     this.isMenuOpen = !this.isMenuOpen;
-    // }
+    togglePropertiesPanel(): void {
+        console.log("toggling");
+
+        // this.show = !this.show;
+
+        this.shown = !this.shown;
+        console.log(this.shown);
+
+    }
 }

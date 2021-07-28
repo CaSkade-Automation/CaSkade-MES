@@ -1,22 +1,29 @@
-<div class="card properties-container" *ngIf="show" [@enterAnimation]>
-    <div class="card-header">
-        <h3>Properties</h3>
+<div class="properties-container" [@enterAnimation]="shown">
+    <div class="border rounded border-start-0 p-1 bg-light pointer" (click)="togglePropertiesPanel()" style="writing-mode: vertical-lr;transform: rotate(180deg);">
+        <i class="fas fa-chevron-left" *ngIf="shown"></i>
+        <i class="fas fa-chevron-right" *ngIf="!shown"></i>
+        Properties Panel
     </div>
-    <div class="card-body">
-        <div>
-            <form (ngSubmit)="onSubmit()" [formGroup]="form">
+    <div class="card properties-card" [@theChildAnimation]="shown">
+        <div class="card-header">
+            <h3>Properties</h3>
+        </div>
+        <div class="card-body">
+            <div>
+                <form (ngSubmit)="onSubmit()" [formGroup]="form">
 
-                <div *ngFor="let property of properties" class="form-row">
-                    <dynamic-property [property]="property" [form]="form"></dynamic-property>
+                    <div *ngFor="let property of properties" class="form-row">
+                        <dynamic-property [property]="property" [form]="form"></dynamic-property>
+                    </div>
+
+                    <div class="form-row">
+                        <button class="btn btn-primary" type="submit" [disabled]="!form.valid">Save</button>
+                    </div>
+                </form>
+
+                <div *ngIf="payLoad" class="form-row">
+                    <strong>Saved the following values</strong><br>{{payLoad}}
                 </div>
-
-                <div class="form-row">
-                    <button class="btn btn-primary" type="submit" [disabled]="!form.valid">Save</button>
-                </div>
-            </form>
-
-            <div *ngIf="payLoad" class="form-row">
-                <strong>Saved the following values</strong><br>{{payLoad}}
             </div>
         </div>
     </div>

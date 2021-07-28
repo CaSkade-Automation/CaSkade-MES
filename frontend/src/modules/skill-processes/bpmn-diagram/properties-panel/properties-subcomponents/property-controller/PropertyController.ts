@@ -1,7 +1,6 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { BaseProperty, StringInputProperty, SkillSelectionProperty, CommandTypeSelectionProperty, ReadonlyProperty } from '../Property';
-import { SkillService } from 'src/shared/services/skill.service';
+import { BaseProperty, ReadonlyProperty } from '../Property';
 
 export class PropertyController {
 
