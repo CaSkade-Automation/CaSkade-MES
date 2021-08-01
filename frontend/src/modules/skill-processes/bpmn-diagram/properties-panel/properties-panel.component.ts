@@ -6,6 +6,8 @@ import { PropertyController } from './properties-subcomponents/property-controll
 import { SkillService } from 'src/shared/services/skill.service';
 import { FlowPropertyController } from './properties-subcomponents/property-controller/FlowPropertyController';
 import { ServiceTaskPropertyController } from './properties-subcomponents/property-controller/ServiceTaskPropertyController';
+import { ProcessPropertyController } from './properties-subcomponents/property-controller/ProcessPropertyController';
+import { BpmnDataModel } from '../BpmnDataModel';
 
 @Component({
     selector: 'properties-panel',
@@ -55,21 +57,33 @@ import { ServiceTaskPropertyController } from './properties-subcomponents/proper
     templateUrl: './properties-panel.component.html',
     styleUrls: ['./properties-panel.component.scss'],
 })
-export class PropertiesPanelComponent implements OnChanges {
-    @Input() shown = true;
+export class PropertiesPanelComponent implements OnChanges, OnInit {
     @Input() bpmnElement: any;
+    @Input() bpmnModeler: any;  // Gets passed in from the modeler component
+
+    bpmnDataModel: BpmnDataModel // Is passed into the dynamic property component
+
+    shown: boolean;     // Defines the state of the panel (shown or hidden)
 
     propertyController: PropertyController;
-    properties: BaseProperty<string>[];
-
+    properties: BaseProperty[];
 
     form: FormGroup;
     payLoad = '';
 
-    constructor(private skillService: SkillService) {}
+    constructor(private skillService: SkillService) {
+    }
+
+    ngOnInit() {
+        // this.bpmnDataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
+        this.form.valueChanges.subscribe(data => console.log(data));
+    }
 
     ngOnChanges(changes: SimpleChanges): void {
         switch (this.bpmnElement?.type) {
+        case "bpmn:Process":
+            this.propertyController = new ProcessPropertyController();
+            break;
         case "bpmn:SequenceFlow":
             this.propertyController = new FlowPropertyController();
             break;
@@ -81,7 +95,7 @@ export class PropertiesPanelComponent implements OnChanges {
             break;
         }
 
-        this.properties = this.propertyController.createProperties(this.bpmnElement);
+        this.properties = this.propertyController.createPropertyGroups(this.bpmnElement);
         this.form = this.propertyController.toFormGroup(this.properties);
     }
 
@@ -98,13 +112,10 @@ export class PropertiesPanelComponent implements OnChanges {
 
     }
 
+    /**
+     * Depending on the current state, hides or shows the property panel
+     */
     togglePropertiesPanel(): void {
-        console.log("toggling");
-
-        // this.show = !this.show;
-
         this.shown = !this.shown;
-        console.log(this.shown);
-
     }
 }

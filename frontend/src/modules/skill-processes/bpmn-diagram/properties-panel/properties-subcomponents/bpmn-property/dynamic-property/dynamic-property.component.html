@@ -1,8 +1,8 @@
-<div class="property-component" style="height:100%" [formGroup]="form" class="form-group form-row">
-    <label class="col-sm-4 col-form-label" [attr.for]="property.key">{{property.key}} <i class="far fa-question-circle" title="{{property.label}}"></i></label>
+<div class="property-component" style="height:100%" [formGroup]="form" class="row">
+    <label class="col-sm-3 col-form-label" [attr.for]="property.key">{{property.key}} <i class="far fa-question-circle" title="{{property.label}}"></i></label>
 
 
-    <div [ngSwitch]="property.controlType" class="col-sm-8">
+    <div [ngSwitch]="property.controlType" class="col-sm-9">
         <input class=" form-control form-control-sm" *ngSwitchCase="'input'" [formControlName]="property.key"
                 [id]="property.key" [type]="property.type">
 
