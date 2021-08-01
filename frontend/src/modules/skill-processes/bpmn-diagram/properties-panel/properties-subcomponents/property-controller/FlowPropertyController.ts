@@ -1,10 +1,10 @@
-import { PropertyController } from "./PropertyController";
+import { BpmnPropertyGroup, PropertyController } from "./PropertyController";
 import { BaseProperty, StringInputProperty } from "../Property";
 
 export class FlowPropertyController extends PropertyController {
 
-    createPropertyGroups(bpmnElement: any): BaseProperty[] {
-        const baseProperties = this.createBaseProperties(bpmnElement);
+    createPropertyGroups(bpmnElement: any): BpmnPropertyGroup[] {
+        const basePropertyGroups = this.createBasePropertyGroups(bpmnElement);
         const conditionProperty = new StringInputProperty(
             {
                 key: "condition",
@@ -14,7 +14,9 @@ export class FlowPropertyController extends PropertyController {
                 value: ''
             });
 
-        return [...baseProperties, conditionProperty];
+        const conditionPropertyGroup = new BpmnPropertyGroup("condition", [conditionProperty]);
+
+        return [...basePropertyGroups, conditionPropertyGroup];
     }
 
     transformFormValues(rawFormValues) {

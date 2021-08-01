@@ -1,28 +1,17 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { GroupedObservable } from 'rxjs';
 import { BaseProperty, ReadonlyProperty } from '../Property';
 
 export class PropertyController {
 
 
-    constructor() {}
+    constructor() { }
 
-    toFormGroup(properties: BaseProperty[] ): FormGroup {
+    toFormGroup(propertyGroups: BpmnPropertyGroup[]): FormGroup {
         const group: any = {};
 
-        properties.forEach(property => {
-            // new FormControl({value: null, disabled: true}, Validators.required),
-            if (property.required && property.readonly) {
-                group[property.key] = new FormControl({value: property.value || '', disabled: true}, Validators.required);
-            }
-            else if (property.required && !property.readonly) {
-                group[property.key] = new FormControl({value: property.value || '', disabled: false}, Validators.required);
-            }
-            else if (!property.required && property.readonly) {
-                group[property.key] = new FormControl({value: property.value || '', disabled: true});
-            }
-            else if (!property.required && !property.readonly) {
-                group[property.key] = new FormControl({value: property.value || '', disabled: false});
-            }
+        propertyGroups.forEach(propertyGroup => {
+            group[propertyGroup.propertyKey] = new FormGroup({});
         });
         return new FormGroup(group);
     }
@@ -31,7 +20,7 @@ export class PropertyController {
      * Creates properties that shall be present for every element
      * @param bpmnElement BPMN element to create properties for
      */
-    protected createBaseProperties(bpmnElement): BaseProperty[] {
+    protected createBasePropertyGroups(bpmnElement): BpmnPropertyGroup[] {
         const idProperty = new ReadonlyProperty(
             {
                 key: "id",
@@ -41,6 +30,7 @@ export class PropertyController {
                 value: bpmnElement?.id
             }
         );
+        const idPropertyGroup = new BpmnPropertyGroup("id", [idProperty]);
 
         const typeProperty = new ReadonlyProperty(
             {
@@ -51,7 +41,9 @@ export class PropertyController {
                 value: bpmnElement?.type
             }
         );
-        return [idProperty, typeProperty];
+        const typePropertyGroup = new BpmnPropertyGroup("type", [typeProperty]);
+
+        return [idPropertyGroup, typePropertyGroup];
     }
 
 
@@ -59,8 +51,8 @@ export class PropertyController {
      * Creates specific properties depending on the BPMN element type
      * @param bpmnElement BPMN element to create properties for
      */
-    createPropertyGroups(bpmnElement): BaseProperty[] {
-        return this.createBaseProperties(bpmnElement);
+    createPropertyGroups(bpmnElement): BpmnPropertyGroup[] {
+        return this.createBasePropertyGroups(bpmnElement);
     }
 
     /**
@@ -74,15 +66,16 @@ export class PropertyController {
 
 }
 
+
 /**
  * Acts as an abstraction layer between angular form properties and BPMN properties.
  * Some BPMN properties might consist of several form fields
  */
-export class BpmnPropertyGroup<T> {
+export class BpmnPropertyGroup {
 
     public props: Array<BaseProperty>;
 
-    constructor(public propertyKey: string, public properties = []) {}
+    constructor(public propertyKey: string, public properties = []) { }
 
     addProperty(property: BaseProperty): void {
         this.props.push(property);
