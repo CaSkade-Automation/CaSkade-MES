@@ -12,8 +12,8 @@
             <div>
                 <form (ngSubmit)="onSubmit()" [formGroup]="form">
 
-                    <div *ngFor="let property of properties" class="form-row">
-                        <bpmn-property [property]="property" [form]="form"></bpmn-property>
+                    <div *ngFor="let propertyGroup of propertyGroups" class="form-row">
+                        <bpmn-property [propertyGroup]="propertyGroup" [form]="form"></bpmn-property>
                     </div>
 
                     <div class="form-row">

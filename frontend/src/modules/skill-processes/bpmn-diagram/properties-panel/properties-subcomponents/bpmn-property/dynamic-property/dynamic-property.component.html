@@ -1,4 +1,4 @@
-<div class="property-component" style="height:100%" [formGroup]="form" class="row">
+<div class="property-component" style="height:100%" [formGroup]="formGroup" class="row">
     <label class="col-sm-3 col-form-label" [attr.for]="property.key">{{property.key}} <i class="far fa-question-circle" title="{{property.label}}"></i></label>
 
 
@@ -13,9 +13,9 @@
         <input *ngSwitchCase="'readonly'" [type]="property.type" readonly class="form-control-plaintext" [id]="property.key" [value]="property.value">
     </div>
 
-    <div *ngFor="let childProperty of childProperties.controls">
+    <!-- <div *ngFor="let childProperty of childProperties.controls">
         <dynamic-property [property]="childProperty" [form]="form"></dynamic-property>
-    </div>
+    </div> -->
 
     <div class="errorMessage" *ngIf="wasTouched && !isValid">{{property.label}} is required</div>
   </div>

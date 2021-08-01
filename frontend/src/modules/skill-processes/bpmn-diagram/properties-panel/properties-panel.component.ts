@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { trigger, transition, style, animate, state, group, animateChild, query } from '@angular/animations';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { BaseProperty, SkillSelectionProperty } from './properties-subcomponents/Property';
-import { PropertyController } from './properties-subcomponents/property-controller/PropertyController';
+import { BpmnPropertyGroup, PropertyController } from './properties-subcomponents/property-controller/PropertyController';
 import { SkillService } from 'src/shared/services/skill.service';
 import { FlowPropertyController } from './properties-subcomponents/property-controller/FlowPropertyController';
 import { ServiceTaskPropertyController } from './properties-subcomponents/property-controller/ServiceTaskPropertyController';
@@ -66,20 +66,29 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     shown: boolean;     // Defines the state of the panel (shown or hidden)
 
     propertyController: PropertyController;
-    properties: BaseProperty[];
+    propertyGroups: BpmnPropertyGroup[];
 
     form: FormGroup;
     payLoad = '';
 
     constructor(private skillService: SkillService) {
+        this.form = new FormGroup({});
     }
 
     ngOnInit() {
         // this.bpmnDataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
-        this.form.valueChanges.subscribe(data => console.log(data));
+        this.propertyGroups = this.propertyController.createPropertyGroups(this.bpmnElement);
+        // this.form = this.propertyController.toFormGroup(this.propertyGroups);
+        this.form.valueChanges.subscribe(data => {
+            console.log("in panel");
+
+            console.log(data);
+        });
+
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+
         switch (this.bpmnElement?.type) {
         case "bpmn:Process":
             this.propertyController = new ProcessPropertyController();
@@ -95,8 +104,25 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
             break;
         }
 
-        this.properties = this.propertyController.createPropertyGroups(this.bpmnElement);
-        this.form = this.propertyController.toFormGroup(this.properties);
+        this.propertyGroups = this.propertyController.createPropertyGroups(this.bpmnElement);
+
+        // this.form = this.propertyController.toFormGroup(this.propertyGroups);
+        // this.form.addControl("asd" , this.propertyController.toFormGroup(this.propertyGroups));
+
+        console.log("loop check");
+        this.propertyGroups.forEach(pG => {
+            console.log(this.propertyController.toFormGroup(this.propertyGroups).get(pG.propertyKey));
+
+        });
+
+        // setTimeout(() => {
+        //     console.log("loop check");
+        //     this.propertyGroups.forEach(pG => {
+        //         console.log(this.propertyController.toFormGroup(this.propertyGroups).get(pG.propertyKey));
+
+        //     });
+        // }, 10000);
+        // this.form.addControl("asd", this.propertyController.toFormGroup(this.propertyGroups));
     }
 
 

@@ -1,6 +1,7 @@
-import { PropertyController } from "./PropertyController";
+import { BpmnPropertyGroup, PropertyController } from "./PropertyController";
 import { SkillSelectionProperty, CommandTypeSelectionProperty, BaseProperty } from "../Property";
 import { SkillService } from "src/shared/services/skill.service";
+import { BpmnPropertyComponent } from "../bpmn-property/bpmn-property.component";
 
 export class ServiceTaskPropertyController extends PropertyController {
 
@@ -8,8 +9,8 @@ export class ServiceTaskPropertyController extends PropertyController {
         super();
     }
 
-    createPropertyGroups(bpmnElement: any): BaseProperty[] {
-        const baseProperties = this.createBaseProperties(bpmnElement);
+    createPropertyGroups(bpmnElement: any): BpmnPropertyGroup[] {
+        const basePropertyGroups = this.createBasePropertyGroups(bpmnElement);
         const skillProperty = new SkillSelectionProperty(
             {
                 key: "skillIri",
@@ -30,11 +31,14 @@ export class ServiceTaskPropertyController extends PropertyController {
             }
         );
 
+        // TODO: This has to be checked and properly set up. Adding Camunda extension elements is not that easys.
+        const skillPropertyGroup = new BpmnPropertyGroup("skillIri", [skillProperty, commandTypeProperty]);
+
 
 
         // const parameterProperties = new parameterProperties();
 
-        return [...baseProperties, skillProperty, commandTypeProperty];
+        return [...basePropertyGroups, skillPropertyGroup];
     }
 
     transformFormValues(rawFormValues) {

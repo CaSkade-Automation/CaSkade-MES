@@ -1,11 +1,11 @@
-import { PropertyController } from "./PropertyController";
+import { BpmnPropertyGroup, PropertyController } from "./PropertyController";
 import { BaseProperty, StringInputProperty } from "../Property";
 
 export class ProcessPropertyController extends PropertyController {
 
-    createPropertyGroups(bpmnElement: any): BaseProperty[] {
-        const baseProperties = this.createBaseProperties(bpmnElement);
-        const processNameProperty = new StringInputProperty(
+    createPropertyGroups(bpmnElement: any): BpmnPropertyGroup[] {
+        const baseProperties = this.createBasePropertyGroups(bpmnElement);
+        const nameProperty = new StringInputProperty(
             {
                 key: "name",
                 label: "Process Name",
@@ -14,7 +14,9 @@ export class ProcessPropertyController extends PropertyController {
                 value: bpmnElement.name
             });
 
-        return [...baseProperties, processNameProperty];
+        const namePropertyGroup = new BpmnPropertyGroup("name", [nameProperty]);
+
+        return [...baseProperties, namePropertyGroup];
     }
 
     transformFormValues(rawFormValues) {
