@@ -9,6 +9,7 @@ import { AfterContentInit, Component, ElementRef, Input, OnDestroy, Output, View
  */
 import * as BpmnModeler from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 import { Observable } from 'rxjs';
+import { BpmnDataModel } from './BpmnDataModel';
 import { emptyXml } from './emptyDiagram';
 
 @Component({
@@ -18,7 +19,7 @@ import { emptyXml } from './emptyDiagram';
 })
 export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
     private bpmnModeler: BpmnModeler;
-    private dataModel;
+    private bpmnDataModel: BpmnDataModel;
     private elementRegistry;
 
     @ViewChild('ref', { static: true }) private el: ElementRef;
@@ -34,7 +35,7 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
 
     constructor() {
         this.bpmnModeler = new BpmnModeler();
-        this.dataModel = this.bpmnModeler.get('modeling');
+        this.bpmnDataModel = new BpmnDataModel(this.bpmnModeler.get('modeling'));
         this.elementRegistry = this.bpmnModeler.get('elementRegistry');
 
         this.bpmnModeler.importXML(emptyXml);
@@ -42,7 +43,7 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
 
 
         console.log(this.elementRegistry);
-        console.log(this.dataModel);
+        console.log(this.bpmnDataModel);
 
         // this.dataModel.updateProperties()
 

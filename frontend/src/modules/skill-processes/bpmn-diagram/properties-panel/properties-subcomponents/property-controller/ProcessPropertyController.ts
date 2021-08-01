@@ -1,20 +1,20 @@
 import { PropertyController } from "./PropertyController";
 import { BaseProperty, StringInputProperty } from "../Property";
 
-export class FlowPropertyController extends PropertyController {
+export class ProcessPropertyController extends PropertyController {
 
     createPropertyGroups(bpmnElement: any): BaseProperty[] {
         const baseProperties = this.createBaseProperties(bpmnElement);
-        const conditionProperty = new StringInputProperty(
+        const processNameProperty = new StringInputProperty(
             {
-                key: "condition",
-                label: "Condition that has to be true in order to follow this flow",
+                key: "name",
+                label: "Process Name",
                 order: 3,
-                required: false,
-                value: ''
+                required: true,
+                value: bpmnElement.name
             });
 
-        return [...baseProperties, conditionProperty];
+        return [...baseProperties, processNameProperty];
     }
 
     transformFormValues(rawFormValues) {

@@ -8,7 +8,7 @@ export class ServiceTaskPropertyController extends PropertyController {
         super();
     }
 
-    createProperties(bpmnElement: any): BaseProperty<string>[] {
+    createPropertyGroups(bpmnElement: any): BaseProperty[] {
         const baseProperties = this.createBaseProperties(bpmnElement);
         const skillProperty = new SkillSelectionProperty(
             {

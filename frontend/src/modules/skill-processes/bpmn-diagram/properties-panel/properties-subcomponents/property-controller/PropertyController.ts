@@ -1,10 +1,12 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-
 import { BaseProperty, ReadonlyProperty } from '../Property';
 
 export class PropertyController {
 
-    toFormGroup(properties: BaseProperty<string>[] ): FormGroup {
+
+    constructor() {}
+
+    toFormGroup(properties: BaseProperty[] ): FormGroup {
         const group: any = {};
 
         properties.forEach(property => {
@@ -29,7 +31,7 @@ export class PropertyController {
      * Creates properties that shall be present for every element
      * @param bpmnElement BPMN element to create properties for
      */
-    protected createBaseProperties(bpmnElement): BaseProperty<string>[] {
+    protected createBaseProperties(bpmnElement): BaseProperty[] {
         const idProperty = new ReadonlyProperty(
             {
                 key: "id",
@@ -57,7 +59,7 @@ export class PropertyController {
      * Creates specific properties depending on the BPMN element type
      * @param bpmnElement BPMN element to create properties for
      */
-    createProperties(bpmnElement): BaseProperty<string>[] {
+    createPropertyGroups(bpmnElement): BaseProperty[] {
         return this.createBaseProperties(bpmnElement);
     }
 
@@ -70,4 +72,19 @@ export class PropertyController {
         return rawFormValues;
     }
 
+}
+
+/**
+ * Acts as an abstraction layer between angular form properties and BPMN properties.
+ * Some BPMN properties might consist of several form fields
+ */
+export class BpmnPropertyGroup<T> {
+
+    public props: Array<BaseProperty>;
+
+    constructor(public propertyKey: string, public properties = []) {}
+
+    addProperty(property: BaseProperty): void {
+        this.props.push(property);
+    }
 }

@@ -13,7 +13,7 @@
                 <form (ngSubmit)="onSubmit()" [formGroup]="form">
 
                     <div *ngFor="let property of properties" class="form-row">
-                        <dynamic-property [property]="property" [form]="form"></dynamic-property>
+                        <bpmn-property [property]="property" [form]="form"></bpmn-property>
                     </div>
 
                     <div class="form-row">

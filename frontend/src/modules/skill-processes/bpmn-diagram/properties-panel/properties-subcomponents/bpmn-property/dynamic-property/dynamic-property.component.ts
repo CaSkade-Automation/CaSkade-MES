@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { BaseProperty } from '../Property';
-import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { BaseProperty } from '../../Property';
+import { FormGroup, FormArray} from '@angular/forms';
 
 @Component({
     selector: 'dynamic-property',
@@ -8,15 +8,17 @@ import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
     styleUrls: ['./dynamic-property.component.scss']
 })
 export class DynamicPropertyComponent implements OnInit {
-    @Input() property: BaseProperty<string>;
+    @Input() property: BaseProperty;
     @Input() form: FormGroup;
     childProperties = new FormArray([]);
 
     ngOnInit(): void {
-        this.form.controls[this.property.key].valueChanges.subscribe(changedValue => {
-            // this.childProperties = this.propertyController.updateChildProperties();
-            this.childProperties.push(new FormControl("test", Validators.required));
-        });
+        // this.form.controls[this.property.key].valueChanges.subscribe(changedValue => {
+        // console.log(changedValue);
+
+        // this.childProperties = this.propertyController.updateChildProperties();
+        // this.childProperties.push(new FormControl("test", Validators.required));
+        // });
     }
 
     get isValid(): boolean { return this.form.controls[this.property.key].valid; }
