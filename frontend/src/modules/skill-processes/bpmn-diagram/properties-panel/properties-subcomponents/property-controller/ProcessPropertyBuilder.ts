@@ -1,7 +1,7 @@
-import { BpmnPropertyGroup, PropertyController } from "./PropertyController";
-import { BaseProperty, StringInputProperty } from "../Property";
+import { BpmnPropertyGroup, PropertyBuilder } from "./PropertyBuilder";
+import { StringInputProperty } from "../Property";
 
-export class ProcessPropertyController extends PropertyController {
+export class ProcessPropertyBuilder extends PropertyBuilder {
 
     createPropertyGroups(bpmnElement: any): BpmnPropertyGroup[] {
         const baseProperties = this.createBasePropertyGroups(bpmnElement);

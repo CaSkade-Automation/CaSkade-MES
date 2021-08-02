@@ -2,11 +2,11 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/cor
 import { trigger, transition, style, animate, state, group, animateChild, query } from '@angular/animations';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BaseProperty, SkillSelectionProperty } from './properties-subcomponents/Property';
-import { BpmnPropertyGroup, PropertyController } from './properties-subcomponents/property-controller/PropertyController';
+import { BpmnPropertyGroup, PropertyBuilder } from './properties-subcomponents/property-controller/PropertyBuilder';
 import { SkillService } from 'src/shared/services/skill.service';
-import { FlowPropertyController } from './properties-subcomponents/property-controller/FlowPropertyController';
+import { FlowPropertyBuilder } from './properties-subcomponents/property-controller/FlowPropertyBuilder';
 import { ServiceTaskPropertyController } from './properties-subcomponents/property-controller/ServiceTaskPropertyController';
-import { ProcessPropertyController } from './properties-subcomponents/property-controller/ProcessPropertyController';
+import { ProcessPropertyBuilder } from './properties-subcomponents/property-controller/ProcessPropertyBuilder';
 import { BpmnDataModel } from '../BpmnDataModel';
 
 @Component({
@@ -65,7 +65,7 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
 
     shown: boolean;     // Defines the state of the panel (shown or hidden)
 
-    propertyController: PropertyController;
+    propertyController: PropertyBuilder;
     propertyGroups: BpmnPropertyGroup[];
 
     form: FormGroup;
@@ -91,38 +91,21 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
 
         switch (this.bpmnElement?.type) {
         case "bpmn:Process":
-            this.propertyController = new ProcessPropertyController();
+            this.propertyController = new ProcessPropertyBuilder();
             break;
         case "bpmn:SequenceFlow":
-            this.propertyController = new FlowPropertyController();
+            this.propertyController = new FlowPropertyBuilder();
             break;
         case "bpmn:ServiceTask":
             this.propertyController = new ServiceTaskPropertyController(this.skillService);
             break;
         default:
-            this.propertyController = new PropertyController();
+            this.propertyController = new PropertyBuilder();
             break;
         }
 
         this.propertyGroups = this.propertyController.createPropertyGroups(this.bpmnElement);
 
-        // this.form = this.propertyController.toFormGroup(this.propertyGroups);
-        // this.form.addControl("asd" , this.propertyController.toFormGroup(this.propertyGroups));
-
-        console.log("loop check");
-        this.propertyGroups.forEach(pG => {
-            console.log(this.propertyController.toFormGroup(this.propertyGroups).get(pG.propertyKey));
-
-        });
-
-        // setTimeout(() => {
-        //     console.log("loop check");
-        //     this.propertyGroups.forEach(pG => {
-        //         console.log(this.propertyController.toFormGroup(this.propertyGroups).get(pG.propertyKey));
-
-        //     });
-        // }, 10000);
-        // this.form.addControl("asd", this.propertyController.toFormGroup(this.propertyGroups));
     }
 
 

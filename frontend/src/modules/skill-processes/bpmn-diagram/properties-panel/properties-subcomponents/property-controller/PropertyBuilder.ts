@@ -1,8 +1,7 @@
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { GroupedObservable } from 'rxjs';
+import { FormGroup } from '@angular/forms';
 import { BaseProperty, ReadonlyProperty } from '../Property';
 
-export class PropertyController {
+export class PropertyBuilder {
 
 
     constructor() { }
