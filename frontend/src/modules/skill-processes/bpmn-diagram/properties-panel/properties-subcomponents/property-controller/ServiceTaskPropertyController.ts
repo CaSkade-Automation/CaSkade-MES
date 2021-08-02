@@ -1,9 +1,9 @@
-import { BpmnPropertyGroup, PropertyController } from "./PropertyController";
+import { BpmnPropertyGroup, PropertyBuilder } from "./PropertyBuilder";
 import { SkillSelectionProperty, CommandTypeSelectionProperty, BaseProperty } from "../Property";
 import { SkillService } from "src/shared/services/skill.service";
 import { BpmnPropertyComponent } from "../bpmn-property/bpmn-property.component";
 
-export class ServiceTaskPropertyController extends PropertyController {
+export class ServiceTaskPropertyController extends PropertyBuilder {
 
     constructor(private skillService: SkillService) {
         super();

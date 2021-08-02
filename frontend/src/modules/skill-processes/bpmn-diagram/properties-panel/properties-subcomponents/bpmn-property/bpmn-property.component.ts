@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { BaseProperty } from '../Property';
-import { BpmnPropertyGroup } from '../property-controller/PropertyController';
+import { BpmnPropertyGroup } from '../property-controller/PropertyBuilder';
 
 @Component({
     selector: 'bpmn-property',

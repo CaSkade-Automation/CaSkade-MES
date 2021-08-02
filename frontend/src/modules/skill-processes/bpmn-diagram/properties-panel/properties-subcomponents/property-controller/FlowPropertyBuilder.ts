@@ -1,7 +1,7 @@
-import { BpmnPropertyGroup, PropertyController } from "./PropertyController";
+import { BpmnPropertyGroup, PropertyBuilder } from "./PropertyBuilder";
 import { BaseProperty, StringInputProperty } from "../Property";
 
-export class FlowPropertyController extends PropertyController {
+export class FlowPropertyBuilder extends PropertyBuilder {
 
     createPropertyGroups(bpmnElement: any): BpmnPropertyGroup[] {
         const basePropertyGroups = this.createBasePropertyGroups(bpmnElement);
