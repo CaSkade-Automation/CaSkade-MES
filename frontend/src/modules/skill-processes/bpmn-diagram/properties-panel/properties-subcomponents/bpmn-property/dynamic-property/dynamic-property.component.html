@@ -1,16 +1,15 @@
-<div class="property-component" style="height:100%" [formGroup]="formGroup" class="row">
+<div class="property-component" style="height:100%" [formGroup]="formGroup" class="row" [hidden]="property.hidden">
     <label class="col-sm-3 col-form-label" [attr.for]="property.key">{{property.key}} <i class="far fa-question-circle" title="{{property.label}}"></i></label>
 
 
     <div [ngSwitch]="property.controlType" class="col-sm-9">
-        <input class=" form-control form-control-sm" *ngSwitchCase="'input'" [formControlName]="property.key"
+        <input *ngSwitchCase="'input'" class="form-control-sm" [class]="property.classes" [readonly]="property.readonly" [formControlName]="property.key"
                 [id]="property.key" [type]="property.type">
 
-        <select class="form-select form-control-sm" [id]="property.key" *ngSwitchCase="'select'" [formControlName]="property.key">
+        <select *ngSwitchCase="'select'" class="form-control-sm" [class]="property.classes" [id]="property.key" [formControlName]="property.key">
             <option *ngFor="let opt of property.options" [value]="opt.value">{{opt.key}}</option>
         </select>
 
-        <input *ngSwitchCase="'readonly'" [type]="property.type" readonly class="form-control-plaintext" [id]="property.key" [value]="property.value">
     </div>
 
     <!-- <div *ngFor="let childProperty of childProperties.controls">

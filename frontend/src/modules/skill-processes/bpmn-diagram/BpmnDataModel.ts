@@ -10,13 +10,13 @@ export class BpmnDataModel {
      * Update a property of the BPMN data model
      * @param property Property to update
      */
-    updateProperty<T>(bpmnElement: any, property: BpmnProperty<T>): void {
-        this.bpmnDataModel.updateProperties(bpmnElement, property);
+    updateProperty(bpmnElement: any, property: BpmnProperty): void {
+        this.bpmnDataModel.updateProperties(bpmnElement, {[property.key]: property.value});
     }
 
 }
 
-export class BpmnProperty<T> {
+export class BpmnProperty {
 
-    constructor(public key: string, public value: T) {}
+    constructor(public key: string, public value: string|number|{}) {}
 }

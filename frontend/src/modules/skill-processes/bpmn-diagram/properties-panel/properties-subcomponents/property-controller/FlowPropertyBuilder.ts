@@ -1,11 +1,12 @@
-import { BpmnPropertyGroup, PropertyBuilder } from "./PropertyBuilder";
-import { BaseProperty, StringInputProperty } from "../Property";
+import { PropertyBuilder } from "./PropertyBuilder";
+import { TextInputProperty } from "../Property";
+import { BpmnPropertyGroup } from "../bpmn-property/bpmn-property-group";
 
 export class FlowPropertyBuilder extends PropertyBuilder {
 
     createPropertyGroups(bpmnElement: any): BpmnPropertyGroup[] {
         const basePropertyGroups = this.createBasePropertyGroups(bpmnElement);
-        const conditionProperty = new StringInputProperty(
+        const conditionProperty = new TextInputProperty(
             {
                 key: "condition",
                 label: "Condition that has to be true in order to follow this flow",
@@ -17,10 +18,6 @@ export class FlowPropertyBuilder extends PropertyBuilder {
         const conditionPropertyGroup = new BpmnPropertyGroup("condition", [conditionProperty]);
 
         return [...basePropertyGroups, conditionPropertyGroup];
-    }
-
-    transformFormValues(rawFormValues) {
-        return rawFormValues.condition = "${" + rawFormValues.condition +"}";
     }
 
 }

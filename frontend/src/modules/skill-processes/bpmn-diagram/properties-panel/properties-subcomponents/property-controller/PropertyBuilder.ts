@@ -1,10 +1,8 @@
 import { FormGroup } from '@angular/forms';
-import { BaseProperty, ReadonlyProperty } from '../Property';
+import { BpmnPropertyGroup } from '../bpmn-property/bpmn-property-group';
+import { ReadonlyInputProperty, TextInputProperty } from '../Property';
 
 export class PropertyBuilder {
-
-
-    constructor() { }
 
     toFormGroup(propertyGroups: BpmnPropertyGroup[]): FormGroup {
         const group: any = {};
@@ -20,7 +18,7 @@ export class PropertyBuilder {
      * @param bpmnElement BPMN element to create properties for
      */
     protected createBasePropertyGroups(bpmnElement): BpmnPropertyGroup[] {
-        const idProperty = new ReadonlyProperty(
+        const idProperty = new ReadonlyInputProperty(
             {
                 key: "id",
                 label: "Unique ID that identifies this element",
@@ -31,7 +29,7 @@ export class PropertyBuilder {
         );
         const idPropertyGroup = new BpmnPropertyGroup("id", [idProperty]);
 
-        const typeProperty = new ReadonlyProperty(
+        const typeProperty = new ReadonlyInputProperty(
             {
                 key: "type",
                 label: "BPMN Type of this element",
@@ -42,7 +40,19 @@ export class PropertyBuilder {
         );
         const typePropertyGroup = new BpmnPropertyGroup("type", [typeProperty]);
 
-        return [idPropertyGroup, typePropertyGroup];
+        const nameProperty = new TextInputProperty(
+            {
+                key: "name",
+                label: "Name of this element",
+                order: 3,
+                required: false,
+                value: bpmnElement?.businessObject.name
+            }
+        );
+        const namePropertyGroup = new BpmnPropertyGroup("name", [nameProperty]);
+
+
+        return [idPropertyGroup, typePropertyGroup, namePropertyGroup];
     }
 
 
@@ -63,20 +73,4 @@ export class PropertyBuilder {
         return rawFormValues;
     }
 
-}
-
-
-/**
- * Acts as an abstraction layer between angular form properties and BPMN properties.
- * Some BPMN properties might consist of several form fields
- */
-export class BpmnPropertyGroup {
-
-    public props: Array<BaseProperty>;
-
-    constructor(public propertyKey: string, public properties = []) { }
-
-    addProperty(property: BaseProperty): void {
-        this.props.push(property);
-    }
 }

@@ -13,7 +13,7 @@
                 <form (ngSubmit)="onSubmit()" [formGroup]="form">
 
                     <div *ngFor="let propertyGroup of propertyGroups" class="form-row">
-                        <bpmn-property [propertyGroup]="propertyGroup" [form]="form"></bpmn-property>
+                        <bpmn-property [propertyGroup]="propertyGroup" [form]="form" (valueChanged)="onPropertyGroupChanged($event)"></bpmn-property>
                     </div>
 
                     <div class="form-row">

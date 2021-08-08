@@ -1,13 +1,14 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { trigger, transition, style, animate, state, group, animateChild, query } from '@angular/animations';
-import { FormControl, FormGroup } from '@angular/forms';
-import { BaseProperty, SkillSelectionProperty } from './properties-subcomponents/Property';
-import { BpmnPropertyGroup, PropertyBuilder } from './properties-subcomponents/property-controller/PropertyBuilder';
+import { FormGroup } from '@angular/forms';
+import { PropertyBuilder } from './properties-subcomponents/property-controller/PropertyBuilder';
 import { SkillService } from 'src/shared/services/skill.service';
 import { FlowPropertyBuilder } from './properties-subcomponents/property-controller/FlowPropertyBuilder';
-import { ServiceTaskPropertyController } from './properties-subcomponents/property-controller/ServiceTaskPropertyController';
+import { SkillTaskPropertyBuilder } from './properties-subcomponents/property-controller/SkillTaskPropertyBuilder';
 import { ProcessPropertyBuilder } from './properties-subcomponents/property-controller/ProcessPropertyBuilder';
-import { BpmnDataModel } from '../BpmnDataModel';
+import { BpmnDataModel, BpmnProperty } from '../BpmnDataModel';
+import { BpmnPropertyGroup } from './properties-subcomponents/bpmn-property/bpmn-property-group';
+import { HumanTaskPropertyBuilder as UserTaskPropertyBuilder } from './properties-subcomponents/property-controller/UserTaskPropertyBuilder';
 
 @Component({
     selector: 'properties-panel',
@@ -61,9 +62,8 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     @Input() bpmnElement: any;
     @Input() bpmnModeler: any;  // Gets passed in from the modeler component
 
-    bpmnDataModel: BpmnDataModel // Is passed into the dynamic property component
-
-    shown: boolean;     // Defines the state of the panel (shown or hidden)
+    dataModel: BpmnDataModel;
+    shown = true;     // Defines the state of the panel (shown or hidden)
 
     propertyController: PropertyBuilder;
     propertyGroups: BpmnPropertyGroup[];
@@ -75,16 +75,9 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
         this.form = new FormGroup({});
     }
 
-    ngOnInit() {
-        // this.bpmnDataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
+    ngOnInit(): void {
+        this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
         this.propertyGroups = this.propertyController.createPropertyGroups(this.bpmnElement);
-        // this.form = this.propertyController.toFormGroup(this.propertyGroups);
-        this.form.valueChanges.subscribe(data => {
-            console.log("in panel");
-
-            console.log(data);
-        });
-
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -93,11 +86,14 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
         case "bpmn:Process":
             this.propertyController = new ProcessPropertyBuilder();
             break;
+        case "bpmn:UserTask":
+            this.propertyController = new UserTaskPropertyBuilder();
+            break;
         case "bpmn:SequenceFlow":
             this.propertyController = new FlowPropertyBuilder();
             break;
         case "bpmn:ServiceTask":
-            this.propertyController = new ServiceTaskPropertyController(this.skillService);
+            this.propertyController = new SkillTaskPropertyBuilder(this.skillService);
             break;
         default:
             this.propertyController = new PropertyBuilder();
@@ -108,6 +104,14 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
 
     }
 
+    /**
+     * Event handling function that gets called by the child BPMN property groups on every form change in order to propagate the changes to the BPMN data model
+     * @param newProperty The new property that will be set on the model
+     */
+    onPropertyGroupChanged(newProperty: BpmnProperty): void {
+        this.dataModel.updateProperty(this.bpmnElement, newProperty);
+    }
+
 
     onSubmit() {
         this.payLoad = this.form.getRawValue();
@@ -115,10 +119,6 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
         console.log(this.form.value);
         console.log("the form");
         console.log(this.form);
-
-        // apply some transformations to make sure input matches BPMN
-        const transformedValues = this.propertyController.transformFormValues(this.payLoad);
-
     }
 
     /**
