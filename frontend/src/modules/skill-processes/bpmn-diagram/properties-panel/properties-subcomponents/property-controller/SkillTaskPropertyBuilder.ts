@@ -1,9 +1,9 @@
-import { BpmnPropertyGroup, PropertyBuilder } from "./PropertyBuilder";
-import { SkillSelectionProperty, CommandTypeSelectionProperty, BaseProperty } from "../Property";
+import { PropertyBuilder } from "./PropertyBuilder";
+import { SkillSelectionProperty, CommandTypeSelectionProperty, TextInputProperty, ReadonlyInputProperty } from "../Property";
 import { SkillService } from "src/shared/services/skill.service";
-import { BpmnPropertyComponent } from "../bpmn-property/bpmn-property.component";
+import { BpmnPropertyGroup } from "../bpmn-property/bpmn-property-group";
 
-export class ServiceTaskPropertyController extends PropertyBuilder {
+export class SkillTaskPropertyBuilder extends PropertyBuilder {
 
     constructor(private skillService: SkillService) {
         super();
@@ -34,15 +34,22 @@ export class ServiceTaskPropertyController extends PropertyBuilder {
         // TODO: This has to be checked and properly set up. Adding Camunda extension elements is not that easys.
         const skillPropertyGroup = new BpmnPropertyGroup("skillIri", [skillProperty, commandTypeProperty]);
 
+        const delegateClassProperty = new ReadonlyInputProperty(
+            {
+                key: "camunda:class",
+                label: "The Java delegate class that is in charge of executing this service task",
+                order: 10,
+                required: false,
+                value: 'de.hsuhh.aut.skills.bpmn.delegates.MyJavaDelegate;',
+                hidden: true
+            }
+        );
+        const delegateClassPropertyGroup = new BpmnPropertyGroup("camunda:class", [delegateClassProperty]);
 
 
         // const parameterProperties = new parameterProperties();
 
-        return [...basePropertyGroups, skillPropertyGroup];
-    }
-
-    transformFormValues(rawFormValues) {
-        // TODO
+        return [...basePropertyGroups, skillPropertyGroup, delegateClassPropertyGroup];
     }
 
 }
