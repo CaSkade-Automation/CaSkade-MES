@@ -5,6 +5,7 @@ export const emptyXml = `<?xml version="1.0" encoding="UTF-8"?>
     <bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
         xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+        xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
         xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
         id="Definitions_0o8r9mb"
         targetNamespace="http://bpmn.io/schema/bpmn">
