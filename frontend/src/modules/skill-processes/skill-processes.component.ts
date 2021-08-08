@@ -49,7 +49,7 @@ export class SkillProcessesComponent implements AfterContentInit{
         this.modelerComponent.clear();
     }
 
-    async prepareForDeployment(): Promise<void> {
+    async getProcessXML(): Promise<void> {
         this.xmlToDeploy = (await this.modelerComponent.saveXml()).xml;
     }
 
