@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { trigger, transition, style, animate, state, group, animateChild, query } from '@angular/animations';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { PropertyBuilder } from './properties-subcomponents/property-controller/PropertyBuilder';
 import { SkillService } from 'src/shared/services/skill.service';
 import { FlowPropertyBuilder } from './properties-subcomponents/property-controller/FlowPropertyBuilder';
@@ -27,20 +27,20 @@ import { HumanTaskPropertyBuilder as UserTaskPropertyBuilder } from './propertie
                     // animation to show
                     group([
                         animate('500ms', style({transform: 'translateX(0%)', opacity: 1})),
-                        query('@theChildAnimation', animateChild())
+                        query('@childAnimation', animateChild())
                     ])
                 ]),
                 transition('true => false', [
                     // animation to hide
                     group([
                         animate('500ms', style({transform: 'translateX(90%)', opacity: 1})),
-                        // query('@theChildAnimation', animateChild())
+                        // query('@childAnimation', animateChild())
                     ])
                 ]),
             ]
         ),
         // Separate animation of the content which is separately faded
-        trigger('theChildAnimation', [
+        trigger('childAnimation', [
             state('true',
             // state when div is shown
                 style({opacity: 1}),
@@ -69,7 +69,6 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     propertyGroups: BpmnPropertyGroup[];
 
     form: FormGroup;
-    payLoad = '';
 
     constructor(private skillService: SkillService) {
         this.form = new FormGroup({});
@@ -81,7 +80,6 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-
         switch (this.bpmnElement?.type) {
         case "bpmn:Process":
             this.propertyController = new ProcessPropertyBuilder();
@@ -114,7 +112,6 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
 
 
     onSubmit() {
-        this.payLoad = this.form.getRawValue();
         console.log("form value");
         console.log(this.form.value);
         console.log("the form");
