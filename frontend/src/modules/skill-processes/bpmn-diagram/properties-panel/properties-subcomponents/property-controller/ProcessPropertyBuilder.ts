@@ -10,15 +10,12 @@ export class ProcessPropertyBuilder extends PropertyBuilder {
         const otherAttrs = businessObject.$attrs;
         const properties = {...bpmnElement,...businessObject, ...otherAttrs};
 
-        console.log(`setting up Property. Current Props`);
-        console.log(properties);
-
         const baseProperties = this.createBasePropertyGroups(bpmnElement);
         const isExecutableProperty = new CheckboxProperty({
             key: "isExecutable",
             label: "Whether or not this process should be executable",
             order: 4,
-            required: false,
+            required: true,
             value: properties.isExecutable
         });
         const isExecutablePropertyGroup = new BpmnPropertyGroup("isExecutable", [isExecutableProperty]);

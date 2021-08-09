@@ -4,7 +4,7 @@
         <i class="fas fa-chevron-right" *ngIf="!shown"></i>
         Properties Panel
     </div>
-    <div class="card properties-card" [@theChildAnimation]="shown">
+    <div class="card properties-card" [@childAnimation]="shown">
         <div class="card-header">
             <h3>Properties</h3>
         </div>
@@ -20,11 +20,9 @@
                         <button class="btn btn-primary" type="submit" [disabled]="!form.valid">Save</button>
                     </div>
                 </form>
-
-                <div *ngIf="payLoad" class="form-row">
-                    <strong>Saved the following values</strong><br>{{payLoad}}
-                </div>
             </div>
         </div>
     </div>
 </div>
+
+
