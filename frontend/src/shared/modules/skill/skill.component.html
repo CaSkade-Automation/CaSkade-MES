@@ -7,13 +7,17 @@
     <div class="card-body">
 
         <div class="row">
-        <div class="col-lg-7 col-md-12">
-            <div class="row p-6 mb-2 mr-1 ml-1 bg-light text-dark">
-                <p class="font-weight-bold mr-1">Current state: </p> <p [ngClass]="{'blink-bg': this.blinkStateChange}"   >{{skill.stateMachine.getCurrentState().getLocalName()}}</p></div>
+        <div class="col-lg-6 col-md-12">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <span class="fw-bold mr-1">Current state: </span>
+                    <span class="badge bg-info" [ngClass]="{'blink-bg': this.blinkStateChange}">{{skill.stateMachine.getCurrentState().getLocalName()}}</span>
+                </div>
+            </div>
             <div class="card">
                 <h6 class="card-header">Executable transitions</h6>
                 <div class="card-body">
-                    <button class="btn btn-sm mr-1 mt-1" style="min-width: 120px"
+                    <button class="btn btn-sm me-1 mt-1" style="min-width: 100px"
                         [disabled]="!this.isActiveCommand(command, skill)"
                         [class]="this.getCommandButtonClass(command)"
                         *ngFor="let command of skill.stateMachine.getCommands()"
@@ -25,41 +29,37 @@
             <div *ngIf="this.transitionTriggered" class="row p-6 mt-2 mb-2 mr-1 ml-1 bg-light text-dark">
                 <p class="font-weight-bold mr-1">Requested: </p>{{command.getShortName()}}
             </div>
-            <div class="card">
-                <h6 class="card-header">Other skill methods</h6>
-                <div class="card-body">
-                    <button class="btn btn-sm btn-primary mr-1 mt-1" style="min-width: 120px" (click)="getSkillOutputs()">Get Outputs</button>
-                </div>
-            </div>
-
         </div>
 
-        <div  class="col-lg-5 col-md-12">
+        <div  class="col-lg-6 col-md-12">
             <div class="card">
                 <h6 class="card-header">Parameters</h6>
                 <div class="card-body">
                     <form *ngIf="skill.skillParameters?.length>0" class="was-validated">
                         <div *ngFor="let parameter of skill.skillParameters">
-                        <div class="form-group">
-                            <label>{{parameter.name}}</label>
+                        <div class="row mt-2">
+                            <label class="col-3 col-form-label">{{parameter.name}}</label>
                             <ng-container *ngIf="parameter.optionValues==undefined; else defined">
-                                <ng-container *ngIf="parameter.required; else notRequired">
+                                <div class="col-9" *ngIf="parameter.required; else notRequired">
                                     <input type="number" step="{{getSteps(parameter)}}" [(ngModel)]="parameter.value" name="{{parameter.name}}" class="form-control " placeholder="{{getDefault(parameter)}}"  required>
-                                </ng-container>
+                                </div>
                                 <ng-template #notRequired>
-                                    <input type="number"  step="{{getSteps(parameter)}}" class="form-control is-invalid" placeholder="{{parameter.name}}" >
+                                    <div class="col-9">
+                                        <input type="number"  step="{{getSteps(parameter)}}" class="form-control is-invalid" placeholder="{{parameter.name}}" >
+                                    </div>
                                 </ng-template>
 
                             </ng-container>
                             <ng-template #defined>
-                                <select class="form-control" placeholder="Chose an option" [(ngModel)]="parameter.value" name="{{parameter.name}}">
-                                    <option *ngFor="let optionValue of parameter.optionValues" value="{{optionValue}}">{{optionValue}}</option>
-                                </select>
+                                <div class="col-9">
+                                    <select class="form-select" placeholder="Chose an option" [(ngModel)]="parameter.value" name="{{parameter.name}}">
+                                        <option *ngFor="let optionValue of parameter.optionValues" value="{{optionValue}}">{{optionValue}}</option>
+                                    </select>
+                                </div>
                             </ng-template>
                         </div>
                         </div>
-                       <!--<button class="btn btn-primary" type="menu">Submit</button>-->
-                       <button (click)="setParameters()" class="btn btn-primary">Set parameters</button>
+                        <button class="btn btn-primary mt-3" (click)="setParameters()">Set parameters</button>
                     </form>
                 </div>
             </div>
@@ -68,26 +68,28 @@
                 <h6 class="card-header">Outputs</h6>
                 <div class="card-body">
                     <form *ngIf="skill.skillOutputs?.length>0" class="was-validated">
-                        <div *ngFor="let output of skill.skillOutputs">
-                        <div class="form-group">
-                            <label>{{output.name}}</label>
+                        <div class="row" *ngFor="let output of skill.skillOutputs">
+                            <label class="col-3 col-form-label">{{output.name}}</label>
                             <ng-container *ngIf="output.optionValues==undefined; else defined">
-                                <ng-container *ngIf="output.required; else notRequired">
+                                <div class="col-9" *ngIf="output.required; else notRequired">
                                     <input type="number" step="{{getSteps(output)}}" [(ngModel)]="output.value" name="{{output.name}}" class="form-control " placeholder="{{getDefault(output)}}"  required>
-                                </ng-container>
+                                </div>
                                 <ng-template #notRequired>
-                                    <input type="number"  step="{{getSteps(output)}}" class="form-control is-invalid" placeholder="{{output.name}}" >
+                                    <div class="col-9">
+                                        <input type="number"  step="{{getSteps(output)}}" class="form-control is-invalid" placeholder="{{output.name}}" >
+                                    </div>
                                 </ng-template>
 
                             </ng-container>
                             <ng-template #defined>
-                                <select class="form-control" placeholder="Chose an option">
-                                    <option *ngFor="let optionValue of output.optionValues">{{optionValue}}</option>
-
-                                </select>
+                                <div class="col-9">
+                                    <select class="form-select" placeholder="Chose an option">
+                                        <option *ngFor="let optionValue of output.optionValues">{{optionValue}}</option>
+                                    </select>
+                                </div>
                             </ng-template>
                         </div>
-                        </div>
+                        <button class="btn btn-primary mt-3" style="min-width: 120px" (click)="getSkillOutputs()">Get Outputs</button>
                     </form>
                 </div>
             </div>
