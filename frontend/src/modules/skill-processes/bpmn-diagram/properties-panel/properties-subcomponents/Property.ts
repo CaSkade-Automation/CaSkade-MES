@@ -1,5 +1,6 @@
 import { SkillService } from "src/shared/services/skill.service";
 import { Isa88CommandTypeIri } from "@shared/models/state-machine/ISA88/ISA88CommandTypeIri";
+import { FormControl } from "@angular/forms";
 
 export abstract class BaseProperty {
     value: string | number | boolean;
@@ -67,6 +68,17 @@ export class CommandTypeSelectionProperty extends BaseProperty {
                 this.options.push({key: commandTypeIriKey, value: commandTypeIri});
             }
         }
+    }
+}
+
+export class ParameterSelectionProperty extends BaseProperty {
+    constructor(propertyOptions: PropertyOptions, skillService: SkillService, form: FormControl) {
+        super(propertyOptions, "select", "text", false);
+        // skillService.getSkillByIri(skillIri)
+        console.log("form");
+        console.log(form);
+
+
     }
 }
 

@@ -21,9 +21,9 @@ export class BpmnPropertyComponent implements OnInit {
     ngOnInit(): void {
         // set up data model
         this.childFormGroup = this.toFormGroup();
-        for (const control in this.form.controls) {
-            this.form.removeControl(control);
-        }
+        // for (const control in this.form.controls) {
+        //     this.form.removeControl(control);
+        // }
         this.form.addControl(this.propertyGroup.propertyKey, this.childFormGroup);
 
         this.propertyGroup.linkForm(this.childFormGroup);
