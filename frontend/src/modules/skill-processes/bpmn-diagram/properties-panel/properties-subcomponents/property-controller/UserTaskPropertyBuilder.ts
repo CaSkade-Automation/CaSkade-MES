@@ -1,10 +1,11 @@
 import { PropertyBuilder } from "./PropertyBuilder";
 import { CheckboxProperty, TextInputProperty } from "../Property";
 import { BpmnPropertyGroup } from "../bpmn-property/bpmn-property-group";
+import { FormGroup } from "@angular/forms";
 
 export class HumanTaskPropertyBuilder extends PropertyBuilder {
 
-    createPropertyGroups(bpmnElement: any): BpmnPropertyGroup[] {
+    createPropertyGroups(bpmnElement: any, form?: FormGroup): BpmnPropertyGroup[] {
         // create merged object because properties are spread across different objects
         const businessObject = bpmnElement.businessObject;
         const otherAttrs = businessObject.$attrs;

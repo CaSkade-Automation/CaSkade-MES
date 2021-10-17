@@ -80,6 +80,28 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+
+        // The following lines show how camunda input properties are added
+        const moddle = this.bpmnModeler.get("moddle");
+        const inputParameter = moddle.create('camunda:InputParameter', {
+            type: 'atype',
+            name: 'akey',
+            value: 'avalue'
+        });
+
+        const inputOutput = moddle.create('camunda:InputOutput', {
+            inputParameters: [ inputParameter ]
+        });
+        const extensionElements = moddle.create( 'bpmn:ExtensionElements', {
+            values: [ inputOutput ]
+        } );
+
+        // const testProp = new BpmnProperty("camunda:InputOutput", extensionElements);
+        this.bpmnModeler.get("modeling").updateProperties(this.bpmnElement, {
+            extensionElements: extensionElements
+        } );
+        // End of property adding
+
         switch (this.bpmnElement?.type) {
         case "bpmn:Process":
             this.propertyController = new ProcessPropertyBuilder();
@@ -91,7 +113,7 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
             this.propertyController = new FlowPropertyBuilder();
             break;
         case "bpmn:ServiceTask":
-            this.propertyController = new SkillTaskPropertyBuilder(this.skillService);
+            this.propertyController = new SkillTaskPropertyBuilder(this.skillService, this.form);
             break;
         default:
             this.propertyController = new PropertyBuilder();

@@ -9,6 +9,9 @@ export class ProcessPropertyBuilder extends PropertyBuilder {
         const businessObject = bpmnElement.businessObject;
         const otherAttrs = businessObject.$attrs;
         const properties = {...bpmnElement,...businessObject, ...otherAttrs};
+        console.log("existing props");
+        console.log(properties);
+
 
         const baseProperties = this.createBasePropertyGroups(bpmnElement);
         const isExecutableProperty = new CheckboxProperty({
@@ -25,7 +28,7 @@ export class ProcessPropertyBuilder extends PropertyBuilder {
             label: "Version Tag of this process",
             order: 5,
             required: false,
-            value: properties["camunda:versionTag"]
+            value: properties.versionTag
         });
         const versionTagPropertyGroup = new BpmnPropertyGroup("camunda:versionTag", [versionTagProperty]);
 

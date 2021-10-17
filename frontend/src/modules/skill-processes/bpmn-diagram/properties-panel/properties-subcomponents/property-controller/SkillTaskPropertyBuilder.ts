@@ -1,15 +1,25 @@
 import { PropertyBuilder } from "./PropertyBuilder";
-import { SkillSelectionProperty, CommandTypeSelectionProperty, TextInputProperty, ReadonlyInputProperty } from "../Property";
+import { SkillSelectionProperty, CommandTypeSelectionProperty, ReadonlyInputProperty, ParameterSelectionProperty } from "../Property";
 import { SkillService } from "src/shared/services/skill.service";
 import { BpmnPropertyGroup } from "../bpmn-property/bpmn-property-group";
+import { FormControl, FormControlName, FormGroup } from "@angular/forms";
 
 export class SkillTaskPropertyBuilder extends PropertyBuilder {
 
-    constructor(private skillService: SkillService) {
+    skilFormControl: FormControl;
+
+    constructor(private skillService: SkillService, private form: FormGroup) {
         super();
+        setTimeout(() => {
+            this.skilFormControl = form.get("skillIri.skillIri") as FormControl;
+            console.log(this.skilFormControl);
+
+        }, 10);
     }
 
     createPropertyGroups(bpmnElement: any): BpmnPropertyGroup[] {
+
+
         const basePropertyGroups = this.createBasePropertyGroups(bpmnElement);
         const skillProperty = new SkillSelectionProperty(
             {
@@ -31,8 +41,20 @@ export class SkillTaskPropertyBuilder extends PropertyBuilder {
             }
         );
 
-        // TODO: This has to be checked and properly set up. Adding Camunda extension elements is not that easys.
-        const skillPropertyGroup = new BpmnPropertyGroup("skillIri", [skillProperty, commandTypeProperty]);
+        // TODO: This has to be checked and properly set up. Adding Camunda extension elements is not that easy.
+        const skillPropertyGroup = new BpmnPropertyGroup("skill", [skillProperty, commandTypeProperty]);
+
+        const parameterProperty =  new ParameterSelectionProperty(
+            {
+                key: "parameter",
+                label: "The parameters of this task",
+                order: 4,
+                required: true,
+                value: ''
+            },
+            this.skillService,
+            this.skilFormControl
+        );
 
         const delegateClassProperty = new ReadonlyInputProperty(
             {
@@ -46,8 +68,6 @@ export class SkillTaskPropertyBuilder extends PropertyBuilder {
         );
         const delegateClassPropertyGroup = new BpmnPropertyGroup("camunda:class", [delegateClassProperty]);
 
-
-        // const parameterProperties = new parameterProperties();
 
         return [...basePropertyGroups, skillPropertyGroup, delegateClassPropertyGroup];
     }

@@ -8,8 +8,8 @@ import { AfterContentInit, Component, ElementRef, Input, OnDestroy, Output, View
  * bpmn-modeler - bootstraps a full-fledged BPMN editor
  */
 import * as BpmnModeler from 'bpmn-js/dist/bpmn-modeler.production.min.js';
-import * as propertiesProviderModule from 'bpmn-js-properties-panel/lib/provider/camunda';
-import * as camundaModdleDescriptor from  'camunda-bpmn-moddle';
+import * as camundaExtensionModule from 'camunda-bpmn-moddle/lib';
+import * as camundaModdleDescriptor from  'camunda-bpmn-moddle/resources/camunda.json';
 import { BpmnDataModel } from './BpmnDataModel';
 import { emptyXml } from './emptyDiagram';
 
@@ -25,6 +25,7 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
 
     @ViewChild('ref', { static: true }) private el: ElementRef;     // Reference to the DOM element
 
+    // The XML input property. Import a new XML as soon as it changes
     @Input() set bpmnXml(bpmnXml: string) {
         if (bpmnXml) {
             this.bpmnModeler.importXML(bpmnXml);
@@ -32,16 +33,16 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
     }
 
 
-
     constructor() {
-        // setup the modler
+        // setup the modeler
         this.bpmnModeler = new BpmnModeler({
-            additionalModules: [propertiesProviderModule],
+            additionalModules: [camundaExtensionModule],
             moddleExtensions: {
                 camunda: camundaModdleDescriptor
             }
         });
 
+        // Import the predefined XML
         this.bpmnModeler.importXML(emptyXml).then(() => {
             // When done importing, get the process element and set it as the initial clicked element
             const process = this.bpmnModeler.get('canvas').getRootElement();
