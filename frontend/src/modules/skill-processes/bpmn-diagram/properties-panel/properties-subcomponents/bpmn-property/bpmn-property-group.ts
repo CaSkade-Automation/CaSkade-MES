@@ -20,12 +20,6 @@ export class BpmnPropertyGroup {
      * @returns
      */
     getValue(): string|number|boolean|{} {
-        console.log("should return value");
-        console.log(`key: ${this.properties[0].key}`);
-
-        console.log(this.formControl.get(this.properties[0].key).value);
-
-
         // Default implementation for a single property: Just get that one value
         return this.formControl.get(this.properties[0].key).value;
     }

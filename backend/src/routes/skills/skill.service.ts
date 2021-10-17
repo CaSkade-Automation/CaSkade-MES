@@ -239,8 +239,6 @@ export class SkillService {
     }
 
     async updateState(skillIri:string, newStateTypeIri: string): Promise<string> {
-        console.log(`updating state of skill ${skillIri}`);
-        console.log(`new state ${newStateTypeIri}`);
         try {
             const deleteQuery = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
