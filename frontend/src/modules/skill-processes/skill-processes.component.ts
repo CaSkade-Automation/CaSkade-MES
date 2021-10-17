@@ -13,7 +13,7 @@ import { BpmnDiagramComponent } from './bpmn-diagram/bpmn-modeler.component';
     styleUrls: ['./skill-processes.component.scss']
 })
 export class SkillProcessesComponent implements AfterContentInit{
-    // diagramUrl = 'https://cdn.staticaly.com/gh/bpmn-io/bpmn-js-examples/dfceecba/starter/diagram.bpmn';
+    uploadedFile: Blob;
     importError?: Error;
     processDefinitions: ProcessDefinition[]
     bpmnXml: string;
@@ -73,6 +73,18 @@ export class SkillProcessesComponent implements AfterContentInit{
             console.log(this.bpmnXml);
 
         });
+    }
+
+    fileChanged(event: any) {
+        this.uploadedFile = event.target.files[0];
+    }
+
+    loadFromFile(): void {
+        const reader = new FileReader();
+        reader.onload = () => {
+            this.bpmnXml = reader.result as string;
+        };
+        reader.readAsText(this.uploadedFile);
     }
 
     openInModeler(): void {
