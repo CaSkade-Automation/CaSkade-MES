@@ -1,20 +1,14 @@
+<div class="row mt-3">
+    <div class="col">
+        <p>Please select an AutomationML-file containing a Module Type Package and upload it for mapping</p>
+    </div>
+</div>
 <form>
-    <div class="input-group mb-3 mt-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fas fa-file-upload"></i> </span>
-        </div>
-        <div class="custom-file">
-            <input #file accept=".aml" (change)="onFileAdded($event); changed=true" type="file"
-                class="custom-file-input" id="inputGroupFile01">
-            <label class="custom-file-label" for="inputGroupFile01">Select an .aml-File</label>
+    <div class="input-group">
+        <div class="input-group">
+            <input type="file" #file accept=".aml" class="form-control"
+                (change)="onFileAdded($event); changed=true">
+            <button class="btn btn-primary" (click)="submit()" type="button">Upload</button>
         </div>
     </div>
-    <ng-container *ngIf="changed; else elseDisabled">
-        <div> <span class="fas fa-check-circle"></span> {{addedFile.name}} selected </div>
-        <button (click)="submit()" class="btn btn-primary">Submit</button>
-    </ng-container>
-    <ng-template #elseDisabled>
-        <button class="btn btn-primary" disabled>Submit</button>
-    </ng-template>
-
 </form>
