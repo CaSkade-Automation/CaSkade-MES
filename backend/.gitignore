@@ -1,5 +1,5 @@
 # folder where uploads get stored
-/uploaded-files
+/uploaded-files/*
 
 # compiled output
 /dist
