@@ -37,7 +37,7 @@ export class MtpMappingController {
      */
     @Post()
     @UseInterceptors(FileInterceptor('mtp-file'))
-    uploadFile(@Req() req: Request, @UploadedFile() file: Express.Multer.File): Promise<string> {
+    uploadFile(@Req() req: Request, @UploadedFile() file: Express.Multer.File): Promise<void> {
         return this.mtpMappingService.executeMapping(file);
     }
 

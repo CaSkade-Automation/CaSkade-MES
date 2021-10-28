@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import Axios, { AxiosRequestConfig } from 'axios';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
@@ -37,7 +37,7 @@ export class MtpMappingService {
      * Execute a mapping with a given file
      * @param mtpFile File containing an MTP
      */
-    async executeMapping(mtpFile: Express.Multer.File): Promise<string> {
+    async executeMapping(mtpFile: Express.Multer.File): Promise<void> {
         const formData = new FormData();
         formData.append("mtp-file", fs.createReadStream(mtpFile.path), {filename: mtpFile.originalname});
 
@@ -46,18 +46,16 @@ export class MtpMappingService {
             timeout: 1200000        // large timeout because mapping takes forever
         };
 
-        Axios.post(this.config.url, formData, reqConfig)
-            .then(res => {
-                console.log("mapping completed");
-                console.log(res.data);
-                this.moduleService.addModule(res.data);
-            })
-            .catch(err => {
-                console.log("error on mapping");
-                console.log(err);
-            });
-
-        return;
+        try {
+            const res = await Axios.post(this.config.url, formData, reqConfig);
+            console.log("mapping completed");
+            console.log(res.data);
+            this.moduleService.addModule(res.data);
+            return;
+        } catch (error) {
+            console.log("error on mapping");
+            throw new HttpException("Error while Mapping MTP file", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

@@ -44,10 +44,7 @@ export class MtpMappingService {
         const formData = new FormData();
         formData.append('mtp-file', mtpFile);
 
-        const params = new HttpParams();
-
         const options = {
-            params: params,
             reportProgress: true,
         };
 
