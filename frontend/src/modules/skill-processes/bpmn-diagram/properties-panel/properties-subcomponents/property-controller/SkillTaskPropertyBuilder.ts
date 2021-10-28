@@ -2,7 +2,7 @@ import { PropertyBuilder } from "./PropertyBuilder";
 import { SkillSelectionProperty, CommandTypeSelectionProperty, ReadonlyInputProperty, ParameterSelectionProperty } from "../Property";
 import { SkillService } from "src/shared/services/skill.service";
 import { BpmnPropertyGroup } from "../bpmn-property/bpmn-property-group";
-import { FormControl, FormControlName, FormGroup } from "@angular/forms";
+import { FormControl, FormGroup } from "@angular/forms";
 
 export class SkillTaskPropertyBuilder extends PropertyBuilder {
 
@@ -11,7 +11,9 @@ export class SkillTaskPropertyBuilder extends PropertyBuilder {
     constructor(private skillService: SkillService, private form: FormGroup) {
         super();
         setTimeout(() => {
-            this.skilFormControl = form.get("skillIri.skillIri") as FormControl;
+            this.skilFormControl = form.get("skill.skillIri") as FormControl;
+            console.log("in constructor");
+
             console.log(this.skilFormControl);
 
         }, 10);
