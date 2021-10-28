@@ -4,8 +4,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 
-// ngx-bootstrap
-import { TabsModule } from 'ngx-bootstrap/tabs';
 
 // Routing
 import { OrderManagementRouter } from './order-management.routing';
@@ -18,22 +16,21 @@ import { CheckResultComponent } from './check-result/check-result.component';
 import { OrderQueryService } from './order-query-service';
 
 @NgModule({
-  imports: [
-    OrderManagementRouter,
-    TabsModule,
-    ReactiveFormsModule,
-    FormsModule,
-    CommonModule,
-    HttpClientModule
-  ],
-  declarations: [
-    OrderManagementComponent,
-    NewOrderComponent,
-    UploadSummaryComponent,
-    CheckResultComponent,
-  ],
-  providers: [
-    OrderQueryService
-  ]
+    imports: [
+        OrderManagementRouter,
+        ReactiveFormsModule,
+        FormsModule,
+        CommonModule,
+        HttpClientModule
+    ],
+    declarations: [
+        OrderManagementComponent,
+        NewOrderComponent,
+        UploadSummaryComponent,
+        CheckResultComponent,
+    ],
+    providers: [
+        OrderQueryService
+    ]
 })
 export class OrderManagementModule { }

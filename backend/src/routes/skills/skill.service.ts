@@ -249,9 +249,12 @@ export class SkillService {
 
             const insertQuery = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             INSERT {
                 <${skillIri}> Cap:hasCurrentState ?newState.
             } WHERE {
+                <${skillIri}> Cap:hasStateMachine ?stateMachine.
+                ?stateMachine ISA88:hasState ?newState.
                 ?newState a <${newStateTypeIri}>.
             }`;
             await this.graphDbConnection.executeUpdate(insertQuery);

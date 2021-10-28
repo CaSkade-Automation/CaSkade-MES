@@ -1,0 +1,26 @@
+<div class="property-component" style="height:100%" [formGroup]="formGroup" class="row" [hidden]="property.hidden">
+    <label class="col-sm-4 col-form-label" [attr.for]="property.key">{{property.key}} <i class="far fa-question-circle" title="{{property.label}}"></i></label>
+
+
+    <div [ngSwitch]="property.controlType" class="col-sm-8">
+        <!-- Separate switch / case for the type as this cannot be set dynamically because checkboxes only work with a fixed type -->
+        <ng-container *ngSwitchCase="'input'">
+            <ng-container [ngSwitch]="property.type">
+                <input *ngSwitchCase="'text'" type="text" class="form-control form-control-sm" [formControlName]="property.key">
+
+                <input *ngSwitchCase="'checkbox'" type="checkbox" class="form-check-sm"  [formControlName]="property.key">
+            </ng-container>
+        </ng-container>
+
+        <select *ngSwitchCase="'select'" class="form-control-sm" [formControlName]="property.key">
+            <option *ngFor="let opt of property.options" [value]="opt.value">{{opt.key}}</option>
+        </select>
+
+    </div>
+
+    <!-- <div *ngFor="let childProperty of childProperties.controls">
+        <dynamic-property [property]="childProperty" [form]="form"></dynamic-property>
+    </div> -->
+
+    <div class="errorMessage" *ngIf="wasTouched && !isValid">{{property.label}} is required</div>
+  </div>

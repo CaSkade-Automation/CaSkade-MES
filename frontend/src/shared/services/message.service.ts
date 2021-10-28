@@ -69,6 +69,51 @@ export class MessageService {
         return obs;
     }
 
+
+    /**
+     * Displays a new success message
+     * @param messageTitle Title of the message
+     * @param messageBody Body of the message
+     */
+    public success(messageTitle: string, messageBody: string): void {
+        const message = new Message(messageTitle, messageBody, MessageType.Success);
+        this.addAndDeleteMessage(message);
+    }
+
+
+    /**
+     * Displays a new info message
+     * @param messageTitle Title of the message
+     * @param messageBody Body of the message
+     */
+    public info(messageTitle: string, messageBody: string): void {
+        const message = new Message(messageTitle, messageBody, MessageType.Info);
+        this.addAndDeleteMessage(message);
+    }
+
+
+    /**
+     * Displays a new danger message
+     * @param messageTitle Title of the message
+     * @param messageBody Body of the message
+     */
+    public danger(messageTitle: string, messageBody: string): void {
+        const message = new Message(messageTitle, messageBody, MessageType.Danger);
+        this.addAndDeleteMessage(message);
+    }
+
+
+    /**
+     * Displays a new warning message
+     * @param messageTitle Title of the message
+     * @param messageBody Body of the message
+     */
+    public warn(messageTitle: string, messageBody: string): void {
+        const message = new Message(messageTitle, messageBody, MessageType.Warning);
+        this.addAndDeleteMessage(message);
+    }
+
+
     private addAndDeleteMessage(message: Message): void{
         // Add a new message to the list and emit to observer
         this.messagelist.push(message);

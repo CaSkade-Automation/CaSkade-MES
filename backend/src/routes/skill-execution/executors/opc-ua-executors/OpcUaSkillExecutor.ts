@@ -1,4 +1,4 @@
-import { AttributeIds, CallMethodResult, ClientSession,
+import { AttributeIds, BrowseDescription, BrowseDirection, CallMethodRequestOptions, CallMethodResult, ClientSession,
     ConnectionStrategy, DataType, MessageSecurityMode,
     NodeId, NodeIdType, OPCUAClient, OPCUAClientOptions,
     SecurityPolicy, StatusCode, UserNameIdentityToken,
@@ -214,16 +214,16 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             }
         );
 
-        const opts : VariantOptions = {
-            dataType: DataType[nodeType],
-            value: value
-        };
-        const variant = new Variant(opts);
+        // const opts : VariantOptions = {
+        //     dataType: DataType[nodeType],
+        //     value: value
+        // };
+        // const variant = new Variant(opts);
 
-        const writeOptions: WriteValueOptions = {
-            nodeId: nodeId,
-            value: variant,
-        };
+        // const writeOptions: WriteValueOptions = {
+        //     nodeId: nodeId,
+        //     value: variant,
+        // };
 
         return this.uaSession.write(writeValue);
     }
@@ -232,15 +232,22 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
     /**
      * Wrapper around the node-opc-ua call() that takes care of "preparation steps"
      * @param session An active ClientSession to an OPC UA server
-     * @param objectNodeId NodeId of the object that contains the method
      * @param methodNodeId NodeId of the method to be called
      */
-    protected async callMethod(objectNodeId: string, methodNodeId: string): Promise<CallMethodResult> {
-        const objectNode = NodeId.resolveNodeId(objectNodeId);
+    protected async callMethod(methodNodeId: string): Promise<CallMethodResult> {
         const methodNode = NodeId.resolveNodeId(methodNodeId);
 
-        const methodToCall = {
-            objectId: objectNode,
+        // Browse parent node -> This will be the object node
+        const browseDesc = new BrowseDescription({
+            nodeId: methodNode,
+            browseDirection: BrowseDirection.Inverse,
+            resultMask: 1
+        });
+        const browseResult = await this.uaSession.browse(browseDesc);
+        const parentNode = browseResult.references[0].nodeId;
+
+        const methodToCall: CallMethodRequestOptions = {
+            objectId: parentNode,
             methodId: methodNode,
             inputArguments: []
         };
