@@ -1,0 +1,27 @@
+<form [formGroup]="fg">
+
+    <div class="form-group">
+        <label class="col-sm-6 col-form-label">Skill:<i class="far fa-question-circle"
+                title="IRI of the skill that should be executed in this task"></i></label>
+        <select class="form-control form-control-sm" formControlName="skillIri">
+            <option *ngFor="let skill of this.skills" value="skill.iri">{{skill.iri}}</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-6 col-form-label">Command:<i class="far fa-question-circle"
+                title="ISA 88 command that should be invoked"></i></label>
+        <select class="form-control form-control-sm" formControlName="commmandTypeIri">
+            <option *ngFor="let commandKey of this.commandKeys" value="this.commands[commandKey]" [selected]="commandKey == 'Start' ? true : false">{{commandKey}}
+            </option>
+        </select>
+    </div>
+
+    <ng-container [formGroup]="fgParameters" *ngFor="let parameter of this.currentParameters">
+        <div class="form-group">
+            <label class="col-form-label">{{parameter.name}}<i class="far fa-question-circle"
+                    title="Parameter {{parameter.name}}"></i></label>
+            <input class="form-control form-control-sm" [formControlName]="parameter.name">
+        </div>
+    </ng-container>
+</form>

@@ -16,25 +16,25 @@ import { HumanTaskPropertyBuilder as UserTaskPropertyBuilder } from './propertie
         trigger(
             'enterAnimation', [
                 state('true',
-                    // state when div is shown
-                    style({transform: 'translateX(0)', height: "100%"}),
+                // state when div is shown
+                    style({ transform: 'translateX(0)', height: "100%" }),
                 ),
                 state('false',
-                    // state when div is hidden
-                    style({transform: 'translateX(92%)', height: "100%"})
+                // state when div is hidden
+                    style({ transform: 'translateX(92%)', height: "100%" })
                 ),
                 transition('false => true', [
-                    // animation to show
+                // animation to show
                     group([
-                        animate('500ms', style({transform: 'translateX(0%)', opacity: 1})),
+                        animate('500ms', style({ transform: 'translateX(0%)', opacity: 1 })),
                         query('@childAnimation', animateChild())
                     ])
                 ]),
                 transition('true => false', [
-                    // animation to hide
+                // animation to hide
                     group([
-                        animate('500ms', style({transform: 'translateX(90%)', opacity: 1})),
-                        // query('@childAnimation', animateChild())
+                        animate('500ms', style({ transform: 'translateX(90%)', opacity: 1 })),
+                    // query('@childAnimation', animateChild())
                     ])
                 ]),
             ]
@@ -42,18 +42,18 @@ import { HumanTaskPropertyBuilder as UserTaskPropertyBuilder } from './propertie
         // Separate animation of the content which is separately faded
         trigger('childAnimation', [
             state('true',
-            // state when div is shown
-                style({opacity: 1}),
+                // state when div is shown
+                style({ opacity: 1 }),
             ),
             state('false',
-            // state when div is hidden
-                style({opacity: 0}),
+                // state when div is hidden
+                style({ opacity: 0 }),
             ),
-            transition( '* <=> *', [
+            transition('* <=> *', [
                 animate('500ms'),
             ],
             ),
-        ] ),
+        ]),
     ],
     templateUrl: './properties-panel.component.html',
     styleUrls: ['./properties-panel.component.scss'],
@@ -76,51 +76,81 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
 
     ngOnInit(): void {
         this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
-        this.propertyGroups = this.propertyController.createPropertyGroups(this.bpmnElement);
+        // this.propertyGroups = this.propertyController.createPropertyGroups(this.bpmnElement);
     }
+
+    /**
+     * Adds an input parameter to the current bpmn element
+     * @param value Value to be set as input parameter
+     */
+    addCamundaInputParameter(value: any): void {
+        const stringVal = JSON.stringify(value);
+
+        const moddle = this.bpmnModeler.get("moddle");
+        const inputParameter = moddle.create('camunda:InputParameter', {
+            // type: "Text",
+            name: "executionRequest",
+            type: "string",
+            value: `${stringVal}`
+        } );
+
+        const inputOutput = moddle.create('camunda:InputOutput', {
+            inputParameters: [inputParameter]
+        });
+        const extensionElements = moddle.create('bpmn:ExtensionElements', {
+            values: [inputOutput]
+        });
+        this.bpmnModeler.get("modeling").updateProperties(this.bpmnElement, {
+            extensionElements: extensionElements
+        });
+    }
+
+    updateBaseProperty(property: BpmnProperty) {
+        this.dataModel.updateProperty(this.bpmnElement, property);
+    }
+
+
+    // const moddle = this.bpmnModeler.get("moddle");
+    //     const inputParameter = moddle.create('camunda:InputParameter', {
+    //         type: 'atype',
+    //         name: 'akey',
+    //         value: 'avalue'
+    //     });
+
+    //     const inputOutput = moddle.create('camunda:InputOutput', {
+    //         inputParameters: [ inputParameter ]
+    //     });
+    //     const extensionElements = moddle.create( 'bpmn:ExtensionElements', {
+    //         values: [ inputOutput ]
+    //     } );
+
+    //     // const testProp = new BpmnProperty("camunda:InputOutput", extensionElements);
+    //     this.bpmnModeler.get("modeling").updateProperties(this.bpmnElement, {
+    //         extensionElements: extensionElements
+    //     } );
+    //     // End of property adding
 
     ngOnChanges(changes: SimpleChanges): void {
 
-        // The following lines show how camunda input properties are added
-        const moddle = this.bpmnModeler.get("moddle");
-        const inputParameter = moddle.create('camunda:InputParameter', {
-            type: 'atype',
-            name: 'akey',
-            value: 'avalue'
-        });
+        // switch (this.bpmnElement?.type) {
+        // case "bpmn:Process":
+        //     this.propertyController = new ProcessPropertyBuilder();
+        //     break;
+        // case "bpmn:UserTask":
+        //     this.propertyController = new UserTaskPropertyBuilder();
+        //     break;
+        // case "bpmn:SequenceFlow":
+        //     this.propertyController = new FlowPropertyBuilder();
+        //     break;
+        // case "bpmn:ServiceTask":
+        //     this.propertyController = new SkillTaskPropertyBuilder(this.skillService, this.form);
+        //     break;
+        // default:
+        //     this.propertyController = new PropertyBuilder();
+        //     break;
+        // }
 
-        const inputOutput = moddle.create('camunda:InputOutput', {
-            inputParameters: [ inputParameter ]
-        });
-        const extensionElements = moddle.create( 'bpmn:ExtensionElements', {
-            values: [ inputOutput ]
-        } );
-
-        // const testProp = new BpmnProperty("camunda:InputOutput", extensionElements);
-        this.bpmnModeler.get("modeling").updateProperties(this.bpmnElement, {
-            extensionElements: extensionElements
-        } );
-        // End of property adding
-
-        switch (this.bpmnElement?.type) {
-        case "bpmn:Process":
-            this.propertyController = new ProcessPropertyBuilder();
-            break;
-        case "bpmn:UserTask":
-            this.propertyController = new UserTaskPropertyBuilder();
-            break;
-        case "bpmn:SequenceFlow":
-            this.propertyController = new FlowPropertyBuilder();
-            break;
-        case "bpmn:ServiceTask":
-            this.propertyController = new SkillTaskPropertyBuilder(this.skillService, this.form);
-            break;
-        default:
-            this.propertyController = new PropertyBuilder();
-            break;
-        }
-
-        this.propertyGroups = this.propertyController.createPropertyGroups(this.bpmnElement);
+        // this.propertyGroups = this.propertyController.createPropertyGroups(this.bpmnElement);
 
     }
 

@@ -1,5 +1,6 @@
 <div class="properties-container" [@enterAnimation]="shown">
-    <div class="border rounded border-start-0 p-1 bg-light pointer" (click)="togglePropertiesPanel()" style="writing-mode: vertical-lr;transform: rotate(180deg);">
+    <div class="border rounded border-start-0 p-1 bg-light pointer" (click)="togglePropertiesPanel()"
+        style="writing-mode: vertical-lr;transform: rotate(180deg);">
         <i class="fas fa-chevron-left" *ngIf="shown"></i>
         <i class="fas fa-chevron-right" *ngIf="!shown"></i>
         Properties Panel
@@ -11,18 +12,27 @@
         <div class="card-body">
             <div>
                 <form (ngSubmit)="onSubmit()" [formGroup]="form">
+                    <base-task-form [bpmnElement]="this.bpmnElement" (basePropertyUpdated)="updateBaseProperty($event)"></base-task-form>
+                    <div [ngSwitch]="this.bpmnElement.type">
+                        <skill-task-form *ngSwitchCase="'bpmn:ServiceTask'" [bpmnElement]="this.bpmnElement" (basePropertyUpdated)="updateBaseProperty($event)" (addCamundaInput)="addCamundaInputParameter($event)"></skill-task-form>
+                        <p *ngSwitchCase="'bpmn:UserTask'">
 
-                    <div *ngFor="let propertyGroup of propertyGroups" class="form-row">
+                        </p>
+                        <p *ngSwitchDefault>
+
+                        </p>
+                    </div>
+
+                    <!-- <skill-task-form></skill-task-form> -->
+                    <!-- <div *ngFor="let propertyGroup of propertyGroups" class="form-row">
                         <bpmn-property [propertyGroup]="propertyGroup" [form]="form" (valueChanged)="onPropertyGroupChanged($event)"></bpmn-property>
                     </div>
 
                     <div class="form-row">
                         <button class="btn btn-primary" type="submit" [disabled]="!form.valid">Save</button>
-                    </div>
+                    </div> -->
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-
