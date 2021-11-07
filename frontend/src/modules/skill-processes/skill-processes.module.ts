@@ -11,6 +11,7 @@ import { BpmnViewerModule } from '../../shared/modules/bpmn-viewer/bpmn-viewer.m
 import { BpmnPropertyComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/bpmn-property/bpmn-property.component';
 import { BaseTaskFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/base-task-form/base-task-form.component';
 import { SkillTaskFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/skill-task-form/skill-task-form.component';
+import { UserTaskFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/user-task-form/user-task-form.component';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { SkillTaskFormComponent } from './bpmn-diagram/properties-panel/properti
         BpmnPropertyComponent,
         DynamicPropertyComponent,
         BaseTaskFormComponent,
-        SkillTaskFormComponent
+        SkillTaskFormComponent,
+        UserTaskFormComponent
     ],
 })
 export class SkillProcessesModule { }
