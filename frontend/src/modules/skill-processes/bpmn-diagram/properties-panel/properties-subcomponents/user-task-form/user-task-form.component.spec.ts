@@ -6,23 +6,23 @@ import { DebugElement } from '@angular/core';
 import { UserTaskFormComponent } from './user-task-form.component';
 
 describe('UserTaskFormComponent', () => {
-  let component: UserTaskFormComponent;
-  let fixture: ComponentFixture<UserTaskFormComponent>;
+    let component: UserTaskFormComponent;
+    let fixture: ComponentFixture<UserTaskFormComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ UserTaskFormComponent ]
-    })
-    .compileComponents();
-  }));
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [ UserTaskFormComponent ]
+        })
+            .compileComponents();
+    }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(UserTaskFormComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(UserTaskFormComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });

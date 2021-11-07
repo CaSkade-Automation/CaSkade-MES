@@ -15,7 +15,7 @@ export class UserTaskFormComponent implements OnInit {
 
     fg: FormGroup;
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.fg = new FormGroup({
             assignee: new FormControl(this.bpmnElement?.assignee),
         });

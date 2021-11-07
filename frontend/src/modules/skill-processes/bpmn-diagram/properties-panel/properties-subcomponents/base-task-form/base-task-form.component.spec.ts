@@ -6,23 +6,23 @@ import { DebugElement } from '@angular/core';
 import { BaseTaskFormComponent } from './base-task-form.component';
 
 describe('BaseTaskFormComponent', () => {
-  let component: BaseTaskFormComponent;
-  let fixture: ComponentFixture<BaseTaskFormComponent>;
+    let component: BaseTaskFormComponent;
+    let fixture: ComponentFixture<BaseTaskFormComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ BaseTaskFormComponent ]
-    })
-    .compileComponents();
-  }));
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [ BaseTaskFormComponent ]
+        })
+            .compileComponents();
+    }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BaseTaskFormComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(BaseTaskFormComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
