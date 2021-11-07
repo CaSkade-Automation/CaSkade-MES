@@ -16,7 +16,6 @@ export class BaseTaskFormComponent implements OnInit, OnChanges {
 
     fg: FormGroup;
 
-    constructor() { }
 
     ngOnChanges(changes: SimpleChanges): void {
         this.fg?.patchValue({
