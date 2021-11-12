@@ -1,14 +1,12 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { trigger, transition, style, animate, state, group, animateChild, query } from '@angular/animations';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { PropertyBuilder } from './properties-subcomponents/property-controller/PropertyBuilder';
 import { SkillService } from 'src/shared/services/skill.service';
-import { FlowPropertyBuilder } from './properties-subcomponents/property-controller/FlowPropertyBuilder';
-import { SkillTaskPropertyBuilder } from './properties-subcomponents/property-controller/SkillTaskPropertyBuilder';
-import { ProcessPropertyBuilder } from './properties-subcomponents/property-controller/ProcessPropertyBuilder';
 import { BpmnDataModel, BpmnProperty } from '../BpmnDataModel';
 import { BpmnPropertyGroup } from './properties-subcomponents/bpmn-property/bpmn-property-group';
-import { HumanTaskPropertyBuilder as UserTaskPropertyBuilder } from './properties-subcomponents/property-controller/UserTaskPropertyBuilder';
+import * as InputOutputHelper from 'bpmn-js-properties-panel/lib/helper/InputOutputHelper';
+import * as ExtensionElementHelper from 'bpmn-js-properties-panel/lib/helper/ExtensionElementsHelper';
 
 @Component({
     selector: 'properties-panel',
@@ -79,29 +77,81 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
         // this.propertyGroups = this.propertyController.createPropertyGroups(this.bpmnElement);
     }
 
+    getInputParmeters(): CamundaInputParameter[] {
+        return InputOutputHelper.getInputParameters(this.bpmnElement) as CamundaInputParameter[];
+    }
+
     /**
      * Adds an input parameter to the current bpmn element
      * @param value Value to be set as input parameter
      */
-    addCamundaInputParameter(value: any): void {
-        const stringVal = JSON.stringify(value);
+    addCamundaInputParameter(prop: BpmnProperty): void {
+        const stringVal = JSON.stringify(prop.value);
 
+        // TODO: Check if there are already input parameters. If so, don't create new ones
         const moddle = this.bpmnModeler.get("moddle");
-        const inputParameter = moddle.create('camunda:InputParameter', {
-            // type: "Text",
-            name: "executionRequest",
-            type: "string",
-            value: `${stringVal}`
-        } );
 
-        const inputOutput = moddle.create('camunda:InputOutput', {
-            inputParameters: [inputParameter]
-        });
+        console.log("extension elems");
+        console.log(ExtensionElementHelper.getExtensionElements(this.bpmnElement.businessObject));
+
+
+
+        let existingInputParameters;
+        let inputParameter;
+        let inputOutput;
+        // If this input parameter exists, set the new value
+        try {
+            existingInputParameters = this.getInputParmeters();
+            inputParameter = existingInputParameters.find(input => input.name == prop.key);
+
+            inputParameter.value = JSON.stringify(prop.value);
+            inputOutput = moddle.create('camunda:InputOutput', {
+                inputParameters: [...existingInputParameters]
+            });
+            console.log("changed existing");
+            console.log(inputOutput);
+
+
+        } catch (error) {
+            console.log("error");
+            console.log(error);
+
+
+            // In case it doesn't exist, create a new one
+            inputParameter = moddle.create('camunda:InputParameter', {
+                name: `${prop.key}`,
+                value: `${stringVal}`
+            });
+            inputOutput = moddle.create('camunda:InputOutput', {
+                inputParameters: [...existingInputParameters, inputParameter]
+            });
+        }
+
+        console.log("existing");
+        console.log(existingInputParameters);
+        console.log("new");
+        console.log(inputParameter);
+
+
+        console.log("inout");
+        console.log(inputOutput);
+
+
+
+        // const newInputParameters = inputParameters.push({name: `${prop.key}`,
+        //     value: `${stringVal}`});
+
+
         const extensionElements = moddle.create('bpmn:ExtensionElements', {
             values: [inputOutput]
         });
+
+        console.log("extension elements after update");
+        console.log(extensionElements);
+
+
         this.bpmnModeler.get("modeling").updateProperties(this.bpmnElement, {
-            extensionElements: extensionElements
+            "extensionElements": extensionElements
         });
     }
 
@@ -176,4 +226,10 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     togglePropertiesPanel(): void {
         this.shown = !this.shown;
     }
+}
+
+class CamundaInputParameter {
+    $type = "camunda:InputParameter";
+    name: string;
+    value: string | number | boolean | {}
 }

@@ -18,5 +18,5 @@ export class BpmnDataModel {
 
 export class BpmnProperty {
 
-    constructor(public key: string, public value: string|number|{}) {}
+    constructor(public key: string, public value: string | number | boolean | {}) {}
 }

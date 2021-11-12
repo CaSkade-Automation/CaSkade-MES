@@ -20,7 +20,8 @@ export class SkillTaskFormComponent implements OnInit {
     fg = new FormGroup({
         skillIri: new FormControl(),
         commmandTypeIri: new FormControl(Isa88CommandTypeIri.Start),
-        parameters: new FormGroup({})
+        parameters: new FormGroup({}),
+        isSelfResetting: new FormControl(true),
     });
 
     skills: Skill[];
@@ -29,7 +30,7 @@ export class SkillTaskFormComponent implements OnInit {
     commands = Isa88CommandTypeIri;
     commandKeys;
 
-    @Output() addCamundaInput = new EventEmitter<SkillExecutionRequestDto>();
+    @Output() addCamundaInput = new EventEmitter<BpmnProperty>();
     @Output() basePropertyUpdated = new EventEmitter<BpmnProperty>();
 
     constructor(private skillService: SkillService) {
@@ -101,7 +102,6 @@ export class SkillTaskFormComponent implements OnInit {
             this.setupParameterForm(skillIri);
         });
 
-        // TODO: Continue here to set json object for skill invocation
         // Get the current form values and create the object to be stored in the process
         this.fg.valueChanges.pipe(debounceTime(100)).subscribe(data => {
             const paramsWithValues = this.currentParameters.map(param => {
@@ -110,12 +110,9 @@ export class SkillTaskFormComponent implements OnInit {
             });
 
             const executionRequest = new SkillExecutionRequestDto(data.skillIri, data.commandTypeIri, paramsWithValues);
-            this.addCamundaInput.emit(executionRequest);
-        //     Object.keys(change).forEach(changeKey => {
-        //         const prop = new BpmnProperty(changeKey, change[changeKey]);
-        //         this.dataModel.updateProperty(this.bpmnElement, prop);
-        //         console.log(change);
-        //     });
+            this.addCamundaInput.emit(new BpmnProperty("executionRequest", executionRequest));
+            const isSelfResetting = data.isSelfResetting;
+            this.addCamundaInput.emit(new BpmnProperty("isSelfResetting", isSelfResetting));
         });
     }
 
