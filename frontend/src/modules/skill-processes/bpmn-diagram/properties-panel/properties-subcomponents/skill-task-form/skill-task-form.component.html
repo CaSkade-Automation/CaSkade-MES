@@ -24,4 +24,10 @@
             <input class="form-control form-control-sm" [formControlName]="parameter.name">
         </div>
     </ng-container>
+
+    <div class="form-group">
+        <label class="col-sm-6 col-form-label">Self resetting:<i class="far fa-question-circle"
+                title="Defines whether or not this skill should reset itself to Idle state after execution"></i></label>
+        <input type="checkbox" class="form-check form-check-sm" formControlName="isSelfResetting">
+    </div>
 </form>
