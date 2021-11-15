@@ -4,20 +4,20 @@ import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { SkillDto, SkillQueryResult} from "@shared/models/skill/Skill";
 import { skillMapping } from './skill-mappings';
 import { v4 as uuidv4 } from 'uuid';
-import { SocketGateway } from '../../socket-gateway/socket.gateway';
+import { SkillSocket } from '../../socket-gateway/skill-socket';
 
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { CapabilityService } from '../capabilities/capability.service';
-import { SocketEventName } from '@shared/socket-communication/SocketEventName';
 import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
 import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
 import { OpcUaStateMonitorService } from '../../util/opc-ua-state-monitor.service';
+import { SocketMessageType } from '@shared/socket-communication/SocketData';
 const converter = new SparqlResultConverter();
 
 @Injectable()
 export class SkillService {
     constructor(private graphDbConnection: GraphDbConnectionService,
-        private socketGateway: SocketGateway,
+        private skillSocket: SkillSocket,
         private uaStateChangeMonitor: OpcUaStateMonitorService,
         private capabilityService: CapabilityService){}
 
@@ -41,7 +41,7 @@ export class SkillService {
                 this.uaStateChangeMonitor.setupItemToMonitor(uaClientSession, skillInfo.skillIri);
             }
 
-            this.socketGateway.emitEvent(SocketEventName.Skills_Added);
+            this.skillSocket.sendMessage(SocketMessageType.Added);
 
             return 'New skill successfully added';
         } catch (error) {
@@ -229,7 +229,7 @@ export class SkillService {
                 const graphName = bindings.graph.value;
                 this.graphDbConnection.clearGraph(graphName);
             });
-            this.socketGateway.emitEvent(SocketEventName.Skills_Deleted, `Sucessfully deleted skill with IRI ${skillIri}}`);
+            this.skillSocket.sendMessage(SocketMessageType.Deleted, `Sucessfully deleted skill with IRI ${skillIri}}`);
             return `{message: Sucessfully deleted skill with IRI ${skillIri}}`;
         } catch (error) {
             throw new Error(
@@ -258,7 +258,7 @@ export class SkillService {
                 ?newState a <${newStateTypeIri}>.
             }`;
             await this.graphDbConnection.executeUpdate(insertQuery);
-            this.socketGateway.emitStateChangeInfo({skillIri: skillIri, newStateTypeIri: newStateTypeIri});
+            this.skillSocket.sendStateChanged(skillIri, newStateTypeIri);
             return `Sucessfully updated currentState of skill ${skillIri}`;
         } catch (error) {
             throw new Error(
