@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { SocketService } from "../../../shared/services/socket.service";
 import { HttpClient } from '@angular/common/http';
 import { ModuleService } from '../../../shared/services/module.service';
 import { ProductionModule } from '@shared/models/production-module/ProductionModule';
 import { Command } from '@shared/models/command/Command';
 import { SkillExecutionService } from 'src/shared/services/skill-execution.service';
 import { Subscription } from 'rxjs';
+import { ModuleSocketService } from '../../../shared/services/sockets/module-socket.service';
 
 @Component({
     selector: 'app-module-overview',
@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
 export class ModuleOverviewComponent implements OnInit {
 
     constructor(private httpClient: HttpClient,
-        private socketService: SocketService,
+        private moduleSocket: ModuleSocketService,
         private moduleService: ModuleService,
         private skillExecutionService: SkillExecutionService) { }
 
@@ -58,12 +58,6 @@ export class ModuleOverviewComponent implements OnInit {
         {id:"8",name:"Clear", group:"3"},
         {id:"9",name:"Stop", group:"4"}
     ]*/
-
-    sendMsg(msg) {
-        this.socketService.sendMessage(msg);
-    }
-
-
 
 
     addCommands(allCommands, activeCommands) {

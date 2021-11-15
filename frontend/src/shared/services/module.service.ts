@@ -4,8 +4,8 @@ import { Observable,  Observer } from "rxjs";
 import { ProductionModule, ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
 import { map,  take } from 'rxjs/operators';
 import { CapabilityService } from "./capability.service";
-import { SocketService } from "./socket.service";
-import { SocketEventName } from "@shared/socket-communication/SocketEventName";
+import { SocketMessageType } from "@shared/socket-communication/SocketData";
+import { ModuleSocketService } from "./sockets/module-socket.service";
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +18,7 @@ export class    ModuleService {
     constructor(
         private http: HttpClient,
         private capabilityService: CapabilityService,
-        private socketService: SocketService) { }
+        private moduleSocket: ModuleSocketService) { }
 
     /**
      * Get all modules currently registered
@@ -30,7 +30,7 @@ export class    ModuleService {
             this.observer.next(modules);
         });
 
-        this.socketService.getMessage(SocketEventName.ProductionModules_Added).subscribe(msg => {
+        this.moduleSocket.getModulesAdded().subscribe(msg => {
             this.loadModules().pipe(take(1)).subscribe((newModules: any) => {
                 // if(modules) {
                 //     this.addNewModules(modules, newModules);
