@@ -49,7 +49,6 @@ export class ModuleOverviewComponent implements OnInit {
     }
 
 
-
     addCommands(allCommands, activeCommands) {
         this.executableCommands = [];
         let active = false;
