@@ -5,8 +5,9 @@ import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVaria
 import { SkillExecutionService } from '../../services/skill-execution.service';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import { SkillService } from '../../services/skill.service';
-import { SocketService } from '../../services/socket.service';
 import { take } from 'rxjs/operators';
+import { SkillSocketService } from '../../services/sockets/skill-socket.service';
+import { StateChangeInfo } from '../../../../socket-communication/SocketData';
 
 
 @Component({
@@ -25,13 +26,13 @@ export class SkillComponent implements OnInit {
 
     constructor(
         private skillExecutionService: SkillExecutionService,
-        private socketService: SocketService,
+        private skillSocket: SkillSocketService,
         private skillService: SkillService
     ) {}
 
     ngOnInit(): void {
-        this.socketService.getStateChangesOfSkill(this.skill.iri).subscribe(newStateTypeIri => {
-            this.skill.stateMachine.setCurrentState(newStateTypeIri);
+        this.skillSocket.getStateChangesOfSkill(this.skill.iri).subscribe((val: StateChangeInfo) => {
+            this.skill.stateMachine.setCurrentState(val.newStateTypeIri);
             this.blinkStateChange = true;
             setTimeout(() => {
                 this.blinkStateChange = false;
@@ -84,7 +85,7 @@ export class SkillComponent implements OnInit {
         const newRequest= new SkillExecutionRequestDto(this.skill.iri, command.iri, this.skill.skillParameters);
         newRequest.parameters=this.skill.skillParameters;
         newRequest.skillIri=this.skill.iri;
-        this.skillExecutionService.executeService(newRequest).subscribe(data => console.log(data));
+        this.skillExecutionService.executeService(newRequest).pipe(take(1)).subscribe();
 
         this.command = command;
     }

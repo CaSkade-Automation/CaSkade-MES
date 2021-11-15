@@ -9,7 +9,7 @@
     "e2e": "ng e2e",
     "clean": "if exist dist rd /s /q dist",
     "ng-build": "ng build --watch",
-    "start:dev": "ng serve --proxy-config proxy.conf.json --open --host 0.0.0.0"
+    "start:dev": "ng serve --proxy-config proxy.conf.json --open"
   },
   "private": true,
   "dependencies": {
@@ -39,10 +39,8 @@
     "morgan": "^1.9.1",
     "mutationobserver-shim": "^0.3.3",
     "ng2-charts": "1.6.0",
-    "ngx-socket-io": "^3.2.0",
     "request": "^2.88.0",
-    "rxjs": "^6.4.0",
-    "socket.io-client": "^2.3.0",
+    "rxjs": "^7.4.0",
     "ts-helpers": "1.1.2",
     "uuid": "^3.3.2",
     "zone.js": "~0.11.4"

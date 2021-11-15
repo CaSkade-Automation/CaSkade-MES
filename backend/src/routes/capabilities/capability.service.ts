@@ -3,10 +3,10 @@ import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
 import { v4 as uuidv4 } from 'uuid';
-import { SocketGateway } from '../../socket-gateway/socket.gateway';
 
 import {SparqlResultConverter} from "sparql-result-converter";
-import { SocketEventName } from '@shared/socket-communication/SocketEventName';
+import { CapabilitySocket } from '../../socket-gateway/capability-socket';
+import { SocketMessageType } from '@shared/socket-communication/SocketData';
 
 const converter = new SparqlResultConverter();
 
@@ -14,7 +14,7 @@ const converter = new SparqlResultConverter();
 export class CapabilityService {
     constructor(
         private graphDbConnection: GraphDbConnectionService,
-        private socketGateway: SocketGateway
+        private capabilitySocket: CapabilitySocket
     ) { }
 
     /**
@@ -27,7 +27,7 @@ export class CapabilityService {
             const capabilityGraphName = uuidv4();
 
             await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
-            this.socketGateway.emitEvent(SocketEventName.Capabilities_Added);
+            this.capabilitySocket.sendMessage(SocketMessageType.Added);
             return 'New capability successfully added';
         } catch (error) {
             throw new BadRequestException(`Error while registering a new capability. Error: ${error.tostring()}`);

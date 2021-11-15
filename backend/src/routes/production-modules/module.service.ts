@@ -1,6 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
-import { SocketGateway } from '../../socket-gateway/socket.gateway';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
@@ -8,7 +7,8 @@ import { moduleMapping } from './module-mappings';
 
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { SkillService } from '../skills/skill.service';
-import { SocketEventName } from '@shared/socket-communication/SocketEventName';
+import { ModuleSocket } from '../../socket-gateway/module-socket';
+import { SocketMessageType } from '@shared/socket-communication/SocketData';
 const converter = new SparqlResultConverter();
 
 @Injectable()
@@ -16,7 +16,7 @@ export class ModuleService {
     constructor(
         private graphDbConnection: GraphDbConnectionService,
         private skillService: SkillService,
-        private socketService: SocketGateway) {}
+        private moduleSocket: ModuleSocket) {}
 
     /**
      * Register a new module
@@ -30,7 +30,8 @@ export class ModuleService {
 
             if(dbResult) {
                 // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-                this.socketService.emitEvent(SocketEventName.ProductionModules_Added);
+                this.moduleSocket.sendMessage(SocketMessageType.Added);
+                // this.moduleSocket.doSomething();
                 return 'ProductionModule successfully registered';
             }
         } catch (error) {
