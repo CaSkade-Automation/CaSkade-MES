@@ -33,14 +33,10 @@ export class UserTaskFormComponent implements OnInit, OnChanges {
             }
         });
 
-        this.candidateUsers?.valueChanges.subscribe(candidateUsers => {
-            const prop = new BpmnProperty("candidateUsers", candidateUsers);
-            this.basePropertyUpdated.emit(prop);
-        });
-
-        this.candidateGroups?.valueChanges.subscribe(candidateGroups => {
-            const prop = new BpmnProperty("candidateGroups", candidateGroups);
-            this.basePropertyUpdated.emit(prop);
+        this.fg.valueChanges.pipe(debounceTime(200)).subscribe(formValue => {
+            for (const key in formValue) {
+                this.setUserTaskProperty(key, formValue[key]);
+            }
         });
     }
 
