@@ -7,6 +7,7 @@ import { debounceTime } from 'rxjs/operators';
 import { SkillVariable } from '@shared/models/skill/SkillVariable';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import { BpmnProperty } from '../../../BpmnDataModel';
+import { BpmnExtensionElementService } from '../../bpmn-extension-element.service';
 
 @Component({
     selector: 'skill-task-form',
@@ -16,80 +17,37 @@ import { BpmnProperty } from '../../../BpmnDataModel';
 export class SkillTaskFormComponent implements OnInit {
     @Input() bpmnElement;
 
-    // Setup FormGroup
+    // Definition of the FormGroup
     fg = new FormGroup({
         skillIri: new FormControl(),
-        commmandTypeIri: new FormControl(Isa88CommandTypeIri.Start),
+        commandTypeIri: new FormControl(Isa88CommandTypeIri.Start),
         parameters: new FormGroup({}),
         isSelfResetting: new FormControl(true),
     });
 
-    skills: Skill[];
-    currentParameters: SkillVariable[];
+    skills: Skill[];						// List of all skills
+    selectedSkill: Skill;                   // The currently selected skill (for form generation)
+
+    existingParameters: SkillVariable[];
 
     commands = Isa88CommandTypeIri;
     commandKeys;
 
-    @Output() addCamundaInput = new EventEmitter<BpmnProperty>();
     @Output() basePropertyUpdated = new EventEmitter<BpmnProperty>();
 
-    constructor(private skillService: SkillService) {
+    constructor(
+        private skillService: SkillService,
+        private extensionElementService: BpmnExtensionElementService
+    ) {
         this.commandKeys = Object.keys(Isa88CommandTypeIri);
     }
 
 
-    // const skillProperty = new SkillSelectionProperty(
-    //     {
-    //         key: "skillIri",
-    //         label: "The skill that should be executed in this task",
-    //         order: 3,
-    //         required: true,
-    //         value: ''
-    //     }, this.skillService
-    // );
-
-    // const commandTypeProperty = new CommandTypeSelectionProperty(
-    //     {
-    //         key: "commandTypeIri",
-    //         label: "The command type of the skill that should be executed in this task",
-    //         order: 4,
-    //         required: true,
-    //         value: ''
-    //     }
-    // );
-
-    // // TODO: This has to be checked and properly set up. Adding Camunda extension elements is not that easy.
-    // const skillPropertyGroup = new BpmnPropertyGroup("skill", [skillProperty, commandTypeProperty]);
-
-    // const parameterProperty =  new ParameterSelectionProperty(
-    //     {
-    //         key: "parameter",
-    //         label: "The parameters of this task",
-    //         order: 4,
-    //         required: true,
-    //         value: ''
-    //     },
-    //     this.skillService,
-    //     this.skilFormControl
-    // );
-
-    // const delegateClassProperty = new ReadonlyInputProperty(
-    //     {
-    //         key: "camunda:class",
-    //         label: "The Java delegate class that is in charge of executing this service task",
-    //         order: 10,
-    //         required: false,
-    //         value: 'de.hsuhh.aut.skills.bpmn.delegates.MyJavaDelegate;',
-    //         hidden: true
-    //     }
-    // );
-
-    ngOnInit() {
+    ngOnInit(): void {
         // Set execution class as this is always the same
         const delegateClassProperty = new BpmnProperty("camunda:class", "de.hsuhh.aut.skills.bpmn.delegates.MyJavaDelegate");
         this.basePropertyUpdated.emit(delegateClassProperty);
 
-        // TODO: Get current input values from the model to populate form fields in the element alraedy has a value
 
         // Load all skills, set the first one as selected and get parameters of the selection
         this.skillService.getAllSkills().subscribe(skills => {
@@ -98,22 +56,25 @@ export class SkillTaskFormComponent implements OnInit {
             this.setupParameterForm(this.fg.controls.skillIri.value);
         });
 
-        this.fg.controls.skillIri.valueChanges.subscribe(skillIri => {
-            this.setupParameterForm(skillIri);
-        });
+        // Make sure parameter form matches skill
+        this.synchronizeParameterForm();
 
-        // Get the current form values and create the object to be stored in the process
-        this.fg.valueChanges.pipe(debounceTime(100)).subscribe(data => {
-            const paramsWithValues = this.currentParameters.map(param => {
-                param.value = data.parameters[param.name];
-                return param;
-            });
+        // Get current input values from the model to populate form fields in the element alraedy has a value
+        try {
+            const inputs = this.extensionElementService.getInputParameters();
+            const executionRequest = JSON.parse(inputs.find(input => input.name == "executionRequest").value as string) as SkillExecutionRequestDto;
+            // try to set the values
+            this.fg.controls.skillIri.setValue(executionRequest.skillIri);
+            this.fg.controls.commandTypeIri.setValue(executionRequest.commandTypeIri);
+            this.existingParameters = executionRequest.parameters;
+            const isSelfResetting = inputs.find(input => input.name == "isSelfResetting").value as boolean;
+            this.fg.controls.isSelfResetting.setValue(isSelfResetting);
+        } catch (error) {
 
-            const executionRequest = new SkillExecutionRequestDto(data.skillIri, data.commandTypeIri, paramsWithValues);
-            this.addCamundaInput.emit(new BpmnProperty("executionRequest", executionRequest));
-            const isSelfResetting = data.isSelfResetting;
-            this.addCamundaInput.emit(new BpmnProperty("isSelfResetting", isSelfResetting));
-        });
+        }
+
+        // Get the current form values and store them in the process
+        this.syncFormValuesAndProcess();
     }
 
     /**
@@ -124,13 +85,51 @@ export class SkillTaskFormComponent implements OnInit {
         // If no skillIri is given, no parameters can be set
         if (!skillIri) return;
 
-        const skill = this.skills.find(sk => sk.iri == skillIri);
-        this.currentParameters = skill.skillParameters;
-        skill.skillParameters.forEach(param => {
-            this.fgParameters.addControl(param.name, new FormControl());
+        this.selectedSkill = this.skills.find(sk => sk.iri == skillIri);
+        this.selectedSkill.skillParameters.forEach(param => {
+            let existingValue = "";
+            try {
+                existingValue = this.existingParameters.find(exParam => exParam.name == param.name).value;
+            } catch (err) {
+
+            }
+            this.fgParameters.addControl(param.name, new FormControl(existingValue));
         });
     }
 
+
+    /**
+	 * Makes sure that parameters always match to the current skill selection
+	 */
+    private synchronizeParameterForm(): void {
+        this.fg.controls.skillIri.valueChanges.subscribe(skillIri => {
+            this.setupParameterForm(skillIri);
+        });
+    }
+
+
+    /**
+	 * Subscribe to the form values and synchronize them with the process
+	 */
+    private syncFormValuesAndProcess(): void {
+        this.fg.valueChanges.pipe(debounceTime(100)).subscribe(data => {
+            // Fill in parameter values and create an executionRequest
+            const paramsWithValues = this.selectedSkill.skillParameters.map(param => {
+                param.value = data.parameters[param.name];
+                return param;
+            });
+            const executionRequest = new SkillExecutionRequestDto(data.skillIri, data.commandTypeIri, paramsWithValues);
+
+            this.extensionElementService.addCamundaInputParameter(new BpmnProperty("executionRequest", executionRequest));
+            const isSelfResetting = data.isSelfResetting;
+            this.extensionElementService.addCamundaInputParameter(new BpmnProperty("isSelfResetting", isSelfResetting));
+        });
+    }
+
+
+    /**
+	 * Convenience getter that simplifies getting the parameter sub-FormGroup
+	 */
     get fgParameters(): FormGroup {
         return this.fg.controls.parameters as FormGroup;
     }
