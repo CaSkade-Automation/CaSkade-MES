@@ -21,7 +21,6 @@ export class FlowFormComponent implements OnInit {
         private modelService: BpmnModelService
     ) {}
 
-
     ngOnInit(): void {
         const existingCondition = this.extensionService.getFlowCondition();
         this.fg = new FormGroup({
