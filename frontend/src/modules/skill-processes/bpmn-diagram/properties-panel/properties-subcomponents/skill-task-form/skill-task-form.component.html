@@ -11,13 +11,13 @@
     <div class="form-group">
         <label class="col-sm-6 col-form-label">Command:<i class="far fa-question-circle"
                 title="ISA 88 command that should be invoked"></i></label>
-        <select class="form-control form-control-sm" formControlName="commmandTypeIri">
+        <select class="form-control form-control-sm" formControlName="commandTypeIri">
             <option *ngFor="let commandKey of this.commandKeys" value="this.commands[commandKey]" [selected]="commandKey == 'Start' ? true : false">{{commandKey}}
             </option>
         </select>
     </div>
 
-    <ng-container [formGroup]="fgParameters" *ngFor="let parameter of this.currentParameters">
+    <ng-container [formGroup]="fgParameters" *ngFor="let parameter of this.selectedSkill?.skillParameters">
         <div class="form-group">
             <label class="col-form-label">{{parameter.name}}<i class="far fa-question-circle"
                     title="Parameter {{parameter.name}}"></i></label>
@@ -30,4 +30,7 @@
                 title="Defines whether or not this skill should reset itself to Idle state after execution"></i></label>
         <input type="checkbox" class="form-check form-check-sm" formControlName="isSelfResetting">
     </div>
+
+    <strong>List of Outputs:</strong>
+    <p *ngFor="let output of this.selectedSkill?.skillOutputs">{{output.name}} - {{output.type}}</p>
 </form>

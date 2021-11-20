@@ -14,7 +14,7 @@
                 <form (ngSubmit)="onSubmit()" [formGroup]="form">
                     <base-task-form [bpmnElement]="this.bpmnElement" (basePropertyUpdated)="updateBaseProperty($event)"></base-task-form>
                     <div [ngSwitch]="this.bpmnElement.type">
-                        <skill-task-form *ngSwitchCase="'bpmn:ServiceTask'" [bpmnElement]="this.bpmnElement" (basePropertyUpdated)="updateBaseProperty($event)" (addCamundaInput)="addCamundaInputParameter($event)"></skill-task-form>
+                        <skill-task-form *ngSwitchCase="'bpmn:ServiceTask'" [bpmnElement]="this.bpmnElement" (basePropertyUpdated)="updateBaseProperty($event)"></skill-task-form>
                         <user-task-form *ngSwitchCase="'bpmn:UserTask'" [bpmnElement]="this.bpmnElement" (basePropertyUpdated)="updateBaseProperty($event)"></user-task-form>
                         <flow-form *ngSwitchCase="'bpmn:SequenceFlow'" [bpmnElement]="this.bpmnElement" (basePropertyUpdated)="updateBaseProperty($event)"></flow-form>
                     </div>
