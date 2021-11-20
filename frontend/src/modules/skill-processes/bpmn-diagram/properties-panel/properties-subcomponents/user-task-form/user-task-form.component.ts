@@ -22,25 +22,25 @@ export class UserTaskFormComponent implements OnInit, OnChanges {
             candidateGroups: new FormControl(this.bpmnElement?.businessObject.candidateGroups),
         });
 
-        this.assignee?.valueChanges.subscribe(assignee => {
-            const prop = new BpmnProperty("assignee", assignee);
-            this.basePropertyUpdated.emit(prop);
-        });
 
-        this.candidateUsers?.valueChanges.subscribe(candidateUsers => {
-            const prop = new BpmnProperty("candidateUsers", candidateUsers);
-            this.basePropertyUpdated.emit(prop);
+        this.fg.valueChanges.pipe(debounceTime(200)).subscribe(formValue => {
+            for (const key in formValue) {
+                this.setUserTaskProperty(key, formValue[key]);
+            }
         });
+    }
 
-        this.candidateGroups?.valueChanges.subscribe(candidateGroups => {
-            const prop = new BpmnProperty("candidateGroups", candidateGroups);
-            this.basePropertyUpdated.emit(prop);
-        });
+    setUserTaskProperty(key: string, value: string) {
+        if (!value) return;
+        const prop = new BpmnProperty(key, value);
+        this.basePropertyUpdated.emit(prop);
     }
 
     // OnChanges is needed to change form values when another UserTask is clicked as this doesn't trigger OnInit
     ngOnChanges(changes: SimpleChanges): void {
-        this.assignee?.setValue(this.bpmnElement.businessObject.assignee);
+        this.assignee.setValue(this.bpmnElement.businessObject.assignee);
+        this.candidateUsers.setValue(this.bpmnElement.businessObject.candidateUsers);
+        this.candidateGroups.setValue(this.bpmnElement.businessObject.candidateGroupss);
     }
 
     get assignee(): FormControl {
