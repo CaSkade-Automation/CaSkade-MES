@@ -6,23 +6,23 @@ import { DebugElement } from '@angular/core';
 import { SkillTaskFormComponent } from './skill-task-form.component';
 
 describe('SkillTaskFormComponent', () => {
-  let component: SkillTaskFormComponent;
-  let fixture: ComponentFixture<SkillTaskFormComponent>;
+    let component: SkillTaskFormComponent;
+    let fixture: ComponentFixture<SkillTaskFormComponent>;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ SkillTaskFormComponent ]
-    })
-    .compileComponents();
-  }));
+    beforeEach(async(() => {
+        TestBed.configureTestingModule({
+            declarations: [ SkillTaskFormComponent ]
+        })
+            .compileComponents();
+    }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(SkillTaskFormComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(SkillTaskFormComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 });
