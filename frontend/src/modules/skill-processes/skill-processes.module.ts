@@ -11,6 +11,7 @@ import { SkillTaskFormComponent } from './bpmn-diagram/properties-panel/properti
 import { UserTaskFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/user-task-form/user-task-form.component';
 import { FlowFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/flow-form/flow-form.component';
 import { BpmnExtensionElementService } from './bpmn-diagram/properties-panel/bpmn-extension-element.service';
+import { BpmnModelService } from './bpmn-diagram/properties-panel/bpmn-model.service';
 
 
 @NgModule({
@@ -22,6 +23,7 @@ import { BpmnExtensionElementService } from './bpmn-diagram/properties-panel/bpm
         SkillProcessesRoutingModule,
     ],
     providers: [
+        BpmnModelService,
         BpmnExtensionElementService
     ],
     declarations: [

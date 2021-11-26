@@ -2,7 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 import { BpmnProperty } from '../../../BpmnDataModel';
-import { BpmnExtensionElementService } from '../../bpmn-extension-element.service';
+import { BpmnExtensionElementService, CamundaOutputParameter } from '../../bpmn-extension-element.service';
+import { BpmnModelService } from '../../bpmn-model.service';
 
 @Component({
     selector: 'flow-form',
@@ -14,9 +15,11 @@ export class FlowFormComponent implements OnInit {
     @Input() bpmnElement;
     @Output() basePropertyUpdated = new EventEmitter<BpmnProperty>();
     fg: FormGroup;
+    existingOutputs: Array<CamundaOutputParameter>
 
     constructor(
-        private extensionService: BpmnExtensionElementService
+        private extensionService: BpmnExtensionElementService,
+        private modelService: BpmnModelService
     ) {}
 
 
@@ -27,11 +30,22 @@ export class FlowFormComponent implements OnInit {
         });
 
         this.condition.valueChanges.pipe(debounceTime(100)).subscribe(condition => {
+
             const expression = "${"+condition+"}";
+            console.log(expression);
+
             const prop = new BpmnProperty("condition", expression);
             this.extensionService.addFlowCondition(expression);
             // this.basePropertyUpdated.emit(prop);
         });
+    }
+
+    keypressed(event: any){
+        if(event.code === "Space" && event.ctrlKey) {
+            this.existingOutputs = this.modelService.getAllOutputs();
+            console.log(this.existingOutputs);
+
+        }
     }
 
     get condition(): FormControl {
