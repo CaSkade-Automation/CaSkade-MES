@@ -5,6 +5,7 @@ import { BpmnDataModel, BpmnProperty } from '../BpmnDataModel';
 
 
 import { BpmnExtensionElementService } from './bpmn-extension-element.service';
+import { BpmnModelService } from './bpmn-model.service';
 
 @Component({
     selector: 'properties-panel',
@@ -64,7 +65,8 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     form: FormGroup;
 
     constructor(
-        private extensionElementService: BpmnExtensionElementService
+        private extensionElementService: BpmnExtensionElementService,
+        private modelService: BpmnModelService
     ) {
         this.form = new FormGroup({});
     }
@@ -72,6 +74,7 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     ngOnInit(): void {
         this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
         this.extensionElementService.setup(this.bpmnModeler, this.bpmnElement);
+        this.modelService.setup(this.bpmnModeler);
     }
 
 
