@@ -67,11 +67,11 @@ export class BpmnExtensionElementService {
         // Get existing parameters to not overwrite them
         const existingInputParameters = this.getInputParameters();
         const outputParameters = new Array<CamundaOutputParameter>();
-        // Create new output (no value is set)
+        // Create new output (note that ${name} has to be set as value so that the value is passed in by the engine)
         props.forEach(prop => {
             const newOutputParameter = this.moddle.create('camunda:OutputParameter', {
                 name: `${prop.key}`,
-                //value: `${stringValue}`
+                value: `${prop.value}`
             });
             outputParameters.push(newOutputParameter);
         });
@@ -117,6 +117,7 @@ export class BpmnExtensionElementService {
         const moddle = this.bpmnModeler.get("moddle");
 
         const conditionExpression = moddle.create('bpmn:FormalExpression', { body: condition });
+        console.log(conditionExpression);
 
         this.bpmnModeler.get("modeling").updateProperties(this.bpmnElement, {
             conditionExpression: conditionExpression
@@ -130,7 +131,7 @@ class CamundaInputParameter {
     value: string | number | boolean | {}
 }
 
-class CamundaOutputParameter {
+export class CamundaOutputParameter {
     $type = "camunda:OutputParameter";
     name: string;
     value?: string | number | boolean | {}

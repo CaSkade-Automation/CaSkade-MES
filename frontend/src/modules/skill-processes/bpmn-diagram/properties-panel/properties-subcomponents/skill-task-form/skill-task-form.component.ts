@@ -48,7 +48,7 @@ export class SkillTaskFormComponent implements OnInit {
 
     ngOnInit(): void {
         // Set execution class as this is always the same
-        const delegateClassProperty = new BpmnProperty("camunda:class", "de.hsuhh.aut.skills.bpmn.delegates.MyJavaDelegate");
+        const delegateClassProperty = new BpmnProperty("camunda:class", "de.hsuhh.aut.skills.bpmn.delegates.SkillExecutor");
         this.basePropertyUpdated.emit(delegateClassProperty);
 
         // console.log("on init");
@@ -77,25 +77,15 @@ export class SkillTaskFormComponent implements OnInit {
             const executionRequest = JSON.parse(inputs.find(input => input.name == "executionRequest").value as string) as SkillExecutionRequestDto;
             // try to set the values
             this.selectedSkill = this.skills.find(skill => skill.iri === executionRequest.skillIri);
-            console.log("exReq exists, setting");
-            console.log(executionRequest);
-            console.log("selectedSkill");
-            console.log(this.selectedSkill);
 
             commandTypeIri = executionRequest.commandTypeIri;
             this.existingParameters = executionRequest.parameters;
 
             isSelfResetting = inputs.find(input => input.name == "isSelfResetting").value as boolean;
-
-            console.log("done setting");
-
         } catch (error) {
-            console.log(error);
 
             // if no executionrequest exists
             this.selectedSkill = this.skills[0];
-            console.log("no exReq exists, setting [0]");
-            console.log(this.selectedSkill);
             commandTypeIri = Isa88CommandTypeIri.Start;
             isSelfResetting = true;
         }
@@ -105,8 +95,6 @@ export class SkillTaskFormComponent implements OnInit {
         this.fg.controls.isSelfResetting.setValue(isSelfResetting);
 
         // Make sure parameter form matches skill and that outputs of skill are added as task outputs
-        console.log("updating form should set input output");
-
         this.setupParameterForm();
         this.setOutputs();
         this.$inoutSub = this.synchronizeInputsAndOutputs();
@@ -149,7 +137,8 @@ export class SkillTaskFormComponent implements OnInit {
     private setOutputs(): void {
         const bpmnOutputProperties = this.selectedSkill.skillOutputs.map(output => {
             const outputName = `${this._bpmnElement.id}_${output.name}`;
-            return new BpmnProperty(outputName, null);
+            const outputValue = "${" + outputName + "}";
+            return new BpmnProperty(outputName, outputValue);
         });
         this.extensionElementService.setCamundaOutputParameters(bpmnOutputProperties);
     }
