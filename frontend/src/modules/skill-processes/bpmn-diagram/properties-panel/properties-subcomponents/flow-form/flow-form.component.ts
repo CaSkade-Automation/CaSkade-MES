@@ -13,7 +13,6 @@ import { BpmnModelService } from '../../bpmn-model.service';
 export class FlowFormComponent implements OnInit {
 
     @Input() bpmnElement;
-    @Output() basePropertyUpdated = new EventEmitter<BpmnProperty>();
     fg: FormGroup;
     existingOutputs: Array<CamundaOutputParameter>
 
@@ -36,7 +35,6 @@ export class FlowFormComponent implements OnInit {
 
             const prop = new BpmnProperty("condition", expression);
             this.extensionService.addFlowCondition(expression);
-            // this.basePropertyUpdated.emit(prop);
         });
     }
 

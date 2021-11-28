@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { debounce, debounceTime } from 'rxjs/operators';
+import { debounceTime } from 'rxjs/operators';
 import { BpmnDataModel, BpmnProperty } from '../../../BpmnDataModel';
+import { BpmnExtensionElementService } from '../../bpmn-extension-element.service';
 
 @Component({
     selector: 'base-task-form',
@@ -12,9 +13,12 @@ export class BaseTaskFormComponent implements OnInit, OnChanges {
 
     @Input() bpmnElement;
     @Input() dataModel: BpmnDataModel;
-    @Output() basePropertyUpdated = new EventEmitter<BpmnProperty>();
 
     fg: FormGroup;
+
+    constructor(
+        private extensionService: BpmnExtensionElementService,
+    ) {}
 
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -34,7 +38,7 @@ export class BaseTaskFormComponent implements OnInit, OnChanges {
         this.fg.valueChanges.pipe(debounceTime(100)).subscribe(change => {
             Object.keys(change).forEach(changeKey => {
                 const prop = new BpmnProperty(changeKey, change[changeKey]);
-                this.basePropertyUpdated.emit(prop);
+                this.extensionService.updateBaseProperty(prop);
             });
         });
     }

@@ -6,6 +6,7 @@ import { BpmnDataModel, BpmnProperty } from '../BpmnDataModel';
 
 import { BpmnExtensionElementService } from './bpmn-extension-element.service';
 import { BpmnModelService } from './bpmn-model.service';
+import { CamundaConnectorService } from './camunda-connector.service';
 
 @Component({
     selector: 'properties-panel',
@@ -66,7 +67,8 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
 
     constructor(
         private extensionElementService: BpmnExtensionElementService,
-        private modelService: BpmnModelService
+        private modelService: BpmnModelService,
+        private connectorService: CamundaConnectorService
     ) {
         this.form = new FormGroup({});
     }
@@ -75,13 +77,9 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
         this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
         this.extensionElementService.setup(this.bpmnModeler, this.bpmnElement);
         this.modelService.setup(this.bpmnModeler);
+        this.connectorService.setup(this.bpmnModeler, this.bpmnElement);
     }
 
-
-
-    updateBaseProperty(property: BpmnProperty) {
-        this.dataModel.updateProperty(this.bpmnElement, property);
-    }
 
     ngOnChanges(changes: SimpleChanges): void {
         this.extensionElementService.changeBpmnElement(this.bpmnElement);
