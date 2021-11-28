@@ -1,21 +1,20 @@
 import { Injectable } from '@angular/core';
 import * as InputOutputHelper from 'bpmn-js-properties-panel/lib/helper/InputOutputHelper';
 import * as ExtensionElementHelper from 'bpmn-js-properties-panel/lib/helper/ExtensionElementsHelper';
-import { BpmnProperty } from '../BpmnDataModel';
+import { BpmnDataModel, BpmnProperty } from '../BpmnDataModel';
 
 @Injectable()
 export class BpmnExtensionElementService {
 
     bpmnElement: any;
     bpmnModeler: any;
+    dataModel: BpmnDataModel;
     moddle: any;
-
-    constructor() { }
 
     setup(bpmnModeler: any, bpmnElement: any) {
         this.bpmnModeler = bpmnModeler;
         this.bpmnElement = bpmnElement;
-
+        this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
         this.moddle = this.bpmnModeler.get("moddle");
     }
 
@@ -33,6 +32,14 @@ export class BpmnExtensionElementService {
 
     getOutputParameters(): CamundaOutputParameter[] {
         return InputOutputHelper.getOutputParameters(this.bpmnElement) as CamundaInputParameter[];
+    }
+
+    /**
+     * Updates a simple bpmn property (e.g. name, user task assignee)
+     * @param property
+     */
+    updateBaseProperty(property: BpmnProperty): void {
+        this.dataModel.updateProperty(this.bpmnElement, property);
     }
 
     /**
