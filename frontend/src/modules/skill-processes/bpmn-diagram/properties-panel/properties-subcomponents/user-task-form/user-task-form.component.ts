@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 import { BpmnProperty } from '../../../BpmnDataModel';
+import { BpmnExtensionElementService } from '../../bpmn-extension-element.service';
 
 @Component({
     selector: 'user-task-form',
@@ -11,9 +12,12 @@ import { BpmnProperty } from '../../../BpmnDataModel';
 export class UserTaskFormComponent implements OnInit, OnChanges {
 
     @Input() bpmnElement;
-    @Output() basePropertyUpdated = new EventEmitter<BpmnProperty>();
 
     fg: FormGroup;
+
+    constructor(
+        private extensionService: BpmnExtensionElementService,
+    ) { }
 
     ngOnInit(): void {
         this.fg = new FormGroup({
@@ -33,7 +37,7 @@ export class UserTaskFormComponent implements OnInit, OnChanges {
     setUserTaskProperty(key: string, value: string) {
         if (!value) return;
         const prop = new BpmnProperty(key, value);
-        this.basePropertyUpdated.emit(prop);
+        this.extensionService.updateBaseProperty(prop);
     }
 
     // OnChanges is needed to change form values when another UserTask is clicked as this doesn't trigger OnInit

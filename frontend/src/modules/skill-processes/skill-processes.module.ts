@@ -12,6 +12,8 @@ import { UserTaskFormComponent } from './bpmn-diagram/properties-panel/propertie
 import { FlowFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/flow-form/flow-form.component';
 import { BpmnExtensionElementService } from './bpmn-diagram/properties-panel/bpmn-extension-element.service';
 import { BpmnModelService } from './bpmn-diagram/properties-panel/bpmn-model.service';
+import { SendTaskFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/send-task-form/send-task-form.component';
+import { CamundaConnectorService } from './bpmn-diagram/properties-panel/camunda-connector.service';
 
 
 @NgModule({
@@ -24,7 +26,8 @@ import { BpmnModelService } from './bpmn-diagram/properties-panel/bpmn-model.ser
     ],
     providers: [
         BpmnModelService,
-        BpmnExtensionElementService
+        BpmnExtensionElementService,
+        CamundaConnectorService
     ],
     declarations: [
         SkillProcessesComponent,
@@ -33,6 +36,7 @@ import { BpmnModelService } from './bpmn-diagram/properties-panel/bpmn-model.ser
         BaseTaskFormComponent,
         SkillTaskFormComponent,
         UserTaskFormComponent,
+        SendTaskFormComponent,
         FlowFormComponent
     ],
 })

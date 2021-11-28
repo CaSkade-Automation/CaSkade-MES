@@ -37,8 +37,6 @@ export class SkillTaskFormComponent implements OnInit {
     $inoutSub: Subscription;
     $valueSub: Subscription;
 
-    @Output() basePropertyUpdated = new EventEmitter<BpmnProperty>();
-
     constructor(
         private skillService: SkillService,
         private extensionElementService: BpmnExtensionElementService
@@ -49,7 +47,7 @@ export class SkillTaskFormComponent implements OnInit {
     ngOnInit(): void {
         // Set execution class as this is always the same
         const delegateClassProperty = new BpmnProperty("camunda:class", "de.hsuhh.aut.skills.bpmn.delegates.SkillExecutor");
-        this.basePropertyUpdated.emit(delegateClassProperty);
+        this.extensionElementService.updateBaseProperty(delegateClassProperty);
 
         // console.log("on init");
 
