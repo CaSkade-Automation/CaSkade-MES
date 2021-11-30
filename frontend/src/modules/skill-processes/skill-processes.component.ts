@@ -6,7 +6,6 @@ import { ProcessDefinitionService } from '../../shared/services/bpmn/process-def
 import { MessageService } from '../../shared/services/message.service';
 import { BpmnDiagramComponent } from './bpmn-diagram/bpmn-modeler.component';
 
-
 @Component({
     selector: 'app-skill-processes',
     templateUrl: './skill-processes.component.html',
@@ -37,8 +36,6 @@ export class SkillProcessesComponent implements AfterContentInit{
 
     ngAfterContentInit(): void {
         this.processSelector.valueChanges.subscribe(selectedProcess => {
-            console.log(selectedProcess);
-
             this.processDefinitionService.getXMLofProcessDefinition(selectedProcess.id).subscribe(data => {
                 this.previewXml  = data.bpmn20Xml;
             });
