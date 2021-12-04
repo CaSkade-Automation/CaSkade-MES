@@ -4,6 +4,7 @@
         "module": "commonjs",
         "target": "es2017",
         "rootDirs": ["./src", "../shared"],
+        "emitDecoratorMetadata": true,
         "sourceMap": true,
         "outDir": "./dist",
         "baseUrl": "./",
