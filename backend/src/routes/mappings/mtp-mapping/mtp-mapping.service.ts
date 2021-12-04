@@ -49,7 +49,6 @@ export class MtpMappingService {
         Axios.post(this.config.url, formData, reqConfig)
             .then(res => {
                 console.log("mapping completed");
-                console.log(res.data);
                 this.moduleService.addModule(res.data);
             })
             .catch(err => {

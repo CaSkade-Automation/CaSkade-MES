@@ -1,20 +1,18 @@
-<form>
-    <div class="input-group mb-3 mt-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fas fa-file-upload"></i> </span>
-        </div>
-        <div class="custom-file">
-            <input #file accept=".aml" (change)="onFileAdded($event); changed=true" type="file"
-                class="custom-file-input" id="inputGroupFile01">
-            <label class="custom-file-label" for="inputGroupFile01">Select an .aml-File</label>
+<div>
+    <div class="row">
+        <div class="col-6">
+            <div class="input-group mb-3 mt-3">
+                <input #file (change)="onFileAdded($event); changed=true" type="file" class="form-control" id="inputGroupFile01">
+                <label class="input-group-text" for="inputGroupFile01"><i class="fas fa-file-upload"></i>&nbsp;Select an MTP-File</label>
+                <!-- <label class="custom-file-label" for="inputGroupFile01">Select an MTP-File</label> -->
+            </div>
+            <ng-container *ngIf="changed; else elseDisabled">
+                <div> <span class="fas fa-check-circle"></span> {{addedFile.name}} selected </div>
+                <button (click)="submit()" class="btn btn-primary">Submit</button>
+            </ng-container>
+            <ng-template #elseDisabled>
+                <button class="btn btn-primary" disabled>Submit</button>
+            </ng-template>
         </div>
     </div>
-    <ng-container *ngIf="changed; else elseDisabled">
-        <div> <span class="fas fa-check-circle"></span> {{addedFile.name}} selected </div>
-        <button (click)="submit()" class="btn btn-primary">Submit</button>
-    </ng-container>
-    <ng-template #elseDisabled>
-        <button class="btn btn-primary" disabled>Submit</button>
-    </ng-template>
-
-</form>
+</div>
