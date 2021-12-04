@@ -5,13 +5,17 @@ import { ModuleSocketService } from "./sockets/module-socket.service";
 import { SkillSocketService } from "./sockets/skill-socket.service";
 
 
+export class ArchivedMessage {
+    constructor(public message: Message, public date: Date) {}
+}
+
 @Injectable({
     providedIn: 'root'
 })
 export class MessageService {
 
-    message="";
-    messagelist= new Array<Message>()
+    messageDisplay= new Array<Message>()
+
     observer: Observer<Message[]>;
 
     constructor(
@@ -27,32 +31,32 @@ export class MessageService {
             //Modules  add
             this.moduleSocket.getModulesAdded().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("New Module","Module added", MessageType.Success)),
-                error: (err) => this.message=`Error during Module registration. Error: ${err}`
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Module registration",`Error: ${err}`, MessageType.Danger)),
             });
             // Moduled change
             this.moduleSocket.getModulesChanged().subscribe({
-                next: (val) => this.addAndDeleteMessage(new Message("Module","Module changed", MessageType.Info)),
-                error: (err) => this.message=`Error during Module changing. Error: ${err}`,
+                next: (val) => this.addAndDeleteMessage(new Message("Module","Module updated", MessageType.Info)),
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Module update",`Error: ${err}`, MessageType.Danger)),
             }),
             // Modules delete
             this.moduleSocket.getModulesDeleted().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Module","Module deleted", MessageType.Info)),
-                error: (err) => this.message=`Error during Module deletion. Error: ${err}`
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Module deletion",`Error: ${err}`, MessageType.Danger)),
             }),
             // Skill added
             this.skillSocket.getSkillAdded().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("New Skill","Skill added", MessageType.Success)),
-                error: (err) => this.message=`Error during Skill registration. Error: ${err}`
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Skill registration",`Error: ${err}`, MessageType.Danger)),
             });
             // Skill changed
             this.skillSocket.getSkillChanged().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Skill","Skill changed", MessageType.Info)),
-                error: (err) => this.message=`Error during Skill changing. Error: ${err}`,
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
             }),
             // Skill deleted
             this.skillSocket.getSkillDeleted().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Skill","Skill deleted", MessageType.Info)),
-                error: (err) => this.message=`Error during Skill deletion. Error: ${err}`
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
             }),
 
             // //Capabilities  add
@@ -70,7 +74,7 @@ export class MessageService {
             //     () => this.addAndDeleteMessage(new Message("Capability","Capability deleted", MessageType.Info)),
             //     (err) => this.message=`Error during Capability deletion. Error: ${err}`
             // );
-            this.observer.next(this.messagelist);
+            this.observer.next(this.messageDisplay);
         });
         return obs;
     }
@@ -122,14 +126,33 @@ export class MessageService {
 
     private addAndDeleteMessage(message: Message): void{
         // Add a new message to the list and emit to observer
-        this.messagelist.push(message);
-        this.observer.next(this.messagelist);
+        this.messageDisplay.push(message);
+        this.addToArchive(message);
+        this.observer.next(this.messageDisplay);
 
         // Wait 2 seconsd and remove it from the list
         setTimeout(() => {
-            this.messagelist.splice(0,1);
-            this.observer.next(this.messagelist);
+            this.messageDisplay.splice(0,1);
+            this.observer.next(this.messageDisplay);
         },2000);
+    }
 
+    private addToArchive(message: Message): void {
+        const messageArchive = new Array<ArchivedMessage>();
+        const existingArchive = JSON.parse(localStorage.getItem("messageArchive")) as Array<ArchivedMessage>;
+        if(existingArchive) {
+            messageArchive.push(...existingArchive);
+        }
+        const currentDate = new Date();
+        if(messageArchive.length >= 10) {
+            messageArchive.shift();
+        }
+        messageArchive.push(new ArchivedMessage(message, currentDate));
+        localStorage.setItem("messageArchive", JSON.stringify(messageArchive));
+    }
+
+    public getMessageArchive(): Array<ArchivedMessage> {
+        return JSON.parse(localStorage.getItem("messageArchive")) as Array<ArchivedMessage>;
     }
 }
+

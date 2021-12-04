@@ -17,38 +17,15 @@
                     </a>
                 </li> &nbsp;
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle" (click)="reloadMessageArchive()" href data-bs-toggle="dropdown">
                         <i class="fa fa-envelope"></i> <b class="caret"></b><span class="sr-only">(current)</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-right messages">
-                        <li class="media">
-                            <img class="d-flex align-self-center mr-3"
-                                src="http://i.huffpost.com/gadgets/slideshows/461162/slide_461162_6224974_sq50.jpg"
-                                alt="Generic placeholder image">
+                        <li class="media" *ngFor="let entry of this.messageArchive">
                             <div class="media-body">
-                                <h5 class="mt-0 mb-1">John Smith</h5>
-                                <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-                                <p class="last"> Lorem ipsum dolor sit amet, consectetur...</p>
-                            </div>
-                        </li>
-                        <li class="media">
-                            <img class="d-flex align-self-center mr-3"
-                                src="http://i.huffpost.com/gadgets/slideshows/461162/slide_461162_6224974_sq50.jpg"
-                                alt="Generic placeholder image">
-                            <div class="media-body">
-                                <h5 class="mt-0 mb-1">John Smith</h5>
-                                <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-                                <p class="last"> Lorem ipsum dolor sit amet, consectetur...</p>
-                            </div>
-                        </li>
-                        <li class="media">
-                            <img class="d-flex align-self-center mr-3"
-                                src="http://i.huffpost.com/gadgets/slideshows/461162/slide_461162_6224974_sq50.jpg"
-                                alt="Generic placeholder image" />
-                            <div class="media-body">
-                                <h5 class="mt-0 mb-1">John Smith</h5>
-                                <p class="small text-muted"><i class="fa fa-clock-o"></i> Yesterday at 4:32 PM</p>
-                                <p class="last"> Lorem ipsum dolor sit amet, consectetur...</p>
+                                <h5 class="mt-0 mb-1">{{entry.message.title}}</h5>
+                                <p class="small text-muted"><i class="fa fa-clock-o"></i>{{entry.date | date:"medium"}}</p>
+                                <p class="last">{{entry.message.textbody}}</p>
                             </div>
                         </li>
                     </ul>
