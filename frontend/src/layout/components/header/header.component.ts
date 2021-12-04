@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
+import { ArchivedMessage, MessageService } from '../../../shared/services/message.service';
 
 @Component({
     selector: 'app-header',
@@ -7,9 +8,14 @@ import { Router, NavigationEnd } from '@angular/router';
     styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
+
+    messageArchive = new Array<ArchivedMessage>();
     public pushRightClass: string;
 
-    constructor(public router: Router) {
+    constructor(
+        private messageService: MessageService,
+        public router: Router,
+    ) {
 
         this.router.events.subscribe(val => {
             if (
@@ -22,8 +28,12 @@ export class HeaderComponent implements OnInit {
         });
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.pushRightClass = 'push-right';
+    }
+
+    reloadMessageArchive() {
+        this.messageArchive = this.messageService.getMessageArchive();
     }
 
     isToggled(): boolean {
@@ -31,17 +41,17 @@ export class HeaderComponent implements OnInit {
         return dom.classList.contains(this.pushRightClass);
     }
 
-    toggleSidebar() {
+    toggleSidebar(): void {
         const dom: any = document.querySelector('body');
         dom.classList.toggle(this.pushRightClass);
     }
 
-    rltAndLtr() {
+    rltAndLtr(): void {
         const dom: any = document.querySelector('body');
         dom.classList.toggle('rtl');
     }
 
-    onLoggedout() {
+    onLoggedout(): void {
         localStorage.removeItem('isLoggedin');
     }
 }
