@@ -34,7 +34,7 @@
         "reflect-metadata": "0.1.13",
         "request": "^2.88.0",
         "rimraf": "3.0.2",
-        "rxjs": "^6.4.0",
+        "rxjs": "^7.4.0",
         "sparql-result-converter": "^3.0.1",
         "ts-helpers": "1.1.2",
         "uuid": "^3.4.0",
