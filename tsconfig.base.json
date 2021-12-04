@@ -2,7 +2,7 @@
     "compilerOptions": {
         "declaration": true,
         "removeComments": true,
-        "emitDecoratorMetadata": true,
+        "emitDecoratorMetadata": false,
         "experimentalDecorators": true,
     },
 }
