@@ -16,7 +16,7 @@
         </div>
 
         <ng-container *ngIf="sendTaskType === 'mail'">
-            <mail-form></mail-form>
+            <mail-form [bpmnElement]="bpmnElement"></mail-form>
         </ng-container>
 
         <ng-container *ngIf="sendTaskType === 'process-message'">

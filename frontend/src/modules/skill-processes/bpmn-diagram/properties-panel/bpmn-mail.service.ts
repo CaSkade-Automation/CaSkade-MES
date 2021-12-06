@@ -25,20 +25,18 @@ export interface CamundaMailEntry {
 export class CamundaMailService {
 
     bpmnModeler: any;
-    bpmnElement: any;
     dataModel: BpmnDataModel;
     moddle: any;
 
     constructor() { }
 
-    setup(bpmnModeler: any, bpmnElement: any) {
+    setup(bpmnModeler: any) {
         this.bpmnModeler = bpmnModeler;
-        this.bpmnElement = bpmnElement;
         this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
         this.moddle = this.bpmnModeler.get("moddle");
     }
 
-    addMailEntry(connectorFunction: CamundaMailConnectorFunction, mailEntry: CamundaMailEntry): void {
+    addMailEntry(bpmnElement, connectorFunction: CamundaMailConnectorFunction, mailEntry: CamundaMailEntry): void {
         const inputParams = new Array<{}>();
         for (const key in mailEntry) {
             const inputParameter = this.moddle.create('camunda:InputParameter', {
@@ -83,7 +81,7 @@ export class CamundaMailService {
             values: [connectorEntry]
         });
 
-        this.bpmnModeler.get("modeling").updateProperties(this.bpmnElement, {
+        this.bpmnModeler.get("modeling").updateProperties(bpmnElement, {
             "extensionElements": extensionElements
         });
     }
