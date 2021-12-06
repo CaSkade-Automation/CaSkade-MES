@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CamundaMailConnectorFunction, CamundaMailService } from '../../../bpmn-mail.service';
 
@@ -8,6 +8,8 @@ import { CamundaMailConnectorFunction, CamundaMailService } from '../../../bpmn-
     styleUrls: ['./mail-form.component.scss']
 })
 export class MailFormComponent implements OnInit {
+
+    @Input() bpmnElement
 
     mailFg = new FormGroup({
         to: new FormControl("", [Validators.required, Validators.email]),
@@ -27,8 +29,7 @@ export class MailFormComponent implements OnInit {
     }
 
     submit() {
-
-        this.bpmnMailElementService.addMailEntry(CamundaMailConnectorFunction['mail-send'], this.mailFg.value);
+        this.bpmnMailElementService.addMailEntry(this.bpmnElement, CamundaMailConnectorFunction['mail-send'], this.mailFg.value);
     }
 
 }

@@ -77,7 +77,7 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
         this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
         this.extensionElementService.setup(this.bpmnModeler, this.bpmnElement);
         this.modelService.setup(this.bpmnModeler);
-        this.connectorService.setup(this.bpmnModeler, this.bpmnElement);
+        this.connectorService.setup(this.bpmnModeler);
     }
 
 
