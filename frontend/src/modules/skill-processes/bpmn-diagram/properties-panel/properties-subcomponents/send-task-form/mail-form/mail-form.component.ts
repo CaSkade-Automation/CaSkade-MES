@@ -30,7 +30,7 @@ export class MailFormComponent implements OnInit {
         // this.mailFg.setValue(mailEntry);
     }
 
-    submit(): void {
+    submit() {
         this.bpmnMailElementService.addMailEntry(this.bpmnElement, CamundaMailConnectorFunction['mail-send'], this.mailFg.value);
     }
 
