@@ -1,0 +1,50 @@
+<h6 class="mt-3">Mail Details <i class="far fa-question-circle" title="Mail Details such as recipient, cc, text"></i></h6>
+<form (ngSubmit)="submit()" [formGroup]="this.mailFg">
+    <div class="row mb-2">
+        <label class="col-sm-3 col-form-label" for="to">To:</label>
+        <div class="col-sm-9">
+            <input type="text" id="to" class="form-control form-control-sm" formControlName="to">
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <label class="col-sm-3 col-form-label">CC:</label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control form-control-sm" formControlName="cc">
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <label class="col-sm-3 col-form-label">BCC:</label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control form-control-sm" formControlName="bcc">
+        </div>
+    </div>
+
+    <div class="row mb-2">
+        <label class="col-sm-3 col-form-label">Subject:</label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control form-control-sm" formControlName="subject">
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="text" class="form-label">Text:</label>
+        <textarea type="text" class="form-control" id="text" formControlName="text"></textarea>
+    </div>
+
+    <!-- <div class="mb-3">
+        <label for="html" class="form-label">HTML</label>
+        <input type="text" class="form-control" id="html" formControlName="html">
+    </div> -->
+
+    <!-- <div class="row">
+        <label class="col-sm-3 col-form-label">Files:</label>
+        <div class="col-sm-9">
+            <input type="text" class="form-control form-control-sm" formControlName="files">
+        </div>
+    </div> -->
+
+    <button type="submit" [disabled]="!this.mailFg.valid" class="btn btn-sm btn-primary">Save Mail Details</button>
+
+</form>

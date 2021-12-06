@@ -6,7 +6,7 @@ import { BpmnDataModel, BpmnProperty } from '../BpmnDataModel';
 
 import { BpmnExtensionElementService } from './bpmn-extension-element.service';
 import { BpmnModelService } from './bpmn-model.service';
-import { CamundaConnectorService } from './camunda-connector.service';
+import { CamundaMailService } from './bpmn-mail.service';
 
 @Component({
     selector: 'properties-panel',
@@ -68,7 +68,7 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     constructor(
         private extensionElementService: BpmnExtensionElementService,
         private modelService: BpmnModelService,
-        private connectorService: CamundaConnectorService
+        private connectorService: CamundaMailService
     ) {
         this.form = new FormGroup({});
     }
