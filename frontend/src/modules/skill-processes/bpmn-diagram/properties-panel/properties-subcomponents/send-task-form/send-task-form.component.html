@@ -2,17 +2,27 @@
 <div class="row mt-3">
     <div class="col">
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="sendTaskType" id="send-mail">
+            <input class="form-check-input" type="radio" name="sendTaskType" id="send-mail" [(ngModel)]="sendTaskType" value="mail">
             <label class="form-check-label" for="send-mail">
                 Send E-Mail
             </label>
         </div>
 
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="sendTaskType" id="send-process-message">
+            <input class="form-check-input" type="radio" name="sendTaskType" id="send-process-message" [(ngModel)]="sendTaskType" value="process-message">
             <label class="form-check-label" for="send-process-message">
                 Send Process Message
             </label>
         </div>
+
+        <ng-container *ngIf="sendTaskType === 'mail'">
+            <mail-form></mail-form>
+        </ng-container>
+
+        <ng-container *ngIf="sendTaskType === 'process-message'">
+            <!-- TODO: Create process-message component -->
+            <!-- <mail-form></mail-form> -->
+        </ng-container>
+
     </div>
 </div>

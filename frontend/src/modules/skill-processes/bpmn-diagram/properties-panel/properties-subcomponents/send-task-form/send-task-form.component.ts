@@ -1,5 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { CamundaConnectorService } from '../../camunda-connector.service';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { CamundaMailService } from '../../bpmn-mail.service';
 
 @Component({
     selector: 'send-task-form',
@@ -9,13 +10,12 @@ import { CamundaConnectorService } from '../../camunda-connector.service';
 export class SendTaskFormComponent implements OnInit {
 
     @Input() bpmnElement: any;
+    sendTaskType= "mail";
 
-    constructor(
-        private connectorService: CamundaConnectorService
-    ) { }
+    constructor() { }
 
-    ngOnInit() {
-        this.connectorService.addConnectorEntry();
+    ngOnInit(): void {
+
     }
 
 }
