@@ -13,7 +13,8 @@ import { FlowFormComponent } from './bpmn-diagram/properties-panel/properties-su
 import { BpmnExtensionElementService } from './bpmn-diagram/properties-panel/bpmn-extension-element.service';
 import { BpmnModelService } from './bpmn-diagram/properties-panel/bpmn-model.service';
 import { SendTaskFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/send-task-form/send-task-form.component';
-import { CamundaConnectorService } from './bpmn-diagram/properties-panel/camunda-connector.service';
+import { CamundaMailService } from './bpmn-diagram/properties-panel/bpmn-mail.service';
+import { MailFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/send-task-form/mail-form/mail-form.component';
 
 
 @NgModule({
@@ -27,7 +28,7 @@ import { CamundaConnectorService } from './bpmn-diagram/properties-panel/camunda
     providers: [
         BpmnModelService,
         BpmnExtensionElementService,
-        CamundaConnectorService
+        CamundaMailService
     ],
     declarations: [
         SkillProcessesComponent,
@@ -37,6 +38,7 @@ import { CamundaConnectorService } from './bpmn-diagram/properties-panel/camunda
         SkillTaskFormComponent,
         UserTaskFormComponent,
         SendTaskFormComponent,
+        MailFormComponent,
         FlowFormComponent
     ],
 })
