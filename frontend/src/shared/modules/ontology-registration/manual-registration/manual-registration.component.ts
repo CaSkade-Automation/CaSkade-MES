@@ -19,17 +19,17 @@ export class ManualRegistrationComponent {
         private capabilityService: CapabilityService) { }
 
     submit(): void {
-        if(this.context=="module"){
+        if(this.context=="production-modules"){
             this.moduleService.addModule(this.ontologyString).pipe(take(1)).subscribe(
                 () => this.ontologyString="Ontology registered"
             );
         }
-        if(this.context=="skill") {
+        if(this.context=="skills") {
             this.skillService.addSkill(this.ontologyString).pipe(take(1)).subscribe(
                 () => this.ontologyString="Ontology registered"
             );
         }
-        if(this.context == "capability") {
+        if(this.context == "capabilities") {
             this.capabilityService.addCapability(this.ontologyString).pipe(take(1)).subscribe(
                 () => this.ontologyString="Ontology registered"
             );

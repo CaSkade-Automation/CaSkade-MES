@@ -5,6 +5,7 @@ import * as FormData from 'form-data';
 import {MappingServiceConfig} from '@shared/models/mappings/MappingServiceConfig';
 import { ModuleService } from '../../production-modules/module.service';
 import { Request } from 'express';
+import { SkillService } from '../../skills/skill.service';
 
 @Injectable()
 export class MtpMappingService {
@@ -14,7 +15,9 @@ export class MtpMappingService {
     }
 
 
-    constructor(private moduleService: ModuleService) {
+    constructor(
+        private skillService: SkillService,
+        private moduleService: ModuleService) {
     }
 
     /**
@@ -48,8 +51,15 @@ export class MtpMappingService {
 
         Axios.post(this.config.url, formData, reqConfig)
             .then(res => {
-                console.log("mapping completed");
+                // Skills have to be registered separately so that state changes are tracked
+                // But this is a very hacky fix to extract skills out of the module .ttl
+                // there should be a better way ^^
+                const mappedTurtleDocument = res.data as string;
+                const skills = mappedTurtleDocument.match(/<.*> a .*Skill(>|;)/gi);
                 this.moduleService.addModule(res.data);
+                skills.forEach(skill => {
+                    this.skillService.addSkill(skill + ".");
+                });
             })
             .catch(err => {
                 console.log("error on mapping");
