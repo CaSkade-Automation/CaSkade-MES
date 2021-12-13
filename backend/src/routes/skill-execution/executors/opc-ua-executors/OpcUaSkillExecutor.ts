@@ -116,7 +116,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             connectionStrategy: this.connectionStrategy,
             securityMode: this.getMessageSecurityMode(messageSecurityModeIri),
             securityPolicy: this.getSecurityPolicy(securityPolicyIri),
-            endpoint_must_exist: false,
+            endpointMustExist: false,
         };
 
         return options;
@@ -195,7 +195,11 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             nodeId = NodeId.resolveNodeId(nodeIdString);
             nsIndex = nodeId.namespace;
         } catch (error) {
-            nsIndex = this.uaSession.getNamespaceIndex(namespace);
+            // if nodeId cannot be resolved, try to do it manually
+            let nsIndex = Number(namespace);    // namespace could also be stored as index
+            if(!nsIndex) {
+                nsIndex = this.uaSession.getNamespaceIndex(namespace);  // if not stored as index, try to get index
+            }
             nodeId = new NodeId(NodeIdType.STRING, nodeIdString, nsIndex);
         }
 

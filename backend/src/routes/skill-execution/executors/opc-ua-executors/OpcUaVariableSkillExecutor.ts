@@ -26,6 +26,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
      * @param executionRequest Object containing skillIri, transitionIri and all parameters with the values they have to be set to
      */
     async invokeTransition(executionRequest: SkillExecutionRequestDto): Promise<any> {
+        this.uaSession.readNamespaceArray();
         const skillDescription = await this.getOpcUaVariableSkillDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
 
         try {
@@ -43,7 +44,8 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
             ClientSubscription.create(this.uaSession, {});
 
         } catch (err) {
-            console.log(`Error while invoking transition "${executionRequest.commandTypeIri}" on skill "${executionRequest.skillIri}": ${err}`);
+            console.log(`Error while invoking transition "${executionRequest.commandTypeIri}" on skill "${executionRequest.skillIri}":`);
+            console.log(err);
             throw new InternalServerErrorException();
         } finally {
             this.endUaConnection();
