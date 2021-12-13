@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import * as InputOutputHelper from 'bpmn-js-properties-panel/lib/helper/InputOutputHelper';
-import * as ExtensionElementHelper from 'bpmn-js-properties-panel/lib/helper/ExtensionElementsHelper';
 import { BpmnDataModel, BpmnProperty } from '../BpmnDataModel';
 
 @Injectable()

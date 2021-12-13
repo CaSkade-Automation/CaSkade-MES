@@ -26,9 +26,11 @@ export class MailFormComponent implements OnInit {
     constructor(private bpmnMailElementService: CamundaMailService) { }
 
     ngOnInit() {
+        const mailEntry = this.bpmnMailElementService.getMailEntry(this.bpmnElement);
+        // this.mailFg.setValue(mailEntry);
     }
 
-    submit() {
+    submit(): void {
         this.bpmnMailElementService.addMailEntry(this.bpmnElement, CamundaMailConnectorFunction['mail-send'], this.mailFg.value);
     }
 

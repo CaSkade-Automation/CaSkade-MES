@@ -1,20 +1,38 @@
 import { Injectable } from '@angular/core';
 import { BpmnDataModel } from '../BpmnDataModel';
+import * as ExtensionElementHelper from 'bpmn-js-properties-panel/lib/helper/ExtensionElementsHelper';
 
 export enum CamundaMailConnectorFunction {
-    "mail-send",
-    "mail-poll",
-    "mail-delete"
+	"mail-send",
+	"mail-poll",
+	"mail-delete"
 }
 
-export interface CamundaMailEntry {
-    to: string;
-    cc: string;
-    bcc: string;
-    subject: string;
-    text: string;
-    html: string;
-    filesNames: Array<string>;
+export class CamundaMailEntry {
+	constructor(
+		public to: string,
+		public subject: string,
+		public cc = "",
+		public bcc = "",
+		public text = "",
+		public html = "",
+		public filesNames = new Array<string>()
+	) { }
+
+    /**
+     * Create a mail entry an existing entry in array form
+     * @param camundaInputArray
+     * @returns
+     */
+	static fromInputArray(camundaInputArray): CamundaMailEntry {
+		const mailObj = {};
+		camundaInputArray.forEach((input: any) => {
+			mailObj[input.name] = input.value;
+		})
+        const mailEntry = new CamundaMailEntry(mailObj["to"], mailObj["subject"], mailObj["cc"], mailObj["bcc"], mailObj["text"], mailObj["html"], mailObj["fileNames"])
+        return mailEntry
+	}
+
 }
 
 /**
@@ -24,66 +42,60 @@ export interface CamundaMailEntry {
 @Injectable()
 export class CamundaMailService {
 
-    bpmnModeler: any;
-    dataModel: BpmnDataModel;
-    moddle: any;
+	bpmnModeler: any;
+	dataModel: BpmnDataModel;
+	moddle: any;
 
-    constructor() { }
+	constructor() { }
 
-    setup(bpmnModeler: any) {
-        this.bpmnModeler = bpmnModeler;
-        this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
-        this.moddle = this.bpmnModeler.get("moddle");
-    }
+	setup(bpmnModeler: any): void {
+		this.bpmnModeler = bpmnModeler;
+		this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
+		this.moddle = this.bpmnModeler.get("moddle");
+	}
 
-    addMailEntry(bpmnElement, connectorFunction: CamundaMailConnectorFunction, mailEntry: CamundaMailEntry): void {
-        const inputParams = new Array<{}>();
-        for (const key in mailEntry) {
-            const inputParameter = this.moddle.create('camunda:InputParameter', {
-                name: key,//`${asd}`,
-                value: mailEntry[key]//`${prop.value}`
-            });
-            inputParams.push(inputParameter);
-        }
+	addMailEntry(bpmnElement, connectorFunction: CamundaMailConnectorFunction, mailEntry: CamundaMailEntry): void {
+		const inputParams = new Array<{}>();
+		for (const key in mailEntry) {
+			const inputParameter = this.moddle.create('camunda:InputParameter', {
+				name: key,//`${asd}`,
+				value: mailEntry[key]//`${prop.value}`
+			});
+			inputParams.push(inputParameter);
+		}
 
-        // const newInputParameter = this.moddle.create('camunda:InputParameter', {
-        //     name: "qwe",//`${asd}`,
-        //     value: "qweValue"//`${prop.value}`
-        // });
+		const inputOutput = this.moddle.create('camunda:InputOutput', {
+			inputParameters: inputParams,
+		});
 
-        // const newOutputParameter = this.moddle.create('camunda:OutputParameter', {
-        //     name: "asd",//`${asd}`,
-        //     value: "asdValue"//`${prop.value}`
-        // });
+		const connectorEntry = this.moddle.create('camunda:Connector', {
+			inputOutput: inputOutput,
+			connectorId: CamundaMailConnectorFunction[connectorFunction]
+		});
 
-        console.log("inputParams");
-        // console.log(inputParams);
+		const extensionElements = this.moddle.create('bpmn:ExtensionElements', {
+			values: [connectorEntry]
+		});
 
+		this.bpmnModeler.get("modeling").updateProperties(bpmnElement, {
+			"extensionElements": extensionElements
+		});
+	}
 
-        const inputOutput = this.moddle.create('camunda:InputOutput', {
-            inputParameters: inputParams,
-        });
+	getMailEntry(bpmnElement): CamundaMailEntry {
+		const extensionElements = bpmnElement.businessObject.get("extensionElements");
+		const connector = extensionElements.values.find(elem => elem.$type === "camunda:Connector");
 
-        // const connectorId = this.moddle.create('camunda:ConnectorId', {
-        //     value: "id"
-        // });
+		const mailInputParameters = connector.inputOutput.inputParameters as [];
 
-        console.log("connectorFunction");
-        console.log(connectorFunction);
+		const mailEntry = CamundaMailEntry.fromInputArray(mailInputParameters);
 
+        console.log("mail");
 
-        const connectorEntry = this.moddle.create('camunda:Connector', {
-            inputOutput: inputOutput,
-            connectorId: CamundaMailConnectorFunction[connectorFunction]
-        });
+		console.log(mailEntry);
 
-        const extensionElements = this.moddle.create('bpmn:ExtensionElements', {
-            values: [connectorEntry]
-        });
-
-        this.bpmnModeler.get("modeling").updateProperties(bpmnElement, {
-            "extensionElements": extensionElements
-        });
-    }
+		console.log(ExtensionElementHelper.getExtensionElements(bpmnElement.businessObject, "camunda:Connector"));
+		return null;
+	}
 
 }
