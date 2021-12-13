@@ -5,6 +5,7 @@ import * as FormData from 'form-data';
 import {MappingServiceConfig} from '@shared/models/mappings/MappingServiceConfig';
 import { ModuleService } from '../../production-modules/module.service';
 import { Request } from 'express';
+import { SkillService } from '../../skills/skill.service';
 
 @Injectable()
 export class MtpMappingService {
@@ -14,7 +15,9 @@ export class MtpMappingService {
     }
 
 
-    constructor(private moduleService: ModuleService) {
+    constructor(
+        private skillService: SkillService,
+        private moduleService: ModuleService) {
     }
 
     /**
@@ -46,16 +49,24 @@ export class MtpMappingService {
             timeout: 1200000        // large timeout because mapping takes forever
         };
 
-        try {
-            const res = await Axios.post(this.config.url, formData, reqConfig);
-            console.log("mapping completed");
-            console.log(res.data);
-            this.moduleService.addModule(res.data);
-            return;
-        } catch (error) {
-            console.log("error on mapping");
-            throw new HttpException("Error while Mapping MTP file", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        Axios.post(this.config.url, formData, reqConfig)
+            .then(res => {
+                // Skills have to be registered separately so that state changes are tracked
+                // But this is a very hacky fix to extract skills out of the module .ttl
+                // there should be a better way ^^
+                const mappedTurtleDocument = res.data as string;
+                const skills = mappedTurtleDocument.match(/<.*> a .*Skill(>|;)/gi);
+                this.moduleService.addModule(res.data);
+                skills.forEach(skill => {
+                    this.skillService.addSkill(skill + ".");
+                });
+            })
+            .catch(err => {
+                console.log("error on mapping");
+                console.log(err);
+            });
+
+        return;
     }
 
 }
