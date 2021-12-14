@@ -52,11 +52,12 @@ export class MtpMappingService {
         Axios.post(this.config.url, formData, reqConfig)
             .then(res => {
                 // Skills have to be registered separately so that state changes are tracked
-                // But this is a very hacky fix to extract skills out of the module .ttl
-                // there should be a better way ^^
+                // But this is a very hacky fix to extract skills out of the module .ttl, there should be a better way
                 const mappedTurtleDocument = res.data as string;
                 const skills = mappedTurtleDocument.match(/<.*> a .*Skill(>|;)/gi);
-                this.moduleService.addModule(res.data);
+
+                const contentType = "application/text-turtle; charset=UTF-8";   // Currently, MTP mapping returns result in turtle syntax
+                this.moduleService.addModule(res.data, contentType);
                 skills.forEach(skill => {
                     this.skillService.addSkill(skill + ".");
                 });
