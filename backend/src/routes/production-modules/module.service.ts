@@ -22,11 +22,11 @@ export class ModuleService {
      * Register a new module
      * @param newModule Content of an RDF document
      */
-    async addModule(newModule: string): Promise<string> {
+    async addModule(newModule: string, contentType: string): Promise<string> {
         // create a graph name (uuid)
         const graphName = uuidv4();
         try {
-            const dbResult = await this.graphDbConnection.addRdfDocument(newModule, graphName);
+            const dbResult = await this.graphDbConnection.addRdfDocument(newModule, graphName, contentType);
 
             if(dbResult) {
                 // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
