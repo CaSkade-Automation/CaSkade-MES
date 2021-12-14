@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Logger, Patch, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Patch, Body, Headers } from '@nestjs/common';
 import { ModuleService } from './module.service';
 import { ProductionModuleDto } from '@shared/models/production-module/ProductionModule';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
@@ -17,8 +17,8 @@ export class ModuleController {
      * @param newModule: Turtle document describing the new module
      */
     @Post()
-    async addModule(@StringBody() newModule: string): Promise<string> {
-        return this.moduleService.addModule(newModule);
+    async addModule(@StringBody() newModule: string, @Headers("Content-Type") contentType: string): Promise<string> {
+        return this.moduleService.addModule(newModule, contentType);
     }
 
     @Get()
@@ -36,8 +36,6 @@ export class ModuleController {
         return this.moduleService.deleteModule(moduleIri);
     }
 
-    // TODO: Big To-Do here: Modules should only be able to add and delete their own skills.
-    //       Currently, moduleIri is not checked
 
     /**
      * Add a new skill to a given module
