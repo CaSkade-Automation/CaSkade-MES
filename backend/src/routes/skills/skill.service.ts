@@ -26,11 +26,11 @@ export class SkillService {
      * Register a new skill
      * @param newSkill Content of an RDF document describing a skill
      */
-    async addSkill(newSkill: string): Promise<string> {
+    async addSkill(newSkill: string, contentType?: string): Promise<string> {
         try {
             // create a graph name for the skill (uuid)
             const skillGraphName = uuidv4();
-            await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName);
+            await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName, contentType);
 
             // Skill is added, now get its IRI and skill type to setup a state change monitor in case its a variable skill
             const skillInfo = await this.getSkillInGraph(skillGraphName);

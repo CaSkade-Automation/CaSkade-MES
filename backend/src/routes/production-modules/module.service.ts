@@ -22,7 +22,7 @@ export class ModuleService {
      * Register a new module
      * @param newModule Content of an RDF document
      */
-    async addModule(newModule: string, contentType: string): Promise<string> {
+    async addModule(newModule: string, contentType: string): Promise<Record<string, string>> {
         // create a graph name (uuid)
         const graphName = uuidv4();
         try {
@@ -32,7 +32,7 @@ export class ModuleService {
                 // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
                 this.moduleSocket.sendMessage(SocketMessageType.Added);
                 // this.moduleSocket.doSomething();
-                return 'ProductionModule successfully registered';
+                return {msg:'ProductionModule successfully registered'};
             }
         } catch (error) {
             throw new BadRequestException(`Error while registering new production module. Error: ${error.toString()}`);
@@ -109,7 +109,7 @@ export class ModuleService {
      * Delete a module with a given IRI
      * @param moduleIri IRI of the module to delete
      */
-    async deleteModule(moduleIri: string): Promise<string> {
+    async deleteModule(moduleIri: string): Promise<void> {
         try {
             // Get module's graph
             // TODO: This could be moved into a separate graph model
@@ -122,16 +122,18 @@ export class ModuleService {
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-            SELECT * WHERE {
+            SELECT DISTINCT ?g WHERE {
                 # Get the type with which the module was registered
                 # This has to be made before getting the graph because inferred facts are not stored in any graph and lead to problems
                 BIND(IRI(<${moduleIri}>) AS ?module)
-                ?module a ?type.
-                ?type sesame:directSubClassOf VDI3682:TechnicalResource.
-                ?module ?prop ?skill.
-                ?skill a Cap:Skill.
-                ?prop sesame:directSubPropertyOf Cap:providesSkill.
-
+                ?module a VDI3682:TechnicalResource.
+                ?type rdfs:subClassOf VDI3682:TechnicalResource.
+                # Skills have to be optional so that "empty" modules can be deleted, too
+                OPTIONAL {
+                    ?module ?prop ?skill.
+                    ?skill a Cap:Skill.
+                    ?prop sesame:directSubPropertyOf Cap:providesSkill.
+                }
                 # Finding the graph can now be done using explicit facts
                 GRAPH ?g {
                     {
@@ -147,7 +149,9 @@ export class ModuleService {
                 const graphName = binding.g.value;
                 await this.graphDbConnection.clearGraph(graphName); // clear graph
             }
-            return `Successfully deleted module with IRI ${moduleIri}`;
+
+            this.moduleSocket.sendMessage(SocketMessageType.Deleted);
+
         } catch (error) {
             throw new Error(`Error while deleting module with IRI ${moduleIri}. Error: ${error}`);
         }
