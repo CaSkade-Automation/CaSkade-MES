@@ -5,6 +5,7 @@ const capabilityMapping: MappingDefinition[] = [
         rootName: 'capabilities',
         propertyToGroup: 'capability',
         name: 'iri',
+        toCollect: ["skillIri"],
         childMappings: [
             {
                 rootName: 'inputs',

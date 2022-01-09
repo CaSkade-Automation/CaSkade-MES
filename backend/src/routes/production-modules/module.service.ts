@@ -1,6 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
-import { SocketGateway } from '../../socket-gateway/socket.gateway';
 import { v4 as uuidv4 } from 'uuid';
 
 import { ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
@@ -8,7 +7,8 @@ import { moduleMapping } from './module-mappings';
 
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { SkillService } from '../skills/skill.service';
-import { SocketEventName } from '@shared/socket-communication/SocketEventName';
+import { ModuleSocket } from '../../socket-gateway/module-socket';
+import { SocketMessageType } from '@shared/socket-communication/SocketData';
 const converter = new SparqlResultConverter();
 
 @Injectable()
@@ -16,22 +16,23 @@ export class ModuleService {
     constructor(
         private graphDbConnection: GraphDbConnectionService,
         private skillService: SkillService,
-        private socketService: SocketGateway) {}
+        private moduleSocket: ModuleSocket) {}
 
     /**
      * Register a new module
      * @param newModule Content of an RDF document
      */
-    async addModule(newModule: string): Promise<string> {
+    async addModule(newModule: string, contentType: string): Promise<Record<string, string>> {
         // create a graph name (uuid)
         const graphName = uuidv4();
         try {
-            const dbResult = await this.graphDbConnection.addRdfDocument(newModule, graphName);
+            const dbResult = await this.graphDbConnection.addRdfDocument(newModule, graphName, contentType);
 
             if(dbResult) {
                 // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-                this.socketService.emitEvent(SocketEventName.ProductionModules_Added);
-                return 'ProductionModule successfully registered';
+                this.moduleSocket.sendMessage(SocketMessageType.Added);
+                // this.moduleSocket.doSomething();
+                return {msg:'ProductionModule successfully registered'};
             }
         } catch (error) {
             throw new BadRequestException(`Error while registering new production module. Error: ${error.toString()}`);
@@ -108,7 +109,7 @@ export class ModuleService {
      * Delete a module with a given IRI
      * @param moduleIri IRI of the module to delete
      */
-    async deleteModule(moduleIri: string): Promise<string> {
+    async deleteModule(moduleIri: string): Promise<void> {
         try {
             // Get module's graph
             // TODO: This could be moved into a separate graph model
@@ -121,16 +122,18 @@ export class ModuleService {
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-            SELECT * WHERE {
+            SELECT DISTINCT ?g WHERE {
                 # Get the type with which the module was registered
                 # This has to be made before getting the graph because inferred facts are not stored in any graph and lead to problems
                 BIND(IRI(<${moduleIri}>) AS ?module)
-                ?module a ?type.
-                ?type sesame:directSubClassOf VDI3682:TechnicalResource.
-                ?module ?prop ?skill.
-                ?skill a Cap:Skill.
-                ?prop sesame:directSubPropertyOf Cap:providesSkill.
-
+                ?module a VDI3682:TechnicalResource.
+                ?type rdfs:subClassOf VDI3682:TechnicalResource.
+                # Skills have to be optional so that "empty" modules can be deleted, too
+                OPTIONAL {
+                    ?module ?prop ?skill.
+                    ?skill a Cap:Skill.
+                    ?prop sesame:directSubPropertyOf Cap:providesSkill.
+                }
                 # Finding the graph can now be done using explicit facts
                 GRAPH ?g {
                     {
@@ -146,7 +149,9 @@ export class ModuleService {
                 const graphName = binding.g.value;
                 await this.graphDbConnection.clearGraph(graphName); // clear graph
             }
-            return `Successfully deleted module with IRI ${moduleIri}`;
+
+            this.moduleSocket.sendMessage(SocketMessageType.Deleted);
+
         } catch (error) {
             throw new Error(`Error while deleting module with IRI ${moduleIri}. Error: ${error}`);
         }

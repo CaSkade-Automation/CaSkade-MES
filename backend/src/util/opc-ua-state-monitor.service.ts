@@ -4,6 +4,8 @@ import { AttributeIds,
     ClientSubscription,
     DataValue,
     MonitoringParametersOptions,
+    NodeId,
+    NodeIdType,
     ReadValueIdOptions,
     TimestampsToReturn } from "node-opcua";
 import { GraphDbConnectionService } from "./GraphDbConnection.service";
@@ -26,6 +28,8 @@ export class OpcUaStateMonitorService {
     }
 
     public async setupItemToMonitor(session: ClientSession, skillIri: string): Promise<void> {
+        console.log("setting up item to monitor");
+
         this.subscription = ClientSubscription.create(session, {
             requestedPublishingInterval: 1000,
             requestedLifetimeCount: 100,
@@ -36,9 +40,24 @@ export class OpcUaStateMonitorService {
         });
         const currentStateInfo = await this.getCurrentStateInfo(skillIri);
 
+        // TODO: Same code as in OpcUaSkillExecutor, should be moved to a common place
+        let nsIndex: number;
+        let nodeId: NodeId;
+        try {
+            nodeId = NodeId.resolveNodeId(currentStateInfo.nodeId);
+            nsIndex = nodeId.namespace;
+        } catch (error) {
+            // if nodeId cannot be resolved, try to do it manually
+            let nsIndex = Number(currentStateInfo.namespace);    // namespace could also be stored as index
+            if(!nsIndex) {
+                nsIndex = session.getNamespaceIndex(currentStateInfo.namespace);  // if not stored as index, try to get index
+            }
+            nodeId = new NodeId(NodeIdType.STRING, currentStateInfo.nodeId, nsIndex);
+        }
+
         // install monitored item
         const itemToMonitor: ReadValueIdOptions = {
-            nodeId: currentStateInfo.nodeId,
+            nodeId: nodeId,
             attributeId: AttributeIds.Value
         };
         const parameters: MonitoringParametersOptions = {
@@ -61,6 +80,8 @@ export class OpcUaStateMonitorService {
             const skillChangeRoute = `/skills/${encodeURIComponent(skillIri)}/states`;
             this.httpService.patch(skillChangeRoute, {'newState': newState}).pipe(take(1)).subscribe();
         });
+        console.log("item to monitor set up");
+
     }
 
 
@@ -72,11 +93,12 @@ export class OpcUaStateMonitorService {
         PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
         PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-        SELECT ?output ?nodeId ?assuredValue ?stateTypeIri
+        SELECT ?output ?namespace ?nodeId ?assuredValue ?stateTypeIri
         WHERE {
             <${skillIri}> a Cap:Skill;
                 Cap:hasSkillOutput ?output.
             ?output a Cap:CurrentStateOutput;
+                    OpcUa:nodeNamespace ?namespace;
                     OpcUa:nodeId ?nodeId;
                     DINEN61360:is_Instance_Description_of_Data_Element ?de.		# Get Data_Element from actual value (skill output)
 
@@ -99,6 +121,7 @@ export class OpcUaStateMonitorService {
 
 class CurrentStateInfo {
     output: string;
+    namespace: string;
     nodeId: string;
     values: {
         assuredValue: number;
@@ -112,7 +135,7 @@ const currentStateMapping: MappingDefinition[] = [
         rootName: 'skillExecutionInfos',
         propertyToGroup: 'output',
         name: 'output',
-        toCollect: ['output', 'nodeId'],
+        toCollect: ['output', 'namespace', 'nodeId'],
         childMappings: [
             {
                 rootName: 'values',

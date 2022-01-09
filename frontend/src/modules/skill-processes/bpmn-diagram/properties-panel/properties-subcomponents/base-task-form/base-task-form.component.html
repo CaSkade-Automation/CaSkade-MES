@@ -1,0 +1,14 @@
+<form [formGroup]="fg">
+    <div class="form-group">
+        <label class="col-sm-4 col-form-label">ID:<i class="far fa-question-circle" title="ID of the BPMN element"></i></label>
+        <input type="text" class="form-control form-control-sm" formControlName="id">
+    </div>
+    <div class="form-group">
+        <label class="col-sm-4 col-form-label">Type:<i class="far fa-question-circle" title="BPMN element type"></i></label>
+        <input type="text" class="form-control form-control-sm" formControlName="type">
+    </div>
+    <div class="form-group">
+        <label class="col-sm-4 col-form-label">Name:<i class="far fa-question-circle" title="Human-readable name"></i></label>
+        <input type="text" class="form-control form-control-sm" formControlName="name">
+    </div>
+</form>

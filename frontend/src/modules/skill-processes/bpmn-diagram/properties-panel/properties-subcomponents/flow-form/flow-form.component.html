@@ -1,0 +1,9 @@
+<form [formGroup]="fg">
+    <div class="form-group">
+        <label class="col-sm-4 col-form-label">Condition:<i class="far fa-question-circle" title="Condition of this flow"></i></label>
+        <input type="text" class="form-control form-control-sm" formControlName="condition" (keydown)="keypressed($event)"/>
+        <ul>
+            <li *ngFor="let out of existingOutputs">{{out.name}}</li>
+        </ul>
+    </div>
+</form>

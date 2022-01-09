@@ -1,5 +1,5 @@
 .diagram-parent {
-    height: 600px;
+    height: 750px;
     border: solid 3px #EEE;
     position: relative;
 }
@@ -15,4 +15,8 @@ left: 0;
 
 .viewer-container {
     height: 500px;
+}
+
+.xmlDisplay {
+    white-space: break-spaces;
 }

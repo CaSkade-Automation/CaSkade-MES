@@ -145,7 +145,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                {{this.modalXml}}
+                <!-- Note: There must not be a space between pre and the xml string as pre gets rendered as is -->
+                <pre class="xmlDisplay">{{this.modalXml}}</pre>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

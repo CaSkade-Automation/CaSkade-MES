@@ -3,10 +3,10 @@ import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
 import { v4 as uuidv4 } from 'uuid';
-import { SocketGateway } from '../../socket-gateway/socket.gateway';
 
 import {SparqlResultConverter} from "sparql-result-converter";
-import { SocketEventName } from '@shared/socket-communication/SocketEventName';
+import { CapabilitySocket } from '../../socket-gateway/capability-socket';
+import { SocketMessageType } from '@shared/socket-communication/SocketData';
 
 const converter = new SparqlResultConverter();
 
@@ -14,7 +14,7 @@ const converter = new SparqlResultConverter();
 export class CapabilityService {
     constructor(
         private graphDbConnection: GraphDbConnectionService,
-        private socketGateway: SocketGateway
+        private capabilitySocket: CapabilitySocket
     ) { }
 
     /**
@@ -27,7 +27,7 @@ export class CapabilityService {
             const capabilityGraphName = uuidv4();
 
             await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
-            this.socketGateway.emitEvent(SocketEventName.Capabilities_Added);
+            this.capabilitySocket.sendMessage(SocketMessageType.Added);
             return 'New capability successfully added';
         } catch (error) {
             throw new BadRequestException(`Error while registering a new capability. Error: ${error.tostring()}`);
@@ -94,6 +94,41 @@ export class CapabilityService {
         }
     }
 
+    /**
+     * Returns all capabilities of a module
+     * @param moduleIri IRI of the module to get all capabilities of
+     * @returns
+     */
+    async getCapabilitiesOfModule(moduleIri: string): Promise<CapabilityDto[]> {
+        const query = `
+        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+        SELECT ?capability ?skillIri ?input ?output WHERE {
+            ?capability a Cap:Capability;
+                Cap:isExecutableViaSkill ?skillIri.
+            <${moduleIri}> Cap:hasCapability ?capability.
+            OPTIONAL{
+                ?capability VDI3682:hasInput ?input.
+                ?input a ?fpbElement.
+                VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+            }
+            OPTIONAL{
+                ?capability VDI3682:hasOutput ?output.
+                ?output a ?fpbElement.
+                VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+            }
+        }`;
+
+        try {
+            const queryResult = await this.graphDbConnection.executeQuery(query);
+            const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
+            return capabilities;
+        } catch (error) {
+            console.error(`Error while returning capabilities of module with IRI ${moduleIri}, ${error}`);
+            throw new Error(error);
+        }
+    }
+
 
     /**
      * Delete a capability with a given IRI
@@ -127,6 +162,11 @@ export class CapabilityService {
         }
     }
 
+    /**
+     *
+     * @param skillIri
+     * @returns
+     */
     async getCapabilitiesOfSkill(skillIri: string): Promise<CapabilityDto[]> {
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
