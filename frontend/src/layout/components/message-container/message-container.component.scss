@@ -1,0 +1,12 @@
+#message-container {
+    position: fixed;
+    bottom: 20px;
+    right: 50px;
+    width: 300px;
+    z-index: 101;
+}
+
+#message-container > div {
+    width: 100%;
+}
+

@@ -3,8 +3,8 @@ import { ProcessControlComponent } from './process-control/process-control.compo
 import { SkillProcessesComponent } from './skill-processes.component';
 
 const routes: Routes = [
-    { path:'', component: SkillProcessesComponent},
-    {path:'control', component: ProcessControlComponent}
+    { path: 'model', component: SkillProcessesComponent},
+    { path: 'control', loadChildren: () => import('./process-control/process-control.module').then(m => m.ProcessControlModule)},
 ];
 
-export const SkillProcessesRoutes = RouterModule.forChild(routes);
+export const SkillProcessesRoutingModule = RouterModule.forChild(routes);

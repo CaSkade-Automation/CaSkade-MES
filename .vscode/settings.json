@@ -1,3 +1,4 @@
 {
-    "eslint.workingDirectories": ["frontend", "backend", "shared"]
+    "eslint.workingDirectories": ["frontend", "backend", "shared"],
+    "typescript.preferences.importModuleSpecifier": "relative"
 }

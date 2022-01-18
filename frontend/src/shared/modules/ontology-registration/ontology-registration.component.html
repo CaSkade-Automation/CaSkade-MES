@@ -1,0 +1,31 @@
+<h3>Ontology registration</h3>
+<p>Add {{this.context}} through an automated mapping or manually.</p>
+
+<div class="row">
+    <div class="col">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="options" id="manualOntology" [value]="'manualOntology'"
+                [(ngModel)]="ontologyType">Ontology (.ttl file)
+            <label class="form-check-label" for="manualOntology"></label>
+        </div>
+
+        <div class="form-check form-check-inline">
+            <label class="form-check-label " for="mtp" style="padding-left: 10px;">
+                <input class="form-check-input" type="radio" name="options" id="mtp" [value]="'mtp'" [(ngModel)]="ontologyType">
+                Mapping from MTP
+            </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+            <label class="form-check-label " for="plc" style="padding-left: 10px;">
+                <input class="form-check-input" type="radio" name="options" id="plc" [value]="'plc'" [(ngModel)]="ontologyType">
+                Mapping from PLC code
+            </label>
+        </div>
+
+    </div>
+</div>
+
+<manual-registration *ngIf="ontologyType=='manualOntology'" [context]="context"></manual-registration>
+<mtp-mapping *ngIf="ontologyType=='mtp'"></mtp-mapping>
+<plc-mapping *ngIf="ontologyType=='plc'"></plc-mapping>

@@ -3,11 +3,12 @@
     "compileOnSave": false,
     "compilerOptions": {
         "outDir": "./dist/out-tsc",
-        "rootDir": ".",
+        "rootDirs": [".", "../shared"],
         "baseUrl": "./",
         "sourceMap": true,
 		"declaration": false,
         "moduleResolution": "node",
+        "resolveJsonModule": true,
         "module": "esnext",
         "target": "es2015",
         "lib": [
@@ -18,7 +19,7 @@
             "@shared/*": [
                 "../shared/*"
             ]
-        }
+        },
     },
     "references": [
         {

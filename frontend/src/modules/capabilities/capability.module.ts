@@ -5,15 +5,15 @@ import { CapabilityRoutes } from './capability.routing';
 import { CapabilityOverviewComponent } from './capability-overview/capability-overview.component';
 import { CapabilityGraphVisuComponent } from './capability-graph-visu/capability-graph-visu.component';
 import { CapabilityRegistrationComponent } from './capability-registration/capability-registration.component';
-import { CommandFeatureModule } from 'src/shared/command-feature/command-feature.module';
-import { ManualRegistrationModule } from 'src/shared/modules/manual-registration/manual-registration.module';
+import { SkillModule } from 'src/shared/modules/skill/skill.module';
+import { OntologyRegistrationModule } from 'src/shared/modules/ontology-registration/ontology-registration.module';
 
 @NgModule({
     imports: [
         CommonModule,
         CapabilityRoutes,
-        CommandFeatureModule,
-        ManualRegistrationModule
+        SkillModule,
+        OntologyRegistrationModule
     ],
     declarations: [
         CapabilityComponent,

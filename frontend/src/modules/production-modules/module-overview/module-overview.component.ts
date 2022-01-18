@@ -1,15 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { SocketService } from "../../../shared/services/socket.service";
 import { HttpClient } from '@angular/common/http';
 import { ModuleService } from '../../../shared/services/module.service';
 import { ProductionModule } from '@shared/models/production-module/ProductionModule';
 import { Command } from '@shared/models/command/Command';
-import { Transition } from '@shared/models/state-machine/Transition';
-import { Skill } from '@shared/models/skill/Skill';
-import { SocketEventName } from '@shared/socket-communication/SocketEventName';
-import { take } from 'rxjs/operators';
 import { SkillExecutionService } from 'src/shared/services/skill-execution.service';
 import { Subscription } from 'rxjs';
+import { ModuleSocketService } from '../../../shared/services/sockets/module-socket.service';
 
 @Component({
     selector: 'app-module-overview',
@@ -19,7 +15,7 @@ import { Subscription } from 'rxjs';
 export class ModuleOverviewComponent implements OnInit {
 
     constructor(private httpClient: HttpClient,
-        private socketService: SocketService,
+        private moduleSocket: ModuleSocketService,
         private moduleService: ModuleService,
         private skillExecutionService: SkillExecutionService) { }
 
@@ -51,23 +47,6 @@ export class ModuleOverviewComponent implements OnInit {
         //     });
         // });
     }
-    /*executableCommands=[
-        {id:"1", name:"Start", group:"1"},
-        {id:"2",name:"Hold", group:"2"},
-        {id:"3",name:"Unhold", group:"1"},
-        {id:"4",name:"Suspend", group:"2"},
-        {id:"5",name:"Unsuspend", group:"1"},
-        {id:"6",name:"Reset", group:"3"},
-        {id:"7",name:"Abort", group:"4"},
-        {id:"8",name:"Clear", group:"3"},
-        {id:"9",name:"Stop", group:"4"}
-    ]*/
-
-    sendMsg(msg) {
-        this.socketService.sendMessage(msg);
-    }
-
-
 
 
     addCommands(allCommands, activeCommands) {
@@ -106,9 +85,11 @@ export class ModuleOverviewComponent implements OnInit {
                 break;
             case "Suspend":
                 group = 2;
-                break; case "Un-Hold":
+                break;
+            case "Un-Hold":
                 group = 1;
-                break; case "Unsuspend":
+                break;
+            case "Unsuspend":
                 group = 1;
                 break;
             }
@@ -161,18 +142,12 @@ export class ModuleOverviewComponent implements OnInit {
         const encodedModuleIri = encodeURIComponent(moduleIri);
         console.log(encodedModuleIri);
 
-        this.httpClient.delete(`api/modules/${encodedModuleIri}`).subscribe(
-            error => console.log(`Module could not be deleted, error: ${error}`),
-            complete => this.removeModuleCard(moduleIri)
+        this.httpClient.delete(`api/modules/${encodedModuleIri}`).subscribe({
+            complete: () => this.handleModuleDeleted(moduleIri),
+            error: (err) => {console.log(`Module could not be deleted, error: ${err}`);},
+        });}
 
-            // next => console.log("next value"),
-            // error => {this.removeModuleCard(moduleIri); });
-            // complete => {console.log('An error happened, module could not be deleted');};
-        );}
-
-    removeModuleCard(moduleIri) {
-        console.log("removing module card");
-
+    handleModuleDeleted(moduleIri) {
         // remove module with that id from the list
         const moduleIndex = this.modules.findIndex(module => module.iri == moduleIri);
         this.modules.splice(moduleIndex, 1);

@@ -1,0 +1,22 @@
+.properties-container {
+    display: flex;
+    align-items: center;
+    position:absolute !important;
+    top: 0px;
+    right:0px;
+    width: 400px !important;
+}
+
+dynamic-property {
+    width: 100%;
+}
+
+.properties-card {
+    width: 100%;
+    height:100%;
+    overflow: auto;
+}
+
+.pointer {
+    cursor: pointer;
+}

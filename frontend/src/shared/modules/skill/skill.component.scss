@@ -1,0 +1,7 @@
+.blink-bg{
+    animation: blinkBackground 500ms infinite;
+}
+@keyframes blinkBackground{
+    0%		{ background-color: #f8f9fa;}
+    50%    { background-color: #cff4fc;}
+}

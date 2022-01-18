@@ -1,8 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { CapabilityService } from 'src/shared/services/capability.service';
-import { Capability } from '../../../../shared/models/capability/Capability';
-import { SkillService } from 'src/shared/services/skill.service';
-import { Skill } from '../../../../shared/models/skill/Skill';
+import { Component } from '@angular/core';
 
 @Component({
     selector: 'app-capability-overview',

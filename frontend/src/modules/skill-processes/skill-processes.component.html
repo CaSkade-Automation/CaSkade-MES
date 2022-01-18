@@ -1,8 +1,130 @@
+<h1>Model New Skill Process</h1>
 <div class="diagram-parent">
-    <app-diagram (importDone)="handleImported($event)"></app-diagram>
+    <bpmn-modeler #modelerComponent [bpmnXml]="bpmnXml"></bpmn-modeler>
 
     <div class="import-error" *ngIf="importError">
-      <strong>Failed to render diagram: </strong>
-      {{ importError.message }}
+        <strong>Failed to render diagram: </strong>
+        {{ importError.message }}
+    </div>
+</div>
+
+
+<div class="row mt-3">
+    <div class="col-4">
+        <div class="input-group">
+            <input type="file" class="form-control" aria-describedby="inputGroupFileAddon04" aria-label="Upload" (change)="fileChanged($event)" >
+            <button class="btn btn-secondary" type="button" id="inputGroupFileAddon04" (click)="loadFromFile()">Load from File</button>
+        </div>
+    </div>
+
+    <div class="col-4">
+        <button class="btn btn-secondary" (click)="listAllDeployedProcessDefinitions()"
+            title="Load deployed Process Definition" data-bs-toggle="modal" data-bs-target="#loadModal">
+            <i class="fas fa-download"></i>
+            Existing Processes
+        </button>
+        <button class="btn btn-secondary ms-2" (click)="getProcessXML()" title="Show process XML" data-bs-toggle="modal"
+            data-bs-target="#xmlModal">
+            <i class="fas fa-code"></i>
+            Show XML
+        </button>
+    </div>
+
+    <div class="col-4">
+        <div class="float-end">
+            <button class="btn btn-danger me-2" (click)="clearDiagram()" title="Clear diagram">
+                <i class="fas fa-eraser"></i>
+                Clear
+            </button>
+            <button class="btn btn-success" (click)="getProcessXML()" title="Deploy created process"
+                data-bs-toggle="modal" data-bs-target="#deploymentModal">
+                <i class="fas fa-upload"></i>
+                Deploy process
+            </button>
+        </div>
+    </div>
+</div>
+
+<!--Modal for showing process XML-->
+<div class="modal fade" id="xmlModal" tabindex="-1" role="dialog" aria-labelledby="xmlModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="xmlModalTitle">Process XML</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Note: There must not be a space between pre and the xml string as pre gets rendered as is -->
+                <pre class="xmlDisplay">{{this.xmlToDeploy}}</pre>
+            </div>
+            <div class="modal-footer mt-3">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal for loading a deployed process definition-->
+<div class="modal fade" id="loadModal" tabindex="-1" role="dialog" aria-labelledby="loadModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loadModalTitle">Load deployed Process-Definitions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4>Process Definition ID</h4>
+                <select name="selectedXml" class="form-select" [formControl]="processSelector">
+                    <option *ngFor="let processDefinition of processDefinitions" [ngValue]="processDefinition">
+                        {{processDefinition.id}}</option>
+                </select>
+                <div class="viewer-container">
+                    <h4 class="mt-3">Process</h4>
+                    <bpmn-viewer *ngIf="this.previewXml!=''" [bpmnXml]="previewXml"></bpmn-viewer>
+                </div>
+            </div>
+            <div class="modal-footer mt-3">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button (click)="openInModeler()" type="button" class="btn btn-success" data-bs-dismiss="modal"
+                    title="Open in BPMN-Modeler">Open in Modeler</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--Modal for deploying a process definition-->
+<div class="modal fade" id="deploymentModal" tabindex="-1" role="dialog" aria-labelledby="deploymentModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deploymentModalTitle">Deploy this process</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="deploymentForm">
+                    <div class="mb-3 row">
+                        <label for="inputDeploymentName" class="col-sm-3 col-form-label">Deployment Name:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="inputDeploymentName"
+                                formControlName="deploymentName">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="inputTenantId" class="col-sm-3 col-form-label">Tenant ID:</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" placeholder="Optional" id="inputTenantId"
+                                formControlName="tenantId">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer mt-3">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" (click)="deployProcess()" [disabled]="!deploymentForm.valid"
+                    class="btn btn-success" data-bs-dismiss="modal" title="Open in BPMN-Modeler">Deploy</button>
+            </div>
+        </div>
     </div>
 </div>

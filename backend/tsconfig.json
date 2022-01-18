@@ -3,7 +3,8 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es2017",
-        "rootDir": ".",
+        "rootDirs": ["./src", "../shared"],
+        "emitDecoratorMetadata": true,
         "sourceMap": true,
         "outDir": "./dist",
         "baseUrl": "./",

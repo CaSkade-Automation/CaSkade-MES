@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import {MtpMappingServiceConfig} from '@shared/models/mappings/MtpMappingServiceConfig';
+import {MappingServiceConfig} from '@shared/models/mappings/MappingServiceConfig';
 
 @Injectable({
     providedIn: 'root'
@@ -28,8 +28,8 @@ export class MtpMappingService {
 	 * Get the current URL of the MTP mapping service
 	 * @returns Current URL of the MTP mapping service
 	 */
-    getConfig(): Observable<MtpMappingServiceConfig> {
-        return this.httpClient.get(`${this.baseApiRoute}/config`) as Observable<MtpMappingServiceConfig>;
+    getConfig(): Observable<MappingServiceConfig> {
+        return this.httpClient.get(`${this.baseApiRoute}/config`) as Observable<MappingServiceConfig>;
     }
 
 
@@ -44,10 +44,7 @@ export class MtpMappingService {
         const formData = new FormData();
         formData.append('mtp-file', mtpFile);
 
-        const params = new HttpParams();
-
         const options = {
-            params: params,
             reportProgress: true,
         };
 

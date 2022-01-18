@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
-import { Skill, SkillDto } from '../../../../shared/models/skill/Skill';
+import { Skill, SkillDto } from '@shared/models/skill/Skill';
 
 @Injectable({
     providedIn: 'root'
@@ -72,11 +72,19 @@ export class SkillService {
         const apiURL = `${this.apiRoot}/skills`;
         return this.http.post<SkillDto>(apiURL, ontologyString);
     }
+
+
     addMtpSkill(ontologyFile: File): Observable<File>{
         const apiURL = `${this.apiRoot}/Mtp`;
         const formData= new FormData;
         formData.append('file', ontologyFile, ontologyFile.name);
         return this.http.post<File>(apiURL, formData);
+    }
+
+    deleteSkill(skillIri: string): Observable<Record<string, any>> {
+        const encodedSkillIri = encodeURIComponent(skillIri);
+        const apiUrl = `${this.apiRoot}/skills/${encodedSkillIri}`;
+        return this.http.delete(apiUrl);
     }
 
 }

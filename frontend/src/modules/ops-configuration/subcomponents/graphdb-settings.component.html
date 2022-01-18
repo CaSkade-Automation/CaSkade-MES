@@ -41,7 +41,7 @@
           <div class="input-group-prepend">
             <label class="input-group-text" for="inputGroupSelect01">Select Repository</label>
           </div>
-          <select class="custom-select" id="inputGroupSelect01" (change)="changeRepository($event.target.value)">
+          <select class="form-select" id="inputGroupSelect01" (change)="changeRepository($event.target.value)">
             <option *ngFor="let repo of this.repositories" [selected]="(this.dbConfig.selectedRepo == repo.title)" value="{{repo.id}}">
                 {{repo.id}} ({{repo.title}})</option>
           </select>

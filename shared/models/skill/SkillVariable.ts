@@ -14,10 +14,11 @@ export class SkillVariable extends RdfElement {
         this.type = paramDto.type;
         this.required = paramDto.required;
         this.default = paramDto.default;
+        this.value = paramDto.value
         this.optionValues = paramDto.optionValues;
     }
 
-    static fromParameterQueryResult(queryResult: ParameterQueryResult) {
+    static fromVariableQueryResult(queryResult: ParameterQueryResult) {
         return new this(
             new SkillVariableDto(
                 queryResult.parameterIri,
@@ -28,16 +29,9 @@ export class SkillVariable extends RdfElement {
                 queryResult.parameterOptionValues))
     }
 
-    toSkillParameterDto(): SkillVariableDto {
-        return {
-            iri: super.iri,
-            name: this.name,
-            required: this.required,
-            type: this.type,
-            default: this.default,
-            value: this.value,
-            optionValues: this.optionValues
-            }
+    toSkillVariableDto(): SkillVariableDto {
+        const dto = new SkillVariableDto(this.iri, this.name, this.type, this.required, this.default, this.optionValues, this.value);
+        return dto;
     }
 }
 
@@ -51,12 +45,13 @@ export class SkillVariableDto {
     value?: any;
     optionValues?: any[];
 
-    constructor(iri: string, name: string, type: string, required: boolean, defaultValue: any, options: any[]) {
+    constructor(iri: string, name: string, type: string, required: boolean, defaultValue: any, options: any[], value?:any) {
         this.iri = iri;
         this.name = name;
         this.type = type;
         this.required = required;
         this.default = defaultValue;
+        this.value = value;
 
         if(options && options.length > 0) {
             this.optionValues = options.map(option => option.value);
