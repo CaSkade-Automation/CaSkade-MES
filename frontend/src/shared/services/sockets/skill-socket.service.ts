@@ -1,9 +1,8 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { EMPTY, Observable, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { SocketMessageType } from '@shared/socket-communication/SocketData';
-import { StateChangeInfo, WebSocketMessage } from '@shared/socket-communication/SocketData';
-import { catchError, filter, map, tap, share } from 'rxjs/operators';
-import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
+import { WebSocketMessage } from '@shared/socket-communication/SocketData';
+import { filter, map } from 'rxjs/operators';
 import { SocketConnection } from './SocketConnection';
 
 
