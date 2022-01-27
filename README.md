@@ -8,15 +8,21 @@
 1. [Introduction](https://github.com/aljoshakoecher/SkillMEx#Introduction)
 2. [Setup & Install](https://github.com/aljoshakoecher/SkillMEx#setup--install)
 3. [Using SkillMEx](https://github.com/aljoshakoecher/SkillMEx#using-skillmex)
-4. [API Documentation](https://github.com/aljoshakoecher/SkillMEx#api--documentation)
-5. [Further Reading](https://github.com/aljoshakoecher/SkillMEx#further--reading)
+4. [Additional Tools](https://github.com/aljoshakoecher/SkillMEx#additional-tools)
+5. [API Documentation](https://github.com/aljoshakoecher/SkillMEx#api-documentation)
+6. [Further Reading](https://github.com/aljoshakoecher/SkillMEx#further-reading)
 <hr>
 
 ## Introduction
 SkillMEx is a manufacturing execution platform that works with manufacturing modules that have a semantic description of their functions in the form of *capabilities* and *skills*. It's powered by this [capability and skill ontology](https://github.com/aljoshakoecher/machine-skill-model).
-### Ontologies? Capabilities? Skills? What?
-Ontologies are a way to create semantic models
-Capabilities represent the processes that a module can perform. Capability might be arbitrary processes or can be specified using 
+
+*Ontologies? Capabilities? Skills? What?*
+
+Ontologies are a way to create semantic models and to express terms and relations between these terms in a formal and machine-interpretable way. Ontologies allow sophisticated means to interact with information such as complex querying, checking model consistency, infer new information from existing information and apply rules.
+We have created a model in the form of an ontology that can be used to model manufacturing modules and the functionalities provided by these modules. This description can roughly be divided into three aspects:
+1. **Machine structure**: Our model allows to represent information about the structure of machines and their components
+2. **Capabilities**: Capabilities represent the processes that a module can perform. Any arbitrary process may be modeled as a capability. Manufacturing processes can be specified using the industry standards DIN 8580 and VDI 2860. What's important to note is that capabilities don't have to be automatically executable. Manual processes can also be expressed as capabilities. Capabilities provide a means to express required functions as well as the potential functions that are provided by existing modules.
+3. **Skills**: Every capability that is automatically executable needs to have a description of how to invoke and interact with this capability. This is the skill aspect of our model. Skills describe interaction mechanisms that are provided by a module in order to automatically use its functionalities.
 
 
 ## Setup & Install
@@ -37,7 +43,47 @@ After you have installed Node.js, follow these steps to run SkillMEx in developm
 🚧 Currently not available, but on our to-do list 🚧
 
 ## Using SkillMEx
-Once you have it up and running, SkillMEx acts as a platform for (manufacturing) modules. Modules can be registered and deleted. Skills of modules can be 
+Once you have it up and running, SkillMEx acts as a platform for (manufacturing) modules. Modules can be registered with their capabilities and skills and later deleted. Additional capabilities and skills can also be added later. Skills with different execution technologies can be executed through a unified interface. Skill processes can be modeled and executed using BPMN.
+
+<!-- <a href="https://github.com/timgl"><img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100" height="100" alt=""/></a><a href="https://github.com/timgl"><img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100" height="100" alt=""/></a> -->
+
+**Here you can see a couple of screenshots**
+<table>
+  <tr>
+    <td>First Screen Page</td>
+    <td>Holiday Mention</td>
+    <td>Present day in purple and selected day in pink</td>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+    </td>
+    <td>
+      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+    </td>
+    <td>
+      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+    </td>
+  </tr>
+  <tr>
+    <td>First Screen Page</td>
+    <td>Holiday Mention</td>
+    <td>Present day in purple and selected day in pink</td>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+    </td>
+    <td>
+      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+    </td>
+    <td>
+      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+    </td>
+  </tr>
+</table>
+
+## Additional Tools
 
 ## API Documentation
 SkillMEx features a quite extensive REST API that can be used to retrieve all registered modules, skills, capabilities and to do other things like run queries. You can find the [documentation in the wiki](https://github.com/aljoshakoecher/SkillMEx/wiki/API-Documentation).
