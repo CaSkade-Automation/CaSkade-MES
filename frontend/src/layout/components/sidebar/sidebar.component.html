@@ -1,73 +1,75 @@
 <nav class="sidebar" [ngClass]="{sidebarPushRight: isActive, collapsed: collapsed}">
-  <div class="list-group">
-    <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
-        <i class="fas fa-tachometer-alt"></i>&nbsp;
-        <span>Dashboard</span>
-      </a>
-    <a routerLink="/production-modules" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="fas fa-puzzle-piece"></i>&nbsp;
-      <span>Module Management</span>
-    </a>
-    <a routerLink="/skills" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="fas fa-list-alt"></i>&nbsp;
-      <span>Skill-Overview</span>
-    </a>
-    <a routerLink="/capabilities" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="fas fa-project-diagram"></i>&nbsp;
-      <span>Capability-Overview</span>
-    </a>
-    <a routerLink="/order-management" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="fas fa-cart-plus"></i>&nbsp;
-      <span>Manufacturability Check</span>
-    </a>
-
-    <div class="nested-menu">
-        <a (click)="addExpandClass('pages')" class="list-group-item">
-            <i class="fas fa-random"></i>&nbsp;
-            <span>Skill Processes</span>
+    <div class="list-group">
+        <a routerLink="/dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fas fa-tachometer-alt"></i>&nbsp;
+            <span>Dashboard</span>
         </a>
-        <li [class.expand]="showMenu === 'pages'" class="nested list-group">
-            <ul class="submenu mb-0">
-                <li>
-                    <a class="list-group-item" routerLink="skill-processes/model" [routerLinkActiveOptions]="matchSubPathOption" [routerLinkActive]="['router-link-active']" >
-                        <i class="fas fa-edit"></i>&nbsp;
-                        <span>Model New Process</span>
-                    </a>
-                </li>
-                <li>
-                    <a class="list-group-item" routerLink="skill-processes/control" [routerLinkActiveOptions]="matchSubPathOption" [routerLinkActive]="['router-link-active']">
-                        <i class="fas fa-play"></i>&nbsp;
-                        <span>Process Control</span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-    </div>
+        <a routerLink="/production-modules" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fas fa-puzzle-piece"></i>&nbsp;
+            <span>Module Management</span>
+        </a>
+        <a routerLink="/skills" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fas fa-list-alt"></i>&nbsp;
+            <span>Skill-Overview</span>
+        </a>
+        <a routerLink="/capabilities" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fas fa-project-diagram"></i>&nbsp;
+            <span>Capability-Overview</span>
+        </a>
+        <a routerLink="/order-management" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fas fa-cart-plus"></i>&nbsp;
+            <span>Manufacturability Check</span>
+        </a>
 
-    <a routerLink="/kpi-dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="fas fa-chart-line"></i>&nbsp;
-      <span>KPI-Dashboard</span>
-    </a>
-    <a routerLink="/reconfiguration-overview" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="fas fa-columns"></i>&nbsp;
-      <span>Reconfiguration Overview</span>
-    </a>
-    <a routerLink="/ops-configuration" [routerLinkActive]="['router-link-active']" class="list-group-item">
-      <i class="fas fa-cogs"></i>&nbsp;
-      <span>SkillMeX Configuration</span>
-    </a>
-    <!-- <a class="list-group-item">
+        <div class="nested-menu">
+            <a (click)="addExpandClass('pages')" class="list-group-item">
+                <i class="fas fa-random"></i>&nbsp;
+                <span>Skill Processes</span>
+            </a>
+            <li [class.expand]="showMenu === 'pages'" class="nested list-group">
+                <ul class="submenu mb-0">
+                    <li>
+                        <a class="list-group-item" routerLink="skill-processes/model"
+                            [routerLinkActiveOptions]="matchSubPathOption" [routerLinkActive]="['router-link-active']">
+                            <i class="fas fa-edit"></i>&nbsp;
+                            <span>Model New Process</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="list-group-item" routerLink="skill-processes/control"
+                            [routerLinkActiveOptions]="matchSubPathOption" [routerLinkActive]="['router-link-active']">
+                            <i class="fas fa-play"></i>&nbsp;
+                            <span>Process Control</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </div>
+
+        <a routerLink="/kpi-dashboard" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fas fa-chart-line"></i>&nbsp;
+            <span>KPI-Dashboard</span>
+        </a>
+        <a routerLink="/reconfiguration-overview" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fas fa-columns"></i>&nbsp;
+            <span>Reconfiguration Overview</span>
+        </a>
+        <a routerLink="/skillmex-configuration" [routerLinkActive]="['router-link-active']" class="list-group-item">
+            <i class="fas fa-cogs"></i>&nbsp;
+            <span>SkillMeX Configuration</span>
+        </a>
+        <!-- <a class="list-group-item">
         <hr class="bg-light" style="height:1px;">
     </a> -->
 
-    <!-- <a [routerLink]="['/charts']" [routerLinkActive]="['router-link-active']" class="list-group-item">
+        <!-- <a [routerLink]="['/charts']" [routerLinkActive]="['router-link-active']" class="list-group-item">
       <i class="fas fa-chart-bar"></i>&nbsp;
       <span>Charts</span>
     </a> -->
 
-  </div>
-  <div class="toggle-button" [ngClass]="{collapsed: collapsed}" (click)="toggleCollapsed()">
-    <i class="fa fa-fw fa-angle-double-{{collapsed?'right':'left'}}"></i>&nbsp;
-    <span>Collapse Sidebar</span>
-  </div>
+    </div>
+    <div class="toggle-button" [ngClass]="{collapsed: collapsed}" (click)="toggleCollapsed()">
+        <i class="fa fa-fw fa-angle-double-{{collapsed?'right':'left'}}"></i>&nbsp;
+        <span>Collapse Sidebar</span>
+    </div>
 </nav>
