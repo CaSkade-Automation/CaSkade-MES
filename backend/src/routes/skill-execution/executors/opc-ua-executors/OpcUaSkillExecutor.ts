@@ -112,7 +112,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
     createOptionsObject(messageSecurityModeIri: string, securityPolicyIri: string): OPCUAClientOptions {
         // TODO: Integrate SecurityPolicy
         const options : OPCUAClientOptions = {
-            applicationName: "OPS OPC UA Capability Executor",
+            applicationName: "SkillMEx OPC UA Capability Executor",
             connectionStrategy: this.connectionStrategy,
             securityMode: this.getMessageSecurityMode(messageSecurityModeIri),
             securityPolicy: this.getSecurityPolicy(securityPolicyIri),
