@@ -1,4 +1,4 @@
-<h1 align="center">SkillMEx - A Skill-Based Manufacturing Execution Platform</h1>
+<h1 align="center">SkillMEx - Skill-Based Manufacturing Execution</h1>
 <div align="center">
     <img width="400px" src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/SkillUp_logo.png?raw=true">
 </div>
@@ -45,41 +45,43 @@ After you have installed Node.js, follow these steps to run SkillMEx in developm
 ## Using SkillMEx
 Once you have it up and running, SkillMEx acts as a platform for (manufacturing) modules. Modules can be registered with their capabilities and skills and later deleted. Additional capabilities and skills can also be added later. Skills with different execution technologies can be executed through a unified interface. Skill processes can be modeled and executed using BPMN.
 
-<!-- <a href="https://github.com/timgl"><img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100" height="100" alt=""/></a><a href="https://github.com/timgl"><img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100" height="100" alt=""/></a> -->
 
-**Here you can see a couple of screenshots**
+**See some of SkillMEx' functions in these screenshots**
 <table>
   <tr>
-    <td>First Screen Page</td>
-    <td>Holiday Mention</td>
-    <td>Present day in purple and selected day in pink</td>
-  </tr>
-  <tr>
-    <td>
-      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+    <td width="50%">
+      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/module-overview.png?raw=true" width="100%" alt="my alt text"/>
     </td>
-    <td>
-      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
-    </td>
-    <td>
-      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+    <td width="50%">
+      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/register-modules.png?raw=true" width="100%" alt="my alt text"/>
     </td>
   </tr>
   <tr>
-    <td>First Screen Page</td>
-    <td>Holiday Mention</td>
-    <td>Present day in purple and selected day in pink</td>
+    <td>Overview of modules and their skills</td>
+    <td>Different ways to register modules</td>
   </tr>
   <tr>
-    <td>
-      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+    <td width="50%">
+      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/model-processes.png?raw=true" width="100%" alt="my alt text"/>
     </td>
-    <td>
-      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+      <td width="50%">
+        <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/deployed%20processes.png?raw=true" width="100%" alt="my alt text"/>
     </td>
-    <td>
-      <img src="https://avatars.githubusercontent.com/u/1727427?v=4" width="100px" alt="my alt text"/>
+  </tr>
+   <tr>
+    <td>Model skills processes using BPMN</td>
+    <td>See processes that have been deployed and are ready to be executed</td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/active-process-instances.png?raw=true" width="100%" alt="my alt text"/>
     </td>
+      <td width="50%">
+    </td>
+  </tr>
+   <tr>
+    <td>Keep on track with currently running process instances</td>
+    <td></td>
   </tr>
 </table>
 
