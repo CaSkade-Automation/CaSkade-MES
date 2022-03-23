@@ -1,0 +1,37 @@
+<form [formGroup]="fg">
+
+    <div class="form-group">
+        <label class="col-sm-6 col-form-label">Capability:<i class="far fa-question-circle"
+                title="IRI of the capability that should be executed in this task"></i></label>
+        <select class="form-control form-control-sm" formControlName="capabilityIri">
+            <option value="{{null}}">...</option>
+            <option *ngFor="let capability of this.capabilities" [ngValue]="capability.iri">{{capability.iri}}</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-6 col-form-label">Command:<i class="far fa-question-circle"
+                title="ISA 88 command that should be invoked"></i></label>
+        <select class="form-control form-control-sm" formControlName="commandTypeIri">
+            <option *ngFor="let commandKey of this.commandKeys" value="{{this.commands[commandKey]}}" [selected]="commandKey == 'Start' ? true : false">{{commandKey}}
+            </option>
+        </select>
+    </div>
+
+    <ng-container [formGroup]="fgProperties" *ngFor="let property of this.selectedCapability?.inputProperties">
+        <div class="form-group">
+            <label class="col-form-label">{{property.name}}<i class="far fa-question-circle"
+                    title="Parameter {{property.name}}"></i></label>
+            <input class="form-control form-control-sm" [formControlName]="property.name">
+        </div>
+    </ng-container>
+
+    <div class="form-group">
+        <label class="col-sm-6 col-form-label">Self resetting:<i class="far fa-question-circle"
+                title="Defines whether or not this capability should reset itself to Idle state after execution"></i></label>
+        <input type="checkbox" class="form-check form-check-sm" formControlName="selfResetting">
+    </div>
+
+    <strong>List of Outputs:</strong>
+    <p *ngFor="let output of this.selectedCapability?.outputProperties">{{output.name}} - {{output.type}}</p>
+</form>

@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, ComponentRef, OnInit, ViewChild } from '@angular/core';
+import { AfterContentInit, Component, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProcessDefinition } from '../../../models/processDefinition/ProcessDefinition';
 import { DeploymentRequest, DeploymentService } from '../../shared/services/bpmn/deployment.service';
@@ -8,10 +8,10 @@ import { BpmnDiagramComponent } from './bpmn-diagram/bpmn-modeler.component';
 
 @Component({
     selector: 'app-skill-processes',
-    templateUrl: './skill-processes.component.html',
-    styleUrls: ['./skill-processes.component.scss']
+    templateUrl: './production-processes.component.html',
+    styleUrls: ['./production-processes.component.scss']
 })
-export class SkillProcessesComponent implements AfterContentInit{
+export class ProductionProcessesComponent implements AfterContentInit{
     uploadedFile: Blob;
     importError?: Error;
     processDefinitions: ProcessDefinition[]

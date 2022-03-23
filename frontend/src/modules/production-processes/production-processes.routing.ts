@@ -1,9 +1,8 @@
 import { Routes, RouterModule } from '@angular/router';
-import { ProcessControlComponent } from './process-control/process-control.component';
-import { SkillProcessesComponent } from './skill-processes.component';
+import { ProductionProcessesComponent } from './production-processes.component';
 
 const routes: Routes = [
-    { path: 'model', component: SkillProcessesComponent},
+    { path: 'model', component: ProductionProcessesComponent},
     { path: 'control', loadChildren: () => import('./process-control/process-control.module').then(m => m.ProcessControlModule)},
 ];
 

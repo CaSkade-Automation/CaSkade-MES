@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Isa88CommandTypeIri } from '@shared/models/state-machine/ISA88/ISA88CommandTypeIri';
-import { SkillService } from '../../../../../../shared/services/skill.service';
+import { SkillService } from '../../../../../../../../shared/services/skill.service';
 import { debounceTime, take } from 'rxjs/operators';
 import { SkillVariable } from '@shared/models/skill/SkillVariable';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
-import { BpmnProperty } from '../../../BpmnDataModel';
-import { BpmnExtensionElementService } from '../../bpmn-extension-element.service';
+import { BpmnProperty } from '../../../../../BpmnDataModel';
+import { BpmnExtensionElementService } from '../../../../bpmn-extension-element.service';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { Skill } from '../../../../../../shared/models/Skill';
 
