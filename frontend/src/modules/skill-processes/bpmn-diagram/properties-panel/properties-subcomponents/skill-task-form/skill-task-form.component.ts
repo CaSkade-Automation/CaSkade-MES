@@ -23,7 +23,7 @@ export class SkillTaskFormComponent implements OnInit {
         skillIri: new FormControl(),
         commandTypeIri: new FormControl(Isa88CommandTypeIri.Start),
         parameters: new FormGroup({}),
-        isSelfResetting: new FormControl(true),
+        selfResetting: new FormControl(true),
     });
 
     skills: Skill[];						// List of all skills
@@ -69,7 +69,7 @@ export class SkillTaskFormComponent implements OnInit {
 
         // Get current input values from the model to populate form fields in the element alraedy has a value
         let commandTypeIri: string;
-        let isSelfResetting: boolean;
+        let selfResetting: boolean;
         try {
             const inputs = this.extensionElementService.getInputParameters();
             const executionRequest = JSON.parse(inputs.find(input => input.name == "executionRequest").value as string) as SkillExecutionRequestDto;
@@ -79,18 +79,18 @@ export class SkillTaskFormComponent implements OnInit {
             commandTypeIri = executionRequest.commandTypeIri;
             this.existingParameters = executionRequest.parameters;
 
-            isSelfResetting = inputs.find(input => input.name == "isSelfResetting").value as boolean;
+            selfResetting = inputs.find(input => input.name == "selfResetting").value as boolean;
         } catch (error) {
 
             // if no executionrequest exists
             this.selectedSkill = this.skills[0];
             commandTypeIri = Isa88CommandTypeIri.Start;
-            isSelfResetting = true;
+            selfResetting = true;
         }
 
         this.fg.controls.skillIri.setValue(this.selectedSkill.iri);
         this.fg.controls.commandTypeIri.setValue(commandTypeIri);
-        this.fg.controls.isSelfResetting.setValue(isSelfResetting);
+        this.fg.controls.selfResetting.setValue(selfResetting);
 
         // Make sure parameter form matches skill and that outputs of skill are added as task outputs
         this.setupParameterForm();
@@ -157,11 +157,9 @@ export class SkillTaskFormComponent implements OnInit {
                 param.value = data.parameters[param.name];
                 return param;
             });
-            const executionRequest = new SkillExecutionRequestDto(data.skillIri, data.commandTypeIri, paramsWithValues);
+            const executionRequest = new SkillExecutionRequestDto(data.skillIri, data.commandTypeIri, paramsWithValues, data.selfResetting);
 
             this.extensionElementService.addCamundaInputParameter(new BpmnProperty("executionRequest", executionRequest));
-            const isSelfResetting = data.isSelfResetting;
-            this.extensionElementService.addCamundaInputParameter(new BpmnProperty("isSelfResetting", isSelfResetting));
         });
     }
 
