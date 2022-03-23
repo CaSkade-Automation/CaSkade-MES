@@ -8,9 +8,9 @@ export class GraphDbConnectionService {
 
     constructor() {
         const host = "http://localhost:7200";
-        const user = "ops";
-        const password = "ops";
-        const selectedRepo = "Test_OPS-DB";
+        const user = "skillmex";
+        const password = "skillmex";
+        const selectedRepo = "test-repo";
         this.config = new GraphDbConfig(host, user, password, selectedRepo);
     }
 
