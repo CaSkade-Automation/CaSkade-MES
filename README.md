@@ -86,6 +86,28 @@ Once you have it up and running, SkillMEx acts as a platform for (manufacturing)
 </table>
 
 ## Additional Tools
+### Automatically create and register skills from Java source code
+We created [SkillUp](https://github.com/aljoshakoecher/skill-up) which takes away all the effort involved in creating a skill. If you do it "manually", there is a lot that needs to be done. You need to develop skills in a certain way (using a state machine). You need to provide an interface technology to invoke your skill's behavior (either OPC UA server or web server) and you need to create a rather large and complex ontology to describe all that.
+The good news is: SkillUp automates it all for you and even registers yours modules and skills at SkillMEx. Checkout the [SkillUp Wiki](https://github.com/aljoshakoecher/skill-up/wiki) for an extended step-by-step documentation on how to get started.
+
+### Modelling and executing skill-processes using BPMN
+Single skills can be executed from the module overview or skill management. But what if you want to model (and eventually execute) complete production processes? Of course, manually stepping through a process with multiple skills is not an option.
+Instead, SkillMEx uses BPMN to model and execute BPMN processes.
+
+**Modelling Processes**
+
+Complete production processes (including different task types, parallel / alternative flows, events) can be modelled using an integrated BPMN modeling tool based on [bpmn-js](https://github.com/bpmn-io/bpmn-js). We integrated a BPMN modeller into SkillMEX. Currently, the following task types are integrated:
+- Service tasks can be used for skill execution. Select one of your currently registered skills, pick the transition (most likely "Start") and set the parameters in case your skill has any
+- User Tasks can be used to assign a task to a person or a group, but currently, no real tasks (e.g. inputs to enter) can be modelled with SkillMEx. Nevertheless, user tasks can be useful to make the process stop in order to look into the current execution.
+- Mail send tasks can be used to automatically send mails. In case you want to use it. Make sure to setup the mail send functionality as described [here](https://github.com/camunda-community-hub/camunda-bpm-mail#how-to-configure-it). You need to have the required jars and the config file on the classpath of your Camunda BPMN engine (typically the server's lib folder) [see details here](https://github.com/camunda-community-hub/camunda-bpm-mail#for-shared-process-engine)
+- Outputs (e.g. of a skill execution) can be used as conditions on subsequent flows. The syntax is "<variable> <relation> <value>" where relation might be something like "==", "<=" and so on. The variable might be an output of a previous activity and it's id is "<activity-ID>_<output-name>". Use ctrl + space inside a condition to get a very simple autocomplete suggesting you all the outputs of your model.
+
+
+**Executing Processes**
+  
+In order to deploy processes and execute them, you need to have a BPMN engine. SkillMEx is currently bound to the open-source Camunda BPMN engine which can be downloaded [here](https://camunda.com/download/#download-other-menu). So far, we have only used the TomCat distribution. Download it and start it according to documentation (should be rather straightforward, you basically unzip it and start it using the "start-camunda" command).
+Naturally, Camunda doesn't know anything about skills and skill processes. In order to execute skill processes, you need to have an extension we developed which you can grab [here](https://github.com/aljoshakoecher/BPMN-Skill-Executor/releases). Take the jar from the latest release and drop it into your Camunda servers lib folder. Note: Don't drop it into the lib folder inside the root folder. It needs to be the lib folder under server/apache-tomcat
+    
 
 ## API Documentation
 SkillMEx features a quite extensive REST API that can be used to retrieve all registered modules, skills, capabilities and to do other things like run queries. You can find the [documentation in the wiki](https://github.com/aljoshakoecher/SkillMEx/wiki/API-Documentation).
