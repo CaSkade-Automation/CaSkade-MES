@@ -11,11 +11,11 @@ import { StateChangeInfo } from '../../../../socket-communication/SocketData';
 
 
 @Component({
-    selector: 'skill',
-    templateUrl: './skill.component.html',
-    styleUrls: ['./skill.component.scss']
+    selector: 'skill-card',
+    templateUrl: './skill-card.component.html',
+    styleUrls: ['./skill-card.component.scss']
 })
-export class SkillComponent implements OnInit {
+export class SkillCardComponent implements OnInit {
     @Input() skill: Skill;
 
     request: SkillExecutionRequestDto;
