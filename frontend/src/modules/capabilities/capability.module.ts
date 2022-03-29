@@ -5,14 +5,16 @@ import { CapabilityRoutes } from './capability.routing';
 import { CapabilityOverviewComponent } from './capability-overview/capability-overview.component';
 import { CapabilityGraphVisuComponent } from './capability-graph-visu/capability-graph-visu.component';
 import { CapabilityRegistrationComponent } from './capability-registration/capability-registration.component';
-import { SkillModule } from 'src/shared/modules/skill/skill.module';
+import { SkillCardModule } from 'src/shared/modules/skill-card/skill-card.module';
 import { OntologyRegistrationModule } from 'src/shared/modules/ontology-registration/ontology-registration.module';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
     imports: [
         CommonModule,
+        FormsModule,
         CapabilityRoutes,
-        SkillModule,
+        SkillCardModule,
         OntologyRegistrationModule
     ],
     declarations: [

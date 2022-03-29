@@ -3,6 +3,7 @@ import { CapabilityService } from 'src/shared/services/capability.service';
 import { Capability } from '@shared/models/capability/Capability';
 import { SkillService } from 'src/shared/services/skill.service';
 import { Skill } from '@shared/models/skill/Skill';
+import { tap } from 'rxjs';
 
 @Component({
     selector: 'app-capability-overview',
@@ -18,28 +19,29 @@ export class CapabilityOverviewComponent implements OnInit {
 
     capabilities= new Array<Capability>();
     skillsOfModule = new Array<Skill>();
-    executableCapabilities= new Array<ExecutableCapability>();
-    skills= new Array<Skill>();
+
+    showProvided = true;
+    showRequired = true;
+
+
     ngOnInit() {
+        this.capabilityService.getAllCapabilities()
+            .pipe(tap(data => console.log(data)))
+            .subscribe(data => this.capabilities = data);
         console.log("init");
 
+        // this.skills.forEach(skill => {
+        //     skill.relatedCapabilities.forEach(capability => {
+        //         const foundCapability= this.executableCapabilities.find(cap=>cap.capability.iri==capability.iri);
+        //         if (foundCapability== undefined){
+        //             this.executableCapabilities.push(new ExecutableCapability(capability, skill));
+        //         }
+        //         else {
+        //             foundCapability.skills.push(skill);
+        //         }
+        //     });
 
-        this.skillService.getAllSkills().subscribe((skills: Skill[]) =>{
-            this.skills=skills;
-        });
-
-        this.skills.forEach(skill => {
-            skill.relatedCapabilities.forEach(capability => {
-                const foundCapability= this.executableCapabilities.find(cap=>cap.capability.iri==capability.iri);
-                if (foundCapability== undefined){
-                    this.executableCapabilities.push(new ExecutableCapability(capability, skill));
-                }
-                else {
-                    foundCapability.skills.push(skill);
-                }
-            });
-
-        });
+        // });
     }
 
     /*getSkills(capability): void{
@@ -50,13 +52,4 @@ export class CapabilityOverviewComponent implements OnInit {
 
 }*/
 
-}
-
-
-
-class ExecutableCapability{
-    skills= new Array<Skill>();
-    constructor(public capability: Capability, skill: Skill ){
-        this.skills.push(skill);
-    }
 }
