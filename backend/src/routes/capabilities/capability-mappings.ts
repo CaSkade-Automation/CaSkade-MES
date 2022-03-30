@@ -11,13 +11,13 @@ const capabilityMapping: MappingDefinition[] = [
                 rootName: 'inputs',
                 propertyToGroup: 'input',
                 name: 'iri',
-                toCollect:['input']
+                toCollect:['input', 'inputType']
             },
             {
                 rootName: 'outputs',
                 propertyToGroup: 'output',
                 name: 'iri',
-                toCollect:['output']
+                toCollect:['output', 'outputType']
             }
         ]
     },
