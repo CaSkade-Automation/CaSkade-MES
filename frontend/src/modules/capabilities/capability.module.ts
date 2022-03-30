@@ -8,12 +8,14 @@ import { CapabilityRegistrationComponent } from './capability-registration/capab
 import { SkillCardModule } from 'src/shared/modules/skill-card/skill-card.module';
 import { OntologyRegistrationModule } from 'src/shared/modules/ontology-registration/ontology-registration.module';
 import { FormsModule } from '@angular/forms';
+import { CapabilityCardModule } from '../../shared/modules/capability-card/capability-card.module';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         CapabilityRoutes,
+        CapabilityCardModule,
         SkillCardModule,
         OntologyRegistrationModule
     ],

@@ -1,23 +1,24 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Capability } from '../../../../models/capability/Capability';
+import { Component, Input } from '@angular/core';
+import { Capability } from '../../models/Capability';
+import { CapabilityService } from '../../services/capability.service';
 
 @Component({
-    selector: 'app-capability-card',
+    selector: 'capability-card',
     templateUrl: './capability-card.component.html',
     styleUrls: ['./capability-card.component.scss']
 })
-export class CapabilityCardComponent implements OnInit {
+export class CapabilityCardComponent {
 
     @Input() capability: Capability;
 
 
-    constructor() { }
+    constructor(
+        private capabilityService: CapabilityService
+    ) {}
 
-    ngOnInit() {
-    }
 
     deleteCapability() {
-
+        this.capabilityService.deleteCapability(this.capability.iri).subscribe(data => console.log(data));
     }
 
 }

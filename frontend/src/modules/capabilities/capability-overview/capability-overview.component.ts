@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CapabilityService } from 'src/shared/services/capability.service';
-import { Capability } from '@shared/models/capability/Capability';
 import { SkillService } from 'src/shared/services/skill.service';
-import { Skill } from '@shared/models/skill/Skill';
 import { tap } from 'rxjs';
+import { Capability } from '../../../shared/models/Capability';
+import { Skill } from '../../../shared/models/Skill';
 
 @Component({
     selector: 'app-capability-overview',

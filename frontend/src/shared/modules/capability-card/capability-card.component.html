@@ -7,17 +7,24 @@
     <div class="card-body">
         <div class="row">
             <div class="col-12">
-                Inputs: {{capability.inputs}}
+                <h6>Inputs:</h6>
+                <ul>
+                    <li *ngFor="let capInput of capability.inputs">{{capInput.getLocalName()}}</li>
+                </ul>
             </div>
         </div>
         <div class="row">
             <div class="col-12">
-                Outputs: {{capability.outputs}}
+                <h6>Outputs</h6>
+                <ul>
+                    <li *ngFor="let capOutput of capability.outputs">{{capOutput.getLocalName()}}</li>
+                </ul>
             </div>
         </div>
 
-        <ng-container *ngFor="let skill of capability.skillIri">
-            <skill-card [skill]="skillIri"></skill-card>
+        <h5 *ngIf="capability.skills.length > 0">Skills:</h5>
+        <ng-container *ngFor="let skill of capability.skills"> -->
+            <skill-card [skill]="skill"></skill-card>
         </ng-container>
 
     </div>
