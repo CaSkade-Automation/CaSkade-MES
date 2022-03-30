@@ -1,10 +1,10 @@
-import { RdfElement, RdfElementDto } from "../RdfElement";
-import { FpbElement } from "../fpb/FpbElement";
+import { RdfElementDto } from "../RdfElement";
+import { FpbElementDTO } from "../fpb/FpbElementDTO";
 
 
 export class CapabilityDto extends RdfElementDto{
 	public capabilityType: RdfElementDto;
-	public inputs?: Array<RdfElementDto>;
-	public outputs?: Array<RdfElementDto>;
+	public inputs?: Array<FpbElementDTO>;
+	public outputs?: Array<FpbElementDTO>;
     public skillIris?: Array<string>;
 }

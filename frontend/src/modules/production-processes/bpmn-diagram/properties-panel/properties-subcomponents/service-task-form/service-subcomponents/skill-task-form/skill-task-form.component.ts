@@ -8,7 +8,7 @@ import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionReq
 import { BpmnProperty } from '../../../../../BpmnDataModel';
 import { BpmnExtensionElementService } from '../../../../bpmn-extension-element.service';
 import { firstValueFrom, Subscription } from 'rxjs';
-import { Skill } from '../../../../../../shared/models/Skill';
+import { Skill } from '../../../../../../../../shared/models/Skill';
 
 @Component({
     selector: 'skill-task-form',
@@ -48,14 +48,8 @@ export class SkillTaskFormComponent implements OnInit {
         // Set execution class as this is always the same
         const delegateClassProperty = new BpmnProperty("camunda:class", "de.hsuhh.aut.skills.bpmn.delegates.SkillExecutor");
         this.extensionElementService.updateBaseProperty(delegateClassProperty);
-
-        // console.log("on init");
-
-        // this.updateForm();
-
-        // Get the current form values and store them in the process
-        // this.syncFormValuesAndProcess();
     }
+
 
     /**
      * Dynamically sets up a FormGroup for the parameters of a skill
@@ -162,8 +156,6 @@ export class SkillTaskFormComponent implements OnInit {
             this.extensionElementService.addCamundaInputParameter(new BpmnProperty("executionRequest", executionRequest));
         });
     }
-
-    // Big TODO, continue here: On resetting, the skill of the XML should be set. Only if none exists should skills [0] be set
 
     @Input()
     set bpmnElement(elem: any) {
