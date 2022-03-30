@@ -142,7 +142,6 @@ export class CapabilityService {
                 GRAPH ?graph {
                     BIND(IRI("${capabilityIri}") AS ?capability).
                     ?capability a Cap:Capability.
-                    }
                 }
             }`;
 
