@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {SparqlResultConverter} from "sparql-result-converter";
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
 import { SocketMessageType } from '@shared/socket-communication/SocketData';
+import { PropertyService } from '../properties/property.service';
 
 const converter = new SparqlResultConverter();
 
@@ -14,6 +15,7 @@ const converter = new SparqlResultConverter();
 export class CapabilityService {
     constructor(
         private graphDbConnection: GraphDbConnectionService,
+        private propertyService: PropertyService,
         private capabilitySocket: CapabilitySocket
     ) { }
 
@@ -43,20 +45,28 @@ export class CapabilityService {
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
             PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-            SELECT ?capability ?input ?output WHERE {
+            SELECT ?capability ?input ?inputType ?output WHERE {
                 ?capability a Cap:Capability.
                 OPTIONAL{
                     ?capability VDI3682:hasInput ?input.
-                    ?input a ?fpbElement.
-                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                    ?input a ?inputType.
+                    VALUES ?inputType {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
                 OPTIONAL{
                     ?capability VDI3682:hasOutput ?output.
-                    ?output a ?fpbElement.
-                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                    ?output a ?outputType.
+                    VALUES ?outputType {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
             }`);
             const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
+            for (const cap of capabilities) {
+                const capInputProperties = await this.propertyService.getInputPropertiesOfCapability(cap.iri);
+                cap.inputs.map(input => {
+                    const props = capInputProperties.filter(inputProp => inputProp.describedElementIri == input.iri);
+                    input.propertyDtos = props;
+                });
+            }
+
             return capabilities;
         } catch (error) {
             console.error(`Error while returning all capabilities, ${error}`);
