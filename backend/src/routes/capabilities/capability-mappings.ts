@@ -10,15 +10,15 @@ const capabilityMapping: MappingDefinition[] = [
             {
                 rootName: 'inputs',
                 propertyToGroup: 'input',
-                name: 'inputs',
-                childMappings: [
-                    {
-                        rootName: 'outputs',
-                        propertyToGroup: 'output',
-                        name: 'outputs',
-                    }
-                ]
+                name: 'iri',
+                toCollect:['input']
             },
+            {
+                rootName: 'outputs',
+                propertyToGroup: 'output',
+                name: 'iri',
+                toCollect:['output']
+            }
         ]
     },
 
