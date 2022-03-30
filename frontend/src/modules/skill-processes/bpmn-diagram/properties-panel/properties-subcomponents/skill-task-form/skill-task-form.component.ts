@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { Skill } from '@shared/models/skill/Skill';
 import { Isa88CommandTypeIri } from '@shared/models/state-machine/ISA88/ISA88CommandTypeIri';
 import { SkillService } from '../../../../../../shared/services/skill.service';
 import { debounceTime, take } from 'rxjs/operators';
@@ -9,6 +8,7 @@ import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionReq
 import { BpmnProperty } from '../../../BpmnDataModel';
 import { BpmnExtensionElementService } from '../../bpmn-extension-element.service';
 import { firstValueFrom, Subscription } from 'rxjs';
+import { Skill } from '../../../../../../shared/models/Skill';
 
 @Component({
     selector: 'skill-task-form',
