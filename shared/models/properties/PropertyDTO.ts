@@ -1,5 +1,5 @@
 export class PropertyDTO {
-    iri: string;
+    propertyInstanceIri: string;
     describedElementIri: string;
     logicInterpretation: string;    // according to IEC 61360 ODP: operators such as <, <=, =, ...
     expressionGoal: ExpressionGoal;
@@ -15,5 +15,7 @@ export class PropertyDTO {
  * ExpressionGoals as modelled in Ontology Design Pattern of IEC 61360
  */
 export enum ExpressionGoal {
-    Requirement, Assurance, Actual_Value
+    Requirement="Requirement",
+    Assurance="Assurance",
+    Actual_Value="Actual_Value"
 }
