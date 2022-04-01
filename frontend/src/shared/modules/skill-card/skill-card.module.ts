@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SkillComponent } from './skill.component';
+import { SkillCardComponent } from './skill-card.component';
 import { FormsModule } from '@angular/forms';
 
 
@@ -11,10 +11,10 @@ import { FormsModule } from '@angular/forms';
         FormsModule
     ],
     declarations: [
-        SkillComponent
+        SkillCardComponent
     ],
     exports: [
-        SkillComponent
+        SkillCardComponent
     ]
 })
-export class SkillModule { }
+export class SkillCardModule { }

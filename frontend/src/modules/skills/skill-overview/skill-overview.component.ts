@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SkillService } from 'src/shared/services/skill.service';
-import { Skill } from '@shared/models/skill/Skill';
-
-
+import { Skill } from '../../../shared/models/Skill';
 
 @Component({
     selector: 'skill-overview',

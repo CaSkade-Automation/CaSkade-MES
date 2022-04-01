@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable,  Observer } from "rxjs";
-import { ProductionModule, ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
+import { ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
 import { map,  take } from 'rxjs/operators';
 import { CapabilityService } from "./capability.service";
 import { SocketMessageType } from "@shared/socket-communication/SocketData";
 import { ModuleSocketService } from "./sockets/module-socket.service";
+import { ProductionModule } from "../models/ProductionModule";
 
 @Injectable({
     providedIn: 'root'

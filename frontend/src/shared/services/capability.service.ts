@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Capability, CapabilityDto } from '@shared/models/capability/Capability';
+import { CapabilityDto } from '@shared/models/capability/Capability';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { SkillService } from './skill.service';
+import { Capability } from '../models/Capability';
 
 @Injectable({
     providedIn: 'root'
@@ -51,14 +52,22 @@ export class CapabilityService {
             map((data: CapabilityDto[]) => data.map(capabilityDto => new Capability(capabilityDto))
             ));
     }
+
     addCapability(ontologyString: string): Observable<Record<string, any>> {
         const apiURL = `${this.apiRoot}/capabilities`;
         return this.http.post<CapabilityDto>(apiURL, ontologyString);
     }
+
     addMtpCapability(ontologyFile: File): Observable<File>{
         const apiURL = `${this.apiRoot}/Mtp`;
         const formData= new FormData;
         formData.append('file', ontologyFile, ontologyFile.name);
         return this.http.post<File>(apiURL, formData);
+    }
+
+    deleteCapability(capabilityIri: string) {
+        const encodedIri = encodeURIComponent(capabilityIri);
+        const apiUrl = `${this.apiRoot}/capabilities/${encodedIri}`;
+        return this.http.delete(apiUrl);
     }
 }

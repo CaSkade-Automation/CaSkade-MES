@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
-import { Skill, SkillDto } from '@shared/models/skill/Skill';
+import { SkillDto } from '@shared/models/skill/Skill';
+import { Skill } from '../models/Skill';
 
 @Injectable({
     providedIn: 'root'
@@ -81,6 +82,11 @@ export class SkillService {
         return this.http.post<File>(apiURL, formData);
     }
 
+    /**
+     * Deletes (better: unregisters) a skill from SkillMEx by removing it from the connected triple store
+     * @param skillIri IRI of the skill to unregister
+     * @returns
+     */
     deleteSkill(skillIri: string): Observable<Record<string, any>> {
         const encodedSkillIri = encodeURIComponent(skillIri);
         const apiUrl = `${this.apiRoot}/skills/${encodedSkillIri}`;

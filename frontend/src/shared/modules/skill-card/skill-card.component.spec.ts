@@ -1,21 +1,21 @@
 /* tslint:disable:no-unused-variable */
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { SkillComponent } from './skill.component';
+import { SkillCardComponent } from './skill-card.component';
 
 describe('CommandFeatureComponent', () => {
-    let component: SkillComponent;
-    let fixture: ComponentFixture<SkillComponent>;
+    let component: SkillCardComponent;
+    let fixture: ComponentFixture<SkillCardComponent>;
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [ SkillComponent ]
+            declarations: [ SkillCardComponent ]
         })
             .compileComponents();
     }));
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(SkillComponent);
+        fixture = TestBed.createComponent(SkillCardComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

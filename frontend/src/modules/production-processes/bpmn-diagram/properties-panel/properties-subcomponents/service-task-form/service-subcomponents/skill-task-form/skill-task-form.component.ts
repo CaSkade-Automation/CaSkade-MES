@@ -1,14 +1,14 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { Skill } from '@shared/models/skill/Skill';
 import { Isa88CommandTypeIri } from '@shared/models/state-machine/ISA88/ISA88CommandTypeIri';
-import { SkillService } from '../../../../../../shared/services/skill.service';
+import { SkillService } from '../../../../../../../../shared/services/skill.service';
 import { debounceTime, take } from 'rxjs/operators';
 import { SkillVariable } from '@shared/models/skill/SkillVariable';
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
-import { BpmnProperty } from '../../../BpmnDataModel';
-import { BpmnExtensionElementService } from '../../bpmn-extension-element.service';
+import { BpmnProperty } from '../../../../../BpmnDataModel';
+import { BpmnExtensionElementService } from '../../../../bpmn-extension-element.service';
 import { firstValueFrom, Subscription } from 'rxjs';
+import { Skill } from '../../../../../../../../shared/models/Skill';
 
 @Component({
     selector: 'skill-task-form',
@@ -48,14 +48,8 @@ export class SkillTaskFormComponent implements OnInit {
         // Set execution class as this is always the same
         const delegateClassProperty = new BpmnProperty("camunda:class", "de.hsuhh.aut.skills.bpmn.delegates.SkillExecutor");
         this.extensionElementService.updateBaseProperty(delegateClassProperty);
-
-        // console.log("on init");
-
-        // this.updateForm();
-
-        // Get the current form values and store them in the process
-        // this.syncFormValuesAndProcess();
     }
+
 
     /**
      * Dynamically sets up a FormGroup for the parameters of a skill
@@ -101,7 +95,6 @@ export class SkillTaskFormComponent implements OnInit {
 
 
     setupParameterForm(): void {
-
         this.selectedSkill.skillParameters.forEach(param => {
             let existingValue = "";
             try {
@@ -121,10 +114,6 @@ export class SkillTaskFormComponent implements OnInit {
         return this.fg.controls.skillIri.valueChanges.subscribe(skillIri => {
             this.selectedSkill = this.skills.find(sk => sk.iri == skillIri);
             // If no skillIri is given, nothing can be done
-            console.log("in synch");
-            console.log(this.selectedSkill);
-
-
             if (!this.selectedSkill) return;
 
             this.setupParameterForm();
@@ -162,8 +151,6 @@ export class SkillTaskFormComponent implements OnInit {
             this.extensionElementService.addCamundaInputParameter(new BpmnProperty("executionRequest", executionRequest));
         });
     }
-
-    // Big TODO, continue here: On resetting, the skill of the XML should be set. Only if none exists should skills [0] be set
 
     @Input()
     set bpmnElement(elem: any) {

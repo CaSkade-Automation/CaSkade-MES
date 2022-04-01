@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Skill } from '@shared/models/skill/Skill';
 import { Transition } from '@shared/models/state-machine/Transition';
 import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { SkillExecutionService } from '../../services/skill-execution.service';
@@ -8,14 +7,15 @@ import { SkillService } from '../../services/skill.service';
 import { take } from 'rxjs/operators';
 import { SkillSocketService } from '../../services/sockets/skill-socket.service';
 import { StateChangeInfo } from '../../../../socket-communication/SocketData';
+import { Skill } from '../../models/Skill';
 
 
 @Component({
-    selector: 'skill',
-    templateUrl: './skill.component.html',
-    styleUrls: ['./skill.component.scss']
+    selector: 'skill-card',
+    templateUrl: './skill-card.component.html',
+    styleUrls: ['./skill-card.component.scss']
 })
-export class SkillComponent implements OnInit {
+export class SkillCardComponent implements OnInit {
     @Input() skill: Skill;
 
     request: SkillExecutionRequestDto;

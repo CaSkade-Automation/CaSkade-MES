@@ -1,0 +1,14 @@
+<div class="form-group">
+    <label class="col-sm-6 col-form-label">Type:<i class="far fa-question-circle" title="The type of this service task"></i></label>
+    <select class="form-select form-select-sm" [(ngModel)]="serviceTaskType" (ngModelChange)="changeType($event)">
+        <option *ngFor="let type of this.types" [ngValue]="type">{{type}}</option>>
+    </select>
+</div>
+
+<ng-container [ngSwitch]="this.serviceTaskType">
+    <capability-task-form *ngSwitchCase="'Capability'" [bpmnElement]="this.bpmnElement"></capability-task-form>
+    <skill-task-form *ngSwitchCase="'Skill'" [bpmnElement]="this.bpmnElement"></skill-task-form>
+    <!-- <webservice-form *ngSwitchCase="Web Service" [bpmnElement]="this.bpmnElement"></webservice-form> -->
+</ng-container>
+
+
