@@ -95,7 +95,6 @@ export class SkillTaskFormComponent implements OnInit {
 
 
     setupParameterForm(): void {
-
         this.selectedSkill.skillParameters.forEach(param => {
             let existingValue = "";
             try {
@@ -115,10 +114,6 @@ export class SkillTaskFormComponent implements OnInit {
         return this.fg.controls.skillIri.valueChanges.subscribe(skillIri => {
             this.selectedSkill = this.skills.find(sk => sk.iri == skillIri);
             // If no skillIri is given, nothing can be done
-            console.log("in synch");
-            console.log(this.selectedSkill);
-
-
             if (!this.selectedSkill) return;
 
             this.setupParameterForm();
