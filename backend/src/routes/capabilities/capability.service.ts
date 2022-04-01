@@ -37,16 +37,19 @@ export class CapabilityService {
     }
 
     /**
-     * Returns all currently registered capabilities (optionally with their in- and outputs)
+     * Get all capabilities (optionally of a given type)
+     * @param capabilityType Default: Capability. Can be set to either "Cap:ProvidedCapability" or "Cap: RequiredCapability" to filter for one or the other
+     * @returns A list of capabilities
      */
-    async getAllCapabilities(): Promise<Array<CapabilityDto>> {
+    async getAllCapabilities(capabilityType = "Cap:Capability"): Promise<Array<CapabilityDto>> {
+
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
             PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             SELECT ?capability ?input ?inputType ?output WHERE {
-                ?capability a Cap:Capability.
+                ?capability a ${capabilityType}.
                 OPTIONAL{
                     ?capability VDI3682:hasInput ?input.
                     ?input a ?inputType.
