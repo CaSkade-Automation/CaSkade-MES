@@ -27,8 +27,10 @@ export class Capability extends RdfElement {
      */
     get inputProperties(): Array<Property>  {
         const init = new Array<Property>();
-        const inputProperties = this.inputs.reduce((previousInput, currentInput) => {
-            init.push(...currentInput.properties);
+        const inputProperties = this.inputs?.reduce((previousInput, currentInput) => {
+            if(currentInput.properties) {
+                init.push(...currentInput.properties);
+            }
             return init;
         }, init);
 
@@ -40,8 +42,10 @@ export class Capability extends RdfElement {
      */
     get outputProperties(): Array<Property>  {
         const init = new Array<Property>();
-        const outputProperties = this.outputs.reduce((previousOutput, currentOutput) => {
-            init.push(...currentOutput.properties);
+        const outputProperties = this.outputs?.reduce((previousOutput, currentOutput) => {
+            if(currentOutput.properties) {
+                init.push(...currentOutput.properties);
+            }
             return init;
         }, init);
 
