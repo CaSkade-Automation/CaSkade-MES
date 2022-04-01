@@ -18,11 +18,11 @@
         </select>
     </div>
 
-    <ng-container [formGroup]="fgProperties" *ngFor="let property of this.selectedCapability?.inputProperties">
+    <ng-container [formGroup]="fgProperties" *ngFor="let property of this.getActualValueInputProperties()">
         <div class="form-group">
-            <label class="col-form-label">{{property.name}}<i class="far fa-question-circle"
-                    title="Parameter {{property.name}}"></i></label>
-            <input class="form-control form-control-sm" [formControlName]="property.name">
+            <label class="col-form-label">{{property.getLocalName()}}<i class="far fa-question-circle"
+                    title="Parameter {{property.getLocalName()}}"></i></label>
+            <input class="form-control form-control-sm" [formControlName]="property.getLocalName()">
         </div>
     </ng-container>
 
@@ -33,5 +33,5 @@
     </div>
 
     <strong>List of Outputs:</strong>
-    <p *ngFor="let output of this.selectedCapability?.outputProperties">{{output.name}} - {{output.type}}</p>
+    <p *ngFor="let output of this.selectedCapability?.outputProperties">{{output.getLocalName()}} - {{output.type}}</p>
 </form>

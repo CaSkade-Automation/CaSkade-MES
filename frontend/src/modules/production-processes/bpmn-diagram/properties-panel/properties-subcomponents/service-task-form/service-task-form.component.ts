@@ -17,14 +17,13 @@ export class ServiceTaskFormComponent implements OnInit {
         private extensionElementService: BpmnExtensionElementService
     ) { }
 
-    ngOnInit() {
+    ngOnInit(): void {
         const typeProperty = new BpmnProperty("serviceTaskType", this.serviceTaskType);
         this.extensionElementService.updateBaseProperty(typeProperty);
     }
 
-    changeType(newValue: string) {
-        console.log(newValue);
-        const typeProperty = new BpmnProperty("serviceTaskType", this.serviceTaskType);
+    changeType(newType: string): void {
+        const typeProperty = new BpmnProperty("serviceTaskType", newType);
         this.extensionElementService.updateBaseProperty(typeProperty);
     }
 
