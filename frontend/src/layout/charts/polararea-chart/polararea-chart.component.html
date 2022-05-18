@@ -1,0 +1,11 @@
+<div class="card mb-3">
+    <div class="card-header">
+        Polar Area Chart
+    </div>
+    <div class="card-body">
+        <canvas baseChart height="130px" [data]="polarAreaChartData"
+            [legend]="polarAreaLegend" [type]="polarAreaChartType" (chartHover)="chartHovered($event)"
+            (chartClick)="chartClicked($event)">
+        </canvas>
+    </div>
+</div>
