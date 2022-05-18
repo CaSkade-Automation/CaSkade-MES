@@ -24,19 +24,19 @@
         <div class="nested-menu">
             <a (click)="addExpandClass('pages')" class="list-group-item">
                 <i class="fas fa-random"></i>&nbsp;
-                <span>Skill Processes</span>
+                <span>Production Processes</span>
             </a>
             <li [class.expand]="showMenu === 'pages'" class="nested list-group">
                 <ul class="submenu mb-0">
                     <li>
-                        <a class="list-group-item" routerLink="skill-processes/model"
+                        <a class="list-group-item" routerLink="production-processes/model"
                             [routerLinkActiveOptions]="matchSubPathOption" [routerLinkActive]="['router-link-active']">
                             <i class="fas fa-edit"></i>&nbsp;
                             <span>Model New Process</span>
                         </a>
                     </li>
                     <li>
-                        <a class="list-group-item" routerLink="skill-processes/control"
+                        <a class="list-group-item" routerLink="production-processes/control"
                             [routerLinkActiveOptions]="matchSubPathOption" [routerLinkActive]="['router-link-active']">
                             <i class="fas fa-play"></i>&nbsp;
                             <span>Process Control</span>

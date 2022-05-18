@@ -1,0 +1,31 @@
+<div class="card border-dark mb-3  border-secondary rounded">
+    <div class="card-header">
+        <h5 class="card-title" title="{{capability.iri}}">{{capability.getLocalName()}}</h5>
+        <button class="btn btn-sm btn-danger" style="position:absolute; right:10px;top:10px;"
+            title="Disconnect Capability" (click)="deleteCapability()"><i class="far fa-trash-alt"></i></button>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-12">
+                <h6>Inputs:</h6>
+                <ul>
+                    <li *ngFor="let capInput of capability.inputs">{{capInput.getLocalName()}}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <h6>Outputs</h6>
+                <ul>
+                    <li *ngFor="let capOutput of capability.outputs">{{capOutput.getLocalName()}}</li>
+                </ul>
+            </div>
+        </div>
+
+        <h5 *ngIf="capability.skills.length > 0">Skills:</h5>
+        <ng-container *ngFor="let skill of capability.skills"> -->
+            <skill-card [skill]="skill"></skill-card>
+        </ng-container>
+
+    </div>
+</div>

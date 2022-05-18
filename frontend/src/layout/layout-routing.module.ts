@@ -12,7 +12,7 @@ const routes: Routes = [
             { path: 'order-management', loadChildren: () => import('../modules/order-management/order-management.module').then(m => m.OrderManagementModule)},
             { path: 'skills', loadChildren: () => import('../modules/skills/skill-container.module').then(m => m.SkillContainerModule)},
             { path: 'capabilities', loadChildren: () => import('../modules/capabilities/capability.module').then(m => m.CapabilityModule)},
-            { path: 'skill-processes', loadChildren: () => import('../modules/skill-processes/skill-processes.module').then(m => m.SkillProcessesModule)},
+            { path: 'production-processes', loadChildren: () => import('../modules/production-processes/production-processes.module').then(m => m.ProductionProcessesModule)},
             { path: 'skillmex-configuration', loadChildren: () => import('../modules/skillmex-configuration/skillmex-configuration.module').then(m => m.SkillMexConfigurationModule)},
             { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)},
             { path: 'charts', loadChildren: () => import('./charts/charts.module').then(m => m.ChartsModule)},

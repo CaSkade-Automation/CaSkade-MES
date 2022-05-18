@@ -1,23 +1,10 @@
-import { RdfElement, RdfElementDto } from "../RdfElement";
-import { FpbElement } from "../fpb/FpbElement";
-
-export class Capability extends RdfElement {
-    public inputs?: Array<FpbElement>;
-    public outputs?: Array<FpbElement>;
-    public skillIri?: RdfElement;
-
-    constructor(dto: CapabilityDto) {
-        super(dto.iri);
-        this.inputs = dto.inputs;
-        this.outputs = dto.outputs;
-        this.skillIri = new RdfElement(dto.skillIri);
-    }
-}
+import { RdfElementDto } from "../RdfElement";
+import { FpbElementDTO } from "../fpb/FpbElementDTO";
 
 
 export class CapabilityDto extends RdfElementDto{
 	public capabilityType: RdfElementDto;
-	public inputs?: Array<FpbElement>;
-	public outputs?: Array<FpbElement>;
-    public skillIri?: string;
+	public inputs?: Array<FpbElementDTO>;
+	public outputs?: Array<FpbElementDTO>;
+    public skillIris?: Array<string>;
 }

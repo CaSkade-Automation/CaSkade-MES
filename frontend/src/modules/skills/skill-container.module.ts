@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SkillContainerComponent } from './skill-container.component';
 import { SkillRoutes } from './skill-container.routing';
-import { SkillModule } from 'src/shared/modules/skill/skill.module';
+import { SkillCardModule } from 'src/shared/modules/skill-card/skill-card.module';
 import { SkillGraphVisuComponent } from './skill-graph-visu/skill-graph-visu.component';
 import { SkillRegistrationComponent } from './skill-registration/skill-registration.component';
 import { OntologyRegistrationModule } from 'src/shared/modules/ontology-registration/ontology-registration.module';
@@ -14,7 +14,7 @@ import { SkillOverviewComponent } from './skill-overview/skill-overview.componen
     imports: [
         SkillRoutes,
         CommonModule,
-        SkillModule,
+        SkillCardModule,
         OntologyRegistrationModule
     ],
     declarations: [

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Delete, Post } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Post, Query } from '@nestjs/common';
 import { CapabilityService } from './capability.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
@@ -25,8 +25,8 @@ export class CapabilityController {
      * Get all capabilities that are currently registered
      */
     @Get()
-    getAllCapabilities(): Promise<Array<CapabilityDto>> {
-        return this.capabilityService.getAllCapabilities();
+    getAllCapabilities(@Query("type") type?: string): Promise<Array<CapabilityDto>> {
+        return this.capabilityService.getAllCapabilities(type);
     }
 
     /**
@@ -52,7 +52,7 @@ export class CapabilityController {
      * Delete a specific capability with a given IRI
      * @param capabilityIri IRI of the capability to delete
      */
-    @Delete(':capability')
+    @Delete(':capabilityIri')
     deleteCapability(@Param('capabilityIri') capabilityIri: string): Promise<string> {
         return this.capabilityService.deleteCapability(capabilityIri);
     }
