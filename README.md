@@ -27,17 +27,22 @@ We have created a model in the form of an ontology that can be used to model man
 
 ## Setup & Install
 ### Requirements
+
 **Node.js**
+
 SkillMEx is built with NestJS & Angular which both rely on Node.js being installed. Make sure to download and install an LTS version of Node. Node.js > v14 is recommended.
+
 **GraphDB**
-SkillMEx uses ontologies and stores them in a triple store. We currently work with GraphDB. Make sure to download GraphDB from https://www.ontotext.com/products/graphdb/graphdb-free/ and start it. You then need to create a repository that SkillMEx can use. The connection to a repository can be managed in SkillMEx
+
+SkillMEx uses ontologies and stores them in a triple store. We currently work with GraphDB. Make sure to download GraphDB from https://www.ontotext.com/products/graphdb/graphdb-free/ and start it. You then need to create a repository that SkillMEx can use. The connection to a repository can be managed in SkillMEx.
+In case you cannot connect to your running GraphDB with SkillMEx, you may need to set appropriate CORS policy on GraphDB. This can be done by setting the parameter `graphdb.workbench.cors.enable` to `true` (either in the settings dialogue of the window opening on GraphDB startup or as a command line parameter, see [this SO thread](https://stackoverflow.com/questions/60137895/enable-cors-on-graphdb) for additional details).
 
 ### Development setup
 After you have installed Node.js, follow these steps to run SkillMEx in development mode:
 - Download or clone this repository
 - When starting SkillMEx for the first time, open shells inside both backend and frontend directory and in both directories, execute `npm install` in order to install all npm dependencies.
 - As soon as `npm install` is finished, both backend and frontend can be started. Note that these are separate stand-alone applications, so you need to execute `npm run start:dev` in both backend and frontend. 
-- Both backendend and frontend should now run in "watch-mode" where changes on either frontend or backend lead to an automatic restart of the server or the web application, respectively. This is quite convenient for development as you don't need to manually restart the server or refresh your browser's page.
+- Both backend and frontend should now run in "watch-mode" where changes on either frontend or backend lead to an automatic restart of the server or the web application, respectively. This is quite convenient for development as you don't need to manually restart the server or refresh your browser's page.
 
 ### Docker & other pre-built versions
 🚧 Currently not available, but on our to-do list 🚧
