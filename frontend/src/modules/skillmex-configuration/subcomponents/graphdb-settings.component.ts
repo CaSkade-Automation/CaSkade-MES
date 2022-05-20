@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { GraphDbRepoService, DbConfig, GraphDbRepositoryInfo } from '../../../shared/services/graphDbRepoService.service';
 import { take } from 'rxjs/operators';
+import { MessageService } from '../../../shared/services/message.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'graphdb-settings',
     templateUrl: './graphdb-settings.component.html',
 })
-
 export class GraphDbSettingsComponent implements OnInit{
     repositories: GraphDbRepositoryInfo[];
 
@@ -19,9 +20,11 @@ export class GraphDbSettingsComponent implements OnInit{
 
     loaderActive = false;
     buttonText = "Change host";
-    showWarning = false;
 
-    constructor(private repoService: GraphDbRepoService) {}
+    constructor(
+        private repoService: GraphDbRepoService,
+        private messageService: MessageService
+    ) {}
 
     ngOnInit(): void {
         this.repoService.getCurrentConfig().pipe(take(1)).subscribe(config => {
@@ -34,21 +37,19 @@ export class GraphDbSettingsComponent implements OnInit{
 
     changeConfig(): void{
         this.startLoading();
-        this.showWarning = false;
 
-        this.repoService.changeConfig(this.dbConfig)
-            .subscribe(
-                (response: any) => {
-                    this.endLoading();
-                    this.repoService.getRepositories().pipe(take(1)).subscribe(repos => {
-                        this.repositories = repos;
-                    });
-                },
-                (err: any) => {
-                    this.endLoading();
-                    this.showWarning = true;
-                }
-            );
+        this.repoService.changeConfig(this.dbConfig).subscribe({
+            next: (config: DbConfig) => {
+                this.endLoading();
+                this.repoService.getRepositories().pipe(take(1)).subscribe(repos => {
+                    this.repositories = repos;
+                });
+            },
+            error: (err: HttpErrorResponse) => {
+                this.endLoading();
+                this.messageService.danger("Error while setting new configuration", `Could not connect to GraphDB. ${err.error.message}`);
+            }
+        });
     }
 
     changeRepository(newRepoId) {

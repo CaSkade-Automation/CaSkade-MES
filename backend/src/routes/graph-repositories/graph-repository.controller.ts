@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, Patch } from "@nestjs/common";
+import { Controller, Get, Put, Body, Patch, InternalServerErrorException } from "@nestjs/common";
 import { GraphDbConnectionService, GraphDbConfig } from "../../util/GraphDbConnection.service";
 
 import {SparqlResultConverter, MappingDefinition} from 'sparql-result-converter';
@@ -19,7 +19,7 @@ export class GraphRepositoryController {
     /**
      * Returns all repositories at the currently connected graph DB
      */
-     @Get()
+    @Get()
     async getAllRepositories() {
         try {
             const repos = await this.graphDbConnection.getRepositories();
@@ -28,10 +28,9 @@ export class GraphRepositoryController {
             const mappedRepositories = converter.convertToDefinition(repositories, this.repositoryMapping).getFirstRootElement();
             return mappedRepositories;
         } catch (error) {
-            return {
-                "msg": "Error while getting repositories",
-                "error": error
-            };
+            console.log("throwing");
+
+            throw new InternalServerErrorException("Could not get repositories");
         }
     }
 
@@ -40,9 +39,9 @@ export class GraphRepositoryController {
     * Returns the current configuration
     */
     @Get('/config')
-     async getConfig(): Promise<GraphDbConfig> {
-         return this.graphDbConnection.getConfig();
-     }
+    async getConfig(): Promise<GraphDbConfig> {
+        return this.graphDbConnection.getConfig();
+    }
 
 
     /**
@@ -61,7 +60,7 @@ export class GraphRepositoryController {
             return updatedConfig;
 
         } catch (error) {
-            throw new Error(`Invalid config, error: ${error}`);
+            throw new InternalServerErrorException(`Invalid config. ${error}`);
         }
     }
 
