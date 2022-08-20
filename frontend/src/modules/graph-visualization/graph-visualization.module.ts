@@ -8,7 +8,9 @@ import { NodeCreatorService } from './node-creator.service';
     imports: [
         GraphVisualizationRouter,
     ],
-    declarations: [GraphVisualizationComponent],
+    declarations: [
+        GraphVisualizationComponent
+    ],
     providers: [
         ModuleService,
         NodeCreatorService
