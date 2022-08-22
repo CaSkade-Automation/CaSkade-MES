@@ -1,4 +1,5 @@
 
+import * as d3Force from 'd3-force';
 
 export enum NodeType {
     None = "None",
@@ -7,12 +8,24 @@ export enum NodeType {
     D3CapabilityNode = "D3CapabilityNode"
 }
 
-export class D3Node {
+export class D3Node implements d3Force.SimulationNodeDatum {
+    index?: number | undefined;
+    x?: number | undefined;
+    y?: number | undefined;
+    vx?: number | undefined;
+    vy?: number | undefined;
+    fx?: number | null | undefined;
+    fy?: number | null | undefined;
+
     constructor(
         public id: string,
         public name: string,
         public group: number,
-        public type: NodeType = NodeType.None) { }
+        public type: NodeType = NodeType.None,
+        x?, y?) {
+        this.x = x;
+        this.y = y;
+    }
 }
 
 export class D3ModuleNode extends D3Node {
@@ -32,10 +45,10 @@ export class D3CapabilityNode extends D3Node{
     }
 }
 
-export class D3Link {
+export class D3Link implements d3Force.SimulationLinkDatum<D3Node> {
     constructor(
-        public source: string,
-        public target: string,
+        public source: D3Node,
+        public target: D3Node,
         public type: string) { }
 }
 
@@ -76,7 +89,7 @@ export class D3GraphData {
 
         oldNodesToConnect.forEach(oldNode => {
             newNodesToConnect.forEach(newNode => {
-                this.addLink(new D3Link(oldNode.id, newNode.id, connectionType));
+                this.addLink(new D3Link(oldNode, newNode, connectionType));
             });
         });
     }
