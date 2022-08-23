@@ -275,15 +275,17 @@ export class GraphVisualizationComponent implements AfterViewInit {
    * Drag function, executed on every drag movement
    * @param d The dragged node
    */
-    dragged(event: d3Drag.D3DragEvent<any, d3Force.SimulationNodeDatum ,any>, d: d3Force.SimulationNodeDatum): void {
+    dragged = (event: d3Drag.D3DragEvent<any, d3Force.SimulationNodeDatum ,any>, d: d3Force.SimulationNodeDatum): void => {
         d.fx = event.x;
         d.fy = event.y;
+        this.increaseNodeRadius(d as D3Node);   // Also increase here to prevent decrease when cursor moves away from node
     }
 
-    dragended= (event: d3Drag.D3DragEvent<any, d3Force.SimulationNodeDatum ,any>, d: d3Force.SimulationNodeDatum): void => {
+    dragended = (event: d3Drag.D3DragEvent<any, d3Force.SimulationNodeDatum ,any>, d: d3Force.SimulationNodeDatum): void => {
         if (!d3Transition.active(d as d3Selection.BaseType)) this.simulation.alphaTarget(.03);
-        d.fx = null;
-        d.fy = null;
+        // d.fx = null;
+        // d.fy = null;
+        this.decreaseNodeRadius(d as D3Node);   // Also decrease here in case cursor moved away from node
     }
 
     /**
