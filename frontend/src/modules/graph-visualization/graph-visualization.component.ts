@@ -20,7 +20,7 @@ import {v4}  from "uuid";
 export class GraphVisualizationComponent implements AfterViewInit {
 
     name: string;
-    svg: any;       // Reference to the svg element of the simulation
+    svg: d3Selection.Selection<any, any, any, any>;       // Reference to the svg element of the simulation
 
     nodesContainer: any;    // Container for all nodes
     nodes: d3Selection.Selection<d3Selection.BaseType, D3Node, any, any>;      // The nodes of the simulation
@@ -36,8 +36,9 @@ export class GraphVisualizationComponent implements AfterViewInit {
         nodes: D3Node[];
     };
 
-    /**Returns different colors automatically. The node-border color is the same for all node-group members*/
-    color: any;
+    color: any;     // Contains scale of colors
+
+    typeColors = new Map<string, string>();     // Used to store colors per type
     /**Simulation of the force directed graph */
     simulation: d3Force.Simulation<D3Node, D3Link>;
 
@@ -48,7 +49,6 @@ export class GraphVisualizationComponent implements AfterViewInit {
     height = 100;
 
 
-    nodeBorder = 4;     // node border thickness
     nodeRadius = 16;           // standard radius of a node
 
     constructor(
@@ -64,7 +64,8 @@ export class GraphVisualizationComponent implements AfterViewInit {
     ngAfterViewInit(): void {
         this.svgWidth = this.svgContainer.nativeElement.offsetWidth;
         this.svgHeight = this.svgContainer.nativeElement.offsetHeight;
-
+        console.log(this.svgWidth);
+        console.log(this.svgHeight);
         this.route.params.subscribe(p => {
             this.moduleName = p['moduleName'];
         });
@@ -78,25 +79,27 @@ export class GraphVisualizationComponent implements AfterViewInit {
 
     /**Defines settings of the SVG and the color-scheme of the nodes */
     setSvg(): void {
-
-        this.svg = d3Selection.select("#graph");   // size definitions for the svg
-        // .attr("width", this.width + '%')
-        // .attr("height", this.height + '%');
+        this.svg = d3Selection.select("#graph")
+            .attr("width",this.svgWidth + 65)
+            .attr("height", this.svgHeight + 65);
+        // this.svg = d3Selection.select("#graph")   // size definitions for the svg
 
         this.color = d3Scale.scaleOrdinal(d3ScaleChromatic.schemeCategory10); // chooses a scheme category for node colours
 
+        const markerBoxWidth = 10;
+        const markerBoxHeight = 8;
         this.svg.append('defs').append('marker') // marker/ arrow  settings
             .attr("id", 'arrowhead')
-            .attr('viewBox', '-0 -5 10 10') //coordinate system
-            .attr('refX', this.nodeRadius + this.nodeBorder) // arrow position and dimensions
+            .attr('viewBox', [0, -4, markerBoxWidth, markerBoxHeight]) //coordinate system
+            .attr('refX', 2*markerBoxWidth) // arrow position and dimensions
             .attr('refY', 0)
             .attr('orient', 'auto')
-            .attr('markerWidth', 13)
-            .attr('markerHeight', 13)
+            .attr('markerWidth', 1.5*markerBoxWidth)
+            .attr('markerHeight', 1.5*markerBoxHeight)
             .attr('xoverflow', 'visible')
-            .append('svg:path')
-            .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-            .attr('fill', '#999')
+            .append('path')
+            .attr('d', 'M 0,-4 L 10,0 L 0,4')
+            .attr('fill', '#555')
             .style('stroke', 'none');
 
         // Define elemennt containers. Important nodes after links so that nodes are rendered on top
@@ -125,19 +128,19 @@ export class GraphVisualizationComponent implements AfterViewInit {
    * Draws the graph, executed first on AfterContentInit while setSimulation() and on every doubleclick on a node
    */
     updateSimulation(): void {
-        this.nodes = this.nodesContainer.selectAll(".nodes").data(this.data.nodes, function (d){return d.id;});
+        this.nodes = this.nodesContainer.selectAll(".nodes")
+            .data(this.data.nodes, (d) => this.convertSpecialChars(d.id));
 
         const nodeEnter= this.nodes.enter().append("circle")
             .attr("class", "nodes")
+            .attr("id", (d) => this.convertSpecialChars(d.id))
             .attr("r", (d) => this.nodeRadius)
             .attr("cx", (d) => { return d.x; })
             .attr("cy", (d) => { return d.y; });
 
         nodeEnter.on('mouseover', this.mouseover);
         nodeEnter.on('mouseout', this.mouseout);
-        nodeEnter.style("fill", this.setNodeStyle)
-            .style("stroke-width", this.nodeBorder)
-            .style("stroke", (d) => { return this.color(d.group); }); // set different node colours for each node-group
+        nodeEnter.style("fill", this.setNodeStyle);
         nodeEnter.on('dblclick', this.nodeDoubleClick);
         nodeEnter.call(d3Drag.drag()  // reactions when dragging a node
             .on("start", this.dragstarted)
@@ -151,7 +154,7 @@ export class GraphVisualizationComponent implements AfterViewInit {
 
         const linkEnter=this.links.enter()
             .append("line")
-            .style("stroke", "#aaa")
+            .style("stroke", "#555")
             .attr("class", "links")
             .attr("x2", (d) => { return d.source.x; })
             .attr("y2", (d) => { return d.source.y; })
@@ -179,10 +182,7 @@ export class GraphVisualizationComponent implements AfterViewInit {
         const textEnter=this.texts.enter().append("text")
             .attr("class", "nodeTexts")
             .data(this.data.nodes, function (d){return d.id;})
-            .attr("font-weight", function (d) {
-                if (d.group == 1) { return "bold"; }
-                else { return "normal"; }
-            })
+            .attr("font-weight", "normal")
             .text((d) => d.name); // get text from data
 
         this.texts=this.texts.merge(textEnter);
@@ -258,13 +258,17 @@ export class GraphVisualizationComponent implements AfterViewInit {
 
     }
 
+    private convertSpecialChars(iri: string): string {
+        return iri.replace(/([://#.])+/g,"_");
+    }
+
     /**
      * Function executed on a drag start
      */
-    dragstarted = (d: d3Force.SimulationNodeDatum) => {
+    dragstarted = (event: d3Drag.D3DragEvent<any, d3Force.SimulationNodeDatum ,any>, d: d3Force.SimulationNodeDatum): void => {
         if (!d3Transition.active(d as d3Selection.BaseType)) this.simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
+        d.fx = event.x;
+        d.fy = event.y;
     }
 
     /**
@@ -276,50 +280,50 @@ export class GraphVisualizationComponent implements AfterViewInit {
         d.fy = event.y;
     }
 
-    dragended(d) {
-
+    dragended= (event: d3Drag.D3DragEvent<any, d3Force.SimulationNodeDatum ,any>, d: d3Force.SimulationNodeDatum): void => {
+        if (!d3Transition.active(d as d3Selection.BaseType)) this.simulation.alphaTarget(.03);
+        d.fx = null;
+        d.fy = null;
     }
 
     /**
      * Mouseover function, executed when mouse over node. The radius of the node will increase.
      * @param d node under the cursor
      */
-    mouseover(event: MouseEvent, d: D3Node) {
-
-        if (d.group == 1) { // module-nodes belong to group 1 and are displayed by a bigger node
-            // d3Selection.select(d.id)
-            //     .transition()
-            //     .duration(2)
-            //     .attr('r', 20 + 12);
-        }
-        else {
-            d3Selection.select(d.id).transition()
-                .duration(2)
-                .attr('r', 20 + 6);
-        }
+    mouseover = (event: MouseEvent, d: D3Node): void => {
+        this.increaseNodeRadius(d);
     }
+
+    private increaseNodeRadius(d: D3Node): void {
+        const elementId = `#${this.convertSpecialChars(d.id)}`;
+        this.nodesContainer.select(elementId).transition()
+            .duration(200)
+            .attr('r', this.nodeRadius * 1.5);
+    }
+
     /**
      * Mousout function, executed when mouse cursor leaves the node. Decreases radius to origin.
      * @param d node wich is left by the cursor after mouseover
      */
-    mouseout(d: D3Node): void {
-        if (d.group == 1) { // module-nodes belong to group 1 and are displayed by a bigger node
-            d3Selection.select(d.id).transition()
-                .attr('r', 20 + 8);
-        }
-        else {
-            d3Selection.select(d.id).transition()
-                .attr('r', 20);
-        }
+    mouseout = (event: MouseEvent, d: D3Node): void => {
+        this.decreaseNodeRadius(d);
     }
+
+    private decreaseNodeRadius(d: D3Node): void {
+        const elementId = `#${this.convertSpecialChars(d.id)}`;
+        this.nodesContainer.select(elementId).transition()
+            .duration(200)
+            .attr('r', this.nodeRadius);
+    }
+
 
     /**
      * Doubleclick function, executed on every doubleclick on a node
      *@param d The clicked node
     */
     nodeDoubleClick = (e: MouseEvent, d: D3Node)=> {
-        const nodeId: string = v4();
-        const testNode = new D3Node(nodeId , nodeId.substring(0,4), 3);
+        const nodeId: string = "a" + v4();
+        const testNode = new D3Node(nodeId , nodeId.substring(0,4), NodeType.Skill);
         const testLink = new D3Link(d, testNode, "test");
         this.data.links.push(testLink);
         this.data.nodes.push(testNode);
@@ -327,13 +331,14 @@ export class GraphVisualizationComponent implements AfterViewInit {
     }
 
     /** Returns the color of the inner circle of a node */
-    setNodeStyle(d): string{
-        if (d.group == 1) {
-            return "black";
+    setNodeStyle = (d: D3Node) => {
+        const typeColor = this.typeColors.get(d.type);
+        if(!typeColor) {
+            const newTypeColor = this.color(Math.random() * 10);
+            this.typeColors.set(d.type, newTypeColor);
         }
-        else {
-            return "whitesmoke";
-        }
+
+        return this.typeColors.get(d.type);
     }
 
 }
