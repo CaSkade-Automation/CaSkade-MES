@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { SkillDto } from '@shared/models/skill/Skill';
 import { Skill } from '../models/Skill';
@@ -71,7 +71,8 @@ export class SkillService {
     }
     addSkill(ontologyString: string): Observable<Record<string, any>> {
         const apiURL = `${this.apiRoot}/skills`;
-        return this.http.post<SkillDto>(apiURL, ontologyString);
+        const headers = new HttpHeaders({"content-type": "text/turtle"});
+        return this.http.post<SkillDto>(apiURL, ontologyString, {headers: headers});
     }
 
 
