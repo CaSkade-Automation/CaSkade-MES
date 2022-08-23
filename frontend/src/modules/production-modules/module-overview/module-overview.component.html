@@ -3,6 +3,9 @@
         <div class="card mb-5">
             <div class="card-header">
                 <h3 class="card-title" title="{{module.iri}}">{{module.getLocalName()}}</h3>
+                <a class="btn btn-secondary" style="position:absolute; right:50px;top:10px;" title="Show in Graph View" [routerLink]="[ '/graph-visualization/modules', module.iri]">
+                    <i class="fa fa-project-diagram"></i>
+                </a>
                 <button class="btn btn-danger" style="position:absolute; right:10px;top:10px;" title="Disconnect Module"
                     (click)="deleteModule(module.iri)"><i class="far fa-trash-alt"></i></button>
             </div>
