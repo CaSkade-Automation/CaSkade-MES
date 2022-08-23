@@ -1,4 +1,8 @@
-.visuContainer {
+.svgContainer {
     height: 600px;
-    width: 100%
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    width: 100%;
+    overflow: hidden;
+    display: block;
 }

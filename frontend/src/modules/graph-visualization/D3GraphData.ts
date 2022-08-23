@@ -3,9 +3,11 @@ import * as d3Force from 'd3-force';
 
 export enum NodeType {
     None = "None",
-    D3ModuleNode ="D3ModuleNode",
-    D3SkillNode = "D3SkillNode",
-    D3CapabilityNode = "D3CapabilityNode"
+    Module ="D3ModuleNode",
+    Skill = "D3SkillNode",
+    Capability = "D3CapabilityNode",
+    Input = "D3InputNode",
+    Output = "D3OutputNode"
 }
 
 export class D3Node implements d3Force.SimulationNodeDatum {
@@ -20,7 +22,6 @@ export class D3Node implements d3Force.SimulationNodeDatum {
     constructor(
         public id: string,
         public name: string,
-        public group: number,
         public type: NodeType = NodeType.None,
         x?, y?) {
         this.x = x;
@@ -30,18 +31,30 @@ export class D3Node implements d3Force.SimulationNodeDatum {
 
 export class D3ModuleNode extends D3Node {
     constructor(id: string, name: string) {
-        super(id, name, 1, NodeType.D3ModuleNode);
+        super(id, name, NodeType.Module);
     }
 }
 export class D3SkillNode extends D3Node{
     constructor(id: string, name: string) {
-        super(id, name, 100, NodeType.D3SkillNode);
+        super(id, name, NodeType.Skill);
     }
 }
 
 export class D3CapabilityNode extends D3Node{
     constructor(id: string, name: string) {
-        super(id, name, 200, NodeType.D3CapabilityNode);
+        super(id, name, NodeType.Capability);
+    }
+}
+
+export class D3InputNode extends D3Node{
+    constructor(id: string, name: string) {
+        super(id, name, NodeType.Input);
+    }
+}
+
+export class D3OutputNode extends D3Node{
+    constructor(id: string, name: string) {
+        super(id, name, NodeType.Output);
     }
 }
 
