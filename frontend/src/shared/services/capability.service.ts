@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CapabilityDto } from '@shared/models/capability/Capability';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { SkillService } from './skill.service';
 import { Capability } from '../models/Capability';
@@ -55,7 +55,8 @@ export class CapabilityService {
 
     addCapability(ontologyString: string): Observable<Record<string, any>> {
         const apiURL = `${this.apiRoot}/capabilities`;
-        return this.http.post<CapabilityDto>(apiURL, ontologyString);
+        const headers = new HttpHeaders({"content-type": "text/turtle"});
+        return this.http.post<CapabilityDto>(apiURL, ontologyString, {headers: headers});
     }
 
     addMtpCapability(ontologyFile: File): Observable<File>{
