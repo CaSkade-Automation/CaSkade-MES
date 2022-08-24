@@ -9,6 +9,7 @@
     "e2e": "ng e2e",
     "clean": "if exist dist rd /s /q dist",
     "ng-build": "ng build --watch",
+    "build:win": "(if exist ..\\backend\\frontend-dist rmdir ..\\backend\\frontend-dist /s /q) && ng build --configuration production && move dist ..\\backend\\frontend-dist",
     "start:dev": "ng serve --proxy-config proxy.conf.json --open"
   },
   "private": true,
