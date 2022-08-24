@@ -2,6 +2,10 @@
 /dist
 /tmp
 /out-tsc
+
+# compiled frontend
+/frontend-dist
+
 # Only exists if Bazel was run
 /bazel-out
 
