@@ -131,7 +131,8 @@ export class GraphVisualizationComponent implements AfterViewInit {
         this.nodes = this.nodesContainer.selectAll(".nodes")
             .data(this.data.nodes, (d) => this.convertSpecialChars(d.id));
 
-        const nodeEnter= this.nodes.enter().append("circle")
+        const nodeGroups = this.nodes.enter().append("g").attr("class", "nodeGroup");
+        const nodeEnter= nodeGroups.append("circle")
             .attr("class", "nodes")
             .attr("id", (d) => this.convertSpecialChars(d.id))
             .attr("r", (d) => this.nodeRadius)
@@ -178,17 +179,16 @@ export class GraphVisualizationComponent implements AfterViewInit {
         this.linkTexts = this.linkTexts.merge(linkTextsEnter);
         this.linkTexts.exit().remove();
 
-        this.texts = this.nodesContainer.selectAll(".nodeTexts").data(this.data.nodes);
-        const textEnter=this.texts.enter().append("text")
+        this.texts = this.nodesContainer.selectAll(".nodeTexts").data(this.data.nodes, (d) => this.convertSpecialChars(d.id));
+
+        const textEnter = nodeGroups.append("text")
             .attr("class", "nodeTexts")
-            .data(this.data.nodes, function (d){return d.id;})
+            // .data(this.data.nodes, (d) => this.convertSpecialChars(d.id))
             .attr("font-weight", "normal")
             .text((d) => d.name); // get text from data
 
         this.texts=this.texts.merge(textEnter);
         this.texts.exit().remove();
-
-
 
         this.simulation.nodes(this.data.nodes);
     }
@@ -299,7 +299,7 @@ export class GraphVisualizationComponent implements AfterViewInit {
     private increaseNodeRadius(d: D3Node): void {
         const elementId = `#${this.convertSpecialChars(d.id)}`;
         this.nodesContainer.select(elementId).transition()
-            .duration(200)
+            .duration(100)
             .attr('r', this.nodeRadius * 1.5);
     }
 
@@ -314,7 +314,7 @@ export class GraphVisualizationComponent implements AfterViewInit {
     private decreaseNodeRadius(d: D3Node): void {
         const elementId = `#${this.convertSpecialChars(d.id)}`;
         this.nodesContainer.select(elementId).transition()
-            .duration(200)
+            .duration(100)
             .attr('r', this.nodeRadius);
     }
 
