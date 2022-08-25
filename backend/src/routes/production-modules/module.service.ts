@@ -8,7 +8,7 @@ import { moduleMapping } from './module-mappings';
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { SkillService } from '../skills/skill.service';
 import { ModuleSocket } from '../../socket-gateway/module-socket';
-import { SocketMessageType } from '@shared/socket-communication/SocketData';
+import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
 const converter = new SparqlResultConverter();
 
 @Injectable()

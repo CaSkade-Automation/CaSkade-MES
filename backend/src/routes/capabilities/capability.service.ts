@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {SparqlResultConverter} from "sparql-result-converter";
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
-import { SocketMessageType } from '@shared/socket-communication/SocketData';
+import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
 import { PropertyService } from '../properties/property.service';
 
 const converter = new SparqlResultConverter();
