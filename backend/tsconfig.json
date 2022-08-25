@@ -3,13 +3,13 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es2017",
-        "rootDirs": ["./src", "../shared"],
+        // "rootDirs": ["./src", "../shared"],
         "emitDecoratorMetadata": true,
         "sourceMap": true,
         "outDir": "./dist",
-        "baseUrl": "./",
+        "baseUrl": ".",
         "paths": {
-            "@shared/*": [ "../shared/dist/*" ]
+            "@shared/*": ["../shared/dist/*"]
         }
     },
     "exclude": [

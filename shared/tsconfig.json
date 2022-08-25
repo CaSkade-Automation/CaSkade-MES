@@ -1,15 +1,15 @@
 {
     "extends": "../tsconfig.base.json",
     "compilerOptions": {
-      /* Truncated compiler options to list only relevant options */
-      "declaration": true,
-      "declarationMap": true,
-      "outDir": "./dist",
-      "composite": true,
-      "rootDir": "./src",
-      "baseUrl": "./",
-      "module": "CommonJS",
-      "target": "es2017",
+    /* Truncated compiler options to list only relevant options */
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "composite": true,
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "module": "CommonJS",
+    "target": "es2017",
     },
     "exclude": ["dist", "node_modules"]
-  }
+}
