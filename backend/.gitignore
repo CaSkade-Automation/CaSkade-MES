@@ -3,6 +3,9 @@
 /tmp
 /out-tsc
 
+# TypeScript incremental compilation cache
+*.tsbuildinfo
+
 # compiled frontend
 /frontend-dist
 
