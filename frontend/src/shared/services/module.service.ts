@@ -4,7 +4,6 @@ import { Observable,  Observer } from "rxjs";
 import { ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
 import { map,  take } from 'rxjs/operators';
 import { CapabilityService } from "./capability.service";
-import { SocketMessageType } from "@shared/socket-communication/SocketData";
 import { ModuleSocketService } from "./sockets/module-socket.service";
 import { ProductionModule } from "../models/ProductionModule";
 

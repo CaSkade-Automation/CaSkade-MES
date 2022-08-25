@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, filter, tap } from 'rxjs/operators';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { SocketMessageType, WebSocketMessage } from '@shared/socket-communication/SocketData';
+import { SocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
 import { SocketConnection } from './SocketConnection';
 
 @Injectable({

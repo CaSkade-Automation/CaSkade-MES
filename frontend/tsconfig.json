@@ -3,7 +3,7 @@
     "compileOnSave": false,
     "compilerOptions": {
         "outDir": "./dist/out-tsc",
-        "rootDirs": [".", "../shared"],
+        // "rootDirs": [".", "../shared"],
         "baseUrl": "./",
         "sourceMap": true,
 		"declaration": false,
@@ -17,7 +17,7 @@
         ],
         "paths": {
             "@shared/*": [
-                "../shared/*"
+                "../shared/dist/*"
             ]
         },
     },

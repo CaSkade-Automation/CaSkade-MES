@@ -6,7 +6,7 @@ import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionReq
 import { SkillService } from '../../services/skill.service';
 import { take } from 'rxjs/operators';
 import { SkillSocketService } from '../../services/sockets/skill-socket.service';
-import { StateChangeInfo } from '../../../../socket-communication/SocketData';
+import { StateChangeInfo } from '@shared/models/socket-communication/SocketData';
 import { Skill } from '../../models/Skill';
 
 
