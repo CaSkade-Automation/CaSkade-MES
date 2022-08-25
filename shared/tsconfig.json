@@ -6,7 +6,7 @@
       "declarationMap": true,
       "outDir": "./dist",
       "composite": true,
-      "rootDir": ".",
+      "rootDir": "./src",
       "baseUrl": "./",
       "module": "CommonJS",
       "target": "es2017",
