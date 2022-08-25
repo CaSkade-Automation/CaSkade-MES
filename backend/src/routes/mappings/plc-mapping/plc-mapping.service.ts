@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as FormData from 'form-data';
 import Axios, { AxiosRequestConfig } from 'axios';
 import { ModuleService } from '../../../routes/production-modules/module.service';
-import { MappingServiceConfig } from '../../../models/mappings/MappingServiceConfig';
+import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 import { SkillService } from '../../skills/skill.service';
 
 

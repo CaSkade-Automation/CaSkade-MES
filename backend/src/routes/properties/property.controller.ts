@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
-import { PropertyDTO } from "../../models/properties/PropertyDTO";
+import { PropertyDTO } from "@shared/models/properties/PropertyDTO";
 import { PropertyService } from "./property.service";
 
 @Controller('/properties')

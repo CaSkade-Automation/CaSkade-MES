@@ -4,7 +4,7 @@ import { ProductionModuleDto } from '@shared/models/production-module/Production
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
 import { SkillDto } from '@shared/models/skill/Skill';
 import { SkillService } from '../skills/skill.service';
-import { CapabilityDto } from '../../models/capability/Capability';
+import { CapabilityDto } from '@shared/models/capability/Capability';
 import { CapabilityService } from '../capabilities/capability.service';
 
 @Controller('modules')

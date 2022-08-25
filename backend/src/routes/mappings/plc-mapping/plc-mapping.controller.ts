@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MappingServiceConfig } from '../../../models/mappings/MappingServiceConfig';
+import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 import { PlcMappingService } from './plc-mapping.service';
 
 @Controller('mappings/plc')
