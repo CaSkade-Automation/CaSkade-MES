@@ -4,14 +4,6 @@
         "outDir": "../out-tsc/app",
         "baseUrl": "./",
         "types": [],
-        "paths": {
-            "@angular/*": [
-                "../node_modules/@angular/*"
-            ],
-            "@shared/*": [
-                "../shared/*"
-            ]
-        }
     },
     "files": [
         "main.ts",

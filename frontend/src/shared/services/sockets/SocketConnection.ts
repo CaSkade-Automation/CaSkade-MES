@@ -1,6 +1,6 @@
 import { catchError, EMPTY, tap } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
-import { WebSocketMessage } from "../../../../socket-communication/SocketData";
+import { WebSocketMessage } from "@shared/models/socket-communication/SocketData";
 
 export class SocketConnection {
 
