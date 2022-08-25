@@ -1,7 +1,7 @@
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from "@nestjs/websockets";
 import {Server, WebSocket} from "ws";
 import { v4 as uuidv4 } from 'uuid';
-import { SocketMessageType, WebSocketMessage } from "@shared/socket-communication/SocketData";
+import { SocketMessageType, WebSocketMessage } from "@shared/models/socket-communication/SocketData";
 
 export abstract class Websocket implements OnGatewayConnection, OnGatewayDisconnect{
 
