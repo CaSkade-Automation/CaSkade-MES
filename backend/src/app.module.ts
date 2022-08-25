@@ -11,10 +11,15 @@ import { PlcMappingModule } from './routes/mappings/plc-mapping/plc-mapping.modu
 import { OpcUaStateMonitorModule } from './util/opc-ua-state-monitor.module';
 import { GraphDbConnectionModule } from './util/GraphDbConnection.module';
 import { SocketModule } from './socket-gateway/socket.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 
 @Module({
     imports: [
+        ServeStaticModule.forRoot({
+            rootPath: join(__dirname, '..', 'frontend-dist'),
+        }),
         GraphDbConnectionModule,
         MtpMappingModule,
         SocketModule,
