@@ -8,7 +8,6 @@ import * as d3Drag from'd3-drag';
 import { ActivatedRoute } from '@angular/router';
 import { NodeCreatorService } from './node-creator.service';
 import { D3Link, D3Node, NodeType } from './D3GraphData';
-import {v4}  from "uuid";
 
 
 @Component({
@@ -324,7 +323,7 @@ export class GraphVisualizationComponent implements AfterViewInit {
      *@param d The clicked node
     */
     nodeDoubleClick = (e: MouseEvent, d: D3Node)=> {
-        const nodeId: string = "a" + v4();
+        const nodeId = "id";
         const testNode = new D3Node(nodeId , nodeId.substring(0,4), NodeType.Skill);
         const testLink = new D3Link(d, testNode, "test");
         this.data.links.push(testLink);
