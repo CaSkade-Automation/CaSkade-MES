@@ -122,7 +122,6 @@
             }
         }
     },
-    "defaultProject": "test-ng7",
     "schematics": {
         "@schematics/angular:component": {
             "prefix": "app",

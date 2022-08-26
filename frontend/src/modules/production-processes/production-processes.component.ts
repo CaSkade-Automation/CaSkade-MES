@@ -26,7 +26,7 @@ export class ProductionProcessesComponent implements AfterContentInit{
 
     @ViewChild('modelerComponent') modelerComponent: BpmnDiagramComponent;
 
-    processSelector = new FormControl("");
+    processSelector = new FormControl<ProcessDefinition>(null);
     selectedProcessDefinition: ProcessDefinition;
 
     constructor(
