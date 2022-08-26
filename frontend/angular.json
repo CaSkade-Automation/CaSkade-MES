@@ -28,7 +28,7 @@
                         ],
                         "scripts": [
                             "node_modules/bootstrap/dist/js/bootstrap.bundle.js",
-                            "node_modules/chart.js/dist/Chart.js"
+                            "node_modules/chart.js/dist/chart.js"
                         ],
                         "aot": false,
                         "vendorChunk": true,
@@ -89,7 +89,7 @@
                         "tsConfig": "tsconfig.spec.json",
                         "karmaConfig": "karma.conf.js",
                         "scripts": [
-                            "node_modules/chart.js/dist/Chart.js"
+                            "node_modules/chart.js/dist/chart.js"
                         ],
                         "styles": [
                             "node_modules/font-awesome/css/font-awesome.css",
