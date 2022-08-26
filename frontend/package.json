@@ -8,7 +8,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "clean": "if exist dist rd /s /q dist",
-    "ng-build": "ng build --watch",
+    "ng-build": "ng build",
     "build:win": "(if exist ..\\backend\\frontend-dist rmdir ..\\backend\\frontend-dist /s /q) && ng build --configuration production && move dist ..\\backend\\frontend-dist",
     "start:dev": "ng serve --proxy-config proxy.conf.json --open"
   },
@@ -31,12 +31,10 @@
     "chart.js": "3.7.1",
     "chartjs-plugin-annotation": "^1.4.0",
     "chartjs-plugin-datalabels": "^2.0.0",
-    "core-js": "2.6.5",
     "d3": "^7.4.0",
     "formidable": "^2.0.1",
     "ng2-charts": "3.0.11",
-    "rxjs": "^7.4.0",
-    "uuid": "^8.3.2",
+    "rxjs": "^7.5.6",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
