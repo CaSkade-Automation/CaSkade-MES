@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ProcessDefinition, ProcessDefinitionDto } from '@shared/models/processDefinition/ProcessDefinition';
-import { ProcessInstance, ProcessInstanceDto } from '@shared/models/ProcessInstance/ProcessInstance';
+import { ProcessInstance, ProcessInstanceDto } from '@shared/models/processInstance/ProcessInstance';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
