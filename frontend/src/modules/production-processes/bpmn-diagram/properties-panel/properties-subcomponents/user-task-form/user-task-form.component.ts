@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 import { BpmnProperty } from '../../../BpmnDataModel';
@@ -13,7 +13,11 @@ export class UserTaskFormComponent implements OnInit, OnChanges {
 
     @Input() bpmnElement;
 
-    fg: FormGroup;
+    fg: FormGroup<{
+        assignee: FormControl<string>;
+        candidateUsers: FormControl<string>;
+        candidateGroups: FormControl<string>;
+    }>;
 
     constructor(
         private extensionService: BpmnExtensionElementService,

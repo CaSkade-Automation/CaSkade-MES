@@ -14,7 +14,11 @@ export class BaseTaskFormComponent implements OnInit, OnChanges {
     @Input() bpmnElement;
     @Input() dataModel: BpmnDataModel;
 
-    fg: FormGroup;
+    fg: FormGroup<{
+        id: FormControl<string>;
+        type: FormControl<string>;
+        name: FormControl<string>;
+    }>;
 
     constructor(
         private extensionService: BpmnExtensionElementService,
