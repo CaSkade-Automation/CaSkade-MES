@@ -40,6 +40,7 @@
                     </div>
                     <select class="form-select" id="inputGroupSelect01"
                         (change)="changeRepository($event.target.value)">
+                        <option value="null"></option>
                         <option *ngFor="let repo of this.repositories"
                             [selected]="(this.dbConfig.selectedRepo == repo.title)" value="{{repo.id}}">
                             {{repo.id}} ({{repo.title}})</option>

@@ -31,26 +31,26 @@ export class Isa88StateMachineBuilder {
 
     static setActiveCommandsOfState(stateName: Isa88StateTypeIri): Transition[] {
         switch (stateName) {
-            case Isa88StateTypeIri.Idle:
-                return [this.commandTypes.get(Isa88CommandTypeIri.Start), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
-            case Isa88StateTypeIri.Execute:
-                return [this.commandTypes.get(Isa88CommandTypeIri.Hold), this.commandTypes.get(Isa88CommandTypeIri.Suspend), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
-            case Isa88StateTypeIri.Held:
-                return [this.commandTypes.get(Isa88CommandTypeIri.Unhold), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
-            case Isa88StateTypeIri.Suspended:
-                return [this.commandTypes.get(Isa88CommandTypeIri.Unsuspend), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
-            case Isa88StateTypeIri.Complete:
-                return [this.commandTypes.get(Isa88CommandTypeIri.Reset), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
-            case Isa88StateTypeIri.Starting, Isa88StateTypeIri.Completing, Isa88StateTypeIri.Holding, Isa88StateTypeIri.Unholding, Isa88StateTypeIri.Suspending, Isa88StateTypeIri.Unsuspending, Isa88StateTypeIri.Resetting:
-                return [this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
-            case Isa88StateTypeIri.Aborted:
-                return [this.commandTypes.get(Isa88CommandTypeIri.Clear)];
-            case Isa88StateTypeIri.Clearing, Isa88StateTypeIri.Stopping:
-                return [this.commandTypes.get(Isa88CommandTypeIri.Abort)];
-            case Isa88StateTypeIri.Stopped:
-                return [this.commandTypes.get(Isa88CommandTypeIri.Reset), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
-            default:
-                return []
+        case Isa88StateTypeIri.Idle:
+            return [this.commandTypes.get(Isa88CommandTypeIri.Start), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
+        case Isa88StateTypeIri.Execute:
+            return [this.commandTypes.get(Isa88CommandTypeIri.Hold), this.commandTypes.get(Isa88CommandTypeIri.Suspend), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
+        case Isa88StateTypeIri.Held:
+            return [this.commandTypes.get(Isa88CommandTypeIri.Unhold), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
+        case Isa88StateTypeIri.Suspended:
+            return [this.commandTypes.get(Isa88CommandTypeIri.Unsuspend), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
+        case Isa88StateTypeIri.Complete:
+            return [this.commandTypes.get(Isa88CommandTypeIri.Reset), this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
+        case Isa88StateTypeIri.Starting, Isa88StateTypeIri.Completing, Isa88StateTypeIri.Holding, Isa88StateTypeIri.Unholding, Isa88StateTypeIri.Suspending, Isa88StateTypeIri.Unsuspending, Isa88StateTypeIri.Resetting:
+            return [this.commandTypes.get(Isa88CommandTypeIri.Stop), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
+        case Isa88StateTypeIri.Aborted:
+            return [this.commandTypes.get(Isa88CommandTypeIri.Clear)];
+        case Isa88StateTypeIri.Clearing, Isa88StateTypeIri.Stopping:
+            return [this.commandTypes.get(Isa88CommandTypeIri.Abort)];
+        case Isa88StateTypeIri.Stopped:
+            return [this.commandTypes.get(Isa88CommandTypeIri.Reset), this.commandTypes.get(Isa88CommandTypeIri.Abort)];
+        default:
+            return [];
         }
     }
 
