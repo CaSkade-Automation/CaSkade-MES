@@ -13,10 +13,16 @@ import { GraphDbConnectionModule } from './util/GraphDbConnection.module';
 import { SocketModule } from './socket-gateway/socket.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './configuration/config';
 
 
 @Module({
     imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [configuration],
+        }),
         ServeStaticModule.forRoot({
             rootPath: join(__dirname, '..', 'frontend-dist'),
         }),
