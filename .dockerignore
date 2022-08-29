@@ -1,5 +1,6 @@
 Dockerfile
 .dockerignore
+docker-compose.yml
 .vscode/
 frontend/node_modules
 backend/node_modules
