@@ -1,0 +1,16 @@
+version: '3'
+services:
+
+    graphdb:
+        image: "khaller/graphdb-free"
+        container_name: graphdb
+        ports:
+            - 7200:7200
+
+    skillmex:
+        environment:
+            - configuration=production
+        build: .
+        container_name: skillmex
+        ports:
+            - 9090:9090
