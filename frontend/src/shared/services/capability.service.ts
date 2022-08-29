@@ -5,12 +5,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { SkillService } from './skill.service';
 import { Capability } from '../models/Capability';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CapabilityService {
-    apiRoot = "/api";
+    apiRoot = `${environment.settings.backendUrl}/api`;
 
     constructor(
         private http: HttpClient,
@@ -22,6 +23,10 @@ export class CapabilityService {
      * Returns all capabilities that are currently registered
      */
     getAllCapabilities(): Observable<Capability[]> {
+        console.log("getting all caps");
+        console.log("goes to:" + this.apiRoot);
+
+
         const apiURL = `${this.apiRoot}/capabilities`;
         return this.http.get<CapabilityDto[]>(apiURL).pipe(
             map((data: CapabilityDto[]) => data.map(capabilityDto => new Capability(capabilityDto))

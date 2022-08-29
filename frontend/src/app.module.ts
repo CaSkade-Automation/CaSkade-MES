@@ -8,8 +8,6 @@ import { HttpClientModule } from "@angular/common/http";
 import { SkillCardModule } from "./shared/modules/skill-card/skill-card.module";
 import { ServiceLocator } from "./shared/services/service-locator.service";
 
-const config = { url: 'http://localhost:9090', options: {} };
-
 @NgModule({
     imports: [
         AppRoutingModule,

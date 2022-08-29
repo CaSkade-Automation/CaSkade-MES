@@ -2,13 +2,11 @@
   "name": "ontology-based-planning-system",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
     "clean": "if exist dist rd /s /q dist",
-    "ng-build": "ng build",
+    "build": "npx ng build --configuration production",
     "build:win": "(if exist ..\\backend\\frontend-dist rmdir ..\\backend\\frontend-dist /s /q) && ng build --configuration production && move dist ..\\backend\\frontend-dist",
     "start:dev": "ng serve --proxy-config proxy.conf.json --open"
   },

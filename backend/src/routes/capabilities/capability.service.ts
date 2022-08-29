@@ -32,7 +32,7 @@ export class CapabilityService {
             this.capabilitySocket.sendMessage(SocketMessageType.Added);
             return 'New capability successfully added';
         } catch (error) {
-            throw new BadRequestException(`Error while registering a new capability. Error: ${error.tostring()}`);
+            throw new BadRequestException(`Error while registering a new capability. Error: ${error}`);
         }
     }
 
