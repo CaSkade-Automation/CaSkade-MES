@@ -6,6 +6,6 @@
 export const environment = {
     production: false,
     settings: {
-        backendUrl: 'http://localhost:9090'
+        backendUrl: ''
     }
 };
