@@ -9,6 +9,8 @@ import { ActivatedRoute } from '@angular/router';
 import { NodeCreatorService } from './node-creator.service';
 import { D3GraphData, D3Link, D3Node, NodeType } from './D3GraphData';
 import { ModuleService } from '../../shared/services/module.service';
+import { QueryService } from '../../shared/services/query.service';
+import { RdfElement } from '../../../../shared/src/models/RdfElement';
 
 
 @Component({
@@ -50,8 +52,8 @@ export class GraphVisualizationComponent implements AfterViewInit {
 
     constructor(
         private route: ActivatedRoute,
-        private nodeCreatorService: NodeCreatorService,
-        private moduleService: ModuleService
+        private moduleService: ModuleService,
+        private queryService: QueryService
     ) {}
 
     @ViewChild('g') svgContainer: ElementRef;
@@ -321,13 +323,40 @@ export class GraphVisualizationComponent implements AfterViewInit {
      * Doubleclick function, executed on every doubleclick on a node
      *@param d The clicked node
     */
-    nodeDoubleClick = (e: MouseEvent, d: D3Node)=> {
-        const nodeId = "id";
-        const testNode = new D3Node(nodeId , nodeId.substring(0,4), NodeType.Skill);
-        const testLink = new D3Link(d, testNode, "test");
-        this.data.links.push(testLink);
-        this.data.nodes.push(testNode);
-        this.updateSimulation();
+    nodeDoubleClick = (e: MouseEvent, d: D3Node): void => {
+        this.queryService.getNeighbors(d.id).subscribe(neighborData => {
+            const numberOfNeighbors = neighborData.length;
+            const distance = 15;
+            neighborData.forEach(nD => {
+                let i = 0;
+                const angle = (360/numberOfNeighbors * i) * (Math.PI/180);
+                const source = new RdfElement(nD.source);
+                const relation = new RdfElement(nD.relation);
+                const target = new RdfElement(nD.target);
+
+                let sourceNode = this.data.getNodeById(source.iri);
+                if (!sourceNode) {
+                    const x = d.x + Math.cos(angle) * distance;
+                    const y = d.y + Math.sin(angle) * distance;
+                    sourceNode = new D3Node(source.iri, source.getLocalName(), NodeType.None, x, y);
+                    this.data.addNodes([sourceNode]);
+                }
+
+                let targetNode = this.data.getNodeById(target.iri);
+                if (!targetNode) {
+                    const x = d.x = Math.cos(angle) * distance;
+                    const y = d.y = Math.sin(angle) * distance;
+                    targetNode = new D3Node(target.iri, target.getLocalName(), NodeType.None, x, y);
+                    this.data.addNodes([targetNode]);
+                }
+
+                const link = new D3Link(sourceNode, targetNode, relation.getLocalName());
+                this.data.addLinks([link]);
+                i++;
+            });
+
+            this.updateSimulation();
+        });
     }
 
     /** Returns the color of the inner circle of a node */
