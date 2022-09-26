@@ -7,7 +7,8 @@ import * as d3ScaleChromatic from'd3-scale-chromatic';
 import * as d3Drag from'd3-drag';
 import { ActivatedRoute } from '@angular/router';
 import { NodeCreatorService } from './node-creator.service';
-import { D3Link, D3Node, NodeType } from './D3GraphData';
+import { D3GraphData, D3Link, D3Node, NodeType } from './D3GraphData';
+import { ModuleService } from '../../shared/services/module.service';
 
 
 @Component({
@@ -30,10 +31,7 @@ export class GraphVisualizationComponent implements AfterViewInit {
     linkTexts: any; // The linkTexts of the simulation
 
     /** Loaded data: Connected modules with their capabilities and skills*/
-    data: {
-        links: D3Link[];
-        nodes: D3Node[];
-    };
+    data: D3GraphData;
 
     color: any;     // Contains scale of colors
 
@@ -52,24 +50,25 @@ export class GraphVisualizationComponent implements AfterViewInit {
 
     constructor(
         private route: ActivatedRoute,
-        private nodeCreatorService: NodeCreatorService
+        private nodeCreatorService: NodeCreatorService,
+        private moduleService: ModuleService
     ) {}
 
     @ViewChild('g') svgContainer: ElementRef;
     svgHeight = 100;
     svgWidth = 200;
-    moduleName: string;
+    moduleIri: string;
 
     ngAfterViewInit(): void {
         this.svgWidth = this.svgContainer.nativeElement.offsetWidth;
         this.svgHeight = this.svgContainer.nativeElement.offsetHeight;
-        console.log(this.svgWidth);
-        console.log(this.svgHeight);
         this.route.params.subscribe(p => {
-            this.moduleName = p['moduleName'];
+            this.moduleIri = p['moduleName'];
         });
-        // this.data = this.nodeCreatorService.getAllNodes(this.moduleName); // load data created by node-creator.service
-        this.nodeCreatorService.getAllNodes().subscribe(data => {
+
+        this.moduleService.getAllModules().subscribe(modules => {
+            const data = new D3GraphData();
+            modules.forEach(module => data.addData(module.toD3GraphData()));
             this.data = data;
             this.setSvg();
             this.setSimulation();

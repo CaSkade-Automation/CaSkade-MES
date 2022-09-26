@@ -1,5 +1,6 @@
 import { Component, ModuleInterface, ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
 import { RdfElement } from "@shared/models/RdfElement";
+import { D3GraphData, D3ModuleNode } from "../../modules/graph-visualization/D3GraphData";
 import { Capability } from "./Capability";
 import { Skill } from "./Skill";
 
@@ -33,5 +34,13 @@ export class ProductionModule extends RdfElement{
             capabilities.push(...skill.relatedCapabilities);
         });
         return capabilities;
+    }
+
+    toD3GraphData(): D3GraphData {
+        const data = new D3GraphData();
+        const moduleNode = new D3ModuleNode(this.iri,this.getLocalName());
+        data.nodes.push(moduleNode);
+
+        return data;
     }
 }

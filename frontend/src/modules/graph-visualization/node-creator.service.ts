@@ -14,8 +14,6 @@ export class NodeCreatorService {
     ) {}
 
     getAllNodes(): Observable<{links: D3Link[]; nodes: D3Node[] }> {
-        console.log("getting all nodes");
-
         // const receivedData = await (lastValueFrom(this.moduleService.getAllModules()));
         const $receivedData$ = this.moduleService.getAllModules();
 
