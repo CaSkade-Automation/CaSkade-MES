@@ -67,7 +67,10 @@ export class D3Link implements d3Force.SimulationLinkDatum<D3Node> {
 
 
 export class D3GraphData {
-    constructor(private nodes: D3Node[] = [], private links: D3Link[] = []) { }
+    constructor(
+        public nodes: D3Node[] = [],
+        public links: D3Link[] = [])
+    { }
 
     addNode(node: D3Node): void {
         this.nodes.push(node);
@@ -77,8 +80,10 @@ export class D3GraphData {
         this.links.push(link);
     }
 
-    getNodes(): D3Node[] {return this.nodes;}
-    getLinks(): D3Link[] {return this.links;}
+    addData(data: D3GraphData): void {
+        data.nodes.forEach(node => this.addNode(node));
+        data.links.forEach(link => this.addLink(link));
+    }
 
     getNodesById(id: string): D3Node[] {
         return this.nodes.filter(node => node.id == id);
@@ -91,8 +96,8 @@ export class D3GraphData {
 
     // Adds another D3GraphData object to the current one
     appendAndConnectData(data: D3GraphData, idToConnectTo: string, nodeType: NodeType, connectionType: string): void {
-        const newNodes = data.getNodes();
-        const newLinks = data.getLinks();
+        const newNodes = data.nodes;
+        const newLinks = data.links;
         // Add the new data
         newNodes.forEach(newNode => this.addNode(newNode));
         newLinks.forEach(newLink => this.addLink(newLink));
