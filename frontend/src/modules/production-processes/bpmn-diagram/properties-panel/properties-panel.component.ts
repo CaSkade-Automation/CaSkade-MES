@@ -63,15 +63,13 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
     dataModel: BpmnDataModel;
     shown = true;     // Defines the state of the panel (shown or hidden)
 
-    form: FormGroup;
+    form = new FormGroup({});
 
     constructor(
         private extensionElementService: BpmnExtensionElementService,
         private modelService: BpmnModelService,
         private connectorService: CamundaMailService
-    ) {
-        this.form = new FormGroup({});
-    }
+    ) {}
 
     ngOnInit(): void {
         this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));

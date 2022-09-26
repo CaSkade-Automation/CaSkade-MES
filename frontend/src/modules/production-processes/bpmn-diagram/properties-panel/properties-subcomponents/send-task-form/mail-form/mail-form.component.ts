@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { CamundaMailConnectorFunction, CamundaMailService } from '../../../bpmn-mail.service';
+import { CamundaMailConnectorFunction, CamundaMailEntry, CamundaMailService } from '../../../bpmn-mail.service';
 
 @Component({
     selector: 'mail-form',
@@ -31,7 +31,7 @@ export class MailFormComponent implements OnInit {
     }
 
     submit(): void {
-        this.bpmnMailElementService.addMailEntry(this.bpmnElement, CamundaMailConnectorFunction['mail-send'], this.mailFg.value);
+        this.bpmnMailElementService.addMailEntry(this.bpmnElement, CamundaMailConnectorFunction['mail-send'], this.mailFg.value as CamundaMailEntry);
     }
 
 }

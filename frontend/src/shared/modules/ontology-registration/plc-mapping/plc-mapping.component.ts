@@ -10,6 +10,7 @@ import { PlcMappingService } from 'src/shared/services/plc-mapping.service';
 export class PlcMappingComponent implements OnInit {
 
     addedFile: File;
+    changed = false;
     endpointUrl: string;
     nodeIdRoot: string;
 

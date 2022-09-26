@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute } from "@angular/router";
 import { FormBuilder,  FormArray } from '@angular/forms';
 import { OrderQueryService } from '../order-query-service';
 
@@ -11,80 +9,80 @@ import { OrderQueryService } from '../order-query-service';
 })
 export class NewOrderComponent implements OnInit {
 
-  // TODO: Get real properties from the graph db
-  restrictionProperties: string[] = ["Material", "Tolerance"];
+    // TODO: Get real properties from the graph db
+    restrictionProperties: string[] = ["Material", "Tolerance"];
 
-  processes: string[];
+    processes: string[];
 
-  selectedFiles=new Array<File>();
-  logicInterpretations = ["<", "<=", "=", "=>", ">"];
+    selectedFiles=new Array<File>();
+    logicInterpretations = ["<", "<=", "=", "=>", ">"];
 
-  orderInquiryForm = this.fb.group({
-      name: [''],
-      company : [''],
-      eMail: [''],
-      selectedRestrictions: this.fb.array([
-          this.fb.group({
-              propertyType: [''],
-              logicInterpretation: [''],
-              value: ['']
-          })
-      ])
-  })
-
-
-  constructor(private fb: FormBuilder, private orderQueryService: OrderQueryService) { }
-
-  ngOnInit() {
-      this.orderQueryService.getAllManufacturingProcesses().subscribe(data => {
-          this.processes = data;
-      });
-  }
+    orderInquiryForm = this.fb.group({
+        name: [''],
+        company : [''],
+        eMail: [''],
+        selectedRestrictions: this.fb.array([
+            this.fb.group({
+                propertyType: [''],
+                logicInterpretation: [''],
+                value: ['']
+            })
+        ])
+    })
 
 
-  onFilesSelected(event) {
-      // add the selected files to the list of files to upload
-      for (let i = 0; i < event.target.files.length; i++) {
-          this.selectedFiles.push(event.target.files[i]);
-      }
-  }
+    constructor(private fb: FormBuilder, private orderQueryService: OrderQueryService) { }
 
-  onSubmit(){
-
+    ngOnInit() {
+        this.orderQueryService.getAllManufacturingProcesses().subscribe(data => {
+            this.processes = data;
+        });
+    }
 
 
-      // const fd = new FormData();
-      // this.selectedFiles.forEach(file => {
-      //   fd.append('part', file, file.name);
-      // });
-      // this.httpClient.post('/api/order-management/upload', fd)
-      //   .subscribe(res => {
-      //     this.router.navigate(['../upload-summary'], {relativeTo: this.route})
-      // })
-  }
+    onFilesSelected(event) {
+        // add the selected files to the list of files to upload
+        for (let i = 0; i < event.target.files.length; i++) {
+            this.selectedFiles.push(event.target.files[i]);
+        }
+    }
 
-  deleteFile(index: number) {
-      this.selectedFiles.splice(index, 1);
-  }
+    onSubmit(){
 
 
-  get selectedRestrictions() {
-      return this.orderInquiryForm.get('selectedRestrictions') as FormArray;
-  }
 
-  addRestriction(){
-      this.selectedRestrictions.push(
-          this.fb.group({
-              propertyType: [''],
-              logicInterpretation: [''],
-              value: ['']
-          })
-      );
-  }
+        // const fd = new FormData();
+        // this.selectedFiles.forEach(file => {
+        //   fd.append('part', file, file.name);
+        // });
+        // this.httpClient.post('/api/order-management/upload', fd)
+        //   .subscribe(res => {
+        //     this.router.navigate(['../upload-summary'], {relativeTo: this.route})
+        // })
+    }
 
-  removeRestriction(i: number) {
-      this.selectedRestrictions.removeAt(i);
-  }
+    deleteFile(index: number) {
+        this.selectedFiles.splice(index, 1);
+    }
+
+
+    get selectedRestrictions() {
+        return this.orderInquiryForm.get('selectedRestrictions') as FormArray;
+    }
+
+    addRestriction(){
+        this.selectedRestrictions.push(
+            this.fb.group({
+                propertyType: [''],
+                logicInterpretation: [''],
+                value: ['']
+            })
+        );
+    }
+
+    removeRestriction(i: number) {
+        this.selectedRestrictions.removeAt(i);
+    }
 
 }
 

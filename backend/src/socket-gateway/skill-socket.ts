@@ -1,5 +1,5 @@
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer} from '@nestjs/websockets';
-import { SocketMessageType, StateChangeInfo } from "@shared/socket-communication/SocketData";
+import { SocketMessageType, StateChangeInfo } from "@shared/models/socket-communication/SocketData";
 import { Websocket } from './Websocket';
 import { Server } from "ws";
 import { Injectable } from '@nestjs/common';

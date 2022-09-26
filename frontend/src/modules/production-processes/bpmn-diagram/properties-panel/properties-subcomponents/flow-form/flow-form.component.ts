@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { Form, FormControl, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 import { BpmnProperty } from '../../../BpmnDataModel';
 import { BpmnExtensionElementService, CamundaOutputParameter } from '../../bpmn-extension-element.service';
@@ -13,7 +13,9 @@ import { BpmnModelService } from '../../bpmn-model.service';
 export class FlowFormComponent implements OnInit {
 
     @Input() bpmnElement;
-    fg: FormGroup;
+    fg: FormGroup<{
+        condition: FormControl<string>;
+    }>;
     existingOutputs: Array<CamundaOutputParameter>
 
     constructor(

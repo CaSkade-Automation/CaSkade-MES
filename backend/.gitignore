@@ -2,6 +2,13 @@
 /dist
 /tmp
 /out-tsc
+
+# TypeScript incremental compilation cache
+*.tsbuildinfo
+
+# compiled frontend
+/frontend-dist
+
 # Only exists if Bazel was run
 /bazel-out
 

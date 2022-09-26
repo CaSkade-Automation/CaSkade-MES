@@ -67,43 +67,35 @@ export class D3Link implements d3Force.SimulationLinkDatum<D3Node> {
 
 
 export class D3GraphData {
-    constructor(private nodes: D3Node[] = [], private links: D3Link[] = []) { }
+    constructor(
+        public nodes: D3Node[] = [],
+        public links: D3Link[] = [])
+    { }
 
-    addNode(node: D3Node): void {
-        this.nodes.push(node);
+    addNodes(nodes: D3Node[]): void {
+        this.nodes.push(...nodes);
     }
 
-    addLink(link: D3Link): void {
-        this.links.push(link);
+    addLinks(links: D3Link[]): void {
+        this.links.push(...links);
     }
 
-    getNodes(): D3Node[] {return this.nodes;}
-    getLinks(): D3Link[] {return this.links;}
+    addData(data: D3GraphData): void {
+        this.addNodes(data.nodes);
+        this.addLinks(data.links);
+    }
 
-    getNodesById(id: string): D3Node[] {
-        return this.nodes.filter(node => node.id == id);
+    getNodeById(id: string): D3Node {
+        return this.nodes.find(node => node.id == id);
     }
 
     getNodesByNodeTyp(type: string): D3Node[] {
         return this.nodes.filter(node => node.type === type);
     }
 
+}
 
-    // Adds another D3GraphData object to the current one
-    appendAndConnectData(data: D3GraphData, idToConnectTo: string, nodeType: NodeType, connectionType: string): void {
-        const newNodes = data.getNodes();
-        const newLinks = data.getLinks();
-        // Add the new data
-        newNodes.forEach(newNode => this.addNode(newNode));
-        newLinks.forEach(newLink => this.addLink(newLink));
-        // Connect with existing nodes
-        const oldNodesToConnect = this.getNodesById(idToConnectTo);
-        const newNodesToConnect = this.getNodesByNodeTyp(nodeType);
 
-        oldNodesToConnect.forEach(oldNode => {
-            newNodesToConnect.forEach(newNode => {
-                this.addLink(new D3Link(oldNode, newNode, connectionType));
-            });
-        });
-    }
+export interface D3Serializable {
+    toD3GraphData(): D3GraphData;
 }

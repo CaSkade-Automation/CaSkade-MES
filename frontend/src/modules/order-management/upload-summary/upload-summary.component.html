@@ -1,38 +1,39 @@
 <h3 class="mb-3">Summary of your inquiry</h3>
 <div class="row">
-  <div class="col-sm-6">
+    <div class="col-sm-6">
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">File name</th>
-          <th scope="col">File size</th>
-          <th scope="col">Furher info</th>
-          <th scope="col">Check Producibility</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let file of files; index as i" [ngClass]="{'table-info':file.rowSelected}" (click)="selectRow(i)">
-          <th scope="row">{{i+1}}</th>
-          <td>{{file.name}}</td>
-          <td>{{file.size}}</td>
-          <td>some further info</td>
-          <td><input type="checkbox" [checked]="file.checked" (change)="file.checked = !file.checked"></td>
-        </tr>
-      </tbody>
-    </table>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">File name</th>
+                    <th scope="col">File size</th>
+                    <th scope="col">Furher info</th>
+                    <th scope="col">Check Producibility</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let file of files; index as i" [ngClass]="{'table-info':file.rowSelected}"
+                    (click)="selectRow(i)">
+                    <th scope="row">{{i+1}}</th>
+                    <td>{{file.name}}</td>
+                    <td>{{file.size}}</td>
+                    <td>some further info</td>
+                    <td><input type="checkbox" [checked]="file.checked" (change)="file.checked = !file.checked"></td>
+                </tr>
+            </tbody>
+        </table>
 
-  </div>
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-header">
-        Preview
-      </div>
-      <div class="card-body" style="min-height: 400px">
-            {{this.selectedFile?.name}}
-      </div>
     </div>
-  </div>
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-header">
+                Preview
+            </div>
+            <div class="card-body" style="min-height: 400px">
+                {{this.selectedFile?.name}}
+            </div>
+        </div>
+    </div>
 </div>
 <button class="btn btn-primary" (click)="nextTab()">Check Producibility</button>

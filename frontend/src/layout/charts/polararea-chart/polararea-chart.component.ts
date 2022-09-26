@@ -23,4 +23,12 @@ export class PolarAreaChartComponent {
 
     public polarAreaChartType: ChartType = 'polarArea';
 
+    chartHovered(event: MouseEvent): void {
+        // Do something on hover
+    }
+
+    chartClicked(event: MouseEvent): void {
+        // Do something on click
+    }
+
 }

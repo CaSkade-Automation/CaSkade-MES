@@ -1,6 +1,6 @@
 import { AfterContentInit, Component, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ProcessDefinition } from '../../../models/processDefinition/ProcessDefinition';
+import { ProcessDefinition } from '@shared/models/processDefinition/ProcessDefinition';
 import { DeploymentRequest, DeploymentService } from '../../shared/services/bpmn/deployment.service';
 import { ProcessDefinitionService } from '../../shared/services/bpmn/process-definition.service';
 import { MessageService } from '../../shared/services/message.service';
@@ -14,7 +14,7 @@ import { BpmnDiagramComponent } from './bpmn-diagram/bpmn-modeler.component';
 export class ProductionProcessesComponent implements AfterContentInit{
     uploadedFile: Blob;
     importError?: Error;
-    processDefinitions: ProcessDefinition[]
+    processDefinitions = new Array<ProcessDefinition>();
     bpmnXml: string;
     previewXml = "";
 
@@ -26,7 +26,7 @@ export class ProductionProcessesComponent implements AfterContentInit{
 
     @ViewChild('modelerComponent') modelerComponent: BpmnDiagramComponent;
 
-    processSelector = new FormControl("");
+    processSelector = new FormControl<ProcessDefinition>(this.processDefinitions[0]);
     selectedProcessDefinition: ProcessDefinition;
 
     constructor(

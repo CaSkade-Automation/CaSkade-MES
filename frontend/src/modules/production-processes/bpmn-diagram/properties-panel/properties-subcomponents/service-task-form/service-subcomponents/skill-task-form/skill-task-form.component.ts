@@ -83,7 +83,7 @@ export class SkillTaskFormComponent implements OnInit {
         }
 
         this.fg.controls.skillIri.setValue(this.selectedSkill.iri);
-        this.fg.controls.commandTypeIri.setValue(commandTypeIri);
+        this.fg.controls.commandTypeIri.setValue(Isa88CommandTypeIri[commandTypeIri]);
         this.fg.controls.selfResetting.setValue(selfResetting);
 
         // Make sure parameter form matches skill and that outputs of skill are added as task outputs

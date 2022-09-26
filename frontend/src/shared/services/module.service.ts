@@ -3,8 +3,6 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Observable,  Observer } from "rxjs";
 import { ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
 import { map,  take } from 'rxjs/operators';
-import { CapabilityService } from "./capability.service";
-import { SocketMessageType } from "@shared/socket-communication/SocketData";
 import { ModuleSocketService } from "./sockets/module-socket.service";
 import { ProductionModule } from "../models/ProductionModule";
 
@@ -18,7 +16,6 @@ export class    ModuleService {
 
     constructor(
         private http: HttpClient,
-        private capabilityService: CapabilityService,
         private moduleSocket: ModuleSocketService) { }
 
     /**
@@ -41,14 +38,6 @@ export class    ModuleService {
         });
         return this.createObservable();
     }
-
-    // addNewModules(oldModules: ProductionModule[], newModules: ProductionModule[]): ProductionModule[] {
-    //     newModules.forEach(module => {
-    //         if (!oldModules.some(currentModule => currentModule.iri == module.iri)) {
-    //             this.modules.push(module);
-    //         }
-    //     });
-    // }
 
     /**
      * Loads all modules from GraphDB with an HTTP Rest
@@ -76,7 +65,7 @@ export class    ModuleService {
      * @param moduleIri IRI of the module to return
      */
     getModuleByIri(moduleIri: string): Observable<ProductionModule> {
-        const encodedModuleIri = encodeURI(moduleIri);
+        const encodedModuleIri = encodeURIComponent(moduleIri);
         const apiURL = `${this.apiRoot}/modules/${encodedModuleIri}`;
         return this.http.get<ProductionModuleDto>(apiURL).pipe(
             map((data: ProductionModuleDto) => new ProductionModule(data))

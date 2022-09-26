@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {SparqlResultConverter} from "sparql-result-converter";
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
-import { SocketMessageType } from '@shared/socket-communication/SocketData';
+import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
 import { PropertyService } from '../properties/property.service';
 
 const converter = new SparqlResultConverter();
@@ -32,7 +32,7 @@ export class CapabilityService {
             this.capabilitySocket.sendMessage(SocketMessageType.Added);
             return 'New capability successfully added';
         } catch (error) {
-            throw new BadRequestException(`Error while registering a new capability. Error: ${error.tostring()}`);
+            throw new BadRequestException(`Error while registering a new capability. Error: ${error}`);
         }
     }
 

@@ -2,7 +2,14 @@
 /dist
 /tmp
 /out-tsc
+<<<<<<< HEAD
 *.tsbuildinfo
+=======
+
+# TypeScript incremental compilation cache
+*.tsbuildinfo
+
+>>>>>>> 44fc3a9 (Adds .tsbuildinfo)
 # Only exists if Bazel was run
 /bazel-out
 

@@ -13,7 +13,7 @@ async function bootstrap(): Promise<void> {
     app.useWebSocketAdapter(new WsAdapter(app));
 
     app.setGlobalPrefix('api');
-    await app.listen(port);
+    await app.listen(process.env.PORT || port);
     const broadcastListener = new BroadcastListener();
     logger.log(`Backend now listening on port ${port}`);
 }

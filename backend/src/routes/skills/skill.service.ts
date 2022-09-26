@@ -11,7 +11,7 @@ import { CapabilityService } from '../capabilities/capability.service';
 import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
 import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
 import { OpcUaStateMonitorService } from '../../util/opc-ua-state-monitor.service';
-import { SocketMessageType } from '@shared/socket-communication/SocketData';
+import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
 const converter = new SparqlResultConverter();
 
 @Injectable()

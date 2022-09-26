@@ -52,7 +52,7 @@ export class GraphDbSettingsComponent implements OnInit{
         });
     }
 
-    changeRepository(newRepoId) {
+    changeRepository(newRepoId): void {
         this.repoService.changeRepository(newRepoId).pipe(take(1)).subscribe(res => console.log(res));
     }
 
