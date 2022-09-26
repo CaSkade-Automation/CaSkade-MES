@@ -65,7 +65,7 @@ export class    ModuleService {
      * @param moduleIri IRI of the module to return
      */
     getModuleByIri(moduleIri: string): Observable<ProductionModule> {
-        const encodedModuleIri = encodeURI(moduleIri);
+        const encodedModuleIri = encodeURIComponent(moduleIri);
         const apiURL = `${this.apiRoot}/modules/${encodedModuleIri}`;
         return this.http.get<ProductionModuleDto>(apiURL).pipe(
             map((data: ProductionModuleDto) => new ProductionModule(data))

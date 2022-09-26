@@ -94,3 +94,8 @@ export class D3GraphData {
     }
 
 }
+
+
+export interface D3Serializable {
+    toD3GraphData(): D3GraphData;
+}
