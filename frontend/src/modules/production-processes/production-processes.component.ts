@@ -14,7 +14,7 @@ import { BpmnDiagramComponent } from './bpmn-diagram/bpmn-modeler.component';
 export class ProductionProcessesComponent implements AfterContentInit{
     uploadedFile: Blob;
     importError?: Error;
-    processDefinitions: ProcessDefinition[]
+    processDefinitions = new Array<ProcessDefinition>();
     bpmnXml: string;
     previewXml = "";
 
@@ -26,7 +26,7 @@ export class ProductionProcessesComponent implements AfterContentInit{
 
     @ViewChild('modelerComponent') modelerComponent: BpmnDiagramComponent;
 
-    processSelector = new FormControl<ProcessDefinition>(null);
+    processSelector = new FormControl<ProcessDefinition>(this.processDefinitions[0]);
     selectedProcessDefinition: ProcessDefinition;
 
     constructor(
