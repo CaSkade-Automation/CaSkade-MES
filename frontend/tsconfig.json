@@ -2,22 +2,22 @@
     "extends": "../tsconfig.base.json",
     "compileOnSave": false,
     "compilerOptions": {
-        "outDir": "./dist/out-tsc",
-        "rootDirs": [".", "../shared"],
+        "outDir": "./dist",
+        // "rootDirs": [".", "../shared"],
         "baseUrl": "./",
         "sourceMap": true,
 		"declaration": false,
         "moduleResolution": "node",
         "resolveJsonModule": true,
         "module": "esnext",
-        "target": "es2015",
+        "target": "es2020",
         "lib": [
             "es2018",
             "dom"
         ],
         "paths": {
             "@shared/*": [
-                "../shared/*"
+                "../shared/dist/*"
             ]
         },
     },

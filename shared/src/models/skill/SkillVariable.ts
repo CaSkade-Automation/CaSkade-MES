@@ -9,12 +9,12 @@ export class SkillVariable extends RdfElement {
     optionValues? = new Array<any>();
 
     constructor(paramDto?: SkillVariableDto) {
-        super(paramDto.iri)
+        super(paramDto.iri);
         this.name = paramDto.name;
         this.type = paramDto.type;
         this.required = paramDto.required;
         this.default = paramDto.default;
-        this.value = paramDto.value
+        this.value = paramDto.value;
         this.optionValues = paramDto.optionValues;
     }
 
@@ -26,7 +26,7 @@ export class SkillVariable extends RdfElement {
                 queryResult.parameterType,
                 queryResult.parameterRequired,
                 queryResult.parameterDefault,
-                queryResult.parameterOptionValues))
+                queryResult.parameterOptionValues));
     }
 
     toSkillVariableDto(): SkillVariableDto {

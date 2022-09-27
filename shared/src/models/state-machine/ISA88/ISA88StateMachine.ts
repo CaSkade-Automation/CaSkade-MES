@@ -25,6 +25,6 @@ export class Isa88StateMachine extends StateMachine {
 
     setStates(states: State[]): void {
         this.states = states;
-    };
+    }
 
 }

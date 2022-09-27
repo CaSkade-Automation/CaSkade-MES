@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CapabilityDto } from '@shared/models/capability/Capability';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { SkillService } from './skill.service';
 import { Capability } from '../models/Capability';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class CapabilityService {
-    apiRoot = "/api";
+    apiRoot = `${environment.settings.backendUrl}/api`;
 
     constructor(
         private http: HttpClient,
@@ -22,6 +23,10 @@ export class CapabilityService {
      * Returns all capabilities that are currently registered
      */
     getAllCapabilities(): Observable<Capability[]> {
+        console.log("getting all caps");
+        console.log("goes to:" + this.apiRoot);
+
+
         const apiURL = `${this.apiRoot}/capabilities`;
         return this.http.get<CapabilityDto[]>(apiURL).pipe(
             map((data: CapabilityDto[]) => data.map(capabilityDto => new Capability(capabilityDto))
@@ -55,7 +60,8 @@ export class CapabilityService {
 
     addCapability(ontologyString: string): Observable<Record<string, any>> {
         const apiURL = `${this.apiRoot}/capabilities`;
-        return this.http.post<CapabilityDto>(apiURL, ontologyString);
+        const headers = new HttpHeaders({"content-type": "text/turtle"});
+        return this.http.post<CapabilityDto>(apiURL, ontologyString, {headers: headers});
     }
 
     addMtpCapability(ontologyFile: File): Observable<File>{

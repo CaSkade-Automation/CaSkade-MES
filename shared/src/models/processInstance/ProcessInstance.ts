@@ -1,5 +1,5 @@
 export class ProcessInstanceDto {
-        constructor(
+    constructor(
             public links: Array<string>,
             public id: string,
             public definitionId: string,
@@ -34,7 +34,7 @@ export class ProcessInstance {
         if(!dto.suspended && !dto.ended) {
             this.state = ProcessInstanceState.active;
         }
-        if(dto.suspended) this.state = ProcessInstanceState.suspended
+        if(dto.suspended) this.state = ProcessInstanceState.suspended;
         if(dto.ended) this.state = ProcessInstanceState.ended;
     }
 

@@ -10,7 +10,7 @@ export class Transition extends RdfElement {
      * Further shortens the name by stripping off "command" etc.
      */
     getShortName() {
-        const localName = this.getLocalName()
+        const localName = this.getLocalName();
         return localName.split("_")[0];
     }
 }

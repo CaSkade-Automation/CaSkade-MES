@@ -1,0 +1,9 @@
+Dockerfile
+.dockerignore
+docker-compose.yml
+.vscode/
+frontend/node_modules
+backend/node_modules
+frontend/npm-debug.log
+backend/npm-debug.log
+dist

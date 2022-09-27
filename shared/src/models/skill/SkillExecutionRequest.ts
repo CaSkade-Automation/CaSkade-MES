@@ -12,6 +12,6 @@ export class SkillExecutionRequestDto {
         public commandTypeIri: string,
         parameterDtos: SkillVariableDto[] = [],
         public selfResetting:boolean=false){
-            this.parameters = parameterDtos.map(paramDto => new SkillVariable(paramDto));
+        this.parameters = parameterDtos.map(paramDto => new SkillVariable(paramDto));
     }
 }

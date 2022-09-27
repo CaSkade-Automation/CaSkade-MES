@@ -17,7 +17,7 @@ const routes: Routes = [
         children: [
             {path: '', redirectTo: 'overview', pathMatch: 'full'},
             {path: 'overview', component: ModuleOverviewComponent},
-            {path: 'graph-visualization', component: ModuleGraphVisuComponent},
+            // {path: 'graph-visualization', component: ModuleGraphVisuComponent},  // Note that graph visu is passed to the graph visu module
             {path: 'register', component: ModuleRegistrationComponent},
         ]
     }

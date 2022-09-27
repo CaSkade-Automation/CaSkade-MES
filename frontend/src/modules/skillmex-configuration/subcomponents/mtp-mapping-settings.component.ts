@@ -7,7 +7,6 @@ import {MappingServiceConfig} from '@shared/models/mappings/MappingServiceConfig
     selector: 'mtp-mapping-settings',
     templateUrl: './mtp-mapping-settings.component.html',
 })
-
 export class MtpMappingSettingsComponent implements OnInit{
 
     url = "asd";

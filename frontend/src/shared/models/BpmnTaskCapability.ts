@@ -1,4 +1,4 @@
-import { PropertyDTO } from "../../../models/properties/PropertyDTO";
+import { PropertyDTO } from "@shared/models/properties/PropertyDTO";
 import { Property } from "./Property";
 
 /**

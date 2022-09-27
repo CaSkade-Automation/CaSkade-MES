@@ -10,8 +10,18 @@ import { MtpMappingSettingsComponent } from './subcomponents/mtp-mapping-setting
 
 
 @NgModule({
-    imports: [CommonModule, FormsModule, SkillmexConfigurationRoutingModule],
-    declarations: [SkillMexConfigurationComponent, GraphDbSettingsComponent, MtpMappingSettingsComponent],
-    providers:[GraphDbRepoService]
+    imports: [
+        CommonModule,
+        FormsModule,
+        SkillmexConfigurationRoutingModule
+    ],
+    declarations: [
+        SkillMexConfigurationComponent,
+        MtpMappingSettingsComponent,
+        GraphDbSettingsComponent
+    ],
+    providers:[
+        GraphDbRepoService
+    ]
 })
 export class SkillMexConfigurationModule {}

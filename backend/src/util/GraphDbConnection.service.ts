@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import Axios from "axios";
 
 @Injectable()
@@ -6,8 +7,10 @@ export class GraphDbConnectionService {
 
     config: GraphDbConfig;
 
-    constructor() {
-        const host = "http://localhost:7200";
+    constructor(
+        private configService: ConfigService,
+    ) {
+        const host = this.configService.get("graphDbUrl");
         const user = "skillmex";
         const password = "skillmex";
         const selectedRepo = "test-repo";
