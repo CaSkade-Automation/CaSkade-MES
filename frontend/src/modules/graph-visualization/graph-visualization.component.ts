@@ -40,6 +40,7 @@ export class GraphVisualizationComponent implements AfterViewInit {
     /**Simulation of the force directed graph */
     simulation: d3Force.Simulation<D3Node, D3Link>;
 
+    relationInfo = new Array<string>();
 
     // margin = { top: 10, right: 30, bottom: 30, left: 40 };
     margin = 5;
@@ -169,11 +170,22 @@ export class GraphVisualizationComponent implements AfterViewInit {
         this.linkTexts = this.linksContainer.selectAll('.linkTexts')
             .data(this.data.links);
 
-        const linkTextsEnter = this.linkTexts.enter().append('text')
+        const linkTextsEnter = this.linkTexts.enter()
+            .append('text')
             .attr("class", "linkTexts")
-            // .data(this.data.links, function (l: D3Link){return `${l.source.id}_${l.target.id}`;})
             .attr("font-weight", "normal")
-            .text((d) => d.type); // get text from data
+            .text((l: D3Link) => {
+                const sameLinks = this.data.links.filter(link => (link.source == l.source && link.target == l.target));
+                if (sameLinks.length > 1) {
+                    return `${sameLinks.length} Relations`;
+                } else {
+                    return l.type;
+                }
+            })
+            .on("click", (e: Event, l: D3Link) => {
+                const sameLinks = this.data.links.filter(link => (link.source == l.source && link.target == l.target));
+                this.relationInfo = sameLinks.map(l => `${l.type}`);
+            });
 
         this.linkTexts = this.linkTexts.merge(linkTextsEnter);
         this.linkTexts.exit().remove();
@@ -218,18 +230,18 @@ export class GraphVisualizationComponent implements AfterViewInit {
 
         this.linkTexts
             .attr("dx", (l: D3Link) => {  // restrictions for link text positions in the svg
-                const midX = (l.target.x + l.source.x) / 2 - 10;
-                return  midX;
+                const {offsetX} = this.getLinkOffsets(l);
+                return  offsetX;
             })
             .attr("dy", (l: D3Link) => {
-                const midY = (l.target.y + l.source.y) / 2;
-                return  midY;
+                const {offsetY} = this.getLinkOffsets(l);
+                return  offsetY;
             });
 
     }
 
-    private positionLinks(l: D3Link) {
-        const offset = 30;
+    private getLinkOffsets(l: D3Link): {offsetX: number; offsetY: number} {
+        const offsetBase = 30;
 
         const midpointX = (l.source.x + l.target.x) / 2;
         const midpointY = (l.source.y + l.target.y) / 2;
@@ -238,11 +250,18 @@ export class GraphVisualizationComponent implements AfterViewInit {
         const dy = (l.target.y - l.source.y);
 
         const normalise = Math.sqrt((dx * dx) + (dy * dy));
-        const offSetX = midpointX + offset*(dy/normalise);
-        const offSetY = midpointY - offset*(dx/normalise);
+        const offset = {
+            offsetX: midpointX + offsetBase*(dy/normalise),
+            offsetY: midpointY - offsetBase*(dx/normalise)
+        };
+        return offset;
+    }
+
+    private positionLinks(l: D3Link) {
+        const {offsetX, offsetY} = this.getLinkOffsets(l);
 
         return "M" + l.source.x + "," + l.source.y +
-                "S" + offSetX + "," + offSetY +
+                "S" + offsetX + "," + offsetY +
                 " " + l.target.x + "," + l.target.y;
     }
 

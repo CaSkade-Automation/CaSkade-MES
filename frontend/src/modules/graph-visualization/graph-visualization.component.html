@@ -1,7 +1,15 @@
 <h1>
 Graph-Visualization
 </h1>
-<div #g class="svgContainer">
-    <svg id="graph">
-    </svg>
+<div class="row">
+    <div #g class="col-9 svgContainer">
+        <svg id="graph">
+        </svg>
+    </div>
+    <div class="col-3">
+        <h4>{{this.relationInfo.length}} Relations</h4>
+        <ul>
+            <li *ngFor="let info of this.relationInfo">{{info}}</li>
+        </ul>
+    </div>
 </div>
