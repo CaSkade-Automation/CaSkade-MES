@@ -3,7 +3,7 @@ import { SkillVariableDto } from './SkillVariable';
 
 export class SkillDto {
     skillIri: string;
-    capabilityDtos: CapabilityDto[];
+    capabilityIris: string[];
     skillParameterDtos?: SkillVariableDto[];
     skillOutputsDtos?: SkillVariableDto[];
     stateMachineIri: string;

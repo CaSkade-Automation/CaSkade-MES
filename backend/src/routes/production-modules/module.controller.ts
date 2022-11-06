@@ -32,7 +32,7 @@ export class ModuleController {
      */
     @Get()
     async getAllModules(): Promise<Array<ProductionModuleDto>> {
-        return this.moduleService.getAllModulesWithSkills();
+        return this.moduleService.getModules();
     }
 
     /**
@@ -63,7 +63,10 @@ export class ModuleController {
      * @param contentType Encoding of the rdf document
      */
     @Post(':moduleIri/skills')
-    addModuleSkill(@Param('moduleIri') moduleIri: string, @StringBody() newSkill: string, @Headers("Content-Type") contentType?: string): Promise<string> {
+    addModuleSkill(
+        @Param('moduleIri') moduleIri: string,
+        @StringBody() newSkill: string,
+        @Headers("Content-Type") contentType?: string): Promise<string> {
         // TODO: Make sure that the skill is registered with the given module. This is currently not checked
         return this.skillService.addSkill(newSkill, contentType);
     }

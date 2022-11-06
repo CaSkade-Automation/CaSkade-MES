@@ -3,6 +3,8 @@ import { SkillDto } from "@shared/models/skill/Skill";
 import { SkillVariable } from "@shared/models/skill/SkillVariable";
 import { Isa88StateMachineBuilder } from "@shared/models/state-machine/ISA88/ISA88StateMachineBuilder";
 import { StateMachine } from "@shared/models/state-machine/StateMachine";
+import { CapabilityService } from "../services/capability.service";
+import { ServiceLocator } from "../services/service-locator.service";
 import { Capability } from "./Capability";
 
 export class Skill extends RdfElement{
@@ -11,12 +13,16 @@ export class Skill extends RdfElement{
     public skillParameters = new Array<SkillVariable>();
     public skillOutputs = new Array<SkillVariable>();
 
+    private capabilityService = ServiceLocator.injector.get(CapabilityService);
+
     constructor(skillDto: SkillDto) {
         super(skillDto.skillIri);
         this.stateMachine = Isa88StateMachineBuilder.buildDefault(skillDto.stateMachineIri, skillDto.currentStateTypeIri);
 
-        if(skillDto.capabilityDtos) {
-            this.relatedCapabilities = skillDto.capabilityDtos.map(capDto => new Capability(capDto));
+        if(skillDto.capabilityIris) {
+            skillDto.capabilityIris.map(capIri => {
+                this.capabilityService.getCapabilityByIri(capIri).subscribe(cap => this.relatedCapabilities.push(cap));
+            });
         }
 
         if(skillDto.skillParameterDtos) {

@@ -59,12 +59,13 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri
+            SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
-                ?skill a Cap:Skill.
-                ?skill Cap:hasStateMachine ?stateMachine.
+                ?skill a Cap:Skill;
+                    Cap:hasStateMachine ?stateMachine.
+                ?capability Cap:isExecutableVia ?skill.
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
@@ -76,11 +77,6 @@ export class SkillService {
             const queryResult = await this.graphDbConnection.executeQuery(query);
             const mappedResults = converter.convertToDefinition(queryResult.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
             const skillDtos = mappedResults.map(result => new SkillDto(result));
-
-            for (const skillDto of skillDtos) {
-                const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
-                skillDto.capabilityDtos = capabilityDtos;
-            }
 
             return skillDtos;
         } catch(error) {
@@ -98,13 +94,14 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri
+            SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
-                ?skill a Cap:Skill.
+                ?skill a Cap:Skill;
+                    Cap:hasStateMachine ?stateMachine.
+                ?capability Cap:isExecutableVia ?skill.
                 FILTER(?skill = IRI("${skillIri}"))
-                ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
@@ -118,9 +115,6 @@ export class SkillService {
             const mappedResult = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement()[0] as SkillQueryResult;
             const skillDto = new SkillDto(mappedResult);
 
-            const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
-            skillDto.capabilityDtos = capabilityDtos;
-
             return skillDto;
         } catch(error) {
             throw new Error(`Error while returning skill with IRI ${skillIri}. Error: ${error}`);
@@ -133,11 +127,12 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri
+            SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
                 <${moduleIri}> Cap:providesSkill ?skill.
+                ?capability Cap:isExecutableVia ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
@@ -151,11 +146,6 @@ export class SkillService {
             const mappedResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
             const skillDtos = mappedResults.map(result => new SkillDto(result));
 
-            for (const skillDto of skillDtos) {
-                const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
-                skillDto.capabilityDtos = capabilityDtos;
-            }
-
             return skillDtos;
         } catch(error) {
             throw new Error(`Error while returning skills of module ${moduleIri}. Error: ${error}`);
@@ -168,31 +158,27 @@ export class SkillService {
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?stateMachine ?currentStateTypeIri
+            SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
                 WHERE {
-                <${capabilityIri}> Cap:isExecutableVia ?skill.
-                ?skill Cap:hasStateMachine ?stateMachine.
-                OPTIONAL {
-                    ?skill Cap:hasCurrentState ?currentState.
-                    ?currentState rdf:type ?currentStateTypeIri.
-                    ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
-                }
-                OPTIONAL {
-                    ?skill Cap:hasSkillParameter ?parameter.
-                }
-                ${parameterQueryFragment}
-                ${outputQueryFragment}
+                    ?cability Cap:isExecutableVia ?skill.
+                    BIND(?capability AS <${capabilityIri}>)
+                    ?skill Cap:hasStateMachine ?stateMachine.
+                    OPTIONAL {
+                        ?skill Cap:hasCurrentState ?currentState.
+                        ?currentState rdf:type ?currentStateTypeIri.
+                        ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
+                    }
+                    OPTIONAL {
+                        ?skill Cap:hasSkillParameter ?parameter.
+                    }
+                    ${parameterQueryFragment}
+                    ${outputQueryFragment}
             }`;
             const rawResults = await this.graphDbConnection.executeQuery(query);
             const skillResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
             const skillDtos = skillResults.map(result => new SkillDto(result));
-
-            for (const skillDto of skillDtos) {
-                const capabilityDtos = await this.capabilityService.getCapabilitiesOfSkill(skillDto.skillIri);
-                skillDto.capabilityDtos = capabilityDtos;
-            }
 
             return skillDtos;
         } catch(error) {
@@ -302,7 +288,7 @@ export class SkillService {
             ?skill a ?skillType.
             FILTER(?skill = IRI("${skillIri}")) # Filter for this one specific skill
             FILTER(!isBlank(?skillType ))       # Filter out all blank nodes
-    		FILTER(STRSTARTS(STR(?skillType), "http://www.hsu-ifa.de/ontologies/capability-model")) # Filter just the classes from cap model
+            FILTER(STRSTARTS(STR(?skillType), "http://www.hsu-ifa.de/ontologies/capability-model")) # Filter just the classes from cap model
             FILTER NOT EXISTS {
                 ?someSubSkillSubClass sesame:directSubClassOf ?skillType.
             }
