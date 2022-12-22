@@ -12,7 +12,7 @@
             <div class="card-body">
                 <h4>Capabilities:</h4>
                 <ng-container *ngFor="let capability of module.capabilities">
-                    <capability-card [capability]="capability"></capability-card>
+                    <capability-card [capability]="capability" (onCapabilityDeleted)="onCapabilityDeleted($event)"></capability-card>
                 </ng-container>
             </div>
 

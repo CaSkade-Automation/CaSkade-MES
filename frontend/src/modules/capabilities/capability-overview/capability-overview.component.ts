@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CapabilityService } from 'src/shared/services/capability.service';
 import { SkillService } from 'src/shared/services/skill.service';
-import { tap } from 'rxjs';
+import { Subscription, tap } from 'rxjs';
 import { Capability } from '../../../shared/models/Capability';
 import { Skill } from '../../../shared/models/Skill';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
     selector: 'app-capability-overview',
@@ -13,6 +14,7 @@ import { Skill } from '../../../shared/models/Skill';
 export class CapabilityOverviewComponent implements OnInit {
 
     constructor(
+        private httpClient: HttpClient,
         private capabilityService: CapabilityService,
         private skillService: SkillService
     ) {}
@@ -23,13 +25,10 @@ export class CapabilityOverviewComponent implements OnInit {
     showProvided = true;
     showRequired = true;
 
+    capabilitySubscription: Subscription;
 
-    ngOnInit() {
-        this.capabilityService.getAllCapabilities()
-            .pipe(tap(data => console.log(data)))
-            .subscribe(data => this.capabilities = data);
-        console.log("init");
-
+    ngOnInit(): void {
+        this.capabilitySubscription = this.capabilityService.getAllCapabilities().subscribe(caps => this.capabilities = caps);
         // this.skills.forEach(skill => {
         //     skill.relatedCapabilities.forEach(capability => {
         //         const foundCapability= this.executableCapabilities.find(cap=>cap.capability.iri==capability.iri);
@@ -44,12 +43,16 @@ export class CapabilityOverviewComponent implements OnInit {
         // });
     }
 
-    /*getSkills(capability): void{
-    this.skillService.getSkillsOfCapability(capability).subscribe((skills: Skill[])=>{
-        this.skillsOfModule=skills;
-        console.log(this.skillsOfModule);
-    });
+    onCapabilityDeleted(capabilityIri: string): void {
+        console.log("on delete");
 
-}*/
+        // remove capability with that id from the list
+        const capabilityIndex = this.capabilities.findIndex(cap => cap.iri == capabilityIri);
+        this.capabilities.splice(capabilityIndex, 1);
+    }
+
+    ngOnDestroy(): void {
+        this.capabilitySubscription.unsubscribe();
+    }
 
 }
