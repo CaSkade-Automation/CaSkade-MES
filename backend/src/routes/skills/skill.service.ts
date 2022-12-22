@@ -12,12 +12,14 @@ import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
 import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
 import { OpcUaStateMonitorService } from '../../util/opc-ua-state-monitor.service';
 import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
+import { CapabilitySocket } from '../../socket-gateway/capability-socket';
 const converter = new SparqlResultConverter();
 
 @Injectable()
 export class SkillService {
     constructor(private graphDbConnection: GraphDbConnectionService,
         private skillSocket: SkillSocket,
+        private capabilitySocket: CapabilitySocket,
         private uaStateChangeMonitor: OpcUaStateMonitorService) {}
 
 
@@ -31,7 +33,7 @@ export class SkillService {
             const skillGraphName = uuidv4();
             await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName, contentType);
 
-            // Skill is added, now get its IRI and skill type to setup a state change monitor in case its a variable skill
+            // Skill is added, now get its IRI and skill type to setup a state change monitor in case its an OpcUaVariableSkill
             const skillInfo = await this.getSkillInGraph(skillGraphName);
 
             if (skillInfo.skillTypeIri == "http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill") {
@@ -40,6 +42,9 @@ export class SkillService {
                 this.uaStateChangeMonitor.setupItemToMonitor(uaClientSession, skillInfo.skillIri);
             }
 
+            // This is a pretty hacky solution... SkillUp currently registers a skill with capability at the skill endpoint, thus there is no way to check for new capabilities that are registered through SkillUp
+            this.capabilitySocket.sendMessage(SocketMessageType.Added);
+            // Send a socket message that a skill was registered
             this.skillSocket.sendMessage(SocketMessageType.Added);
 
             return 'New skill successfully added';
@@ -196,7 +201,7 @@ export class SkillService {
      * Delete a skill with a given IRI
      * @param skillIri IRI of the skill to delete
      */
-    async deleteSkill(skillIri: string): Promise<string> {
+    async deleteSkill(skillIri: string): Promise<void> {
         try {
             const query = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
@@ -222,7 +227,6 @@ export class SkillService {
                 this.graphDbConnection.clearGraph(graphName);
             });
             this.skillSocket.sendMessage(SocketMessageType.Deleted, `Sucessfully deleted skill with IRI ${skillIri}}`);
-            return `{message: Sucessfully deleted skill with IRI ${skillIri}}`;
         } catch (error) {
             throw new Error(
                 `Error while trying to delete skill with IRI ${skillIri}. Error: ${error}`

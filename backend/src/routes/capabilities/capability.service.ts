@@ -168,7 +168,7 @@ export class CapabilityService {
      * Delete a capability with a given IRI
      * @param capabilityIri IRI of the capability to delete
      */
-    async deleteCapability(capabilityIri: string): Promise<string> {
+    async deleteCapability(capabilityIri: string): Promise<void> {
         try {
             // First, delete all skills related to that capability:
             this.skillService.deleteSkillsOfCapability(capabilityIri);
@@ -191,7 +191,6 @@ export class CapabilityService {
                 this.graphDbConnection.clearGraph(graphName);
             });
             this.capabilitySocket.sendMessage(SocketMessageType.Deleted);
-            return `Sucessfully deleted capability with IRI ${capabilityIri}`;
         } catch (error) {
             throw new Error(
                 `Error while trying to delete capability with IRI ${capabilityIri}. Error: ${error}`

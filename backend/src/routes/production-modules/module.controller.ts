@@ -103,7 +103,7 @@ export class ModuleController {
      * @param skillIri IRI of the skill that is deleted
      */
     @Delete(':moduleIri/skills/:skillIri')
-    deleteModuleSkill(@Param('moduleIri') moduleIri: string, @Param('skillIri') skillIri: string): Promise<string>  {
+    deleteModuleSkill(@Param('moduleIri') moduleIri: string, @Param('skillIri') skillIri: string): Promise<void>  {
         // TODO: It should be checked that a module can only delete its own skills (i.e. that the deleted skill is connected with the given IRI)
         return this.skillService.deleteSkill(skillIri);
     }
