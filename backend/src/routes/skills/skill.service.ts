@@ -18,8 +18,7 @@ const converter = new SparqlResultConverter();
 export class SkillService {
     constructor(private graphDbConnection: GraphDbConnectionService,
         private skillSocket: SkillSocket,
-        private uaStateChangeMonitor: OpcUaStateMonitorService,
-        private capabilityService: CapabilityService){}
+        private uaStateChangeMonitor: OpcUaStateMonitorService) {}
 
 
     /**
@@ -65,7 +64,7 @@ export class SkillService {
             WHERE {
                 ?skill a Cap:Skill;
                     Cap:hasStateMachine ?stateMachine.
-                ?capability Cap:isExecutableVia ?skill.
+                ?capability Cap:isExecutableViaSkill ?skill.
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
@@ -100,7 +99,7 @@ export class SkillService {
             WHERE {
                 ?skill a Cap:Skill;
                     Cap:hasStateMachine ?stateMachine.
-                ?capability Cap:isExecutableVia ?skill.
+                ?capability Cap:isExecutableViaSkill ?skill.
                 FILTER(?skill = IRI("${skillIri}"))
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
@@ -132,7 +131,7 @@ export class SkillService {
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
                 <${moduleIri}> Cap:providesSkill ?skill.
-                ?capability Cap:isExecutableVia ?skill.
+                ?capability Cap:isExecutableViaSkill ?skill.
                 ?skill Cap:hasStateMachine ?stateMachine.
                 OPTIONAL {
                     ?skill Cap:hasCurrentState ?currentState.
@@ -162,8 +161,8 @@ export class SkillService {
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
                 WHERE {
-                    ?cability Cap:isExecutableVia ?skill.
-                    BIND(?capability AS <${capabilityIri}>)
+                    ?capability Cap:isExecutableViaSkill ?skill.
+                    FILTER(?capability = <${capabilityIri}>)
                     ?skill Cap:hasStateMachine ?stateMachine.
                     OPTIONAL {
                         ?skill Cap:hasCurrentState ?currentState.
@@ -179,7 +178,6 @@ export class SkillService {
             const rawResults = await this.graphDbConnection.executeQuery(query);
             const skillResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
             const skillDtos = skillResults.map(result => new SkillDto(result));
-
             return skillDtos;
         } catch(error) {
             throw new Error(`Error while returning all skills that are suited for capability ${capabilityIri}. Error: ${error}`);
