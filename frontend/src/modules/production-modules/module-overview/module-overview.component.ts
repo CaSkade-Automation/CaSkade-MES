@@ -37,6 +37,8 @@ export class ModuleOverviewComponent implements OnInit {
         console.log("init");
 
         this.moduleSubscription = this.moduleService.getAllModules().subscribe((modules: ProductionModule[]) => {
+            console.log(modules);
+
             this.modules = modules;
         });
 

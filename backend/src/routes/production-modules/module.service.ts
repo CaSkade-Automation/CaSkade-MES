@@ -48,8 +48,8 @@ export class ModuleService {
         const productionModuleDtos = await this.getModulesOnly(moduleIri);
 
         for (const moduleDto of productionModuleDtos) {
-            const moduleSkillDtos = await this.capabilityService.getCapabilitiesOfModule(moduleDto.iri);
-            moduleDto.capabilityDtos = moduleSkillDtos;
+            const moduleCapabilityDtos = await this.capabilityService.getCapabilitiesOfModule(moduleDto.iri);
+            moduleDto.capabilityDtos = moduleCapabilityDtos;
         }
         return productionModuleDtos;
     }
@@ -107,6 +107,8 @@ export class ModuleService {
      */
     async deleteModule(moduleIri: string): Promise<void> {
         try {
+            // First, delete all capabilities of the module
+            this.capabilityService.deleteCapabilitiesOfModule(moduleIri);
             // Get module's graph
             // TODO: This could be moved into a separate graph model
             // TODO: Make sure descriptions of executable skills get deleted as well
@@ -124,19 +126,10 @@ export class ModuleService {
                 BIND(IRI(<${moduleIri}>) AS ?module)
                 ?module a VDI3682:TechnicalResource.
                 ?type rdfs:subClassOf VDI3682:TechnicalResource.
-                # Skills have to be optional so that "empty" modules can be deleted, too
-                OPTIONAL {
-                    ?module ?prop ?skill.
-                    ?skill a Cap:Skill.
-                    ?prop sesame:directSubPropertyOf Cap:providesSkill.
-                }
+
                 # Finding the graph can now be done using explicit facts
                 GRAPH ?g {
-                    {
-                        ?module a ?type.
-                    }   UNION {
-                        ?module ?prop ?skill.
-                    }
+                    ?module a ?type.
                 }
             }`);
 
@@ -145,7 +138,6 @@ export class ModuleService {
                 const graphName = binding.g.value;
                 await this.graphDbConnection.clearGraph(graphName); // clear graph
             }
-
             this.moduleSocket.sendMessage(SocketMessageType.Deleted);
 
         } catch (error) {

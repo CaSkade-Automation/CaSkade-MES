@@ -17,8 +17,8 @@ export class Capability extends RdfElement {
         super(dto.iri);
         this.inputs = dto.inputs.map(inputDto => new FpbElement(inputDto));
         this.outputs = dto.outputs.map(outputDto => new FpbElement(outputDto));
-        dto.skillIris?.forEach(skillIri => {
-            this.skillService.getSkillByIri(skillIri).subscribe(data => this.skills.push(data));
+        dto.skillDtos?.forEach(skillDto => {
+            this.skills.push(new Skill(skillDto));
         });
     }
 

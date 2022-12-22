@@ -7,7 +7,7 @@ import { PropertyModule } from '../properties/property.module';
 @Module({
     imports: [
         PropertyModule,
-        forwardRef(() => SkillModule)
+        SkillModule
     ],
     controllers: [CapabilityController],
     providers: [CapabilityService],

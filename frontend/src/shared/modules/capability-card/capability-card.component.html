@@ -15,7 +15,7 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <h6>Outputs</h6>
+                <h6>Outputs:</h6>
                 <ul>
                     <li *ngFor="let capOutput of capability.outputs">{{capOutput.getLocalName()}}</li>
                 </ul>
@@ -23,7 +23,7 @@
         </div>
 
         <h5 *ngIf="capability.skills.length > 0">Skills:</h5>
-        <ng-container *ngFor="let skill of capability.skills"> -->
+        <ng-container *ngFor="let skill of capability.skills">
             <skill-card [skill]="skill"></skill-card>
         </ng-container>
 

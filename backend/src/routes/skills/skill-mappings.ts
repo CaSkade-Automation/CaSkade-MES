@@ -8,7 +8,7 @@ const skillMapping: MappingDefinition[] = [
         toCollect: ['stateMachine', 'currentStateTypeIri'],
         childMappings: [
             {
-                rootName: 'capability',
+                rootName: 'capabilities',
                 propertyToGroup: 'capability',
                 name: 'capabilityIri',
             },

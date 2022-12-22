@@ -10,9 +10,9 @@
                     (click)="deleteModule(module.iri)"><i class="far fa-trash-alt"></i></button>
             </div>
             <div class="card-body">
-                <h4>Skills:</h4>
-                <ng-container *ngFor="let skill of module.skills">
-                    <skill-card [skill]="skill"></skill-card>
+                <h4>Capabilities:</h4>
+                <ng-container *ngFor="let capability of module.capabilities">
+                    <capability-card [capability]="capability"></capability-card>
                 </ng-container>
             </div>
 

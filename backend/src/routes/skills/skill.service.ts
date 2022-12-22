@@ -184,6 +184,14 @@ export class SkillService {
         }
     }
 
+    async deleteSkillsOfCapability(capabilityIri: string): Promise<void> {
+        const skills = await this.getSkillsForCapability(capabilityIri);
+        skills.forEach(skill => {
+            this.deleteSkill(skill.skillIri);
+        });
+    }
+
+
     /**
      * Delete a skill with a given IRI
      * @param skillIri IRI of the skill to delete
