@@ -68,7 +68,9 @@ export class PropertyService {
         PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
         PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
 
-        SELECT ?describedElementIri ?propertyInstanceIri ?expressionGoal ?logicInterpretation ?value ?propertyTypeIri ?code ?definition ?unit WHERE {
+        SELECT ?describedElementIri ?propertyInstanceIri ?expressionGoal ?logicInterpretation ?value ?propertyTypeIri
+            ?code ?definition ?unit
+        WHERE {
             <${capabilityIri}> VDI3682:hasInput ?describedElementIri.
             ?describedElementIri DINEN61360:has_Data_Element ?dataElement.
             ?propertyInstanceIri a DINEN61360:Instance_Description;
