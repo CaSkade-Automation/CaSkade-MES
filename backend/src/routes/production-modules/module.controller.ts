@@ -32,7 +32,7 @@ export class ModuleController {
      */
     @Get()
     async getAllModules(): Promise<Array<ProductionModuleDto>> {
-        return this.moduleService.getAllModulesWithSkills();
+        return this.moduleService.getModules();
     }
 
     /**
@@ -63,7 +63,10 @@ export class ModuleController {
      * @param contentType Encoding of the rdf document
      */
     @Post(':moduleIri/skills')
-    addModuleSkill(@Param('moduleIri') moduleIri: string, @StringBody() newSkill: string, @Headers("Content-Type") contentType?: string): Promise<string> {
+    addModuleSkill(
+        @Param('moduleIri') moduleIri: string,
+        @StringBody() newSkill: string,
+        @Headers("Content-Type") contentType?: string): Promise<string> {
         // TODO: Make sure that the skill is registered with the given module. This is currently not checked
         return this.skillService.addSkill(newSkill, contentType);
     }
@@ -100,7 +103,7 @@ export class ModuleController {
      * @param skillIri IRI of the skill that is deleted
      */
     @Delete(':moduleIri/skills/:skillIri')
-    deleteModuleSkill(@Param('moduleIri') moduleIri: string, @Param('skillIri') skillIri: string): Promise<string>  {
+    deleteModuleSkill(@Param('moduleIri') moduleIri: string, @Param('skillIri') skillIri: string): Promise<void>  {
         // TODO: It should be checked that a module can only delete its own skills (i.e. that the deleted skill is connected with the given IRI)
         return this.skillService.deleteSkill(skillIri);
     }

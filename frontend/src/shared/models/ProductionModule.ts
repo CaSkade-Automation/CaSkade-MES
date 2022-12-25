@@ -8,32 +8,32 @@ export class ProductionModule extends RdfElement implements D3Serializable {
     iri: string;
     interfaces? = Array<ModuleInterface>();
     components? = new Array<Component>();
-    skills? = new Array<Skill>();
+    capabilities? = new Array<Capability>();
 
     constructor(moduleDto: ProductionModuleDto) {
         super(moduleDto.iri);
-        this.skills = moduleDto.skillDtos.map(skillDto => new Skill(skillDto));
+        this.capabilities = moduleDto.capabilityDtos.map(capDto => new Capability(capDto));
         this.interfaces = moduleDto.interfaces;
         this.components = moduleDto.components;
     }
 
-    addSkill(newSkill: Skill): void {
-        this.skills.push(newSkill);
+    addCapability(newCapability: Capability): void {
+        this.capabilities.push(newCapability);
     }
 
-    addSkills(newSkills: Array<Skill>): void {
-        this.skills.push(...newSkills);
+    addCapabilities(newCapabilities: Array<Capability>): void {
+        this.capabilities.push(...newCapabilities);
     }
 
     /**
      * Utility getter that allows to easily get all capabilities that can be executed with skills of this module
      */
-    get capabilities(): Array<Capability> {
-        const capabilities = new Array<Capability>();
-        this.skills.forEach(skill => {
-            capabilities.push(...skill.relatedCapabilities);
+    get skills(): Array<Skill> {
+        const skills = new Array<Skill>();
+        this.capabilities.forEach(cap => {
+            skills.push(...cap.skills);
         });
-        return capabilities;
+        return skills;
     }
 
     toD3GraphData(): D3GraphData {
@@ -41,6 +41,8 @@ export class ProductionModule extends RdfElement implements D3Serializable {
         const moduleNode = new D3ModuleNode(this.iri,this.getLocalName());
         data.nodes.push(moduleNode);
 
+
+        // TODO: Add skills and capabilities
         return data;
     }
 }

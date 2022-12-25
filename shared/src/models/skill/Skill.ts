@@ -1,9 +1,8 @@
-import { CapabilityDto } from '../capability/Capability';
 import { SkillVariableDto } from './SkillVariable';
 
 export class SkillDto {
     skillIri: string;
-    capabilityDtos: CapabilityDto[];
+    capabilityIris: string[];
     skillParameterDtos?: SkillVariableDto[];
     skillOutputsDtos?: SkillVariableDto[];
     stateMachineIri: string;
@@ -26,6 +25,7 @@ export class SkillDto {
 
 export interface SkillQueryResult {
     skillIri: string,
+    capabilityIri: string,
     stateMachine: string,
     currentStateTypeIri: string,
     skillParameters: {

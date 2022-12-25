@@ -53,7 +53,7 @@ export class CapabilityController {
      * @param capabilityIri IRI of the capability to delete
      */
     @Delete(':capabilityIri')
-    deleteCapability(@Param('capabilityIri') capabilityIri: string): Promise<string> {
+    deleteCapability(@Param('capabilityIri') capabilityIri: string): Promise<void> {
         return this.capabilityService.deleteCapability(capabilityIri);
     }
 }

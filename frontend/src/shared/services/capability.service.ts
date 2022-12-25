@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Observer } from 'rxjs';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { SkillService } from './skill.service';
 import { Capability } from '../models/Capability';
 import { environment } from '../../../environments/environment';
+import { CapabilitySocketService } from './sockets/capability-socket.service';
 
 @Injectable({
     providedIn: 'root'
@@ -13,9 +14,12 @@ import { environment } from '../../../environments/environment';
 export class CapabilityService {
     apiRoot = `${environment.settings.backendUrl}/api`;
 
+    observer: Observer<Capability[]>;
+
     constructor(
         private http: HttpClient,
-        private skillService: SkillService
+        private skillService: SkillService,
+        private capabilitySocket: CapabilitySocketService
     ) { }
 
 
@@ -23,14 +27,36 @@ export class CapabilityService {
      * Returns all capabilities that are currently registered
      */
     getAllCapabilities(): Observable<Capability[]> {
-        console.log("getting all caps");
-        console.log("goes to:" + this.apiRoot);
+        let capabilities;
+        this.loadCapabilities().pipe(take(1)).subscribe(initialCapabilities => {
+            capabilities = initialCapabilities;
+            this.observer.next(capabilities);
+        });
 
+        this.capabilitySocket.getCapabilityAdded().subscribe(msg => {
+            this.loadCapabilities().pipe(take(1)).subscribe((newCapabilities: Capability[]) => {
+                this.observer.next(newCapabilities);
+            });
+        });
+        return this.createObservable();
 
+    }
+
+    /**
+     * Loads all capabilities from GraphDB with a single HTTP request
+     */
+    private loadCapabilities(): Observable<Capability[]> {
         const apiURL = `${this.apiRoot}/capabilities`;
         return this.http.get<CapabilityDto[]>(apiURL).pipe(
+            tap(data => console.log(data)),
             map((data: CapabilityDto[]) => data.map(capabilityDto => new Capability(capabilityDto))
             ));
+    }
+
+    private createObservable(): Observable<Capability[]> {
+        return new Observable(observer => {
+            this.observer = observer;
+        });
     }
 
     /**

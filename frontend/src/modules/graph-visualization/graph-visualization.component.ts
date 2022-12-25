@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, ViewEncapsulation, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
 import * as d3Selection from 'd3-selection';
 import * as d3Force from 'd3-force';
 import * as d3Transition from 'd3-transition';
@@ -10,6 +10,8 @@ import { D3GraphData, D3Link, D3Node, D3Serializable, NodeType } from './D3Graph
 import { ModuleService } from '../../shared/services/module.service';
 import { QueryService } from '../../shared/services/query.service';
 import { RdfElement } from '../../../../shared/src/models/RdfElement';
+import { CapabilityService } from '../../shared/services/capability.service';
+import { SkillService } from '../../shared/services/skill.service';
 
 
 @Component({
@@ -18,7 +20,8 @@ import { RdfElement } from '../../../../shared/src/models/RdfElement';
     templateUrl: './graph-visualization.component.html',
     styleUrls: ['./graph-visualization.component.scss']
 })
-export class GraphVisualizationComponent implements AfterViewInit {
+export class GraphVisualizationComponent implements AfterViewInit, OnInit {
+    entityType = "";                 // Type of model entity (i.e. modules, capabilities, skills)
 
     name: string;
     svg: d3Selection.Selection<any, any, any, any>;       // Reference to the svg element of the simulation
@@ -50,29 +53,69 @@ export class GraphVisualizationComponent implements AfterViewInit {
 
     nodeRadius = 16;           // standard radius of a node
 
+
     constructor(
         private route: ActivatedRoute,
         private moduleService: ModuleService,
+        private capabilityService: CapabilityService,
+        private skillService: SkillService,
         private queryService: QueryService
     ) {}
 
     @ViewChild('g') svgContainer: ElementRef;
     svgHeight = 200;
     svgWidth = 200;
-    moduleIri: string;
+    elementIri: string;
+
+    ngOnInit(): void {
+        this.route.params.subscribe(p => {
+            this.entityType = p['entityType'];
+            this.elementIri = p['elementIri'];
+
+            switch (this.entityType) {
+            case 'modules':
+                this.setupModuleGraph();
+                break;
+            case 'capabilities':
+                this.setupCapabilityGraph();
+                break;
+            case 'skills':
+                this.setupSkillGraph();
+                break;
+            default:
+                this.setupModuleGraph();
+                break;
+            }
+        });
+    }
+
+    private setupModuleGraph(): void {
+        if(!this.elementIri) {
+            this.moduleService.getAllModules().subscribe(modules => this.setupSimulation(modules));
+        } else {
+            this.moduleService.getModuleByIri(this.elementIri).subscribe(module => this.setupSimulation([module]));
+        }
+    }
+
+    private setupCapabilityGraph(): void {
+        if(!this.elementIri) {
+            this.capabilityService.getAllCapabilities().subscribe(capabilities => this.setupSimulation(capabilities));
+        } else {
+            this.capabilityService.getCapabilityByIri(this.elementIri).subscribe(capability => this.setupSimulation([capability]));
+        }
+    }
+
+    private setupSkillGraph(): void {
+        if(!this.elementIri) {
+            this.skillService.getAllSkills().subscribe(skills => this.setupSimulation(skills));
+        } else {
+            this.skillService.getSkillByIri(this.elementIri).subscribe(skill => this.setupSimulation([skill]));
+        }
+    }
 
     ngAfterViewInit(): void {
         this.svgWidth = this.svgContainer.nativeElement.offsetWidth;
         this.svgHeight = this.svgContainer.nativeElement.offsetHeight;
-        this.route.params.subscribe(p => {
-            this.moduleIri = p['moduleName'];
-            if(!this.moduleIri) {
-                this.moduleService.getAllModules().subscribe(modules => this.setupSimulation(modules));
-            } else {
-                this.moduleService.getModuleByIri(this.moduleIri).subscribe(module => this.setupSimulation([module]));
-            }
-        });
-
     }
 
     /**Defines settings of the SVG and the color-scheme of the nodes */

@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModuleService } from '../../../shared/services/module.service';
 import { Command } from '@shared/models/command/Command';
-import { SkillExecutionService } from 'src/shared/services/skill-execution.service';
 import { Subscription } from 'rxjs';
-import { ModuleSocketService } from '../../../shared/services/sockets/module-socket.service';
 import { ProductionModule } from '../../../shared/models/ProductionModule';
 
 @Component({
@@ -14,10 +12,10 @@ import { ProductionModule } from '../../../shared/models/ProductionModule';
 })
 export class ModuleOverviewComponent implements OnInit {
 
-    constructor(private httpClient: HttpClient,
-        private moduleSocket: ModuleSocketService,
+    constructor(
+        private httpClient: HttpClient,
         private moduleService: ModuleService,
-        private skillExecutionService: SkillExecutionService) { }
+    ) { }
 
     incomingmsg = [];
     modules = new Array<ProductionModule>();
@@ -34,18 +32,9 @@ export class ModuleOverviewComponent implements OnInit {
 
 
     ngOnInit(): void {
-        console.log("init");
-
         this.moduleSubscription = this.moduleService.getAllModules().subscribe((modules: ProductionModule[]) => {
             this.modules = modules;
         });
-
-        //TODO Socket service could be used better if we could get the new module from the socket server
-        // this.socketService.getMessage(SocketEventName.ProductionModules_Added).subscribe(msg => {
-        //     const modules = this.moduleService.getAllModules().pipe(take(1)).subscribe(newModules => {
-        //         this.addNewModules(newModules);
-        //     });
-        // });
     }
 
 
@@ -135,10 +124,16 @@ export class ModuleOverviewComponent implements OnInit {
         return name;
     }*/
 
+    onCapabilityDeleted(capabilityIri: string): void {
+        // find module with that capability
+        let capabilityIndex: number;
+        const module = this.modules.find(module => capabilityIndex = module.capabilities.findIndex(capability => capability.iri == capabilityIri));
+        module.capabilities.splice(capabilityIndex, 1);
+    }
 
 
 
-    deleteModule(moduleIri) {
+    deleteModule(moduleIri): void {
         const encodedModuleIri = encodeURIComponent(moduleIri);
         console.log(encodedModuleIri);
 
@@ -147,7 +142,8 @@ export class ModuleOverviewComponent implements OnInit {
             error: (err) => {console.log(`Module could not be deleted, error: ${err}`);},
         });}
 
-    handleModuleDeleted(moduleIri) {
+
+    handleModuleDeleted(moduleIri): void {
         // remove module with that id from the list
         const moduleIndex = this.modules.findIndex(module => module.iri == moduleIri);
         this.modules.splice(moduleIndex, 1);

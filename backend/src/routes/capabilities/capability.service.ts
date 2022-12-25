@@ -8,6 +8,7 @@ import {SparqlResultConverter} from "sparql-result-converter";
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
 import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
 import { PropertyService } from '../properties/property.service';
+import { SkillService } from '../skills/skill.service';
 
 const converter = new SparqlResultConverter();
 
@@ -16,6 +17,7 @@ export class CapabilityService {
     constructor(
         private graphDbConnection: GraphDbConnectionService,
         private propertyService: PropertyService,
+        private skillService: SkillService,
         private capabilitySocket: CapabilitySocket
     ) { }
 
@@ -62,6 +64,11 @@ export class CapabilityService {
                 }
             }`);
             const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
+            // add skills
+            for (const cap of capabilities) {
+                cap.skillDtos = await this.skillService.getSkillsForCapability(cap.iri);
+            }
+
             for (const cap of capabilities) {
                 const capInputProperties = await this.propertyService.getInputPropertiesOfCapability(cap.iri);
                 cap.inputs.map(input => {
@@ -69,6 +76,7 @@ export class CapabilityService {
                     input.propertyDtos = props;
                 });
             }
+
 
             return capabilities;
         } catch (error) {
@@ -100,6 +108,7 @@ export class CapabilityService {
                 }
             }`);
             const capability = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
+            capability.skillDtos = await this.skillService.getSkillsForCapability(capability.iri);
             return capability;
         } catch (error) {
             console.error(`Error while returning capability with IRI ${capabilityIri}, ${error}`);
@@ -116,9 +125,8 @@ export class CapabilityService {
         const query = `
         PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
         PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-        SELECT ?capability ?skillIri ?input ?output WHERE {
-            ?capability a Cap:Capability;
-                Cap:isExecutableViaSkill ?skillIri.
+        SELECT ?capability ?input ?output WHERE {
+            ?capability a Cap:Capability.
             <${moduleIri}> Cap:hasCapability ?capability.
             OPTIONAL{
                 ?capability VDI3682:hasInput ?input.
@@ -134,7 +142,13 @@ export class CapabilityService {
 
         try {
             const queryResult = await this.graphDbConnection.executeQuery(query);
-            const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
+            const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping)
+                .getFirstRootElement() as Array<CapabilityDto>;
+
+            for (const cap of capabilities) {
+                cap.skillDtos = await this.skillService.getSkillsForCapability(cap.iri);
+            }
+
             return capabilities;
         } catch (error) {
             console.error(`Error while returning capabilities of module with IRI ${moduleIri}, ${error}`);
@@ -142,13 +156,23 @@ export class CapabilityService {
         }
     }
 
+    async deleteCapabilitiesOfModule(moduleIri: string): Promise<void> {
+        const capabilities = await this.getCapabilitiesOfModule(moduleIri);
+        capabilities.forEach(cap => {
+            this.deleteCapability(cap.iri);
+        });
+    }
+
 
     /**
      * Delete a capability with a given IRI
      * @param capabilityIri IRI of the capability to delete
      */
-    async deleteCapability(capabilityIri: string): Promise<string> {
+    async deleteCapability(capabilityIri: string): Promise<void> {
         try {
+            // First, delete all skills related to that capability:
+            this.skillService.deleteSkillsOfCapability(capabilityIri);
+
             const query = `
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             SELECT ?capability ?graph WHERE {
@@ -166,7 +190,7 @@ export class CapabilityService {
                 const graphName = bindings.graph.value;
                 this.graphDbConnection.clearGraph(graphName);
             });
-            return `Sucessfully deleted capability with IRI ${capabilityIri}`;
+            this.capabilitySocket.sendMessage(SocketMessageType.Deleted);
         } catch (error) {
             throw new Error(
                 `Error while trying to delete capability with IRI ${capabilityIri}. Error: ${error}`
@@ -174,36 +198,36 @@ export class CapabilityService {
         }
     }
 
-    /**
-     *
-     * @param skillIri
-     * @returns
-     */
-    async getCapabilitiesOfSkill(skillIri: string): Promise<CapabilityDto[]> {
-        try {
-            const queryResult = await this.graphDbConnection.executeQuery(`
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-            SELECT ?capability ?input ?output WHERE {
-                ?capability a Cap:Capability.
-                ?capability Cap:isExecutableViaSkill <${skillIri}>
-                OPTIONAL{
-                    ?capability VDI3682:hasInput ?input.
-                    ?input a ?fpbElement.
-                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
-                }
-                OPTIONAL{
-                    ?capability VDI3682:hasOutput ?output.
-                    ?output a ?fpbElement.
-                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
-                }
-            }`);
-            const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as CapabilityDto[];
+    // /**
+    //  *
+    //  * @param skillIri
+    //  * @returns
+    //  */
+    // async getCapabilitiesOfSkill(skillIri: string): Promise<CapabilityDto[]> {
+    //     try {
+    //         const queryResult = await this.graphDbConnection.executeQuery(`
+    //         PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+    //         PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+    //         SELECT ?capability ?input ?output WHERE {
+    //             ?capability a Cap:Capability.
+    //             ?capability Cap:isExecutableViaSkill <${skillIri}>
+    //             OPTIONAL{
+    //                 ?capability VDI3682:hasInput ?input.
+    //                 ?input a ?fpbElement.
+    //                 VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+    //             }
+    //             OPTIONAL{
+    //                 ?capability VDI3682:hasOutput ?output.
+    //                 ?output a ?fpbElement.
+    //                 VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+    //             }
+    //         }`);
+    //         const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as CapabilityDto[];
 
-            return capabilities;
-        } catch (error) {
-            console.error(`Error while returning capabilities of skill ${skillIri}, ${error}`);
-            throw new Error(error);
-        }
-    }
+    //         return capabilities;
+    //     } catch (error) {
+    //         console.error(`Error while returning capabilities of skill ${skillIri}, ${error}`);
+    //         throw new Error(error);
+    //     }
+    // }
 }
