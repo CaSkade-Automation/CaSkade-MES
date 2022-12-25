@@ -7,9 +7,13 @@
         </svg>
     </div>
     <div class="col-3">
-        <h4>{{this.relationInfo.length}} Relations</h4>
-        <ul>
-            <li *ngFor="let info of this.relationInfo">{{info}}</li>
-        </ul>
+        <h4>Show Relation Details</h4>
+        <p>Select a link with multiple relations to get more details.</p>
+        <ng-container *ngIf="this.relationInfo.length > 0">
+            <h5>{{this.relationInfo.length}} Relations</h5>
+            <ul>
+                <li *ngFor="let info of this.relationInfo">{{info}}</li>
+            </ul>
+        </ng-container>
     </div>
 </div>
