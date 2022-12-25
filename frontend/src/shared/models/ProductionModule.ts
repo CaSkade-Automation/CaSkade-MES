@@ -41,6 +41,8 @@ export class ProductionModule extends RdfElement implements D3Serializable {
         const moduleNode = new D3ModuleNode(this.iri,this.getLocalName());
         data.nodes.push(moduleNode);
 
+
+        // TODO: Add skills and capabilities
         return data;
     }
 }

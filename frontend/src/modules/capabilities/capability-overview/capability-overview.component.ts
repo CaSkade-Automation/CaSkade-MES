@@ -44,8 +44,6 @@ export class CapabilityOverviewComponent implements OnInit {
     }
 
     onCapabilityDeleted(capabilityIri: string): void {
-        console.log("on delete");
-
         // remove capability with that id from the list
         const capabilityIndex = this.capabilities.findIndex(cap => cap.iri == capabilityIri);
         this.capabilities.splice(capabilityIndex, 1);

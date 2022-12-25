@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModuleService } from '../../../shared/services/module.service';
 import { Command } from '@shared/models/command/Command';
-import { SkillExecutionService } from 'src/shared/services/skill-execution.service';
 import { Subscription } from 'rxjs';
-import { ModuleSocketService } from '../../../shared/services/sockets/module-socket.service';
 import { ProductionModule } from '../../../shared/models/ProductionModule';
 
 @Component({
@@ -126,6 +124,12 @@ export class ModuleOverviewComponent implements OnInit {
         return name;
     }*/
 
+    onCapabilityDeleted(capabilityIri: string): void {
+        // find module with that capability
+        let capabilityIndex: number;
+        const module = this.modules.find(module => capabilityIndex = module.capabilities.findIndex(capability => capability.iri == capabilityIri));
+        module.capabilities.splice(capabilityIndex, 1);
+    }
 
 
 
