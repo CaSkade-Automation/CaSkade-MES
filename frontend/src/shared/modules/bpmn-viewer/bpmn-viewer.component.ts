@@ -20,21 +20,24 @@ export class BpmnViewerComponent implements AfterContentInit, OnDestroy {
         }
     }
 
-    @Input() set activeActivityId(activeActivity: ActivityInstanceTree) {
+    @Input() set activeActivityIds(activeActivityIds: string[]) {
 
-        if (activeActivity) {
-            const childId = activeActivity.childActivityInstances[0].activityId;
-
+        if (activeActivityIds) {
             this.eventBus.on('import.done', () => {
                 const overlays = this.bpmnViewer.get('overlays');
+                overlays.clear();
+
 
                 // attach an overlay to display the current activity
-                overlays.add(childId, {
-                    position: {
-                        bottom: 15,
-                        left: -5
-                    },
-                    html:'<i style="font-size:2rem; color: rgba(10, 255, 141, 0.8)" class="fas fa-map-marker"></i>'
+                activeActivityIds.forEach(activeId => {
+
+                    overlays.add(activeId, {
+                        position: {
+                            bottom: 15,
+                            left: -5
+                        },
+                        html:'<i style="font-size:2rem; color: rgba(10, 255, 141, 0.8)" class="fas fa-map-marker"></i>'
+                    });
                 });
             });
         }

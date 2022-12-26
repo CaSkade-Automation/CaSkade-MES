@@ -57,6 +57,7 @@ export class ProcessInstancesComponent implements OnInit {
      * @param processInstance Process Instance to display
      */
     showInViewer(processInstance: ProcessInstance): void {
+        this.selectedInstance = null;
         this.getCompleteInstanceDetails(processInstance).subscribe(res => this.selectedInstance = res);
     }
 
@@ -88,10 +89,25 @@ export class ProcessInstancesComponent implements OnInit {
 class DetailedInstance {
     public xml: string;
 
+    activeChildIds = new Array<string>();
+
     constructor(
         public instance: ProcessInstance,
         public activity: ActivityInstanceTree,
         xmlResult: BpmnXmlResult) {
         this.xml = xmlResult.bpmn20Xml;
+        this.getNestestChildActivities(this.activity);
+    }
+
+    private getNestestChildActivities(activityInstance: ActivityInstanceTree): void {
+        console.log("calc active");
+
+        if (activityInstance.childActivityInstances.length == 0) {
+            this.activeChildIds.push(activityInstance.activityId);
+            return;
+        }
+        activityInstance.childActivityInstances.forEach(childActivityInstance => {
+            this.getNestestChildActivities(childActivityInstance);
+        });
     }
 }
