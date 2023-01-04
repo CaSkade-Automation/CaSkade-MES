@@ -89,7 +89,7 @@ export class MessageService {
      * @param messageBody Body of the message
      */
     public success(messageTitle: string, messageBody: string): void {
-        const message = new Message(messageTitle, messageBody, MessageType.Success);
+        const message = new Message(messageTitle, messageBody, MessageType.Success, "fa-solid fa-circle-check");
         this.addAndDeleteMessage(message);
     }
 
@@ -100,7 +100,7 @@ export class MessageService {
      * @param messageBody Body of the message
      */
     public info(messageTitle: string, messageBody: string): void {
-        const message = new Message(messageTitle, messageBody, MessageType.Info);
+        const message = new Message(messageTitle, messageBody, MessageType.Info, "fa-solid fa-circle-info");
         this.addAndDeleteMessage(message);
     }
 
@@ -111,7 +111,7 @@ export class MessageService {
      * @param messageBody Body of the message
      */
     public danger(messageTitle: string, messageBody: string): void {
-        const message = new Message(messageTitle, messageBody, MessageType.Danger);
+        const message = new Message(messageTitle, messageBody, MessageType.Danger, "fa-solid fa-circle-exclamation");
         this.addAndDeleteMessage(message);
     }
 
@@ -122,7 +122,7 @@ export class MessageService {
      * @param messageBody Body of the message
      */
     public warn(messageTitle: string, messageBody: string): void {
-        const message = new Message(messageTitle, messageBody, MessageType.Warning);
+        const message = new Message(messageTitle, messageBody, MessageType.Warning, "fa-solid fa-circle-exclamation");
         this.addAndDeleteMessage(message);
     }
 
@@ -154,8 +154,12 @@ export class MessageService {
         localStorage.setItem("messageArchive", JSON.stringify(messageArchive));
     }
 
-    public getMessageArchive(): Array<ArchivedMessage> {
-        return JSON.parse(localStorage.getItem("messageArchive")) as Array<ArchivedMessage>;
+    public getMessageArchive(limit = undefined): Array<ArchivedMessage> {
+        const archive = JSON.parse(localStorage.getItem("messageArchive")) as Array<ArchivedMessage>;
+        archive.map(entry => entry.date = new Date(entry.date));
+
+        archive.sort((a,b) => b.date.getDate() - a.date.getDate());
+        return archive.slice(0, limit);
     }
 }
 
