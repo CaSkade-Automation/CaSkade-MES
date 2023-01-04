@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import DataLabelsPlugin from "chartjs-plugin-datalabels";
@@ -9,6 +9,9 @@ import DataLabelsPlugin from "chartjs-plugin-datalabels";
     styleUrls: ['../charts.component.scss'],
 })
 export class PieChartComponent {
+    public pieChartType: ChartType = 'pie';
+    public pieChartPlugins = [ DataLabelsPlugin ];
+
     @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
     public pieChartOptions: ChartConfiguration['options'] = {
         responsive: true,
@@ -26,13 +29,16 @@ export class PieChartComponent {
             },
         }
     };
-    public pieChartData: ChartData<'pie', number[], string | string[]> = {
-        labels: [['Download', 'Sales'], ['In', 'Store', 'Sales'], 'Mail Sales'],
-        datasets: [{
-            data: [300, 500, 100]
-        }]
-    };
-    public pieChartType: ChartType = 'pie';
-    public pieChartPlugins = [ DataLabelsPlugin ];
 
+    @Input("chartHeader") chartHeader: string;
+    @Input("chartData") pieChartData: ChartData<'pie', number[], string | string[]>;
+    //     labels: [['Download', 'Sales'], ['In', 'Store', 'Sales'], 'Mail Sales'],
+    //     datasets: [{
+    //         data: [300, 500, 100]
+    //     }]
+    // };
+
+    // @Input("chartdata") set chartData(d: ChartData<'pie', number[], string | string[]>) {
+    //     this.pieChartData
+    // }
 }

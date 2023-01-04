@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { ChartData } from 'chart.js';
 import { routerTransition } from '../../router.animations';
+import { CapabilityService } from '../../shared/services/capability.service';
+import { ModuleService } from '../../shared/services/module.service';
+import { SkillService } from '../../shared/services/skill.service';
 
 @Component({
     selector: 'app-dashboard',
@@ -7,10 +11,14 @@ import { routerTransition } from '../../router.animations';
     styleUrls: ['./dashboard.component.scss'],
     animations: [routerTransition()]
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
     public alerts: Array<any> = [];
 
-    constructor() {
+    constructor(
+        private moduleService: ModuleService,
+        private capabilityService: CapabilityService,
+        private skillService: SkillService,
+    ) {
 
         this.alerts.push(
             {
@@ -30,6 +38,39 @@ export class DashboardComponent {
                 voluptatum veritatis quod aliquam! Rerum placeat necessitatibus, vitae dolorum`
             }
         );
+    }
+
+    capPieChartHeader = "All Capabilities";
+    capPieChartData: ChartData<'pie', number[], string | string[]>;
+
+    modulePieChartHeader = "All Modules"
+    modulePieChartData: ChartData<'pie', number[], string | string[]>;
+
+    ngOnInit(): void {
+        this.loadModuleData();
+        this.loadCapabilityData();
+    }
+
+    private loadModuleData(): void {
+        this.moduleService.getAllModules().subscribe(modules => {
+            this.modulePieChartData = {
+                labels: [['Modules']],
+                datasets: [{
+                    data: [modules.length]
+                }]
+            };
+        });
+    }
+
+    private loadCapabilityData(): void {
+        this.capabilityService.getAllCapabilities().subscribe(caps => {
+            this.capPieChartData = {
+                labels: [['Capabilities']],
+                datasets: [{
+                    data: [caps.length]
+                }]
+            };
+        });
     }
 
     public closeAlert(alert: any) {

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ArchivedMessage, MessageService } from '../../../../shared/services/message.service';
 
 @Component({
     selector: 'app-notification',
@@ -6,6 +7,15 @@ import { Component, OnInit } from '@angular/core';
     styleUrls: ['./notification.component.scss']
 })
 export class NotificationComponent implements OnInit {
-    constructor() { }
-    ngOnInit() { }
+
+    archiveEntries: Array<ArchivedMessage>;
+
+    constructor(
+        private messageService: MessageService) {
+
+    }
+
+    ngOnInit() {
+        this.archiveEntries = this.messageService.getMessageArchive(7);
+    }
 }

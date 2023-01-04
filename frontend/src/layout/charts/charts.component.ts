@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ChartData } from 'chart.js';
 import { routerTransition } from '../../router.animations';
 
 @Component({
@@ -10,5 +11,12 @@ import { routerTransition } from '../../router.animations';
 export class ChartsComponent {
 
     constructor() {}
+
+    public pieChartData: ChartData<'pie', number[], string | string[]> = {
+        labels: [['Download', 'Sales'], ['In', 'Store', 'Sales'], 'Mail Sales'],
+        datasets: [{
+            data: [300, 500, 100]
+        }]
+    };
 
 }
