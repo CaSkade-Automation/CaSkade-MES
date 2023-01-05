@@ -1,6 +1,6 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { first, Observable } from 'rxjs';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 
 @Injectable({
@@ -14,6 +14,10 @@ export class PlcMappingService {
         private httpClient: HttpClient
     ) { }
 
+
+    isConnected(): Observable<HttpResponse<any>> {
+        return this.httpClient.get<any>(this.baseApiRoute, { observe: 'response' }).pipe(first());
+    }
 
     /**
 	 * Change the URL of the MTP mapping webservice

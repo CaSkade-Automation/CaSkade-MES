@@ -1,9 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ProcessDefinition, ProcessDefinitionDto } from '@shared/models/processDefinition/ProcessDefinition';
-import { ProcessInstance, ProcessInstanceDto } from '@shared/models/processInstance/ProcessInstance';
+import { ProcessInstance } from '@shared/models/processInstance/ProcessInstance';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { first, map } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -14,9 +14,14 @@ export class ProcessDefinitionService {
 
     constructor(private http: HttpClient) { }
 
+    isConnected(): Observable<HttpResponse<any>> {
+        const url = `${this.engineRestRoot}/process-definition`;
+        return this.http.get<any>(url, { observe: 'response' }).pipe(first());
+    }
+
     getAllDeployedProcessDefinitions(): Observable<ProcessDefinition[]> {
-        const URL = `${this.engineRestRoot}/process-definition`;
-        return this.http.get<ProcessDefinitionDto[]>(URL).pipe(
+        const url = `${this.engineRestRoot}/process-definition`;
+        return this.http.get<ProcessDefinitionDto[]>(url).pipe(
             map((data: ProcessDefinitionDto[]) => data.map(processDefDto => new ProcessDefinition(
                 processDefDto.id, processDefDto.key, processDefDto.category,
                 processDefDto.description, processDefDto.name, processDefDto.version, processDefDto.resource,
@@ -27,9 +32,8 @@ export class ProcessDefinitionService {
 
     }
     getDeployedProcessDefinitionById(processDefinitionId: string): Observable<ProcessDefinition> {
-        console.log("Searching Def:" + processDefinitionId);
-        const URL = `${this.engineRestRoot}/process-definition/${processDefinitionId}`;
-        return this.http.get<ProcessDefinitionDto>(URL).pipe(
+        const url = `${this.engineRestRoot}/process-definition/${processDefinitionId}`;
+        return this.http.get<ProcessDefinitionDto>(url).pipe(
             map((data: ProcessDefinitionDto) => new ProcessDefinition(
                 data.id, data.key, data.category,
                 data.description, data.name, data.version, data.resource,
@@ -48,19 +52,19 @@ export class ProcessDefinitionService {
      * @returns
      */
     deleteProcessDefinition(processInstanceId: string, cascade: boolean): Observable<void> {
-        const URL = `${this.engineRestRoot}/process-definition/${processInstanceId}`;
+        const url = `${this.engineRestRoot}/process-definition/${processInstanceId}`;
         const options = {
             params: {
                 cascade: cascade
             }
         };
-        return this.http.delete<void>(URL, options);
+        return this.http.delete<void>(url, options);
     }
 
 
     getXMLofProcessDefinition(processDefinitionId: string): Observable<BpmnXmlResult> {
-        const URL = `${this.engineRestRoot}/process-definition/${processDefinitionId}/xml`;
-        return this.http.get<BpmnXmlResult>(URL);
+        const url = `${this.engineRestRoot}/process-definition/${processDefinitionId}/xml`;
+        return this.http.get<BpmnXmlResult>(url);
     }
 
 
@@ -71,9 +75,9 @@ export class ProcessDefinitionService {
      * @returns The new instance
      */
     startNewProcessInstance(processDefinition: ProcessDefinition, variablesBody: string): Observable<ProcessInstance> {
-        const URL = `${this.engineRestRoot}/process-definition/${processDefinition.id}/start`;
+        const url = `${this.engineRestRoot}/process-definition/${processDefinition.id}/start`;
         const body = variablesBody;
-        return this.http.post<ProcessInstance>(URL, {});
+        return this.http.post<ProcessInstance>(url, {});
     }
 
 
