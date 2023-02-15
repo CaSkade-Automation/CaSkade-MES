@@ -17,28 +17,16 @@ export class PieChartComponent {
         responsive: true,
         plugins: {
             legend: {
-                display: true,
-                position: 'top',
-            },
-            datalabels: {
-                formatter: (value, ctx) => {
-                    if (ctx.chart.data.labels) {
-                        return ctx.chart.data.labels[ctx.dataIndex];
+                labels: {
+                    textAlign: 'center',
+                    font: {
+                        size: 10
                     }
-                },
+                }
             },
         }
     };
 
     @Input("chartHeader") chartHeader: string;
     @Input("chartData") pieChartData: ChartData<'pie', number[], string | string[]>;
-    //     labels: [['Download', 'Sales'], ['In', 'Store', 'Sales'], 'Mail Sales'],
-    //     datasets: [{
-    //         data: [300, 500, 100]
-    //     }]
-    // };
-
-    // @Input("chartdata") set chartData(d: ChartData<'pie', number[], string | string[]>) {
-    //     this.pieChartData
-    // }
 }

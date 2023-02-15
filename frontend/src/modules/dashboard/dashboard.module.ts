@@ -5,11 +5,14 @@ import { DashboardComponent } from './dashboard.component';
 import { StatModule } from '../../shared';
 import { NotificationComponent } from './components/notification/notification.component';
 import { ChartsModule } from '../../layout/charts/charts.module';
-import { ControlOverviewComponent } from './components/control-overview/control-overview.component';
+import { SettingsOverviewComponent } from './components/settings-overview/settings-overview.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
     imports: [
         CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
         DashboardRoutingModule,
         StatModule,
         ChartsModule
@@ -17,7 +20,7 @@ import { ControlOverviewComponent } from './components/control-overview/control-
     declarations: [
         DashboardComponent,
         NotificationComponent,
-        ControlOverviewComponent
+        SettingsOverviewComponent
     ]
 })
 export class DashboardModule {}

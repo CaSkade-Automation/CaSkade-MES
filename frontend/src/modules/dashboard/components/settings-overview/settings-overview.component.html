@@ -1,0 +1,30 @@
+<div class="card">
+    <div class="card-header">
+        <i class="fa-solid fa-sliders"></i> Settings Overview
+    </div>
+    <div class="card-body" [formGroup]="this.apiConnectionForm">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckCheckedDisabled" formControlName="graphDbConnected">
+            <label *ngIf="(this.apiConnectionForm.get('graphDbConnected').value == true)" class="form-check-label" for="flexSwitchCheckCheckedDisabled">GraphDB is connected</label>
+            <label *ngIf="(this.apiConnectionForm.get('graphDbConnected').value == false)" class="form-check-label warn" for="flexSwitchCheckCheckedDisabled">GraphDB is not connected</label>
+        </div>
+
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckCheckedDisabled" formControlName="mtpMappingServiceConnected">
+            <label *ngIf="(this.apiConnectionForm.get('mtpMappingServiceConnected').value == true)" class="form-check-label" for="flexSwitchCheckCheckedDisabled">MTP Mapping Service is connected</label>
+            <label *ngIf="(this.apiConnectionForm.get('mtpMappingServiceConnected').value == false)" class="form-check-label warn" for="flexSwitchCheckCheckedDisabled">MTP Mapping Service is not connected</label>
+        </div>
+
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckCheckedDisabled" formControlName="plcMappingServiceConnected">
+            <label *ngIf="(this.apiConnectionForm.get('plcMappingServiceConnected').value == true)" class="form-check-label" for="flexSwitchCheckCheckedDisabled">PLC2Skill Mapping Service is connected</label>
+            <label *ngIf="(this.apiConnectionForm.get('plcMappingServiceConnected').value == false)" class="form-check-label warn" for="flexSwitchCheckCheckedDisabled">PLC2Skill Mapping Service is not connected</label>
+        </div>
+
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckCheckedDisabled" formControlName="processServiceConnected">
+            <label *ngIf="(this.apiConnectionForm.get('processServiceConnected').value == true)" class="form-check-label" for="flexSwitchCheckCheckedDisabled">Process Engine is connected</label>
+            <label *ngIf="(this.apiConnectionForm.get('processServiceConnected').value == false)" class="form-check-label warn" for="flexSwitchCheckCheckedDisabled">Process Engine is not connected</label>
+        </div>
+    </div>
+</div>

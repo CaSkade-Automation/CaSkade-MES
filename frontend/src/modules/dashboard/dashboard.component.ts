@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ChartData } from 'chart.js';
+import { combineLatest, combineLatestAll, forkJoin, map, merge, mergeAll, Observable, tap, zip } from 'rxjs';
+import { RdfElement } from '../../../../shared/src/models/RdfElement';
 import { routerTransition } from '../../router.animations';
+import { Capability } from '../../shared/models/Capability';
+import { ProductionModule } from '../../shared/models/ProductionModule';
+import { Skill } from '../../shared/models/Skill';
 import { CapabilityService } from '../../shared/services/capability.service';
 import { ModuleService } from '../../shared/services/module.service';
 import { SkillService } from '../../shared/services/skill.service';
@@ -18,59 +23,57 @@ export class DashboardComponent implements OnInit {
         private moduleService: ModuleService,
         private capabilityService: CapabilityService,
         private skillService: SkillService,
-    ) {
+    ) {}
 
-        this.alerts.push(
-            {
-                id: 1,
-                type: 'success',
-                message: `Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                Voluptates est animi quibusdam praesentium quam, et perspiciatis,
-                consectetur velit culpa molestias dignissimos
-                voluptatum veritatis quod aliquam! Rerum placeat necessitatibus, vitae dolorum`
-            },
-            {
-                id: 2,
-                type: 'warning',
-                message: `Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                Voluptates est animi quibusdam praesentium quam, et perspiciatis,
-                consectetur velit culpa molestias dignissimos
-                voluptatum veritatis quod aliquam! Rerum placeat necessitatibus, vitae dolorum`
-            }
-        );
-    }
+    modules = new Array<ProductionModule>();
+    capabilities = new Array<Capability>();
+    skills = new Array<Skill>();
 
-    capPieChartHeader = "All Capabilities";
+    entityBarChartData: ChartData<'bar', number[], string | string[]>;
     capPieChartData: ChartData<'pie', number[], string | string[]>;
-
-    modulePieChartHeader = "All Modules"
     modulePieChartData: ChartData<'pie', number[], string | string[]>;
 
     ngOnInit(): void {
-        this.loadModuleData();
-        this.loadCapabilityData();
+        this.loadEntityData();
     }
 
-    private loadModuleData(): void {
-        this.moduleService.getAllModules().subscribe(modules => {
-            this.modulePieChartData = {
-                labels: [['Modules']],
-                datasets: [{
-                    data: [modules.length]
-                }]
-            };
-        });
+    private loadEntityData(): void {
+        const modules$ = this.moduleService.getAllModules();
+        const capabilities$ = this.capabilityService.getAllCapabilities();
+        const skills$ = this.skillService.getAllSkills();
+
+        zip(modules$, capabilities$, skills$)
+            .pipe(
+                map(([modules, capabilities, skills]) => ({ modules, capabilities, skills })),
+            )
+            .subscribe(data => {
+                console.log(data);
+
+                this.modules = data.modules,
+                this.capabilities = data.capabilities,
+                this.skills = data.skills;
+                this.entityBarChartData = {
+                    labels: ['Modules', 'Capabilities', 'Skills'],
+                    datasets: [
+                        { data: [this.modules.length, this.capabilities.length, this.skills.length], label: 'Entities', backgroundColor: '#135684'},
+                    ]
+                };
+                this.splitCapabilityData();
+            });
+
     }
 
-    private loadCapabilityData(): void {
-        this.capabilityService.getAllCapabilities().subscribe(caps => {
-            this.capPieChartData = {
-                labels: [['Capabilities']],
-                datasets: [{
-                    data: [caps.length]
-                }]
-            };
-        });
+    private splitCapabilityData(): void {
+        const requiredCaps = this.capabilities.filter(cap => cap.capabilityType.getLocalName() == "RequiredCapability");
+        const providedCaps = this.capabilities.filter(cap => cap.capabilityType.getLocalName() == "ProvidedCapability");
+        this.capPieChartData = {
+            labels: [['Required Capability'], ['Provided Capability']],
+            datasets: [{
+                data: [requiredCaps.length, providedCaps.length],
+            }]
+        };
+
+
     }
 
     public closeAlert(alert: any) {

@@ -2,18 +2,33 @@
     <h2 class="text-muted">Dashboard</h2>
 
     <div class="row">
-        <div class="col-lg-8">
+        <div class="col-lg-9">
             <div class="card card-default">
                 <div class="card-header">
                     <i class="fa-solid fa-chart-line"></i> Statistics
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-4">
-                            <pie-chart [chartHeader]="modulePieChartHeader" [chartData]="modulePieChartData"></pie-chart>
+                        <div class="col-8">
+                            <bar-chart [chartHeader]="'Model Entities'" [chartData]="entityBarChartData"></bar-chart>
                         </div>
                         <div class="col-4">
-                            <pie-chart [chartHeader]="capPieChartHeader" [chartData]="capPieChartData"></pie-chart>
+                            <div class="row">
+                                <div class="col-6">
+                                    <pie-chart [chartHeader]="'Ressources'" [chartData]="modulePieChartData"></pie-chart>
+                                </div>
+                                <div class="col-6">
+                                    <pie-chart [chartHeader]="'Capability Types'" [chartData]="capPieChartData"></pie-chart>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <pie-chart [chartHeader]="'Capability Methods'" [chartData]="capPieChartData"></pie-chart>
+                                </div>
+                                <div class="col-6">
+                                    <pie-chart [chartHeader]="'Skill Types'" [chartData]="capPieChartData"></pie-chart>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -28,7 +43,7 @@
 
 
 
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <div class="card card-default mb-3">
                 <div class="card-header">
                     <i class="fa fa-bell fa-fw"></i> Latest Notifications

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { ControlOverviewComponent } from './control-overview.component';
+import { SettingsOverviewComponent } from './settings-overview.component';
 
-describe('ControlOverviewComponent', () => {
-    let component: ControlOverviewComponent;
-    let fixture: ComponentFixture<ControlOverviewComponent>;
+describe('SettingsOverviewComponent', () => {
+    let component: SettingsOverviewComponent;
+    let fixture: ComponentFixture<SettingsOverviewComponent>;
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [ ControlOverviewComponent ]
+            declarations: [ SettingsOverviewComponent ]
         })
             .compileComponents();
     }));
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(ControlOverviewComponent);
+        fixture = TestBed.createComponent(SettingsOverviewComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

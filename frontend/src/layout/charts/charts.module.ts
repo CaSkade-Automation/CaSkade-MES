@@ -29,7 +29,8 @@ import { PolarAreaChartComponent } from './polararea-chart/polararea-chart.compo
         PolarAreaChartComponent
     ],
     exports: [
-        PieChartComponent
+        PieChartComponent,
+        BarChartComponent
     ]
 })
 export class ChartsModule {}
