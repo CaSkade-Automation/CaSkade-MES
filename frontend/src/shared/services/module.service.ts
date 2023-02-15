@@ -9,7 +9,7 @@ import { ProductionModule } from "../models/ProductionModule";
 @Injectable({
     providedIn: 'root'
 })
-export class    ModuleService {
+export class ModuleService {
     apiRoot = "/api";
 
     observer: Observer<ProductionModule[]>;

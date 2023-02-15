@@ -50,8 +50,9 @@ export class CapabilityService {
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
             PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
             PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-            SELECT ?capability ?input ?inputType ?output WHERE {
-                ?capability a ${capabilityType}.
+            SELECT ?capability ?input ?inputType ?output ?capabilityType WHERE {
+                ?capability a Cap:Capability, ?capabilityType.
+                Values ?capabilityType {Cap:ProvidedCapability Cap:RequiredCapability}
                 OPTIONAL{
                     ?capability VDI3682:hasInput ?input.
                     ?input a ?inputType.
@@ -62,6 +63,8 @@ export class CapabilityService {
                     ?output a ?outputType.
                     VALUES ?outputType {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
+                # Filter only relevant if specific type given
+                FILTER(EXISTS{?capability a ${capabilityType}})
             }`);
             const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
             // add skills

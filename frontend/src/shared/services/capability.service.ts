@@ -48,7 +48,6 @@ export class CapabilityService {
     private loadCapabilities(): Observable<Capability[]> {
         const apiURL = `${this.apiRoot}/capabilities`;
         return this.http.get<CapabilityDto[]>(apiURL).pipe(
-            tap(data => console.log(data)),
             map((data: CapabilityDto[]) => data.map(capabilityDto => new Capability(capabilityDto))
             ));
     }

@@ -1,6 +1,6 @@
 import { CapabilityDto } from "@shared/models/capability/Capability";
 import { RdfElement } from "@shared/models/RdfElement";
-import { D3CapabilityNode, D3GraphData, D3Link, D3Serializable, D3SkillNode, NodeType } from "../../modules/graph-visualization/D3GraphData";
+import { D3CapabilityNode, D3GraphData, D3Link, D3Serializable, NodeType } from "../../modules/graph-visualization/D3GraphData";
 import { ServiceLocator } from "../services/service-locator.service";
 import { SkillService } from "../services/skill.service";
 import { FpbElement } from "./FpbElement";
@@ -8,6 +8,8 @@ import { Property } from "./Property";
 import { Skill } from "./Skill";
 
 export class Capability extends RdfElement implements D3Serializable {
+    public capabilityType?: RdfElement;
+    public processType?: RdfElement;
     public inputs?: Array<FpbElement>;
     public outputs?: Array<FpbElement>;
     public skills? = new Array<Skill>();
@@ -16,6 +18,8 @@ export class Capability extends RdfElement implements D3Serializable {
 
     constructor(dto: CapabilityDto) {
         super(dto.iri);
+        this.capabilityType = new RdfElement(dto.capabilityType);
+        this.processType = new RdfElement(dto.processType);
         this.inputs = dto.inputs.map(inputDto => new FpbElement(inputDto));
         this.outputs = dto.outputs.map(outputDto => new FpbElement(outputDto));
         dto.skillDtos?.forEach(skillDto => {
