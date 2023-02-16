@@ -2,11 +2,14 @@
     "extends": "../tsconfig.base.json",
     "compilerOptions": {
         "module": "commonjs",
+        "declaration": true,
+        "allowSyntheticDefaultImports": true,
         "target": "es2017",
         // "rootDirs": ["./src", "../shared"],
         "emitDecoratorMetadata": true,
         "sourceMap": true,
         "outDir": "./dist",
+        "skipLibCheck": true,       // This is a bit hacky but is the only way to fix a typing issue on body parser
         "baseUrl": ".",
         "paths": {
             "@shared/*": ["../shared/dist/*"]
