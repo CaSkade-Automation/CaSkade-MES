@@ -1,27 +1,27 @@
 export const parameterQueryFragment = `OPTIONAL {
-    ?skill Cap:hasSkillParameter ?parameterIri.
-    ?parameterIri Cap:hasVariableName ?parameterName;
-        Cap:hasVariableType ?parameterType;
-        Cap:isRequired ?parameterRequired.
+    ?skill CaSk:hasSkillParameter ?parameterIri.
+    ?parameterIri CaSk:hasVariableName ?parameterName;
+        CaSk:hasVariableType ?parameterType;
+        CaSk:isRequired ?parameterRequired.
     OPTIONAL {
-        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
+        ?parameterIri CaSk:hasDefaultValue ?parameterDefault.
     }
     OPTIONAL {
-        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
+        ?parameterIri CaSk:hasSkillVariableOption/CaSk:hasOptionValue ?paramOptionValue
 
     }
 }`;
 
 export const outputQueryFragment = `OPTIONAL {
-    ?skill Cap:hasSkillOutput ?outputIri.
-    ?outputIri Cap:hasVariableName ?outputName;
-        Cap:hasVariableType ?outputType;
-        Cap:isRequired ?outputRequired.
+    ?skill CaSk:hasSkillOutput ?outputIri.
+    ?outputIri CaSk:hasVariableName ?outputName;
+        CaSk:hasVariableType ?outputType;
+        CaSk:isRequired ?outputRequired.
     OPTIONAL {
-        ?outputIri Cap:hasDefaultValue ?outputDefault.
+        ?outputIri CaSk:hasDefaultValue ?outputDefault.
     }
     OPTIONAL {
-        ?outputIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?outputOptionValue
+        ?outputIri CaSk:hasSkillVariableOption/CaSk:hasOptionValue ?outputOptionValue
     }
 }`;
 

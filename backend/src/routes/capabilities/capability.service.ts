@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
-import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 
 import {SparqlResultConverter} from "sparql-result-converter";
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
@@ -28,7 +28,7 @@ export class CapabilityService {
     async addCapability(newCapability: string): Promise<string> {
         try {
             // create a graph name for the service (uuid)
-            const capabilityGraphName = uuidv4();
+            const capabilityGraphName = crypto.randomUUID();
 
             await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
             this.capabilitySocket.sendMessage(SocketMessageType.Added);
@@ -40,19 +40,20 @@ export class CapabilityService {
 
     /**
      * Get all capabilities (optionally of a given type)
-     * @param capabilityType Default: Capability. Can be set to either "Cap:ProvidedCapability" or "Cap: RequiredCapability" to filter for one or the other
+     * @param capabilityType Default: Capability. Can be set to either "CaSk:ProvidedCapability" or "CaSk: RequiredCapability" to filter for one or the other
      * @returns A list of capabilities
      */
-    async getAllCapabilities(capabilityType = "Cap:Capability"): Promise<Array<CapabilityDto>> {
+    async getAllCapabilities(capabilityType = "CSS:Capability"): Promise<Array<CapabilityDto>> {
 
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
             PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             SELECT ?capability ?input ?inputType ?output ?capabilityType WHERE {
-                ?capability a Cap:Capability, ?capabilityType.
-                Values ?capabilityType {Cap:ProvidedCapability Cap:RequiredCapability}
+                ?capability a CSS:Capability, ?capabilityType.
+                Values ?capabilityType {CaSk:ProvidedCapability CaSk:RequiredCapability}
                 OPTIONAL{
                     ?capability VDI3682:hasInput ?input.
                     ?input a ?inputType.
@@ -95,9 +96,10 @@ export class CapabilityService {
     async getCapabilityByIri(capabilityIri: string): Promise<CapabilityDto> {
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             SELECT ?capability ?input ?output WHERE {
-                ?capability a Cap:Capability.
+                ?capability a CSS:Capability.
                 FILTER(?capability = IRI("${capabilityIri}")).
                 OPTIONAL{
                     ?capability VDI3682:hasInput ?input.
@@ -126,12 +128,12 @@ export class CapabilityService {
      */
     async getCapabilitiesOfModule(moduleIri: string): Promise<CapabilityDto[]> {
         const query = `
-        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
         SELECT ?capability ?input ?output WHERE {
-            ?capability a Cap:Capability.
-            <${moduleIri}> Cap:hasCapability ?capability.
-            OPTIONAL{
+            ?capability a CSS:Capability.
+            <${moduleIri}> CSS:providesCapability ?capability.
+            OPTIONAL {
                 ?capability VDI3682:hasInput ?input.
                 ?input a ?fpbElement.
                 VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
@@ -177,11 +179,11 @@ export class CapabilityService {
             this.skillService.deleteSkillsOfCapability(capabilityIri);
 
             const query = `
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
             SELECT ?capability ?graph WHERE {
                 GRAPH ?graph {
                     BIND(IRI("${capabilityIri}") AS ?capability).
-                    ?capability a Cap:Capability.
+                    ?capability a CSS:Capability.
                 }
             }`;
 

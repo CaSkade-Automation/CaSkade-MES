@@ -1,10 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import Axios, { AxiosRequestConfig } from 'axios';
+import { Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { AxiosRequestConfig } from 'axios';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
 import {MappingServiceConfig} from '@shared/models/mappings/MappingServiceConfig';
 import { ModuleService } from '../../production-modules/module.service';
-import { Request } from 'express';
 import { SkillService } from '../../skills/skill.service';
 
 @Injectable()
@@ -17,7 +17,8 @@ export class MtpMappingService {
 
     constructor(
         private skillService: SkillService,
-        private moduleService: ModuleService) {
+        private moduleService: ModuleService,
+        private http: HttpService) {
     }
 
     /**
@@ -49,24 +50,18 @@ export class MtpMappingService {
             timeout: 1200000        // large timeout because mapping takes forever
         };
 
-        Axios.post(this.config.url, formData, reqConfig)
-            .then(res => {
-                // Skills have to be registered separately so that state changes are tracked
-                // But this is a very hacky fix to extract skills out of the module .ttl, there should be a better way
-                const mappedTurtleDocument = res.data as string;
-                const skills = mappedTurtleDocument.match(/<.*> a .*Skill(>|;)/gi);
+        this.http.post(this.config.url, formData, reqConfig).subscribe(res => {
+            // Skills have to be registered separately so that state changes are tracked
+            // But this is a very hacky fix to extract skills out of the module .ttl, there should be a better way
+            const mappedTurtleDocument = res.data as string;
+            const skills = mappedTurtleDocument.match(/<.*> a .*Skill(>|;)/gi);
 
-                const contentType = "application/text-turtle; charset=UTF-8";   // Currently, MTP mapping returns result in turtle syntax
-                this.moduleService.addModule(res.data, contentType);
-                skills.forEach(skill => {
-                    this.skillService.addSkill(skill + ".");
-                });
-            })
-            .catch(err => {
-                console.log("error on mapping");
-                console.log(err);
+            const contentType = "application/text-turtle; charset=UTF-8";   // Currently, MTP mapping returns result in turtle syntax
+            this.moduleService.addModule(res.data, contentType);
+            skills.forEach(skill => {
+                this.skillService.addSkill(skill + ".");
             });
-
+        });
         return;
     }
 

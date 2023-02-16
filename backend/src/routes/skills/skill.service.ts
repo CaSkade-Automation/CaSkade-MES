@@ -1,13 +1,11 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
-
+import * as crypto from 'crypto';
 import { SkillDto, SkillQueryResult} from "@shared/models/skill/Skill";
 import { skillMapping } from './skill-mappings';
-import { v4 as uuidv4 } from 'uuid';
 import { SkillSocket } from '../../socket-gateway/skill-socket';
 
 import {SparqlResultConverter} from 'sparql-result-converter';
-import { CapabilityService } from '../capabilities/capability.service';
 import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
 import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
 import { OpcUaStateMonitorService } from '../../util/opc-ua-state-monitor.service';
@@ -30,7 +28,7 @@ export class SkillService {
     async addSkill(newSkill: string, contentType?: string): Promise<string> {
         try {
             // create a graph name for the skill (uuid)
-            const skillGraphName = uuidv4();
+            const skillGraphName = crypto.randomUUID();
             await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName, contentType);
 
             // Skill is added, now get its IRI and skill type to setup a state change monitor in case its an OpcUaVariableSkill
@@ -60,18 +58,19 @@ export class SkillService {
     async getAllSkills(): Promise<Array<SkillDto>> {
         try {
             const query = `
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
             SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
-                ?skill a Cap:Skill;
-                    Cap:hasStateMachine ?stateMachine.
-                ?capability Cap:isExecutableViaSkill ?skill.
+                ?skill a CSS:Skill;
+                    CSS:behaviorConformsTo ?stateMachine.
+                ?capability CSS:isRealizedBy ?skill.
                 OPTIONAL {
-                    ?skill Cap:hasCurrentState ?currentState.
+                    ?skill CaSk:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
@@ -95,19 +94,20 @@ export class SkillService {
     async getSkillByIri(skillIri: string): Promise<SkillDto> {
         try {
             const query = `
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
             SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
-                ?skill a Cap:Skill;
-                    Cap:hasStateMachine ?stateMachine.
-                ?capability Cap:isExecutableViaSkill ?skill.
+                ?skill a CSS:Skill;
+                    CSS:behaviorConformsTo ?stateMachine.
+                ?capability CSS:isRealizedBy ?skill.
                 FILTER(?skill = IRI("${skillIri}"))
                 OPTIONAL {
-                    ?skill Cap:hasCurrentState ?currentState.
+                    ?skill CaSk:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
@@ -128,18 +128,19 @@ export class SkillService {
     async getSkillsOfModule(moduleIri: string): Promise<SkillDto[]> {
         try {
             const query = `
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
             SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
-                <${moduleIri}> Cap:providesSkill ?skill.
-                ?capability Cap:isExecutableViaSkill ?skill.
-                ?skill Cap:hasStateMachine ?stateMachine.
+                <${moduleIri}> CSS:providesSkill ?skill.
+                ?capability CSS:isRealizedBy ?skill.
+                ?skill CSS:behaviorConformsTo ?stateMachine.
                 OPTIONAL {
-                    ?skill Cap:hasCurrentState ?currentState.
+                    ?skill CaSk:hasCurrentState ?currentState.
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
@@ -159,23 +160,21 @@ export class SkillService {
     async getSkillsForCapability(capabilityIri: string): Promise<SkillDto[]> {
         try {
             const query = `
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
             SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
                 WHERE {
-                    ?capability Cap:isExecutableViaSkill ?skill.
+                    ?capability CSS:isRealizedBy ?skill.
                     FILTER(?capability = <${capabilityIri}>)
-                    ?skill Cap:hasStateMachine ?stateMachine.
+                    ?skill CSS:behaviorConformsTo ?stateMachine.
                     OPTIONAL {
-                        ?skill Cap:hasCurrentState ?currentState.
+                        ?skill CaSk:hasCurrentState ?currentState.
                         ?currentState rdf:type ?currentStateTypeIri.
                         ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
-                    }
-                    OPTIONAL {
-                        ?skill Cap:hasSkillParameter ?parameter.
                     }
                     ${parameterQueryFragment}
                     ${outputQueryFragment}
@@ -204,11 +203,11 @@ export class SkillService {
     async deleteSkill(skillIri: string): Promise<void> {
         try {
             const query = `
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
             SELECT ?skill ?graph WHERE {
                 BIND(<${skillIri}> AS ?skill)
                 ?skill a ?skillType.
-                ?type rdfs:subClassOf Cap:Skill.
+                ?type rdfs:subClassOf CSS:Skill.
                 GRAPH ?graph {
                     ?skill a ?skillType
                     }
@@ -237,19 +236,20 @@ export class SkillService {
     async updateState(skillIri:string, newStateTypeIri: string): Promise<string> {
         try {
             const deleteQuery = `
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             DELETE WHERE {
-                <${skillIri}> Cap:hasCurrentState ?oldCurrentState.
+                <${skillIri}> CaSk:hasCurrentState ?oldCurrentState.
             }`;
             await this.graphDbConnection.executeUpdate(deleteQuery);
 
             const insertQuery = `
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             INSERT {
-                <${skillIri}> Cap:hasCurrentState ?newState.
+                <${skillIri}> CaSk:hasCurrentState ?newState.
             } WHERE {
-                <${skillIri}> Cap:hasStateMachine ?stateMachine.
+                <${skillIri}> CSS:behaviorConformsTo ?stateMachine.
                 ?stateMachine ISA88:hasState ?newState.
                 ?newState a <${newStateTypeIri}>.
             }`;
@@ -268,11 +268,11 @@ export class SkillService {
      */
     async getSkillInGraph(graphIri: string): Promise<{skillIri: string, skillTypeIri: string}> {
         const query = `
-        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         SELECT ?skillIri ?skillTypeIri ?g
         WHERE {
-            ?skillTypeIri rdfs:subClassOf Cap:Skill.   # Get the explicit type that was used to register the skill
+            ?skillTypeIri rdfs:subClassOf CSS:Skill.   # Get the explicit type that was used to register the skill
             GRAPH ?g {
                 ?skillIri a ?skillTypeIri.             # Get the graph where the skill was registered
             }
@@ -291,13 +291,14 @@ export class SkillService {
      */
     public async getSkillType(skillIri: string): Promise<string> {
         const query = `
-        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+        PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
         SELECT ?skill ?skillType WHERE {
-            ?skill a Cap:Skill.
+            ?skill a CSS:Skill.
             ?skill a ?skillType.
-            FILTER(?skill = IRI("${skillIri}")) # Filter for this one specific skill
-            FILTER(!isBlank(?skillType ))       # Filter out all blank nodes
+            FILTER(?skill = IRI("${skillIri}"))     # Filter for this one specific skill
+            FILTER(!isBlank(?skillType ))           # Filter out all blank nodes
             FILTER(STRSTARTS(STR(?skillType), "http://www.hsu-ifa.de/ontologies/capability-model")) # Filter just the classes from cap model
             FILTER NOT EXISTS {
                 ?someSubSkillSubClass sesame:directSubClassOf ?skillType.

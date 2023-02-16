@@ -7,8 +7,6 @@ export class BroadcastListener {
     socket: Socket;
     logger = new Logger("BroadcastListener");
 
-    // uuidv4 = require('uuid/v4');
-
     constructor() {
         // this.logger = new Logger("BroadcastListener");
         this.socket = createSocket("udp4");

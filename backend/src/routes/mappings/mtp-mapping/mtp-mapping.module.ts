@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-
+import { HttpModule } from '@nestjs/axios';
 import { MtpMappingController } from './mtp-mapping.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { MtpMappingService } from './mtp-mapping.service';
@@ -8,6 +8,7 @@ import { SkillModule } from '../../skills/skill.module';
 
 @Module({
     imports: [
+        HttpModule,
         ModuleModule,
         SkillModule,
         MulterModule.register({

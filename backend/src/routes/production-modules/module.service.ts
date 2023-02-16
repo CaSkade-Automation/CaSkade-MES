@@ -1,7 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
-import { v4 as uuidv4 } from 'uuid';
-
+import * as crypto from 'crypto';
 import { ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
 import { moduleMapping } from './module-mappings';
 
@@ -25,7 +24,7 @@ export class ModuleService {
      */
     async addModule(newModule: string, contentType: string): Promise<Record<string, string>> {
         // create a graph name (uuid)
-        const graphName = uuidv4();
+        const graphName = crypto.randomUUID();
         try {
             const dbResult = await this.graphDbConnection.addRdfDocument(newModule, graphName, contentType);
 
@@ -36,7 +35,7 @@ export class ModuleService {
                 return {msg:'ProductionModule successfully registered'};
             }
         } catch (error) {
-            throw new BadRequestException(`Error while registering new production module. Error: ${error.toString()}`);
+            throw new BadRequestException(`Error while registering new production module. ${error.toString()}`);
         }
     }
 
@@ -114,7 +113,6 @@ export class ModuleService {
             // TODO: Make sure descriptions of executable skills get deleted as well
             const graphQueryResults = await this.graphDbConnection.executeQuery(`
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-            PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
             PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -141,7 +139,7 @@ export class ModuleService {
             this.moduleSocket.sendMessage(SocketMessageType.Deleted);
 
         } catch (error) {
-            throw new Error(`Error while deleting module with IRI ${moduleIri}. Error: ${error}`);
+            throw new Error(`Error while deleting module with IRI ${moduleIri}. ${error}`);
         }
     }
 }
