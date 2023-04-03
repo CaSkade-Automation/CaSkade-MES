@@ -42,21 +42,21 @@ export class SkillCardComponent implements OnInit {
 
 
 
-    getCommandButtonClass(command: Transition) {
+    getCommandButtonClass(command: Transition): string {
         const commandName = command.getLocalName();
         switch (commandName) {
-        case "Start_Command":
-        case "Un-Hold_Command":
-        case "Unsuspend_Command":
-        case "Reset_Command":
+        case "StartCommand":
+        case "UnholdCommand":
+        case "UnsuspendCommand":
+        case "ResetCommand":
             return "btn-success";
-        case "Clear_Command":
+        case "ClearCommand":
             return "btn-secondary";
-        case "Suspend_Command":
-        case "Hold_Command":
+        case "SuspendCommand":
+        case "HoldCommand":
             return "btn-dark";
-        case "Abort_Command":
-        case "Stop_Command":
+        case "AbortCommand":
+        case "StopCommand":
             return "btn-danger";
         }
     }
@@ -91,7 +91,7 @@ export class SkillCardComponent implements OnInit {
     }
 
     getSkillOutputs(): void {
-        const request= new SkillExecutionRequestDto(this.skill.iri, "http://www.hsu-ifa.de/ontologies/capability-model#GetOutputs");
+        const request= new SkillExecutionRequestDto(this.skill.iri, "http://www.w3id.org/hsu-aut/cask#GetOutputs");
         this.skillExecutionService.executeService(request).subscribe((data: SkillVariableDto[]) => {
             data.forEach(element => {
                 const skillOutput = this.skill.skillOutputs.find(output => output.name == element.name);

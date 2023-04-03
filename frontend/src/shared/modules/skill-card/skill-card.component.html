@@ -33,7 +33,7 @@
                         [class]="this.getCommandButtonClass(command)"
                         *ngFor="let command of skill.stateMachine.getCommands()"
                         (click)="executeSkill(command)">
-                        {{command.getShortName()}}
+                        {{command.shortName}}
                     </button>
                 </div>
             </div>

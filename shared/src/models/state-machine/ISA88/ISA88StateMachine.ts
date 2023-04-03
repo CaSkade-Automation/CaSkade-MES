@@ -1,17 +1,17 @@
+import { Command } from "../Command";
 import { State } from "../State";
 import { StateMachine } from "../StateMachine";
-import { Transition } from "../Transition";
 
 export class Isa88StateMachine extends StateMachine {
 
     states: State[];
-    commands: Transition[];
+    commands: Command[];
 
-    getCommands(): Transition[] {
+    getCommands(): Command[] {
         return this.commands;
     }
 
-    getActiveCommands(): Transition[] {
+    getActiveCommands(): Command[] {
         return this.currentState.getActiveCommands();
     }
 
@@ -19,7 +19,7 @@ export class Isa88StateMachine extends StateMachine {
         return this.states;
     }
 
-    setCommands(commands: Transition[]): void {
+    setCommands(commands: Command[]): void {
         this.commands = commands;
     }
 
