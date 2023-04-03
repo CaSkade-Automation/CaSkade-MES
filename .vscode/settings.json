@@ -1,4 +1,10 @@
 {
     "eslint.workingDirectories": ["frontend", "backend", "shared"],
-    "typescript.preferences.importModuleSpecifier": "relative"
+	"typescript.preferences.importModuleSpecifier": "relative",
+	"conventionalCommits.scopes": [
+		"ontology",
+		"shared",
+		"backend",
+		"config"
+	]
 }
