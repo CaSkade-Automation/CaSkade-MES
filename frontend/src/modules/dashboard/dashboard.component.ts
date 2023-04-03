@@ -31,6 +31,7 @@ export class DashboardComponent implements OnInit {
 
     entityBarChartData: ChartData<'bar', number[], string | string[]>;
     capPieChartData: ChartData<'pie', number[], string | string[]>;
+    skillTypeData: ChartData<'pie', number[],  string | string[]>;
     modulePieChartData: ChartData<'pie', number[], string | string[]>;
 
     ngOnInit(): void {
@@ -55,10 +56,14 @@ export class DashboardComponent implements OnInit {
                 this.entityBarChartData = {
                     labels: ['Modules', 'Capabilities', 'Skills'],
                     datasets: [
-                        { data: [this.modules.length, this.capabilities.length, this.skills.length], label: 'Entities', backgroundColor: '#135684'},
+                        {
+                            data: [this.modules.length, this.capabilities.length, this.skills.length],
+                            label: 'Entities', backgroundColor: '#135684'
+                        },
                     ]
                 };
                 this.splitCapabilityData();
+                this.splitSkillData();
             });
 
     }
@@ -72,8 +77,22 @@ export class DashboardComponent implements OnInit {
                 data: [requiredCaps.length, providedCaps.length],
             }]
         };
+    }
 
+    private splitSkillData(): void {
+        console.log(this.skills);
 
+        const javaSkills = this.skills.filter(skill => skill.skillType.iri == 'http://www.w3id.org/hsu-aut/caskman#JavaSkill');
+        const mtpSkills = this.skills.filter(skill => skill.skillType.iri == 'http://www.w3id.org/hsu-aut/caskman#MtpSkill');
+        const plcSkills = this.skills.filter(skill => skill.skillType.iri == 'http://www.w3id.org/hsu-aut/caskman#PlcSkill');
+        console.log(javaSkills);
+
+        this.skillTypeData = {
+            labels: [['Java'], ['MTP'], ['PLC']],
+            datasets: [{
+                data: [javaSkills.length, mtpSkills.length, plcSkills.length]
+            }]
+        };
     }
 
     public closeAlert(alert: any) {

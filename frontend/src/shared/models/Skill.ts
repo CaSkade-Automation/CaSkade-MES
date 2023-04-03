@@ -11,6 +11,7 @@ import { Capability } from "./Capability";
 export class Skill extends RdfElement implements D3Serializable{
     public relatedCapabilities: Array<Capability>;
     public stateMachine: StateMachine;
+    public skillType: RdfElement;
     public skillParameters = new Array<SkillVariable>();
     public skillOutputs = new Array<SkillVariable>();
 
@@ -18,6 +19,7 @@ export class Skill extends RdfElement implements D3Serializable{
 
     constructor(skillDto: SkillDto) {
         super(skillDto.skillIri);
+        this.skillType = new RdfElement(skillDto.skillType);
         this.stateMachine = Isa88StateMachineBuilder.buildDefault(skillDto.stateMachineIri, skillDto.currentStateTypeIri);
 
         if(skillDto.capabilityIris) {

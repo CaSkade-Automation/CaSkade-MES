@@ -1,3 +1,13 @@
+// A query fragment to get skill types
+export const skillTypeFragment = `
+?skill a ?skillType.
+?skillType rdfs:subClassOf CSS:Skill.
+FILTER(!isBlank(?skillType ))  # Filter out all blank nodes
+FILTER NOT EXISTS {
+    ?someSubSkillSubClass sesame:directSubClassOf ?skillType.  # Filter out upper classes, get only specific subtype
+}`;
+
+// A query fragment to ger all (input) parameters
 export const parameterQueryFragment = `OPTIONAL {
     ?skill CSS:hasParameter ?parameterIri.
     ?parameterIri CaSk:hasVariableName ?parameterName;
@@ -12,6 +22,7 @@ export const parameterQueryFragment = `OPTIONAL {
     }
 }`;
 
+// A query fragment to ger all (output) parameters
 export const outputQueryFragment = `OPTIONAL {
     ?skill CaSk:hasSkillOutput ?outputIri.
     ?outputIri CaSk:hasVariableName ?outputName;

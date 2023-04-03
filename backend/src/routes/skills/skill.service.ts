@@ -6,7 +6,7 @@ import { skillMapping } from './skill-mappings';
 import { SkillSocket } from '../../socket-gateway/skill-socket';
 
 import {SparqlResultConverter} from 'sparql-result-converter';
-import { parameterQueryFragment, outputQueryFragment } from './query-fragments';
+import { parameterQueryFragment, outputQueryFragment, skillTypeFragment } from './query-fragments';
 import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
 import { OpcUaStateMonitorService } from '../../util/opc-ua-state-monitor.service';
 import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
@@ -62,7 +62,7 @@ export class SkillService {
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
+            SELECT ?skill ?skillType ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
@@ -74,6 +74,7 @@ export class SkillService {
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
+                ${skillTypeFragment}
                 ${parameterQueryFragment}
                 ${outputQueryFragment}
             }`;
@@ -98,7 +99,7 @@ export class SkillService {
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
+            SELECT ?skill ?skillType ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
@@ -111,6 +112,7 @@ export class SkillService {
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
+                ${skillTypeFragment}
                 ${parameterQueryFragment}
                 ${outputQueryFragment}
             }`;
@@ -132,7 +134,7 @@ export class SkillService {
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
+            SELECT ?skill ?skillType ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
             WHERE {
@@ -144,6 +146,7 @@ export class SkillService {
                     ?currentState rdf:type ?currentStateTypeIri.
                     ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                 }
+                ${skillTypeFragment}
                 ${parameterQueryFragment}
                 ${outputQueryFragment}
             }`;
@@ -164,7 +167,7 @@ export class SkillService {
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            SELECT ?skill ?capability ?stateMachine ?currentStateTypeIri
+            SELECT ?skill ?skillType ?capability ?stateMachine ?currentStateTypeIri
                 ?parameterIri ?parameterName ?parameterType ?parameterRequired ?parameterDefault ?paramOptionValue
                 ?outputIri ?outputName ?outputType ?outputRequired ?outputDefault ?outputOptionValue
                 WHERE {
@@ -176,6 +179,7 @@ export class SkillService {
                         ?currentState rdf:type ?currentStateTypeIri.
                         ?currentStateTypeIri sesame:directSubClassOf/sesame:directSubClassOf ISA88:State.
                     }
+                    ${skillTypeFragment}
                     ${parameterQueryFragment}
                     ${outputQueryFragment}
             }`;
@@ -305,7 +309,7 @@ export class SkillService {
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const skillTypeIri = queryResult.results.bindings[0]["skillInterfaceType"].value;
-        return skillTypeIri;
+        const skillInterfaceType = queryResult.results.bindings[0]["skillInterfaceType"].value;
+        return skillInterfaceType;
     }
 }
