@@ -286,26 +286,26 @@ export class SkillService {
 
 
     /**
-     * Get the skill type of a given skill
-     * @param skillIri IRI of the skill to get the type of
+     * Get the skill interface type of a given skill
+     * @param skillIri IRI of the skill to get the interface type of
      */
-    public async getSkillType(skillIri: string): Promise<string> {
+    public async getSkillInterfaceType(skillIri: string): Promise<string> {
         const query = `
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-        SELECT ?skill ?skillType WHERE {
-            ?skill a CSS:Skill.
-            ?skill a ?skillType.
+        SELECT ?skill ?skillInterfaceType WHERE {
+            ?skill a CSS:Skill;
+                CSS:accessibleThrough ?skillInterface.
+            ?skillInterface a ?skillInterfaceType.
             FILTER(?skill = IRI("${skillIri}"))     # Filter for this one specific skill
-            FILTER(!isBlank(?skillType ))           # Filter out all blank nodes
-            FILTER(STRSTARTS(STR(?skillType), "http://www.hsu-ifa.de/ontologies/capability-model")) # Filter just the classes from cap model
+            FILTER(!isBlank(?skillInterfaceType ))  # Filter out all blank nodes
             FILTER NOT EXISTS {
-                ?someSubSkillSubClass sesame:directSubClassOf ?skillType.
+                ?someSubSkillSubClass sesame:directSubClassOf ?skillInterfaceType.  # Filter out upper classes, get only specific subtype
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const skillTypeIri = queryResult.results.bindings[0]["skillType"].value;
+        const skillTypeIri = queryResult.results.bindings[0]["skillInterfaceType"].value;
         return skillTypeIri;
     }
 }

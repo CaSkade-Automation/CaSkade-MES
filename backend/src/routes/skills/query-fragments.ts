@@ -1,5 +1,5 @@
 export const parameterQueryFragment = `OPTIONAL {
-    ?skill CaSk:hasSkillParameter ?parameterIri.
+    ?skill CSS:hasParameter ?parameterIri.
     ?parameterIri CaSk:hasVariableName ?parameterName;
         CaSk:hasVariableType ?parameterType;
         CaSk:isRequired ?parameterRequired.
