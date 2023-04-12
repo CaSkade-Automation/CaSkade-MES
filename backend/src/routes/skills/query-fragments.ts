@@ -7,6 +7,15 @@ FILTER NOT EXISTS {
     ?someSubSkillSubClass sesame:directSubClassOf ?skillType.  # Filter out upper classes, get only specific subtype
 }`;
 
+export const skillInterfaceTypeFragment = `
+?skill a CSS:Skill;
+    CSS:accessibleThrough ?skillInterface.
+?skillInterface a ?skillInterfaceType.
+FILTER(!isBlank(?skillInterfaceType ))  # Filter out all blank nodes
+FILTER NOT EXISTS {
+    ?someSubSkillSubClass sesame:directSubClassOf ?skillInterfaceType.  # Filter out upper classes, get only specific subtype
+}`;
+
 // A query fragment to ger all (input) parameters
 export const parameterQueryFragment = `OPTIONAL {
     ?skill CSS:hasParameter ?parameterIri.
