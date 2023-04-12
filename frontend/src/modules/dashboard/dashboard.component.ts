@@ -31,8 +31,9 @@ export class DashboardComponent implements OnInit {
 
     entityBarChartData: ChartData<'bar', number[], string | string[]>;
     capPieChartData: ChartData<'pie', number[], string | string[]>;
+    capProcessData: ChartData<'pie', number[], string | string[]>;
     skillTypeData: ChartData<'pie', number[],  string | string[]>;
-    modulePieChartData: ChartData<'pie', number[], string | string[]>;
+    skillInterfaceData: ChartData<'pie', number[], string | string[]>;
 
     ngOnInit(): void {
         this.loadEntityData();
@@ -62,13 +63,33 @@ export class DashboardComponent implements OnInit {
                         },
                     ]
                 };
-                this.splitCapabilityData();
+                this.splitCapabilityTypes();
+                this.splitCapabilityProcesses();
                 this.splitSkillData();
+                this.splitSkillInterfaceData();
             });
 
     }
 
-    private splitCapabilityData(): void {
+    private splitSkillInterfaceData(): void {
+        const skillInterfaceTypes = new Map<string, number>();
+        this.skills.forEach(skill => {
+            const skillInterfaceType = skill.skillInterfaceType.getLocalName();
+            let currentValue = skillInterfaceTypes.get(skillInterfaceType) ?? 0;
+            skillInterfaceTypes.set(skillInterfaceType, ++currentValue);
+        });
+
+        const labels = Array.from(skillInterfaceTypes.keys());
+        const values = Array.from(skillInterfaceTypes.values());
+        this.skillInterfaceData = {
+            labels: labels,
+            datasets: [{
+                data: values,
+            }]
+        };
+    }
+
+    private splitCapabilityTypes(): void {
         const requiredCaps = this.capabilities.filter(cap => cap.capabilityType.getLocalName() == "RequiredCapability");
         const providedCaps = this.capabilities.filter(cap => cap.capabilityType.getLocalName() == "ProvidedCapability");
         this.capPieChartData = {
@@ -79,13 +100,28 @@ export class DashboardComponent implements OnInit {
         };
     }
 
-    private splitSkillData(): void {
-        console.log(this.skills);
+    private splitCapabilityProcesses(): void {
+        const processTypeMap = new Map<string, number>();
+        this.capabilities.forEach(cap => {
+            const processName = cap.processType?.getLocalName();
+            let currentValue = processTypeMap.get(processName) ?? 0;
+            processTypeMap.set(processName, ++currentValue);
+        });
 
+        const labels = Array.from(processTypeMap.keys());
+        const values = Array.from(processTypeMap.values());
+        this.capProcessData = {
+            labels: labels,
+            datasets: [{
+                data: values,
+            }]
+        };
+    }
+
+    private splitSkillData(): void {
         const javaSkills = this.skills.filter(skill => skill.skillType.iri == 'http://www.w3id.org/hsu-aut/caskman#JavaSkill');
         const mtpSkills = this.skills.filter(skill => skill.skillType.iri == 'http://www.w3id.org/hsu-aut/caskman#MtpSkill');
         const plcSkills = this.skills.filter(skill => skill.skillType.iri == 'http://www.w3id.org/hsu-aut/caskman#PlcSkill');
-        console.log(javaSkills);
 
         this.skillTypeData = {
             labels: [['Java'], ['MTP'], ['PLC']],
