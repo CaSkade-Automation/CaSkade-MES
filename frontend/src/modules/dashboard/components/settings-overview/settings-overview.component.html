@@ -28,3 +28,21 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" #graphDbWarningModal data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-danger text-white">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">GraphDB not connected</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            SkillMEx doesn't work without a running GraphDB instance. Make sure to start GraphDB and import the latest version of the <a href="https://github.com/aljoshakoecher/caskman" class="link-light">CaSkMan ontology</a>.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Understood, close</button>
+            </div>
+        </div>
+    </div>
+</div>
