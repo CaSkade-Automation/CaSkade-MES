@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Delete, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Post, Query, NotImplementedException } from '@nestjs/common';
 import { CapabilityService } from './capability.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';

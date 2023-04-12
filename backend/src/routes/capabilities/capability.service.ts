@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
@@ -43,8 +43,7 @@ export class CapabilityService {
      * @param capabilityType Default: Capability. Can be set to either "CaSk:ProvidedCapability" or "CaSk: RequiredCapability" to filter for one or the other
      * @returns A list of capabilities
      */
-    async getAllCapabilities(capabilityType = "CSS:Capability"): Promise<Array<CapabilityDto>> {
-
+    async getAllCapabilities(capabilityType = "http://www.w3id.org/hsu-aut/css#Capability"): Promise<Array<CapabilityDto>> {
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
@@ -74,7 +73,7 @@ export class CapabilityService {
                         })
                 }
                 # Filter only relevant if specific type given
-                FILTER(EXISTS{?capability a ${capabilityType}})
+                FILTER(EXISTS{?capability a <${capabilityType}>})
             }`);
             const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
             // add skills

@@ -7,13 +7,14 @@ import { CapabilityGraphVisuComponent } from './capability-graph-visu/capability
 import { CapabilityRegistrationComponent } from './capability-registration/capability-registration.component';
 import { SkillCardModule } from 'src/shared/modules/skill-card/skill-card.module';
 import { OntologyRegistrationModule } from 'src/shared/modules/ontology-registration/ontology-registration.module';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CapabilityCardModule } from '../../shared/modules/capability-card/capability-card.module';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
+        ReactiveFormsModule,
         CapabilityRoutes,
         CapabilityCardModule,
         SkillCardModule,
