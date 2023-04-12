@@ -16,6 +16,6 @@ export class NotificationComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.archiveEntries = this.messageService.getMessageArchive(7);
+        this.archiveEntries = this.messageService.getMessageArchive(7).sort((msgA, msgB) => new Date(msgB.date).getTime() - new Date(msgA.date).getTime());
     }
 }
