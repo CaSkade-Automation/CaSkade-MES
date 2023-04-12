@@ -6,6 +6,7 @@
 		"shared",
 		"backend",
 		"config",
-		"frontend"
+		"frontend",
+		"front&back"
 	]
 }
