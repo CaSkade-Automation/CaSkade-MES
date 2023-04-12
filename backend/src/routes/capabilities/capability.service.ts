@@ -48,10 +48,11 @@ export class CapabilityService {
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-            PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
+            PREFIX VDI2860: <http://www.hsu-ifa.de/ontologies/VDI2860#>
             PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX DIN8580: <http://www.hsu-ifa.de/ontologies/DIN8580#>
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
-            SELECT ?capability ?input ?inputType ?output ?capabilityType WHERE {
+            SELECT ?capability ?input ?inputType ?output ?capabilityType ?processType WHERE {
                 ?capability a CSS:Capability, ?capabilityType.
                 Values ?capabilityType {CaSk:ProvidedCapability CaSk:RequiredCapability}
                 OPTIONAL{
@@ -63,6 +64,14 @@ export class CapabilityService {
                     ?capability VDI3682:hasOutput ?output.
                     ?output a ?outputType.
                     VALUES ?outputType {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                }
+                OPTIONAL{
+                    ?capability a ?processType.
+                    ?processType rdfs:subClassOf ?processParentType.
+                    VALUES ?processParentType {DIN8580:Fertigungsverfahren VDI2860:Handhaben}
+                    FILTER (NOT EXISTS{
+                            ?someSubtype rdfs:subClassOf ?processType.
+                        })
                 }
                 # Filter only relevant if specific type given
                 FILTER(EXISTS{?capability a ${capabilityType}})
