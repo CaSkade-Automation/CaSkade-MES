@@ -5,6 +5,7 @@
 		"ontology",
 		"shared",
 		"backend",
-		"config"
+		"config",
+		"frontend"
 	]
 }
