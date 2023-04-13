@@ -1,8 +1,19 @@
 <div class="card border-dark mb-3  border-secondary rounded">
     <div class="card-header">
-        <h5 class="card-title" title="{{skill.iri}}">{{skill.getLocalName()}}</h5>
-        <button class="btn btn-sm btn-danger" style="position:absolute; right:10px;top:10px;" title="Disconnect Skill"
-                    (click)="deleteSkill()"><i class="far fa-trash-alt"></i></button>
+        <div class="row">
+            <div class="col-9">
+                <h5 class="card-title" title="{{skill.iri}}">{{skill.getLocalName()}}</h5>
+            </div>
+            <div class="col-3">
+                <div class="float-end">
+                    <a class="btn btn-sm btn-secondary me-1" title="Show in Graph View" [routerLink]="[ '/graph-visualization/skills', skill.iri]">
+                        <i class="fa fa-project-diagram"></i>
+                    </a>
+                    <button class="btn btn-sm btn-danger" title="Disconnect Skill"
+                                (click)="deleteSkill()"><i class="far fa-trash-alt"></i></button>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="card-body">
 
@@ -22,7 +33,7 @@
                         [class]="this.getCommandButtonClass(command)"
                         *ngFor="let command of skill.stateMachine.getCommands()"
                         (click)="executeSkill(command)">
-                        {{command.getShortName()}}
+                        {{command.shortName}}
                     </button>
                 </div>
             </div>

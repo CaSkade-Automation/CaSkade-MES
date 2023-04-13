@@ -1,13 +1,13 @@
-<div class="row">
+<div class="row" [formGroup]="capabilityTypeForm">
     <div class="col-12">
         <div class="form-check form-check-inline form-switch">
-            <input class="form-check-input" [(ngModel)]="showProvided" type="checkbox" id="providedCapabilitiesSwitch">
+            <input class="form-check-input" formControlName="showProvided" type="checkbox" id="providedCapabilitiesSwitch">
             <label class="form-check-label" for="providedCapabilitiesSwitch">Show provided capabilities</label>
         </div>
     </div>
     <div class="col-12">
         <div class="form-check form-check-inline form-switch">
-            <input class="form-check-input" [(ngModel)]="showRequired" type="checkbox" id="requiredCapabilitiesSwitch">
+            <input class="form-check-input" formControlName="showRequired" type="checkbox" id="requiredCapabilitiesSwitch">
             <label class="form-check-label" for="requiredCapabilitiesSwitch">Show required capabilities</label>
         </div>
     </div>

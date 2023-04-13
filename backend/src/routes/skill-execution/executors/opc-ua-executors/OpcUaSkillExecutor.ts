@@ -1,8 +1,6 @@
 import { AttributeIds, BrowseDescription, BrowseDirection, CallMethodRequestOptions, CallMethodResult, ClientSession,
-    ConnectionStrategy, DataType, MessageSecurityMode,
-    NodeId, NodeIdType, OPCUAClient, OPCUAClientOptions,
-    SecurityPolicy, StatusCode, UserNameIdentityToken,
-    Variant, VariantOptions, WriteValue, WriteValueOptions } from "node-opcua";
+    ConnectionStrategy, DataType, MessageSecurityMode, NodeId, NodeIdType, OPCUAClient, OPCUAClientOptions,
+    SecurityPolicy, StatusCode, UserNameIdentityToken, WriteValue } from "node-opcua";
 import { SkillService } from "../../../../routes/skills/skill.service";
 import { SparqlResultConverter } from "sparql-result-converter";
 import { GraphDbConnectionService } from "../../../../util/GraphDbConnection.service";
@@ -128,12 +126,12 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
      */
     private async getOpcUaServerInfo(skillIri: string): Promise<OpcUaServerInfo> {
         const query = `
-        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
         SELECT ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password WHERE {
             BIND(<${skillIri}> AS ?skillIri).
-            ?skillIri a Cap:OpcUaSkill.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillIri;
+            ?skillIri CSS:accessibleThrough ?skillInterface.
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface;
                 OpcUa:hasEndpointUrl ?endpointUrl;
                 OpcUa:hasMessageSecurityMode ?messageSecurityMode;
                 OpcUa:hasSecurityPolicy ?securityPolicy.
@@ -143,37 +141,43 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const opcUaServerInfo = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillParameterMapping).getFirstRootElement()[0] as Promise<OpcUaServerInfo>;
+        const opcUaServerInfo = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillParameterMapping)
+            .getFirstRootElement()[0] as Promise<OpcUaServerInfo>;
 
         return opcUaServerInfo;
     }
 
     protected async getOpcUaParameterDescription(skillIri: string): Promise<OpcUaSkillParameterResult> {
         const query = `
-        PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
         SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password ?parameterIri ?parameterRequired
             ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
             BIND(<${skillIri}> AS ?skillIri).
-            ?skillIri a Cap:OpcUaSkill.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillIri;
-                                      OpcUa:hasEndpointUrl ?endpointUrl;
-                                      OpcUa:hasMessageSecurityMode ?messageSecurityMode;
-                                      OpcUa:hasSecurityPolicy ?securityPolicy.
+            ?skillIri CSS:accessibleThrough ?skillInterface.
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface;
+                OpcUa:hasEndpointUrl ?endpointUrl;
+                OpcUa:hasMessageSecurityMode ?messageSecurityMode;
+                OpcUa:hasSecurityPolicy ?securityPolicy.
             OPTIONAL {
-                ?skillIri Cap:hasSkillParameter ?parameterIri.
-                ?parameterIri a Cap:SkillParameter;
-                    Cap:hasVariableName ?parameterName;
-                    Cap:hasVariableType ?parameterType;
-                    Cap:isRequired ?parameterRequired;
+                ?uaServer OpcUa:requiresUserName ?userName;
+                    OpcUa:requiresPassword ?password.
+            }
+            OPTIONAL {
+                ?skillIri CSS:hasParameter ?parameterIri.
+                ?parameterIri a CSS:SkillParameter;
+                    CaSk:hasVariableName ?parameterName;
+                    CaSk:hasVariableType ?parameterType;
+                    CaSk:isRequired ?parameterRequired;
                     OpcUa:nodeId ?parameterNodeId;
             }
         }`;
         //OpcUa:hasDataType ?parameterUaType.
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillParameterMapping).getFirstRootElement()[0] as OpcUaSkillParameterResult;
+        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillParameterMapping)
+            .getFirstRootElement()[0] as OpcUaSkillParameterResult;
 
         // const opcUaSkillDescription = new OpcUaSkill(skillIri, commandTypeIri, mappedResult);
         return mappedResult;
@@ -188,12 +192,10 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
     protected async writeSingleNode(nodeIdString: string, value: any, namespace?: string): Promise<StatusCode> {
         // Problem: Some UA servers provide full nodeID string that can be parsed, others don't (they provide namespace separately)
         // Solution: Try to get a proper nodeId by trying to resolve the whole string. If it fails -> try with the separate namespace
-        let nsIndex: number;
         let nodeId: NodeId;
 
         try {
             nodeId = NodeId.resolveNodeId(nodeIdString);
-            nsIndex = nodeId.namespace;
         } catch (error) {
             // if nodeId cannot be resolved, try to do it manually
             let nsIndex = Number(namespace);    // namespace could also be stored as index

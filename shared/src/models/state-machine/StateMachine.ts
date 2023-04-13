@@ -1,6 +1,6 @@
 import { RdfElement } from "../RdfElement";
+import { Command } from "./Command";
 import { State } from "./State";
-import { Transition } from "./Transition";
 
 export abstract class StateMachine extends RdfElement{
     protected currentState: State;
@@ -10,8 +10,8 @@ export abstract class StateMachine extends RdfElement{
         this.currentState = currentState;
     }
 
-    abstract getCommands(): Transition[];
-    abstract getActiveCommands(): Transition[];
+    abstract getCommands(): Command[];
+    abstract getActiveCommands(): Command[];
     abstract getStates(): State[];
 
     setCurrentState(stateTypeIri: string) {

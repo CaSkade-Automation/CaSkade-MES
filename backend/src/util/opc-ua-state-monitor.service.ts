@@ -10,8 +10,9 @@ import { AttributeIds,
     TimestampsToReturn } from "node-opcua";
 import { GraphDbConnectionService } from "./GraphDbConnection.service";
 import {MappingDefinition, SparqlResultConverter} from 'sparql-result-converter';
-import { HttpService, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { take } from "rxjs/operators";
+import { HttpService } from "@nestjs/axios";
 
 /**
  *  A state change monitor that keeps track of state changes for OpcUaVariableSkills. This type of skill doesn't communicate changes in state.
@@ -23,12 +24,13 @@ export class OpcUaStateMonitorService {
     converter = new SparqlResultConverter();
 
 
-    constructor(private httpService: HttpService, private graphDbConnection: GraphDbConnectionService) {
+    constructor(
+        private httpService: HttpService,
+        private graphDbConnection: GraphDbConnectionService) {
         this.graphDbConnection = graphDbConnection;
     }
 
     public async setupItemToMonitor(session: ClientSession, skillIri: string): Promise<void> {
-        console.log("setting up item to monitor");
 
         this.subscription = ClientSubscription.create(session, {
             requestedPublishingInterval: 1000,

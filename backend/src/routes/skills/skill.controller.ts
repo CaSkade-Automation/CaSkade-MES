@@ -41,7 +41,7 @@ export class SkillController {
     }
 
     @Delete(':skillIri')
-    deleteSkill(@Param('skillIri') skillIri: string): Promise<string> {
+    deleteSkill(@Param('skillIri') skillIri: string): Promise<void> {
         return this.skillService.deleteSkill(skillIri);
     }
 }

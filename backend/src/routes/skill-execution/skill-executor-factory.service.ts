@@ -20,23 +20,23 @@ export class SkillExecutorFactory {
      */
     async getSkillExecutor(skillIri: string): Promise<SkillExecutor> {
 
-        const skillTypeIri = await this.skillService.getSkillType(skillIri);
+        const skillInterfaceTypeIri = await this.skillService.getSkillInterfaceType(skillIri);
 
-        switch (skillTypeIri) {
-        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaMethodSkill': {
+        switch (skillInterfaceTypeIri) {
+        case 'http://www.w3id.org/hsu-aut/caskman#OpcUaMethodSkillInterface': {
             const methodSkillExecutor = new OpcUaMethodSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
             await methodSkillExecutor.connectAndCreateSession();
             return methodSkillExecutor;
         }
-        case 'http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill': {
+        case 'http://www.w3id.org/hsu-aut/caskman#OpcUaVariableSkillInterface': {
             const variableSkillExecutor = new OpcUaVariableSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
             await variableSkillExecutor.connectAndCreateSession();
             return variableSkillExecutor;
         }
-        case 'http://www.hsu-ifa.de/ontologies/capability-model#RestSkill':
+        case 'http://www.w3id.org/hsu-aut/caskman#RestSkillInterface':
             return new RestSkillExecutionService(this.graphDbConnection);
         default:
-            console.log(`Returning a default SkillExecutor. The given skill type ${skillTypeIri} is not defined`);
+            console.log(`Returning a default SkillExecutor. The given skill type ${skillInterfaceTypeIri} is not defined`);
             return new NullSkillExecutor();
         }
 

@@ -18,12 +18,12 @@ export class ServiceTaskFormComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        const typeProperty = new BpmnProperty("serviceTaskType", this.serviceTaskType);
+        const typeProperty = new BpmnProperty("camunda:serviceTaskType", this.serviceTaskType);
         this.extensionElementService.updateBaseProperty(typeProperty);
     }
 
     changeType(newType: string): void {
-        const typeProperty = new BpmnProperty("serviceTaskType", newType);
+        const typeProperty = new BpmnProperty("camunda:serviceTaskType", newType);
         this.extensionElementService.updateBaseProperty(typeProperty);
     }
 

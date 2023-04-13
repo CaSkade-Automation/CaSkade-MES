@@ -1,12 +1,9 @@
 <div class="card mb-3">
     <div class="card-header">
-        Bar Chart
+        {{chartHeader}}
     </div>
     <div class="card-body">
         <canvas baseChart [data]="barChartData" [options]="barChartOptions" [plugins]="barChartPlugins" [type]="barChartType">
         </canvas>
-    </div>
-    <div class="card-footer">
-        <button class="btn btn-info btn-sm" (click)="randomize()">Update</button>
     </div>
 </div>

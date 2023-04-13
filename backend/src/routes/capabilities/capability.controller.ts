@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Delete, Post, Query } from '@nestjs/common';
+import { Controller, Get, Param, Delete, Post, Query, NotImplementedException } from '@nestjs/common';
 import { CapabilityService } from './capability.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { StringBody } from '../../custom-decorators/StringBodyDecorator';
@@ -53,7 +53,7 @@ export class CapabilityController {
      * @param capabilityIri IRI of the capability to delete
      */
     @Delete(':capabilityIri')
-    deleteCapability(@Param('capabilityIri') capabilityIri: string): Promise<string> {
+    deleteCapability(@Param('capabilityIri') capabilityIri: string): Promise<void> {
         return this.capabilityService.deleteCapability(capabilityIri);
     }
 }

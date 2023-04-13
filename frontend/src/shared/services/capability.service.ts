@@ -1,11 +1,20 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Observer } from 'rxjs';
 import { CapabilityDto } from '@shared/models/capability/Capability';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { map, take } from 'rxjs/operators';
 import { SkillService } from './skill.service';
 import { Capability } from '../models/Capability';
 import { environment } from '../../../environments/environment';
+import { CapabilitySocketService } from './sockets/capability-socket.service';
+
+
+export enum CapabilityTypes {
+    "All" = "http://www.w3id.org/hsu-aut/css#Capability",
+    "ProvidedCapability" = "http://www.w3id.org/hsu-aut/cask#ProvidedCapability",
+    "RequiredCapability" = "http://www.w3id.org/hsu-aut/cask#RequiredCapability"
+}
+
 
 @Injectable({
     providedIn: 'root'
@@ -13,24 +22,51 @@ import { environment } from '../../../environments/environment';
 export class CapabilityService {
     apiRoot = `${environment.settings.backendUrl}/api`;
 
+    observer: Observer<Capability[]>;
+
     constructor(
         private http: HttpClient,
-        private skillService: SkillService
+        private skillService: SkillService,
+        private capabilitySocket: CapabilitySocketService
     ) { }
 
 
     /**
      * Returns all capabilities that are currently registered
      */
-    getAllCapabilities(): Observable<Capability[]> {
-        console.log("getting all caps");
-        console.log("goes to:" + this.apiRoot);
+    getAllCapabilities(capType?: CapabilityTypes): Observable<Capability[]> {
+        console.log(capType);
 
+        let capabilities;
+        this.loadCapabilities(capType).pipe(take(1)).subscribe(initialCapabilities => {
+            capabilities = initialCapabilities;
+            this.observer.next(capabilities);
+        });
 
+        this.capabilitySocket.getCapabilityAdded().subscribe(msg => {
+            this.loadCapabilities(capType).pipe(take(1)).subscribe((newCapabilities: Capability[]) => {
+                this.observer.next(newCapabilities);
+            });
+        });
+        return this.createObservable();
+
+    }
+
+    /**
+     * Loads all capabilities from GraphDB with a single HTTP request
+     */
+    private loadCapabilities(capType = CapabilityTypes.All): Observable<Capability[]> {
         const apiURL = `${this.apiRoot}/capabilities`;
-        return this.http.get<CapabilityDto[]>(apiURL).pipe(
+        const typeParam = new HttpParams().append("type", capType);
+        return this.http.get<CapabilityDto[]>(apiURL, {params: typeParam}).pipe(
             map((data: CapabilityDto[]) => data.map(capabilityDto => new Capability(capabilityDto))
             ));
+    }
+
+    private createObservable(): Observable<Capability[]> {
+        return new Observable(observer => {
+            this.observer = observer;
+        });
     }
 
     /**

@@ -1,43 +1,51 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, first } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
 })
 export class GraphDbRepoService {
 
+    baseRoute = "/api/graph-repositories";
+
     constructor(private httpClient: HttpClient) { }
 
+    isConnected(): Observable<HttpResponse<any>> {
+        return this.httpClient.get<any>(this.baseRoute, { observe: 'response' }).pipe(first());
+    }
 
     getCurrentConfig(): Observable<DbConfig> {
-        return this.httpClient.get('/api/graph-repositories/config') as Observable<DbConfig>;
+        const url = `${this.baseRoute}/config`;
+        return this.httpClient.get(url) as Observable<DbConfig>;
     }
 
     changeConfig(newConfig): Observable<DbConfig>{
-        return this.httpClient.put('/api/graph-repositories/config', newConfig)
+        const url = `${this.baseRoute}/config`;
+        return this.httpClient.put(url, newConfig)
             .pipe(catchError((e: HttpErrorResponse) => {
                 return throwError(e);
             })) as Observable<DbConfig>;
     }
 
     getRepositories(): Observable<GraphDbRepositoryInfo[]> {
-        return this.httpClient.get('/api/graph-repositories') as Observable<GraphDbRepositoryInfo[]>;
+        return this.httpClient.get(this.baseRoute) as Observable<GraphDbRepositoryInfo[]>;
     }
 
     changeRepository(newRepoId: string): Observable<Record<string, any>> {
         const newRepo = {"selectedRepo" : newRepoId};
-        return this.httpClient.patch('/api/graph-repositories/config', newRepo);
+        const url = `${this.baseRoute}/config`;
+        return this.httpClient.patch(url, newRepo);
     }
 
 }
 
 export interface DbConfig {
-  host: string;
-  user: string;
-  password: string;
-  selectedRepo: string;
+    host: string;
+    user: string;
+    password: string;
+    selectedRepo: string;
 }
 
 export interface GraphDbRepositoryInfo {

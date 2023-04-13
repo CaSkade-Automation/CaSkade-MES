@@ -1,0 +1,22 @@
+.form-check-input {
+    opacity: initial;
+    pointer-events: all !important;
+    cursor: not-allowed;
+    background-color: var(--bs-danger-border-subtle);
+    border-color: var(--bs-danger-border-subtle);
+}
+
+.form-check-input:checked {
+    background-color: var(--bs-success-border-subtle);
+    border-color: var(--bs-success-border-subtle);
+}
+
+.form-check-input:disabled ~ .form-check-label {
+    opacity: 0.8;
+    color: var(--bs-danger-text);
+}
+
+.form-check-input:checked ~ .form-check-label {
+    opacity: 0.8;
+    color: var(--bs-success-text);
+}

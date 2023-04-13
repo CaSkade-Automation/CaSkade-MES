@@ -1,12 +1,15 @@
 import { CapabilityDto } from "@shared/models/capability/Capability";
 import { RdfElement } from "@shared/models/RdfElement";
+import { D3CapabilityNode, D3GraphData, D3Link, D3Serializable, NodeType } from "../../modules/graph-visualization/D3GraphData";
 import { ServiceLocator } from "../services/service-locator.service";
 import { SkillService } from "../services/skill.service";
 import { FpbElement } from "./FpbElement";
 import { Property } from "./Property";
 import { Skill } from "./Skill";
 
-export class Capability extends RdfElement {
+export class Capability extends RdfElement implements D3Serializable {
+    public capabilityType?: RdfElement;
+    public processType = new RdfElement("http://www.w3id.org/hsu-aut/css#Capability"); // Set "Capability as default processType"
     public inputs?: Array<FpbElement>;
     public outputs?: Array<FpbElement>;
     public skills? = new Array<Skill>();
@@ -15,10 +18,12 @@ export class Capability extends RdfElement {
 
     constructor(dto: CapabilityDto) {
         super(dto.iri);
+        this.capabilityType = new RdfElement(dto.capabilityType);
         this.inputs = dto.inputs.map(inputDto => new FpbElement(inputDto));
         this.outputs = dto.outputs.map(outputDto => new FpbElement(outputDto));
-        dto.skillIris?.forEach(skillIri => {
-            this.skillService.getSkillByIri(skillIri).subscribe(data => this.skills.push(data));
+        if(dto.processType) this.processType = new RdfElement(dto.processType);
+        dto.skillDtos?.forEach(skillDto => {
+            this.skills.push(new Skill(skillDto));
         });
     }
 
@@ -50,5 +55,23 @@ export class Capability extends RdfElement {
         }, init);
 
         return outputProperties;
+    }
+
+    toD3GraphData(): D3GraphData {
+        const data = new D3GraphData();
+        const capabilityNode = new D3CapabilityNode(this.iri,this.getLocalName());
+        data.nodes.push(capabilityNode);
+
+        this.skills.forEach(skill => {
+            const skillData = skill.toD3GraphData();
+            data.addData(skillData);
+            const skillNodes = skillData.nodes.filter(node => node.type == NodeType.Skill);
+            skillNodes.forEach(skillNode => {
+                const link = new D3Link(capabilityNode, skillNode, "isExecutableVia");
+                data.addLinks([link]);
+            });
+        });
+
+        return data;
     }
 }

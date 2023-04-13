@@ -27,7 +27,8 @@
                             "src/styles/app.scss"
                         ],
                         "scripts": [
-                            "node_modules/bootstrap/dist/js/bootstrap.bundle.js",
+                            "node_modules/@popperjs/core/dist/esm/popper.js",
+                            "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
                             "node_modules/chart.js/dist/chart.js"
                         ],
                         "aot": false,

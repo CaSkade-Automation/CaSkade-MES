@@ -1,11 +1,11 @@
-import { SkillDto } from "../skill/Skill";
+import { CapabilityDto } from "../capability/Capability";
 
 
 export class ProductionModuleDto {
     iri: string;
     interfaces? : Array<ModuleInterface>;
     components? : Array<Component>;
-    skillDtos?: Array<SkillDto>;
+    capabilityDtos?: Array<CapabilityDto>;
 }
 
 export interface ModuleInterface {

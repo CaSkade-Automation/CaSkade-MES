@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { forkJoin, merge, Observable } from 'rxjs';
+import { forkJoin, merge, Observable, Subscription } from 'rxjs';
 import { combineAll, map, take } from 'rxjs/operators';
 import { ProcessInstance, ProcessInstanceDto } from '@shared/models/processInstance/ProcessInstance';
 import { BpmnXmlResult, ProcessDefinitionService } from '../../../../shared/services/bpmn/process-definition.service';
@@ -22,7 +22,7 @@ export class ProcessInstancesComponent implements OnInit {
         private instanceService: ProcessInstanceService,
         private definitionService: ProcessDefinitionService) { }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.loadAllProcessInstances();
     }
 
@@ -57,6 +57,7 @@ export class ProcessInstancesComponent implements OnInit {
      * @param processInstance Process Instance to display
      */
     showInViewer(processInstance: ProcessInstance): void {
+        // this.selectedInstance = null;
         this.getCompleteInstanceDetails(processInstance).subscribe(res => this.selectedInstance = res);
     }
 
@@ -88,10 +89,23 @@ export class ProcessInstancesComponent implements OnInit {
 class DetailedInstance {
     public xml: string;
 
+    activeChildIds = new Array<string>();
+
     constructor(
         public instance: ProcessInstance,
         public activity: ActivityInstanceTree,
         xmlResult: BpmnXmlResult) {
         this.xml = xmlResult.bpmn20Xml;
+        this.getNestestChildActivities(this.activity);
+    }
+
+    private getNestestChildActivities(activityInstance: ActivityInstanceTree): void {
+        if (activityInstance.childActivityInstances.length == 0) {
+            this.activeChildIds.push(activityInstance.activityId);
+            return;
+        }
+        activityInstance.childActivityInstances.forEach(childActivityInstance => {
+            this.getNestestChildActivities(childActivityInstance);
+        });
     }
 }

@@ -1,6 +1,7 @@
 <div class="row">
+    <h2 *ngIf="this.selectedInstance">Instance {{this.selectedInstance?.instance.id}}</h2>
     <div class="col-12" style="height: 500px;">
-        <bpmn-viewer [bpmnXml]="selectedInstance?.xml" [activeActivityId]="selectedInstance?.activity"></bpmn-viewer>
+        <bpmn-viewer [bpmnXml]="selectedInstance?.xml" [activeActivityIds]="selectedInstance?.activeChildIds"></bpmn-viewer>
     </div>
 </div>
 
@@ -27,7 +28,7 @@
             </thead>
             <tbody>
                 <tr *ngFor="let instance of processInstances, let i = index" class="pointer" (click)="showInViewer(instance)">
-                    <td>{{instance.id}}
+                    <td>
                         <span class="align-middle">
                             <b class="align-middle">{{instance.id}}</b>
                             <a class="btn btn-sm btn-outline-secondary float-end"

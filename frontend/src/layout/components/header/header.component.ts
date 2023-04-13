@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { ArchivedMessage, MessageService } from '../../../shared/services/message.service';
+import { GraphDbRepoService, DbConfig } from '../../../shared/services/graphDbRepoService.service';
+import { Observable, map } from 'rxjs';
 
 @Component({
     selector: 'app-header',
@@ -11,12 +13,13 @@ export class HeaderComponent implements OnInit {
 
     messageArchive = new Array<ArchivedMessage>();
     public pushRightClass: string;
+    graphDbHost$: Observable<string>
 
     constructor(
         private messageService: MessageService,
+        private graphDbService: GraphDbRepoService,
         public router: Router,
     ) {
-
         this.router.events.subscribe(val => {
             if (
                 val instanceof NavigationEnd &&
@@ -29,6 +32,7 @@ export class HeaderComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.graphDbHost$ = this.graphDbService.getCurrentConfig().pipe(map(config => config.host));
         this.pushRightClass = 'push-right';
     }
 

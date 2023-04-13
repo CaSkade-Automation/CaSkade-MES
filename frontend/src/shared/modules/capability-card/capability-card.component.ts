@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { take } from 'rxjs';
 import { Capability } from '../../models/Capability';
 import { CapabilityService } from '../../services/capability.service';
 
@@ -10,15 +11,16 @@ import { CapabilityService } from '../../services/capability.service';
 export class CapabilityCardComponent {
 
     @Input() capability: Capability;
-
+    @Output("onCapabilityDeleted") onCapabilityDeleted = new EventEmitter<string>();
 
     constructor(
         private capabilityService: CapabilityService
     ) {}
 
 
-    deleteCapability() {
-        this.capabilityService.deleteCapability(this.capability.iri).subscribe(data => console.log(data));
+    deleteCapability(): void {
+        this.capabilityService.deleteCapability(this.capability.iri).pipe(take(1)).subscribe();
+        this.onCapabilityDeleted.emit(this.capability.iri);
     }
 
 }

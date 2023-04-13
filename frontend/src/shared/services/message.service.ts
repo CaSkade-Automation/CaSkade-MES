@@ -1,6 +1,8 @@
 import { Injectable } from "@angular/core";
 import { Observable, Observer } from "rxjs";
 import { Message, MessageType } from "src/layout/components/message-container/message-container.component";
+import { SocketMessageType } from "../../../../shared/src/models/socket-communication/SocketData";
+import { CapabilitySocketService } from "./sockets/capability-socket.service";
 import { ModuleSocketService } from "./sockets/module-socket.service";
 import { SkillSocketService } from "./sockets/skill-socket.service";
 
@@ -21,7 +23,7 @@ export class MessageService {
     constructor(
         private moduleSocket: ModuleSocketService,
         private skillSocket: SkillSocketService,
-        // private capabilitySocket: CapabilitySocket
+        private capabilitySocket: CapabilitySocketService
     ) {}
 
     getAllMessages(): Observable<Message[]>{
@@ -33,7 +35,7 @@ export class MessageService {
                 next: (val) => this.addAndDeleteMessage(new Message("New Module","Module added", MessageType.Success)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Module registration",`Error: ${err}`, MessageType.Danger)),
             });
-            // Moduled change
+            // Modules change
             this.moduleSocket.getModulesChanged().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Module","Module updated", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Module update",`Error: ${err}`, MessageType.Danger)),
@@ -43,6 +45,7 @@ export class MessageService {
                 next: (val) => this.addAndDeleteMessage(new Message("Module","Module deleted", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Module deletion",`Error: ${err}`, MessageType.Danger)),
             }),
+
             // Skill added
             this.skillSocket.getSkillAdded().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("New Skill","Skill added", MessageType.Success)),
@@ -59,21 +62,21 @@ export class MessageService {
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
             }),
 
-            // //Capabilities  add
-            // this.socketService.getMessage(SocketEventName.Capabilities_Added).subscribe(
-            //     () =>  this.addAndDeleteMessage(new Message("Capability","Capability added", MessageType.Success)),
-            //     (err) => this.message=`Error during Capability registration. Error: ${err}`
-            // ),
-            // // Capabilities change
-            // this.socketService.getMessage(SocketEventName.Capabilities_Changed).subscribe(
-            //     () =>  this.addAndDeleteMessage(new Message("Capability","Capability changed", MessageType.Info)),
-            //     (err) => this.message=`Error during Capability changing. Error: ${err}`
-            // ),
-            // // Capabilities delete
-            // this.socketService.getMessage(SocketEventName.Capabilities_Deleted).subscribe(
-            //     () => this.addAndDeleteMessage(new Message("Capability","Capability deleted", MessageType.Info)),
-            //     (err) => this.message=`Error during Capability deletion. Error: ${err}`
-            // );
+            //Capabilities  add
+            this.capabilitySocket.getCapabilityAdded().subscribe({
+                next: (val) => this.addAndDeleteMessage(new Message("New Capability","Capability added", MessageType.Success)),
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Capability registration",`Error: ${err}`, MessageType.Danger)),
+            }),
+            // Capabilities change
+            this.capabilitySocket.getCapabilityChanged().subscribe({
+                next: (val) =>  this.addAndDeleteMessage(new Message("Capability","Capability changed", MessageType.Info)),
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Capability changing.", `Error: ${err}`, MessageType.Danger)),
+            }),
+            // Capabilities delete
+            this.capabilitySocket.getCapabilityDeleted().subscribe({
+                next: (val) => this.addAndDeleteMessage(new Message("Capability","Capability deleted", MessageType.Info)),
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Capability deletion.", `Error: ${err}`, MessageType.Danger))
+            });
             this.observer.next(this.messageDisplay);
         });
         return obs;
@@ -86,7 +89,7 @@ export class MessageService {
      * @param messageBody Body of the message
      */
     public success(messageTitle: string, messageBody: string): void {
-        const message = new Message(messageTitle, messageBody, MessageType.Success);
+        const message = new Message(messageTitle, messageBody, MessageType.Success, "fa-solid fa-circle-check");
         this.addAndDeleteMessage(message);
     }
 
@@ -97,7 +100,7 @@ export class MessageService {
      * @param messageBody Body of the message
      */
     public info(messageTitle: string, messageBody: string): void {
-        const message = new Message(messageTitle, messageBody, MessageType.Info);
+        const message = new Message(messageTitle, messageBody, MessageType.Info, "fa-solid fa-circle-info");
         this.addAndDeleteMessage(message);
     }
 
@@ -108,7 +111,7 @@ export class MessageService {
      * @param messageBody Body of the message
      */
     public danger(messageTitle: string, messageBody: string): void {
-        const message = new Message(messageTitle, messageBody, MessageType.Danger);
+        const message = new Message(messageTitle, messageBody, MessageType.Danger, "fa-solid fa-circle-exclamation");
         this.addAndDeleteMessage(message);
     }
 
@@ -119,7 +122,7 @@ export class MessageService {
      * @param messageBody Body of the message
      */
     public warn(messageTitle: string, messageBody: string): void {
-        const message = new Message(messageTitle, messageBody, MessageType.Warning);
+        const message = new Message(messageTitle, messageBody, MessageType.Warning, "fa-solid fa-circle-exclamation");
         this.addAndDeleteMessage(message);
     }
 
@@ -151,8 +154,12 @@ export class MessageService {
         localStorage.setItem("messageArchive", JSON.stringify(messageArchive));
     }
 
-    public getMessageArchive(): Array<ArchivedMessage> {
-        return JSON.parse(localStorage.getItem("messageArchive")) as Array<ArchivedMessage>;
+    public getMessageArchive(limit = undefined): Array<ArchivedMessage> {
+        const archive = JSON.parse(localStorage.getItem("messageArchive")) as Array<ArchivedMessage>;
+        archive.map(entry => entry.date = new Date(entry.date));
+
+        archive.sort((a,b) => b.date.getDate() - a.date.getDate());
+        return archive.slice(0, limit);
     }
 }
 

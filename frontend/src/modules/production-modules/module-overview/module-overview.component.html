@@ -2,17 +2,25 @@
     <div class="col-6" *ngFor="let module of modules">
         <div class="card mb-5">
             <div class="card-header">
-                <h3 class="card-title" title="{{module.iri}}">{{module.getLocalName()}}</h3>
-                <a class="btn btn-secondary" style="position:absolute; right:50px;top:10px;" title="Show in Graph View" [routerLink]="[ '/graph-visualization/modules', module.iri]">
-                    <i class="fa fa-project-diagram"></i>
-                </a>
-                <button class="btn btn-danger" style="position:absolute; right:10px;top:10px;" title="Disconnect Module"
-                    (click)="deleteModule(module.iri)"><i class="far fa-trash-alt"></i></button>
+                <div class="row">
+                    <div class="col-9">
+                        <h3 class="card-title" title="{{module.iri}}">{{module.getLocalName()}}</h3>
+                    </div>
+                    <div class="col-3">
+                        <div class="float-end">
+                            <a class="btn btn-secondary me-1" title="Show in Graph View" [routerLink]="[ '/graph-visualization/modules', module.iri]">
+                                <i class="fa fa-project-diagram"></i>
+                            </a>
+                            <button class="btn btn-danger" title="Disconnect Module"
+                                (click)="deleteModule(module.iri)"><i class="far fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
-                <h4>Skills:</h4>
-                <ng-container *ngFor="let skill of module.skills">
-                    <skill-card [skill]="skill"></skill-card>
+                <h4>Capabilities:</h4>
+                <ng-container *ngFor="let capability of module.capabilities">
+                    <capability-card [capability]="capability" (onCapabilityDeleted)="onCapabilityDeleted($event)"></capability-card>
                 </ng-container>
             </div>
 

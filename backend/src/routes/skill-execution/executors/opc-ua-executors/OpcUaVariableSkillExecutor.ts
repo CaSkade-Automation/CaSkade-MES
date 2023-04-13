@@ -84,16 +84,19 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 
     async getOpcUaVariableSkillDescription(skillIri: string, commandTypeIri: string): Promise<OpcUaVariableSkill> {
         const query = `
-		PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+		PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+        PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
+        PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
 		PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
 		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 		PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>#
 		PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
-		SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?requiredCommandValue ?commandNodeId ?commandNamespace ?parameterIri
-		?parameterRequired ?parameterName ?parameterType ?parameterNodeId WHERE {
-			BIND(<${skillIri}> AS ?skillIri).
-			?skillIri a Cap:OpcUaVariableSkill;
-                        Cap:hasStateMachine/ISA88:hasTransition ?command.
+		SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?requiredCommandValue ?commandNodeId ?commandNamespace
+        ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterNodeId WHERE {
+			BIND(<${skillIri}> AS ?skillIri);
+			?skillIri CSS:behaviorConformsTo/ISA88:hasTransition ?command;
+                CSS:accessibleThrough ?skillInterface.
+            ?skillInterface a CaSkMan:OpcUaVariableSkillInterface.
             ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?commandParameter;
                 OpcUa:hasEndpointUrl ?endpointUrl;
                 OpcUa:hasMessageSecurityMode ?messageSecurityMode;
@@ -105,32 +108,33 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
             <${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
             ?command a <${commandTypeIri}>;
                 DINEN61360:has_Data_Element ?commandVariableDataElement.
-            ?commandVariableDataElement DINEN61360:has_Type_Description Cap:SkillCommandVariable_TD;
+            ?commandVariableDataElement DINEN61360:has_Type_Description CaSk:SkillCommandVariable_TD;
                 DINEN61360:has_Instance_Description ?requiredCommand,
                 ?commandParameter.
             ?requiredCommand DINEN61360:Expression_Goal "Requirement";
                 DINEN61360:Value ?requiredCommandValue.
-            ?skillIri Cap:hasSkillCommand ?commandParameter.
-            ?commandParameter a Cap:SkillCommand;
+            ?skillIri CaSk:hasSkillCommand ?commandParameter.
+            ?commandParameter a CaSk:SkillCommand;
                 OpcUa:nodeId ?commandNodeId.
             OPTIONAL {
                 ?commandParameter OpcUa:nodeNamespace ?commandNamespace.
             }
             # Find parameters, exclude the commands, just get the other "normal" parameters
             OPTIONAL {
-                ?skillIri Cap:hasSkillParameter ?parameterIri.
-                ?parameterIri a Cap:SkillParameter;
-                Cap:hasVariableName ?parameterName;
-                Cap:hasVariableType ?parameterType;
-                Cap:isRequired ?parameterRequired;
+                ?skillIri CSS:hasParameter ?parameterIri.
+                ?parameterIri a CSS:SkillParameter;
+                CaSk:hasVariableName ?parameterName;
+                CaSk:hasVariableType ?parameterType;
+                CaSk:isRequired ?parameterRequired;
                 OpcUa:nodeId ?parameterNodeId;
                 FILTER NOT EXISTS {
-                    ?parameterIri a Cap:SkillCommand.
+                    ?parameterIri a CaSk:SkillCommand.
                 }
             }
 		}`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaVariableSkillMapping).getFirstRootElement()[0] as OpcUaVariableSkill;
+        const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaVariableSkillMapping)
+            .getFirstRootElement()[0] as OpcUaVariableSkill;
 
         return mappedResult;
     }
@@ -143,11 +147,14 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
      */
     async getOpcUaSkillOutputDescription(skillIri: string): Promise<OpcUaVariableSkillOutput> {
         const query = `
-		PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+		PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+        PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
+        PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
 		PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
 		SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password ?outputIri ?outputName ?outputNodeId WHERE {
 			BIND(<${skillIri}> AS ?skillIri).
-            ?skillIri a Cap:OpcUaVariableSkill.
+            ?skillIri CSS:accessibleThrough ?skillInterface.
+            ?skillInterface a CaSkMan:OpcUaVariableSkillInterface.
             ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?commandParameter;
                 OpcUa:hasEndpointUrl ?endpointUrl;
                 OpcUa:hasMessageSecurityMode ?messageSecurityMode;
@@ -157,17 +164,18 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
                 OpcUa:requiresPassword ?password
             }
 
-            ?skillIri Cap:hasSkillOutput ?outputIri.
-            ?outputIri Cap:hasVariableName ?outputName;
+            ?skillIri CaSk:hasSkillOutput ?outputIri.
+            ?outputIri CaSk:hasVariableName ?outputName;
                 OpcUa:nodeId ?outputNodeId.
 
             # Filter out the current state outputs, we just want the return values here
             FILTER NOT EXISTS {
-				?outputIri a Cap:CurrentStateOutput.
+				?outputIri a CaSk:CurrentStateOutput.
             }
 		}`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        const mappedResult = this.converter.convertToDefinition(queryResult.results.bindings, opcUaVariableSkillOutputMapping).getFirstRootElement()[0] as OpcUaVariableSkillOutput;
+        const mappedResult = this.converter.convertToDefinition(queryResult.results.bindings, opcUaVariableSkillOutputMapping)
+            .getFirstRootElement()[0] as OpcUaVariableSkillOutput;
 
         return mappedResult;
     }

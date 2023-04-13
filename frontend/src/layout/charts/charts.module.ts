@@ -27,6 +27,10 @@ import { PolarAreaChartComponent } from './polararea-chart/polararea-chart.compo
         DoughnutChartComponent,
         BarChartComponent,
         PolarAreaChartComponent
+    ],
+    exports: [
+        PieChartComponent,
+        BarChartComponent
     ]
 })
 export class ChartsModule {}

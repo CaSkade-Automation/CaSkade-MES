@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CapabilityService } from 'src/shared/services/capability.service';
-import { SkillService } from 'src/shared/services/skill.service';
-import { tap } from 'rxjs';
+import { CapabilityService, CapabilityTypes } from 'src/shared/services/capability.service';
+import { Subscription } from 'rxjs';
 import { Capability } from '../../../shared/models/Capability';
 import { Skill } from '../../../shared/models/Skill';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
     selector: 'app-capability-overview',
@@ -14,42 +14,44 @@ export class CapabilityOverviewComponent implements OnInit {
 
     constructor(
         private capabilityService: CapabilityService,
-        private skillService: SkillService
     ) {}
 
     capabilities= new Array<Capability>();
     skillsOfModule = new Array<Skill>();
 
-    showProvided = true;
-    showRequired = true;
+    capabilityTypeForm = new FormGroup({
+        showProvided: new FormControl(true),
+        showRequired: new FormControl(true)
+    })
 
+    capabilitySubscription: Subscription;
 
-    ngOnInit() {
-        this.capabilityService.getAllCapabilities()
-            .pipe(tap(data => console.log(data)))
-            .subscribe(data => this.capabilities = data);
-        console.log("init");
-
-        // this.skills.forEach(skill => {
-        //     skill.relatedCapabilities.forEach(capability => {
-        //         const foundCapability= this.executableCapabilities.find(cap=>cap.capability.iri==capability.iri);
-        //         if (foundCapability== undefined){
-        //             this.executableCapabilities.push(new ExecutableCapability(capability, skill));
-        //         }
-        //         else {
-        //             foundCapability.skills.push(skill);
-        //         }
-        //     });
-
-        // });
+    ngOnInit(): void {
+        this.loadCapabilities(CapabilityTypes.All);
+        this.capabilityTypeForm.valueChanges.subscribe(val => {
+            console.log("new val");
+            const {showProvided, showRequired} = val;
+            console.log(showProvided);
+            console.log(showRequired);
+            if(showProvided && showRequired) this.loadCapabilities(CapabilityTypes.All);
+            if(showProvided && !showRequired) this.loadCapabilities(CapabilityTypes.ProvidedCapability);
+            if(!showProvided && showRequired) this.loadCapabilities(CapabilityTypes.RequiredCapability);
+            if(!showProvided && !showRequired) this.capabilities = [];
+        });
     }
 
-    /*getSkills(capability): void{
-    this.skillService.getSkillsOfCapability(capability).subscribe((skills: Skill[])=>{
-        this.skillsOfModule=skills;
-        console.log(this.skillsOfModule);
-    });
+    loadCapabilities(type?: CapabilityTypes): void {
+        this.capabilitySubscription = this.capabilityService.getAllCapabilities(type).subscribe(caps => this.capabilities = caps);
+    }
 
-}*/
+    onCapabilityDeleted(capabilityIri: string): void {
+        // remove capability with that id from the list
+        const capabilityIndex = this.capabilities.findIndex(cap => cap.iri == capabilityIri);
+        this.capabilities.splice(capabilityIndex, 1);
+    }
+
+    ngOnDestroy(): void {
+        this.capabilitySubscription.unsubscribe();
+    }
 
 }
