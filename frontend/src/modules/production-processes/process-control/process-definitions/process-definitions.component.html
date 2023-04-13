@@ -4,7 +4,7 @@
         <table class='table table-bordered table-striped'>
             <thead class="table-dark">
                 <tr>
-                    <th scope="col">Process Definition ID</th>
+                    <th scope="col">Process Definition ID (Process Name)</th>
                     <th scope="col">Options</th>
                 </tr>
             </thead>
@@ -12,7 +12,7 @@
                 <tr *ngFor="let processDefinition of processDefinitions, let i = index">
                     <td>
                         <span class="align-middle">
-                            <b class="align-middle">{{processDefinition.id}}</b>
+                            <b class="align-middle">{{processDefinition.id}} ({{processDefinition.name}})</b>
                             <a class="btn btn-sm btn-outline-secondary float-end"
                                 (click)="showDetails(i, processDefinition)">
                                 Details
@@ -39,18 +39,15 @@
                     </td>
                     <td style="width: 140px;">
                         <button class="btn btn-sm btn-success me-1" title="Start new process instance"
-                            (click)="setProcessDefintionToStart(processDefinition)" data-bs-toggle="modal"
-                            data-bs-target="#startingModal">
+                            (click)="setProcessDefintionToStart(processDefinition)">
                             <i class="fas fa-play"></i>
                         </button>
                         <button class="btn btn-sm btn-danger me-1" title="Delete process definition"
-                            (click)="selecteProcessDefinitionToDelete(processDefinition)" data-bs-toggle="modal"
-                            data-bs-target="#deletingModal">
+                            (click)="selecteProcessDefinitionToDelete(processDefinition)">
                             <i class="fas fa-trash"></i>
                         </button>
                         <button class="btn btn-sm btn-secondary" title="Show XML"
-                            (click)="setModalXml(processDefinition.id)" data-bs-toggle="modal"
-                            data-bs-target="#xmlModal">
+                            (click)="setModalXml(processDefinition.id)">
                             <i class="fas fa-code"></i>
                         </button>
                     </td>
@@ -64,7 +61,7 @@
 
 
 <!-- Modal for starting an instance of a process definition-->
-<div class="modal fade" id="startingModal" tabindex="-1" role="dialog" aria-labelledby="startingModalTitle"
+<div class="modal modal-lg fade" #startModal tabindex="-1" role="dialog" aria-labelledby="startingModalTitle"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -73,8 +70,15 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <b>Process ID:</b> {{processDefinitionToStart}}
-                Start-Form Variables
+                <b>Process ID:</b> {{processDefinitionToStart?.id}}<br>
+                <b>Start-Form Variables:</b>
+                <ng-container *ngIf="(numberOfCurrentStartFormVariables$ | async) == 0; else elseTemplate">
+                    <span *ngIf="(numberOfCurrentStartFormVariables$ | async) == 0">There are no start form variables. This process is ready to start.</span>
+                </ng-container>
+                <ng-template #elseTemplate>
+                    <span>Please fill out the following start form:</span>
+                </ng-template>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -86,7 +90,7 @@
 
 
 <!-- Modal for deleting a process definition-->
-<div class="modal fade" id="deletingModal" tabindex="-1" role="dialog" aria-labelledby="deletingModalTitle"
+<div class="modal fade" #deleteModal tabindex="-1" role="dialog" aria-labelledby="deletingModalTitle"
     aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -97,35 +101,34 @@
             </div>
             <div class="modal-body">
                 <p>Do you really want to delete this process instance?</p>
-                <div class="mb-3 row">
+                <div class="row">
                     <label for="staticId" class="col-sm-2 col-form-label">ID:</label>
                     <div class="col-sm-10">
                         <input type="text" readonly class="form-control-plaintext"
                             value="{{processDefinitionToDelete?.id}}">
                     </div>
                 </div>
-                <div class="mb-3 row">
+                <div class="row">
                     <label for="staticName" class="col-sm-2 col-form-label">Name:</label>
                     <div class="col-sm-10">
                         <input type="text" readonly class="form-control-plaintext"
                             value="{{processDefinitionToDelete?.name}}">
                     </div>
                 </div>
-                <div class="mb-3 row">
+                <div class="row">
                     <label for="staticName" class="col-sm-2 col-form-label">
                         Cascade
                         <i class="fas fa-question"
                             title="If set to true, deletes all running instances of this process definition">
                         </i>:
                     </label>
-                    <div class="col-sm-10">
+                    <div class="col-sm-4">
                         <select name="deleteCascading" [formControl]="deleteCascading" class="form-select">
                             <option value="false">no</option>
                             <option value="true">yes</option>
                         </select>
                     </div>
                 </div>
-                Cascade
 
             </div>
             <div class="modal-footer">
@@ -137,7 +140,7 @@
 </div>
 
 <!-- Modal for showing the XML-File of Process-Definition -->
-<div class="modal fade" id="xmlModal" tabindex="-1" role="dialog" aria-labelledby="xmlModalTitle" aria-hidden="true">
+<div class="modal modal-lg fade" #xmlModal tabindex="-1" role="dialog" aria-labelledby="xmlModalTitle" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">

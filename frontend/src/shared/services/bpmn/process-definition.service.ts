@@ -31,6 +31,7 @@ export class ProcessDefinitionService {
             ));
 
     }
+
     getDeployedProcessDefinitionById(processDefinitionId: string): Observable<ProcessDefinition> {
         const url = `${this.engineRestRoot}/process-definition/${processDefinitionId}`;
         return this.http.get<ProcessDefinitionDto>(url).pipe(
@@ -80,8 +81,17 @@ export class ProcessDefinitionService {
         return this.http.post<ProcessInstance>(url, {});
     }
 
+    getStartFormVariables(processDefinitionId: string): Observable<Record<string, BpmnStartFormVariable>> {
+        const url = `${this.engineRestRoot}/process-definition/${processDefinitionId}/form-variables`;
+        return this.http.get<Record<string, BpmnStartFormVariable>>(url, {});
+    }
 
+}
 
+export interface BpmnStartFormVariable {
+    type: string;
+    value: string | number | boolean | Record<string, any>;
+    valueInfo: Record<string, any>;
 }
 
 export class BpmnXmlResult {

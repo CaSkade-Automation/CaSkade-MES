@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { forkJoin, merge, Observable } from 'rxjs';
+import { forkJoin, merge, Observable, Subscription } from 'rxjs';
 import { combineAll, map, take } from 'rxjs/operators';
 import { ProcessInstance, ProcessInstanceDto } from '@shared/models/processInstance/ProcessInstance';
 import { BpmnXmlResult, ProcessDefinitionService } from '../../../../shared/services/bpmn/process-definition.service';
@@ -22,7 +22,7 @@ export class ProcessInstancesComponent implements OnInit {
         private instanceService: ProcessInstanceService,
         private definitionService: ProcessDefinitionService) { }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.loadAllProcessInstances();
     }
 
@@ -57,7 +57,7 @@ export class ProcessInstancesComponent implements OnInit {
      * @param processInstance Process Instance to display
      */
     showInViewer(processInstance: ProcessInstance): void {
-        this.selectedInstance = null;
+        // this.selectedInstance = null;
         this.getCompleteInstanceDetails(processInstance).subscribe(res => this.selectedInstance = res);
     }
 
@@ -100,8 +100,6 @@ class DetailedInstance {
     }
 
     private getNestestChildActivities(activityInstance: ActivityInstanceTree): void {
-        console.log("calc active");
-
         if (activityInstance.childActivityInstances.length == 0) {
             this.activeChildIds.push(activityInstance.activityId);
             return;
