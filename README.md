@@ -55,21 +55,33 @@ Once you have it up and running, SkillMEx acts as a platform for (manufacturing)
 <table>
   <tr>
     <td width="50%">
-      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/module-overview.png?raw=true" width="100%" alt="my alt text"/>
+      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/dashboard.png?raw=true" width="100%" alt="Dashboard"/>
     </td>
     <td width="50%">
-      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/register-modules.png?raw=true" width="100%" alt="my alt text"/>
+      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/module-overview.png?raw=true" width="100%" alt="Module Overview"/>
     </td>
   </tr>
   <tr>
+    <td>Dashboard to see all active entities</td>
     <td>Overview of modules and their skills</td>
-    <td>Different ways to register modules</td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/register-modules.png?raw=true" width="100%" alt="Different ways to register modules"/>
+    </td>
+    <td width="50%">
+      <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/graph-visu.png?raw=true" width="100%" alt="Graph Visualization"/>
+     </td>
+   </tr>
+   <tr>
+    <td>Different ways to register modulese</td>
+    <td>Intuitive Graph Visualization</td>
   </tr>
   <tr>
     <td width="50%">
       <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/model-processes.png?raw=true" width="100%" alt="my alt text"/>
     </td>
-      <td width="50%">
+    <td width="50%">
         <img src="https://github.com/aljoshakoecher/SkillMEx/blob/documentation/images/documentation/images/screenshots/deployed%20processes.png?raw=true" width="100%" alt="my alt text"/>
     </td>
   </tr>
@@ -121,5 +133,7 @@ SkillMEx features a quite extensive REST API that can be used to retrieve all re
 We present the concept of manufacturing based on semantically modelled capabilities and skills in various scientific publications which are shown in the following list. If you have any questions about these contributions, contact [Aljosha Köcher on ResearchGate](https://www.researchgate.net/profile/Aljosha-Koecher).
 * A. Köcher, C. Hildebrandt, B. Caesar, J. Bakakeu, J. Peschke, A. Scholz, A. Fay: *Automating the Development of Machine Skills and their Semantic Description.* In: 2020 25th IEEE International Conference on Emerging Technologies and Factory Automation (ETFA): IEEE, S. 1013–1018, 9/8/2020 - 9/11/2020. 
 * A. Köcher, C. Hildebrandt, L.M. Vieira da Silva, A. Fay: *A Formal Capability and Skill Model for Use in Plug and Produce Scenarios.* In: 2020 25th IEEE International Conference on Emerging Technologies and Factory Automation (ETFA): IEEE, S. 1663–1670, 9/8/2020 - 9/11/2020.
-* A. Kocher, L.M.V. da Silva, A. Fay: *Constraint Checking of Skills using SHACL.* In: 2021 IEEE 19th International Conference on Industrial Informatics (INDIN): IEEE, S. 1–6, 7/21/2021 - 7/23/2021.
-* A. Köcher, T. Jeleniewski, A. Fay: *A Method to Automatically Generate Semantic Skill Models from PLC Code.* In: IECON 2021 – 47th Annual Conference of the IEEE Industrial Electronics Society: IEEE, S. 1–6, 2021.
+* A. Köcher, L.M.V. da Silva, A. Fay: *Constraint Checking of Skills using SHACL.* In: 2021 IEEE 19th International Conference on Industrial Informatics (INDIN): IEEE, S. 1–6, 7/21/2021 - 7/23/2021.
+* A. Köcher, T. Jeleniewski, A. Fay: *A Method to Automatically Generate Semantic Skill Models from PLC Code.* In: IECON 2021 – 47th Annual Conference of the IEEE Industrial Electronics Society: IEEE 2021.
+* A. Köcher, L.M. Vieira da Silva, A. Fay: *Modeling and Executing Production Processes with Capabilities and Skills using Ontologies and BPMN*. In: 2022 27th IEEE International Conference on Emerging Technologies and Factory Automation (ETFA): IEEE, 2022.
+* A. Köcher, L. Beers, A. Fay: *A Mapping Approach to Convert MTPs into a Capability and Skill Ontology*. In: 2022 IEEE 27th International Conference on Emerging Technologies and Factory Automation (ETFA): IEEE, 2022.
