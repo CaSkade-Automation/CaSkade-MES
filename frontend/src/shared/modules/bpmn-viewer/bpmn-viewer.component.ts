@@ -11,7 +11,7 @@ import { ActivityInstanceTree } from '../../services/bpmn/process-instance.servi
 export class BpmnViewerComponent implements AfterContentInit, OnDestroy {
     private bpmnViewer: BpmnViewer;
     private eventBus: any;
-
+    activeIds: string[]
     @ViewChild('ref', { static: true }) private el: ElementRef;
 
     @Input() set bpmnXml(bpmnXml: string) {
@@ -20,23 +20,22 @@ export class BpmnViewerComponent implements AfterContentInit, OnDestroy {
         }
     }
 
-    @Input() set activeActivityIds(activeActivityIds: string[]) {
+    @Input() set activeActivityIds(newIds: string[]) {
+        this.activeIds = newIds;    // For some unknown reason, newIds has to be stored in a member variable and cannot be directly used
 
-        if (activeActivityIds) {
+        if (this.activeIds) {
             this.eventBus.on('import.done', () => {
                 const overlays = this.bpmnViewer.get('overlays');
                 overlays.clear();
 
-
                 // attach an overlay to display the current activity
-                activeActivityIds.forEach(activeId => {
-
+                this.activeIds.forEach(activeId => {
                     overlays.add(activeId, {
                         position: {
                             bottom: 15,
                             left: -5
                         },
-                        html:'<i style="font-size:2rem; color: rgba(10, 255, 141, 0.8)" class="fas fa-map-marker"></i>'
+                        html:'<i style="font-size:2rem; color: rgba(10, 255, 141, 0.9)" class="fas fa-map-marker"></i>'
                     });
                 });
             });
