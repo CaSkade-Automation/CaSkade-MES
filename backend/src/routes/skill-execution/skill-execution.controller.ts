@@ -20,7 +20,7 @@ export class SkillExecutionController{
         if(skillExecutor.isStatefulMethod(executionRequest)) return skillExecutor.invokeTransition(executionRequest);
 
         // Get skill outputs in case GetOutputs method is called
-        if (executionRequest.commandTypeIri == "http://www.hsu-ifa.de/ontologies/capability-model#GetOutputs") {
+        if (executionRequest.commandTypeIri == "http://www.w3id.org/hsu-aut/cask#GetOutputs") {
             return skillExecutor.getSkillOutputs(executionRequest);
         }
 

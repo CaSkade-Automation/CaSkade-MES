@@ -4,14 +4,17 @@
  * @returns Base snippet of the RestSkill execution query
  */
 export function getRestSkillMethodQuery(skillIri: string): string {
-    const query = `PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
+    const query = `PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+    PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
+    PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
     PREFIX WADL: <http://www.hsu-ifa.de/ontologies/WADL#>
     PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
     PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     SELECT ?basePath ?path  ?httpMethod ?parameterIri ?parameterName ?parameterType ?parameterRequired WHERE {
-        <${skillIri}> a Cap:RestSkill;
-            WADL:hasBase ?basePath;
+        <${skillIri}> a CSS:Skill;
+            CSS:accessibleThrough ?skillInterface.
+        ?skillInterface WADL:hasBase ?basePath;
             WADL:hasResource ?resource.
         ?resource WADL:hasPath ?path;
             WADL:hasMethod ?skillMethod.
@@ -20,12 +23,12 @@ export function getRestSkillMethodQuery(skillIri: string): string {
         ?wadlMethod sesame:directSubClassOf WADL:Method.
 
         OPTIONAL {
-            ?skill Cap:hasSkillParameter ?parameterIri.
-            ?skillMethod WADL:hasRequest/WADL:hasRepresentation/WADL:hasParameter ?parameterIri.    # Make sure the skill's parameters are availabe over the method
-            ?parameterIri a Cap:SkillParameter;
-                Cap:hasVariableName ?parameterName;
-                Cap:hasVariableType ?parameterType;
-                Cap:isRequired ?parameterRequired;
+            ?skill CSS:hasParameter ?parameterIri.
+            ?skillMethod WADL:hasRequest/WADL:hasRepresentation/WADL:hasParameter ?parameterIri.
+            ?parameterIri a CSS:SkillParameter;
+                CaSk:hasVariableName ?parameterName;
+                CaSk:hasVariableType ?parameterType;
+                CaSk:isRequired ?parameterRequired;
         }`;
     return query;
 }
@@ -40,7 +43,7 @@ export function getRestStatefulMethodQuerySnippet(commandTypeIri: string): strin
     const query = `
         <${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
         ?command a <${commandTypeIri}>;
-            Cap:invokedBy ?skillMethod.
+            CaSk:isInvokedBy ?skillMethod.
     `;
     return query;
 }
@@ -53,7 +56,7 @@ export function getRestStatefulMethodQuerySnippet(commandTypeIri: string): strin
  */
 export function getRestStatelessMethodQuerySnippet(commandTypeIri: string): string {
     const query = `
-        <${commandTypeIri}> rdfs:subClassOf Cap:StatelessMethod.
+        <${commandTypeIri}> rdfs:subClassOf CaSk:StatelessMethod.
         ?skillMethod a <${commandTypeIri}>;
     `;
     return query;

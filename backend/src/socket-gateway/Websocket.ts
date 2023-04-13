@@ -1,6 +1,6 @@
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from "@nestjs/websockets";
+import * as crypto from 'crypto';
 import {Server, WebSocket} from "ws";
-import { v4 as uuidv4 } from 'uuid';
 import { SocketMessageType, WebSocketMessage } from "@shared/models/socket-communication/SocketData";
 
 export abstract class Websocket implements OnGatewayConnection, OnGatewayDisconnect{
@@ -14,7 +14,7 @@ export abstract class Websocket implements OnGatewayConnection, OnGatewayDisconn
 
     handleConnection(client: WebSocket, ...args: any[]): void {
         // Set new client with an id to the map
-        const id = uuidv4();
+        const id = crypto.randomUUID();
         this.connectedClients.set(id, client);
 
         // As soon as the client closes connection, remove it from the map

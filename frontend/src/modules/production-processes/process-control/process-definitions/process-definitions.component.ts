@@ -1,11 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ProcessDefinition } from '@shared/models/processDefinition/ProcessDefinition';
 import { ProcessInstance } from '@shared/models/processInstance/ProcessInstance';
-import { take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { MessageService } from '../../../../shared/services/message.service';
-import { ProcessDefinitionService } from '../../../../shared/services/bpmn/process-definition.service';
+import { BpmnStartFormVariable, ProcessDefinitionService } from '../../../../shared/services/bpmn/process-definition.service';
+import { Modal } from 'bootstrap';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'process-definitions',
@@ -13,6 +15,13 @@ import { ProcessDefinitionService } from '../../../../shared/services/bpmn/proce
     styleUrls: ['./process-definitions.component.scss']
 })
 export class ProcessDefinitionsComponent implements OnInit {
+
+    @ViewChild('startModal') startModalElement: ElementRef;
+    startModal: Modal;
+    @ViewChild('deleteModal') deleteModalElement: ElementRef;
+    deleteModal: Modal;
+    @ViewChild('xmlModal') xmlModalElement: ElementRef;
+    xmlModal: Modal;
 
     detailsShown: boolean[];
     processDetails: ProcessDetail[];
@@ -23,9 +32,10 @@ export class ProcessDefinitionsComponent implements OnInit {
 
     processDefinitions = Array<ProcessDefinition>();
 
+    currentStartFormVariables$: Observable<Record<string, BpmnStartFormVariable>>
+    numberOfCurrentStartFormVariables$: Observable<number>
     selectedDefinition: ProcessDefinition;
     instanceOperate: ProcessInstance;
-    jsn: string;
     modalXml: string;
 
 
@@ -37,7 +47,7 @@ export class ProcessDefinitionsComponent implements OnInit {
 
     ngOnInit(): void {
         this.processDefinitionService.getAllDeployedProcessDefinitions().subscribe((processDefinitions: ProcessDefinition[]) => {
-            this.detailsShown = new Array<boolean>(processDefinitions.length);
+            this.detailsShown = new Array<boolean>(processDefinitions.length).fill(false);
             this.processDetails = new Array<ProcessDetail>(processDefinitions.length);
             this.processDefinitions = processDefinitions;
         });
@@ -47,29 +57,24 @@ export class ProcessDefinitionsComponent implements OnInit {
         this.processDefinitionService.getDeployedProcessDefinitionById(processDefinitionId).subscribe((processDefinition: ProcessDefinition) => {
             this.selectedDefinition = processDefinition;
         });
-        console.log("Diagram:");
-
-        // console.log(this.selectedDefinition);
     }
 
 
-    showDetails(i: number, processDefinition: ProcessDefinition) {
-        if (this.processDetails[i]) {
-            this.processDetails[i] = null;
-            this.detailsShown[i] = false;
-            return;
-        }
-
+    showDetails(i: number, processDefinition: ProcessDefinition): void {
         this.processDefinitionService.getXMLofProcessDefinition(processDefinition.id).subscribe(res => {
             this.processDetails[i] = new ProcessDetail(res.bpmn20Xml, processDefinition);
+            // Hide all but this one
+            this.detailsShown.fill(false);
             this.detailsShown[i] = true;
         });
 
     }
 
-
     selecteProcessDefinitionToDelete(processDefinition: ProcessDefinition): void {
+        const deleteModalElem = this.deleteModalElement.nativeElement;
+        this.deleteModal = new Modal(deleteModalElem);
         this.processDefinitionToDelete = processDefinition;
+        this.deleteModal.show();
     }
 
     deleteProcessDefinition(): void {
@@ -92,18 +97,31 @@ export class ProcessDefinitionsComponent implements OnInit {
     }
 
     setModalXml(processDefinitionId: string): void {
+        const xmlModalElem = this.xmlModalElement.nativeElement;
+        this.xmlModal = new Modal(xmlModalElem);
         this.processDefinitionService.getXMLofProcessDefinition(processDefinitionId).subscribe(data => {
             this.modalXml = data.bpmn20Xml;
+            this.xmlModal.show();
         });
     }
 
-    setProcessDefintionToStart(processDefinition: ProcessDefinition) {
+    setProcessDefintionToStart(processDefinition: ProcessDefinition): void {
         this.processDefinitionToStart = processDefinition;
+        this.currentStartFormVariables$ = this.processDefinitionService.getStartFormVariables(processDefinition.id);
+        this.numberOfCurrentStartFormVariables$ = this.currentStartFormVariables$.pipe(map(val => Object.keys(val).length));
+
+        const elem = this.startModalElement.nativeElement;
+        this.startModal = new Modal(elem);
+        this.startModal.show();
     }
 
     startProcessInstance(): void {
         const body = "";
-        this.processDefinitionService.startNewProcessInstance(this.processDefinitionToStart, body).subscribe(res => console.log(res));
+        this.processDefinitionService.startNewProcessInstance(this.processDefinitionToStart, body).subscribe({
+            next: () => this.messageService.success("Process running", `BPMN process with id ${this.processDefinitionToStart.id} was sucessfully started and is running.`),
+            error: (err) => this.messageService.warn("BPMN Error", `Error while starting process with ID ${this.processDefinitionToStart.id}. ${err}.`)
+        });
+        this.startModal.hide();
     }
 
 }

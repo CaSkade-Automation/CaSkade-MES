@@ -1,0 +1,11 @@
+<div class="card-body">
+    <div class="list-group">
+        <div *ngFor="let archEntry of this.archiveEntries" class="p-1 alert" [ngClass]="archEntry.message.type">
+            <i [ngClass]="archEntry.message.iconClass"></i>{{archEntry.message.title}}
+            <p class="text-muted mb-1"><em>{{archEntry.message.textbody}}</em></p>
+            <small>{{archEntry.date | date:'dd.MM.yyyy, HH:mm'}}</small>
+        </div>
+    </div>
+    <!-- /.list-group -->
+    <a href="#" class="btn btn-default btn-block">View All Messages</a>
+</div>

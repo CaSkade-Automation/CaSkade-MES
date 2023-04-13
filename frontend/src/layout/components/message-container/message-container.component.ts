@@ -19,8 +19,7 @@ export class MessageContainerComponent implements OnInit {
 
     showAllMessages(): void{
         this.messageService.getAllMessages().subscribe(
-            (messagelist) => {
-                this.messageList = messagelist;},
+            (messagelist) => this.messageList = messagelist,
             (err) => console.log(`Error during display of Message List. Error: ${err}`),
             null
         );
@@ -28,7 +27,11 @@ export class MessageContainerComponent implements OnInit {
 }
 
 export class Message{
-    constructor(public title: string, public textbody: string, public type: MessageType) {}
+    constructor(
+        public title: string,
+        public textbody: string,
+        public type: MessageType,
+        public iconClass?: string) {}
 }
 
 export enum MessageType {

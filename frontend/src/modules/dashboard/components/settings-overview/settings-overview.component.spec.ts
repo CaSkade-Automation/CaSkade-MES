@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { ChatComponent } from './chat.component';
+import { SettingsOverviewComponent } from './settings-overview.component';
 
-describe('ChatComponent', () => {
-    let component: ChatComponent;
-    let fixture: ComponentFixture<ChatComponent>;
+describe('SettingsOverviewComponent', () => {
+    let component: SettingsOverviewComponent;
+    let fixture: ComponentFixture<SettingsOverviewComponent>;
 
     beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
-            declarations: [ ChatComponent ]
+            declarations: [ SettingsOverviewComponent ]
         })
             .compileComponents();
     }));
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(ChatComponent);
+        fixture = TestBed.createComponent(SettingsOverviewComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

@@ -1,4 +1,5 @@
-import { Global, HttpModuleOptions, HttpModuleOptionsFactory, Injectable } from "@nestjs/common";
+import { HttpModuleOptions, HttpModuleOptionsFactory } from "@nestjs/axios";
+import { Global } from "@nestjs/common";
 
 /**
  * A global config service to setup Nest HttpModule. Note:

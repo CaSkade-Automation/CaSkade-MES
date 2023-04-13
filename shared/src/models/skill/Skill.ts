@@ -3,6 +3,8 @@ import { SkillVariableDto } from './SkillVariable';
 export class SkillDto {
     skillIri: string;
     capabilityIris: string[];
+    skillType: string;
+    skillInterfaceType: string;
     skillParameterDtos?: SkillVariableDto[];
     skillOutputsDtos?: SkillVariableDto[];
     stateMachineIri: string;
@@ -11,6 +13,8 @@ export class SkillDto {
     constructor(queryResult: SkillQueryResult) {
         this.skillIri = queryResult.skillIri;
         this.stateMachineIri = queryResult.stateMachine;
+        this.skillType = queryResult.skillType;
+        this.skillInterfaceType = queryResult.skillInterfaceType;
         this.currentStateTypeIri = queryResult.currentStateTypeIri;
         if(queryResult.skillParameters) {
             this.skillParameterDtos = queryResult.skillParameters.map(param => new SkillVariableDto(param.parameterIri,
@@ -26,6 +30,8 @@ export class SkillDto {
 export interface SkillQueryResult {
     skillIri: string,
     capabilityIri: string,
+    skillType: string,
+    skillInterfaceType: string,
     stateMachine: string,
     currentStateTypeIri: string,
     skillParameters: {

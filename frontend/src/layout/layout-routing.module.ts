@@ -15,7 +15,7 @@ const routes: Routes = [
             { path: 'production-processes', loadChildren: () => import('../modules/production-processes/production-processes.module').then(m => m.ProductionProcessesModule)},
             { path: 'skillmex-configuration', loadChildren: () => import('../modules/skillmex-configuration/skillmex-configuration.module').then(m => m.SkillMexConfigurationModule)},
             { path: 'graph-visualization', loadChildren: () => import('../modules/graph-visualization/graph-visualization.module').then(m =>m.GraphVisualizationModule)},
-            { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)},
+            { path: 'dashboard', loadChildren: () => import('../modules/dashboard/dashboard.module').then(m => m.DashboardModule)},
             { path: 'charts', loadChildren: () => import('./charts/charts.module').then(m => m.ChartsModule)},
             { path: 'blank-page', loadChildren: () => import('./blank-page/blank-page.module').then(m => m.BlankPageModule)},
 

@@ -2,24 +2,25 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { DashboardComponent } from './dashboard.component';
-import {
-    TimelineComponent,
-    NotificationComponent,
-    ChatComponent
-} from './components';
 import { StatModule } from '../../shared';
+import { NotificationComponent } from './components/notification/notification.component';
+import { ChartsModule } from '../../layout/charts/charts.module';
+import { SettingsOverviewComponent } from './components/settings-overview/settings-overview.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
     imports: [
         CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
         DashboardRoutingModule,
-        StatModule
+        StatModule,
+        ChartsModule
     ],
     declarations: [
         DashboardComponent,
-        TimelineComponent,
         NotificationComponent,
-        ChatComponent
+        SettingsOverviewComponent
     ]
 })
 export class DashboardModule {}

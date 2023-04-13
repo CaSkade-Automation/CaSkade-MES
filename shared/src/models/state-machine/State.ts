@@ -1,13 +1,13 @@
 import { RdfElement } from "../RdfElement";
-import { Transition } from "./Transition";
+import { Command } from "./Command";
 
 export class State extends RdfElement {
 
-    constructor(iri: string, private outgoingCommands: Transition[]) {
+    constructor(iri: string, private outgoingCommands: Command[]) {
         super(iri);
     }
 
-    getActiveCommands(): Transition[] {
+    getActiveCommands(): Command[] {
         return this.outgoingCommands;
     }
 }

@@ -5,7 +5,7 @@ const opcUaMethodSkillMapping: MappingDefinition[] = [
         rootName: 'skillExecutionInfos',
         propertyToGroup: 'skillIri',
         name: 'skillIri',
-        toCollect: ['skillMethodIri','methodNodeId', 'skillNodeId', 'endpointUrl', 'userName', 'password', 'messageSecurityMode', 'securityPolicy'],
+        toCollect: ['skillMethodIri', 'skillInterface', 'methodNodeId', 'skillNodeId', 'endpointUrl', 'userName', 'password', 'messageSecurityMode', 'securityPolicy'],
         childMappings: [
             {
                 rootName: 'parameters',
@@ -23,7 +23,7 @@ const opcUaVariableSkillMapping: MappingDefinition[] = [
         rootName: 'skillExecutionInfos',
         propertyToGroup: 'skillIri',
         name: 'skillIri',
-        toCollect: ['skillMethodIri','methodNodeId', 'skillNodeId', 'endpointUrl', 'userName', 'password', 'messageSecurityMode', 'securityPolicy', 'commandNodeId', 'commandNamespace', 'requiredCommandValue'],
+        toCollect: ['skillMethodIri', 'skillInterface', 'methodNodeId', 'skillNodeId', 'endpointUrl', 'userName', 'password', 'messageSecurityMode', 'securityPolicy', 'commandNodeId', 'commandNamespace', 'requiredCommandValue'],
         childMappings: [
             {
                 rootName: 'parameters',

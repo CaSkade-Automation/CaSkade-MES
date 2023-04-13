@@ -1,27 +1,47 @@
+// A query fragment to get skill types
+export const skillTypeFragment = `
+?skill a ?skillType.
+?skillType rdfs:subClassOf CSS:Skill.
+FILTER(!isBlank(?skillType ))  # Filter out all blank nodes
+FILTER NOT EXISTS {
+    ?someSubSkillSubClass sesame:directSubClassOf ?skillType.  # Filter out upper classes, get only specific subtype
+}`;
+
+export const skillInterfaceTypeFragment = `
+?skill a CSS:Skill;
+    CSS:accessibleThrough ?skillInterface.
+?skillInterface a ?skillInterfaceType.
+FILTER(!isBlank(?skillInterfaceType ))  # Filter out all blank nodes
+FILTER NOT EXISTS {
+    ?someSubSkillSubClass sesame:directSubClassOf ?skillInterfaceType.  # Filter out upper classes, get only specific subtype
+}`;
+
+// A query fragment to ger all (input) parameters
 export const parameterQueryFragment = `OPTIONAL {
-    ?skill Cap:hasSkillParameter ?parameterIri.
-    ?parameterIri Cap:hasVariableName ?parameterName;
-        Cap:hasVariableType ?parameterType;
-        Cap:isRequired ?parameterRequired.
+    ?skill CSS:hasParameter ?parameterIri.
+    ?parameterIri CaSk:hasVariableName ?parameterName;
+        CaSk:hasVariableType ?parameterType;
+        CaSk:isRequired ?parameterRequired.
     OPTIONAL {
-        ?parameterIri Cap:hasDefaultValue ?parameterDefault.
+        ?parameterIri CaSk:hasDefaultValue ?parameterDefault.
     }
     OPTIONAL {
-        ?parameterIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?paramOptionValue
+        ?parameterIri CaSk:hasSkillVariableOption/CaSk:hasOptionValue ?paramOptionValue
 
     }
 }`;
 
+// A query fragment to ger all (output) parameters
 export const outputQueryFragment = `OPTIONAL {
-    ?skill Cap:hasSkillOutput ?outputIri.
-    ?outputIri Cap:hasVariableName ?outputName;
-        Cap:hasVariableType ?outputType;
-        Cap:isRequired ?outputRequired.
+    ?skill CaSk:hasSkillOutput ?outputIri.
+    ?outputIri CaSk:hasVariableName ?outputName;
+        CaSk:hasVariableType ?outputType;
+        CaSk:isRequired ?outputRequired.
     OPTIONAL {
-        ?outputIri Cap:hasDefaultValue ?outputDefault.
+        ?outputIri CaSk:hasDefaultValue ?outputDefault.
     }
     OPTIONAL {
-        ?outputIri Cap:hasSkillVariableOption/Cap:hasOptionValue ?outputOptionValue
+        ?outputIri CaSk:hasSkillVariableOption/CaSk:hasOptionValue ?outputOptionValue
     }
 }`;
 
