@@ -10,7 +10,6 @@ import { SocketConnection } from './SocketConnection';
 })
 export class SkillSocketService extends SocketConnection  implements OnDestroy {
     WS_ENDPOINT = "ws://localhost:9091/skills";
-    messagesSubject$ = new Subject();
 
     getSkillAdded(): Observable<WebSocketMessage> {
         return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Added));
