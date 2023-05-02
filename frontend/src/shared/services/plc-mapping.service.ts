@@ -2,6 +2,7 @@ import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { first, Observable } from 'rxjs';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
+import { PlcMappingRequest } from '@shared/models/mappings/PlcMappingRequest';
 
 @Injectable({
     providedIn: 'root'
@@ -42,18 +43,17 @@ export class PlcMappingService {
 	 * @param plcFile MTP file that will be mapped
 	 * @returns The mapped module with skills in turtle syntax
 	 */
-    executeMapping(plcFile: File, endpointUrl: string, nodeIdRoot: string): Observable<string> {
-
-
+    executeMapping(mappingRequest: PlcMappingRequest): Observable<string> {
         const formData = new FormData();
-        formData.append('endpointUrl', endpointUrl);
-        formData.append('nodeIdRoot', nodeIdRoot);
-        formData.append('plc-file', plcFile);
-
-        const params = new HttpParams();
+        formData.append('endpointUrl', mappingRequest.endpointUrl);
+        formData.append('plc-file', mappingRequest.file);
+        formData.append('baseIri', mappingRequest.baseIri);
+        formData.append('resourceIri', mappingRequest.resourceIri);
+        formData.append('nodeIdRoot', mappingRequest.nodeIdRoot);
+        formData.append('user', mappingRequest.user);
+        formData.append('password', mappingRequest.password);
 
         const options = {
-            params: params,
             reportProgress: true,
         };
 
@@ -62,5 +62,4 @@ export class PlcMappingService {
 
         return this.httpClient.post(this.baseApiRoute, formData, options) as Observable<string>;
     }
-
 }

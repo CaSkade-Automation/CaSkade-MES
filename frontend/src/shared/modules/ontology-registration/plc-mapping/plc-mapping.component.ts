@@ -1,34 +1,55 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
 import { take } from 'rxjs/operators';
 import { PlcMappingService } from 'src/shared/services/plc-mapping.service';
+import { PlcMappingRequest } from '@shared/models/mappings/PlcMappingRequest';
 
 @Component({
     selector: 'plc-mapping',
     templateUrl: './plc-mapping.component.html',
     styleUrls: ['./plc-mapping.component.scss']
 })
-export class PlcMappingComponent implements OnInit {
+export class PlcMappingComponent {
 
-    addedFile: File;
-    changed = false;
-    endpointUrl: string;
-    nodeIdRoot: string;
+    plcMappingForm = this.fb.group({
+        files: this.fb.control<FileList>(null, Validators.required),
+        endpointUrl: this.fb.control("", Validators.required),
+        baseIri: this.fb.control("http://www.hsu-hh.de/aut/PLC2Skill"),
+        resourceIri: this.fb.control(""),
+        requiresAuth: this.fb.control(false),
+        user: this.fb.control("",),
+        password: this.fb.control(""),
+        nodeIdManual: this.fb.control(false),
+        nodeIdRoot: this.fb.control("")
+    })
 
-    constructor(private plcMappingService: PlcMappingService) { }
+    fileSelected = false;
 
-    ngOnInit() {
+    constructor(
+        private plcMappingService: PlcMappingService,
+        private fb: FormBuilder) { }
+
+
+    get selectedFileName(): string {
+        return this.plcMappingForm.get('files').value.item(0).name;
     }
 
-    onFileAdded(event){
-        this.addedFile=event.target.files[0];
+    get nodeIdManual(): boolean {
+        return this.plcMappingForm.get('nodeIdManual').value;
     }
 
-    submit() {
-        console.log("submitted mapping");
-        console.log(this.endpointUrl);
-        console.log(this.nodeIdRoot);
+    get requiresAuth(): boolean {
+        return this.plcMappingForm.get('requiresAuth').value;
+    }
 
-        this.plcMappingService.executeMapping(this.addedFile, this.endpointUrl, this.nodeIdRoot).pipe(take(1)).subscribe(data => console.log(data));
+    get formValid(): boolean {
+        return this.plcMappingForm.valid;
+    }
+
+    submit(): void {
+        const {files,endpointUrl, baseIri, resourceIri, user, password, nodeIdRoot} = this.plcMappingForm.value;
+        const request = new PlcMappingRequest(files.item(0), endpointUrl, baseIri, resourceIri, user, password, nodeIdRoot);
+        this.plcMappingService.executeMapping(request).pipe(take(1)).subscribe();
     }
 
 }

@@ -1,7 +1,9 @@
 import { Body, Controller, Get, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
-import { PlcMappingService } from './plc-mapping.service';
+import { PlcMappingRequestWithoutFile, PlcMappingService } from './plc-mapping.service';
+import {PlcMappingRequest } from '@shared/models/mappings/PlcMappingRequest';
+
 
 @Controller('mappings/plc')
 export class PlcMappingController {
@@ -33,13 +35,8 @@ export class PlcMappingController {
      */
     @Post()
     @UseInterceptors(FileInterceptor('plc-file'))
-    uploadFile(@Body() additionalData: AdditionalPlcMappingInfo, @UploadedFile() file: Express.Multer.File): Promise<string> {
+    uploadFile(@Body() additionalData: PlcMappingRequestWithoutFile, @UploadedFile() file: Express.Multer.File): Promise<string> {
         return this.mappingService.executeMapping(additionalData, file);
     }
 
-}
-
-export interface AdditionalPlcMappingInfo {
-    endpointUrl: string,
-    nodeIdRoot: string
 }

@@ -5,6 +5,7 @@ import Axios, { AxiosRequestConfig } from 'axios';
 import { ModuleService } from '../../../routes/production-modules/module.service';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 import { SkillService } from '../../skills/skill.service';
+import { PlcMappingRequest } from '../../../../../shared/src/models/mappings/PlcMappingRequest';
 
 
 @Injectable()
@@ -36,14 +37,18 @@ export class PlcMappingService {
 
     /**
      * Execute a mapping with a given file
-     * @param mtpFile File containing an MTP
+     * @param plcFile File containing an MTP
      */
-    async executeMapping(additionalData: AdditionalPlcMappingInfo, mtpFile: Express.Multer.File): Promise<string> {
+    async executeMapping(additionalData: PlcMappingRequestWithoutFile, plcFile: Express.Multer.File): Promise<string> {
 
         const formData = new FormData();
         formData.append('endpointUrl', additionalData.endpointUrl);
+        formData.append('baseIri', additionalData.baseIri);
+        formData.append('user', additionalData.user);
+        formData.append('password', additionalData.password);
+        formData.append('resourceIri', additionalData.resourceIri);
         formData.append('nodeIdRoot', additionalData.nodeIdRoot);
-        formData.append("plc-file", fs.createReadStream(mtpFile.path), {filename: mtpFile.originalname});
+        formData.append("plc-file", fs.createReadStream(plcFile.path), {filename: plcFile.originalname});
 
         const reqConfig: AxiosRequestConfig = {
             headers: formData.getHeaders(),
@@ -65,7 +70,5 @@ export class PlcMappingService {
 
 }
 
-export interface AdditionalPlcMappingInfo {
-    endpointUrl: string,
-    nodeIdRoot: string
-}
+// File is handled separately on backend request, thus should not be used in the additional data object
+export type PlcMappingRequestWithoutFile = Omit<PlcMappingRequest, "file">;
