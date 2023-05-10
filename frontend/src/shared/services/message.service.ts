@@ -47,17 +47,17 @@ export class MessageService {
             }),
 
             // Skill added
-            this.skillSocket.getSkillAdded().subscribe({
+            this.skillSocket.onSkillAdded().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("New Skill","Skill added", MessageType.Success)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Skill registration",`Error: ${err}`, MessageType.Danger)),
             });
             // Skill changed
-            this.skillSocket.getSkillChanged().subscribe({
+            this.skillSocket.onSkillChanged().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Skill","Skill changed", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
             }),
             // Skill deleted
-            this.skillSocket.getSkillDeleted().subscribe({
+            this.skillSocket.onSkillDeleted().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Skill","Skill deleted", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
             }),

@@ -91,7 +91,7 @@ export class GraphVisualizationComponent implements AfterViewInit, OnInit {
 
     private setupModuleGraph(): void {
         if(!this.elementIri) {
-            this.moduleService.getAllModules().subscribe(modules => this.setupSimulation(modules));
+            this.moduleService.getModules().subscribe(modules => this.setupSimulation(modules));
         } else {
             this.moduleService.getModuleByIri(this.elementIri).subscribe(module => this.setupSimulation([module]));
         }
