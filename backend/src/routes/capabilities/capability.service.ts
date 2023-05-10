@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException, InternalServerErrorException, Inject, forwardRef } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { capabilityMapping } from './capability-mappings';
@@ -17,8 +17,9 @@ export class CapabilityService {
     constructor(
         private graphDbConnection: GraphDbConnectionService,
         private propertyService: PropertyService,
+        private capabilitySocket: CapabilitySocket,
+        @Inject(forwardRef(() => SkillService))
         private skillService: SkillService,
-        private capabilitySocket: CapabilitySocket
     ) { }
 
     /**
@@ -106,6 +107,7 @@ export class CapabilityService {
             const queryResult = await this.graphDbConnection.executeQuery(`
             PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
+            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
             SELECT ?capability ?input ?output WHERE {
                 ?capability a CSS:Capability.
                 FILTER(?capability = IRI("${capabilityIri}")).
@@ -121,6 +123,10 @@ export class CapabilityService {
                 }
             }`);
             const capability = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
+            console.log("capability");
+            console.log(capability);
+
+
             capability.skillDtos = await this.skillService.getSkillsForCapability(capability.iri);
             return capability;
         } catch (error) {
