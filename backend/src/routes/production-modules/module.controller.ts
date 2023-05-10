@@ -6,6 +6,7 @@ import { SkillDto } from '@shared/models/skill/Skill';
 import { SkillService } from '../skills/skill.service';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { CapabilityService } from '../capabilities/capability.service';
+import { SkillStateService } from '../skill-states/skill-state.service';
 
 @Controller('modules')
 export class ModuleController {
@@ -13,7 +14,9 @@ export class ModuleController {
     constructor(
         private moduleService: ModuleService,
         private capabilityService: CapabilityService,
-        private skillService: SkillService) {}
+        private skillService: SkillService,
+        private skillStateService: SkillStateService
+    ) {}
 
     /**
      * Register a new module on the platform
@@ -68,7 +71,7 @@ export class ModuleController {
         @StringBody() newSkill: string,
         @Headers("Content-Type") contentType?: string): Promise<string> {
         // TODO: Make sure that the skill is registered with the given module. This is currently not checked
-        return this.skillService.addSkill(newSkill, contentType);
+        return this.skillService.addSkills(newSkill, contentType);
     }
 
 
@@ -84,13 +87,10 @@ export class ModuleController {
 
 
     /**
-     * Get all skills of a module with a given IRI
-     * @param moduleIri IRI of the module to get all skills from
-     * @returns Array of skills of the module
+     * Get all capabilities of a module with a given IRI
+     * @param moduleIri IRI of the module to get all capabilities from
+     * @returns Array of capabilities of the module
      */
-
-
-
     @Get(':moduleIri/capabilities')
     getAllCapabilitiesOfModule(@Param('moduleIri') moduleIri: string): Promise<Array<CapabilityDto>> {
         return this.capabilityService.getCapabilitiesOfModule(moduleIri);
@@ -113,6 +113,6 @@ export class ModuleController {
     @Patch(':moduleIri/skills/:skillIri')
     updateSkillState(@Param('skillIri') skillIri:string, @Body() change: Record<string, unknown>): Promise<string> {
         const newState = change['newState'] as string;
-        return this.skillService.updateState(skillIri, newState);
+        return this.skillStateService.updateState(skillIri, newState);
     }
 }
