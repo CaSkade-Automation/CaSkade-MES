@@ -6,15 +6,17 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { SkillService } from '../../../../routes/skills/skill.service';
 import { OpcUaSkillExecutor, OpcUaSkillParameter } from './OpcUaSkillExecutor';
 import { opcUaMethodSkillMapping } from '../skill-execution-mappings';
+import { OpcUaSessionManager } from '../../../../util/OpcUaSessionManager';
 
 
 export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
 
-    constructor(graphDbConnection: GraphDbConnectionService, skillService: SkillService, skillIri: string) {
-        super(graphDbConnection, skillIri);
-        this.graphDbConnection = graphDbConnection;
+    private skillService: SkillService;
+
+    constructor(graphDbConnection: GraphDbConnectionService,sessionManager: OpcUaSessionManager, skillService: SkillService) {
+        super(graphDbConnection, sessionManager);
+        // this.graphDbConnection = graphDbConnection;
         this.skillService = skillService;
-        this.converter = new SparqlResultConverter();
     }
 
     /**
@@ -31,13 +33,13 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
             for (const describedParameter of parameterDescription.parameters) {
                 const foundReqParam = requestParameters.find(reqParam => reqParam.name == describedParameter.parameterName);
                 if(foundReqParam && foundReqParam.value) {
-                    await this.writeSingleNode(describedParameter.parameterNodeId, foundReqParam.value);
+                    await this.writeSingleNode(executionRequest.skillIri, describedParameter.parameterNodeId, foundReqParam.value);
                 }
             }
         } catch (err) {
             console.log(`Error while writing value: ${err}`);
         } finally {
-            this.endUaConnection();
+            // this.endUaConnection();
         }
 
     }
@@ -53,16 +55,18 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
 
         if (outputDtos == undefined || outputDtos.length == 0 ) return null;
 
-        const skillMethodDescription = await this.getStatelessOpcUaMethodDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
+        const skillMethodDescription = await this.getStatelessOpcUaMethodDescription(skill.skillIri, executionRequest.commandTypeIri);
+
+        const uaSession = await this.sessionManager.getSession(skill.skillIri);
 
         try {
             // Call the method and get the output values. Note that these are just values without names (fail of OPC UA)
-            const methodResult = await this.callMethod(skillMethodDescription.methodNodeId);
+            const methodResult = await this.callMethod(skill.skillIri, skillMethodDescription.methodNodeId);
             const methodOutput = methodResult.outputArguments;
 
             // Read the nodes of the output arguments to get an array including names (but without values)
             const methodNode = NodeId.resolveNodeId(skillMethodDescription.methodNodeId);
-            const [output] = await this.uaSession.translateBrowsePath([
+            const [output] = await uaSession.translateBrowsePath([
                 makeBrowsePath(methodNode,".OutputArguments"),
             ]);
             const outputArgumentNodeId  =  output.targets[0].targetId;
@@ -70,7 +74,7 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
                 { attributeIds: AttributeIds.Value, nodeId: outputArgumentNodeId },
             ];
 
-            const [outputArgumentValue]  = await this.uaSession.read(nodesToRead);
+            const [outputArgumentValue]  = await uaSession.read(nodesToRead);
 
             // Match named output arguments with values of the call
             for (let i = 0; i < methodOutput.length; i++) {
@@ -87,7 +91,7 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
         } catch (err) {
             throw new InternalServerErrorException();
         } finally {
-            this.endUaConnection();
+            // this.endUaConnection();
         }
     }
 
@@ -104,20 +108,20 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
             for (const param of skillDescription.parameters) {
                 const foundReqParam = executionRequest.parameters.find(reqParam => reqParam.name == param.parameterName);
                 if(foundReqParam && foundReqParam.value) {
-                    await this.writeSingleNode(param.parameterNodeId, foundReqParam.value);
+                    await this.writeSingleNode(skillDescription.skillIri, param.parameterNodeId, foundReqParam.value);
                 }
 
             }
 
             // Call the method
-            await this.callMethod(skillDescription.methodNodeId);
+            await this.callMethod(skillDescription.skillIri, skillDescription.methodNodeId);
 
         } catch (err) {
             console.log(`Error while invoking transition ${executionRequest.commandTypeIri} on skill ${executionRequest.skillIri}`);
             console.log(err);
             throw new InternalServerErrorException();
         } finally {
-            this.endUaConnection();
+            // this.endUaConnection();
         }
 
 

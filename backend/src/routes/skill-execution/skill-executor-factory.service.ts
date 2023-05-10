@@ -6,13 +6,18 @@ import { NullSkillExecutor } from "./executors/NullSkillExecutor";
 import { GraphDbConnectionService } from "../../util/GraphDbConnection.service";
 import { SkillService } from "../skills/skill.service";
 import { OpcUaVariableSkillExecutionService } from "./executors/opc-ua-executors/OpcUaVariableSkillExecutor";
+import { OpcUaSessionManager } from "../../util/OpcUaSessionManager";
+import { OpcUaStateTrackerManager } from "../../util/opcua-statetracker-manager.service";
 
 @Injectable()
 export class SkillExecutorFactory {
 
     constructor(
         private graphDbConnection: GraphDbConnectionService,
-        private skillService: SkillService) {}
+        private skillService: SkillService,
+        private uaSessionManager: OpcUaSessionManager,
+        private uaStateTrackerManager: OpcUaStateTrackerManager
+    ) {}
 
     /**
      * Factory method that returns a matching SkillExecutor for a skill
@@ -24,13 +29,20 @@ export class SkillExecutorFactory {
 
         switch (skillInterfaceTypeIri) {
         case 'http://www.w3id.org/hsu-aut/caskman#OpcUaMethodSkillInterface': {
-            const methodSkillExecutor = new OpcUaMethodSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
-            await methodSkillExecutor.connectAndCreateSession();
+            const methodSkillExecutor = new OpcUaMethodSkillExecutionService(
+                this.graphDbConnection,
+                this.uaSessionManager,
+                this.skillService
+            );
             return methodSkillExecutor;
         }
         case 'http://www.w3id.org/hsu-aut/caskman#OpcUaVariableSkillInterface': {
-            const variableSkillExecutor = new OpcUaVariableSkillExecutionService(this.graphDbConnection, this.skillService, skillIri);
-            await variableSkillExecutor.connectAndCreateSession();
+            const variableSkillExecutor = new OpcUaVariableSkillExecutionService(
+                this.graphDbConnection,
+                this.skillService,
+                this.uaSessionManager,
+                this.uaStateTrackerManager
+            );
             return variableSkillExecutor;
         }
         case 'http://www.w3id.org/hsu-aut/caskman#RestSkillInterface':
