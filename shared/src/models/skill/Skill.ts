@@ -12,6 +12,7 @@ export class SkillDto {
 
     constructor(queryResult: SkillQueryResult) {
         this.skillIri = queryResult.skillIri;
+        this.capabilityIris = queryResult.capabilityIris.map(capabilityIris => capabilityIris.iri);
         this.stateMachineIri = queryResult.stateMachine;
         this.skillType = queryResult.skillType;
         this.skillInterfaceType = queryResult.skillInterfaceType;
@@ -29,7 +30,7 @@ export class SkillDto {
 
 export interface SkillQueryResult {
     skillIri: string,
-    capabilityIri: string,
+    capabilityIris: {iri: string}[],
     skillType: string,
     skillInterfaceType: string,
     stateMachine: string,
