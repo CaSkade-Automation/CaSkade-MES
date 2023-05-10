@@ -3,27 +3,40 @@ import { Observable } from 'rxjs';
 import { SocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
 import { filter } from 'rxjs/operators';
 import { SocketConnection } from './SocketConnection';
+import { CapabilityDto } from '@shared/models/capability/Capability';
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class CapabilitySocketService extends SocketConnection  implements OnDestroy {
-    WS_ENDPOINT = "ws://localhost:9091/capabilities";
+export class CapabilitySocketService implements OnDestroy {
 
-    getCapabilityAdded(): Observable<WebSocketMessage> {
-        return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Added));
+    private readonly WS_ENDPOINT = "ws://localhost:9091/capabilities";
+
+    constructor(
+        private socketConnection: SocketConnection<CapabilityDto[]>
+    ) {}
+
+    connect(): void {
+        this.socketConnection.connect(this.WS_ENDPOINT);
     }
 
-    getCapabilityDeleted(): Observable<WebSocketMessage> {
-        return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Deleted));
+    getCapabilityAdded(): Observable<WebSocketMessage<CapabilityDto[]>> {
+        return this.socketConnection.socket$.pipe(
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == SocketMessageType.Added));
     }
 
-    getCapabilityChanged(): Observable<WebSocketMessage> {
-        return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Changed));
+    getCapabilityDeleted(): Observable<WebSocketMessage<CapabilityDto[]>> {
+        return this.socketConnection.socket$.pipe(
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == SocketMessageType.Deleted));
+    }
+
+    getCapabilityChanged(): Observable<WebSocketMessage<CapabilityDto[]>> {
+        return this.socketConnection.socket$.pipe(
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == SocketMessageType.Changed));
     }
 
     ngOnDestroy(): void {
-        this.socket$.complete();
+        this.socketConnection.socket$.complete();
     }
 }

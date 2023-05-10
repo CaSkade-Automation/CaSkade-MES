@@ -9,6 +9,6 @@ export interface StateChangeInfo {
     newStateTypeIri: string
 }
 
-export class WebSocketMessage {
-    constructor(public type: SocketMessageType, public body: any) {}
+export class WebSocketMessage<T> {
+    constructor(public type: SocketMessageType, public body: T) {}
 }

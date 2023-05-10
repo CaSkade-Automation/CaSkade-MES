@@ -1,32 +1,41 @@
 import { Injectable } from '@angular/core';
-import { EMPTY, Observable, Subject } from 'rxjs';
-import { catchError, filter, tap } from 'rxjs/operators';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { SocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
 import { SocketConnection } from './SocketConnection';
+import { ProductionModuleDto} from '@shared/models/production-module/ProductionModule';
 
 @Injectable({
     providedIn: 'root'
 })
-export class ModuleSocketService extends SocketConnection {
+export class ModuleSocketService {
 
+    private readonly WS_ENDPOINT = "ws://localhost:9091/modules";
 
-    WS_ENDPOINT = "ws://localhost:9091/modules";
+    constructor(
+        private socketConnection: SocketConnection<ProductionModuleDto[]>
+    ) {}
 
-
-    getModulesAdded(): Observable<WebSocketMessage> {
-        return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Added));
+    connect(): void {
+        this.socketConnection.connect(this.WS_ENDPOINT);
     }
 
-    getModulesChanged(): Observable<WebSocketMessage> {
-        return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Changed));
+    getModulesAdded(): Observable<WebSocketMessage<ProductionModuleDto[]>> {
+        return this.socketConnection.socket$.pipe(
+            filter((val: WebSocketMessage<ProductionModuleDto[]>) => val.type == SocketMessageType.Added));
     }
 
-    getModulesDeleted(): Observable<WebSocketMessage> {
-        return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Deleted));
+    getModulesChanged(): Observable<WebSocketMessage<ProductionModuleDto[]>> {
+        return this.socketConnection.socket$.pipe(
+            filter((val: WebSocketMessage<ProductionModuleDto[]>) => val.type == SocketMessageType.Changed));
+    }
+
+    getModulesDeleted(): Observable<WebSocketMessage<ProductionModuleDto[]>> {
+        return this.socketConnection.socket$.pipe(
+            filter((val: WebSocketMessage<ProductionModuleDto[]>) => val.type == SocketMessageType.Deleted));
     }
 
     ngOnDestroy(): void {
-        this.socket$.complete();
+        this.socketConnection.socket$.complete();
     }
 }
