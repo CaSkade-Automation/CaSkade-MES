@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Transition } from '@shared/models/state-machine/Transition';
 import { SkillVariable, SkillVariableDto } from '@shared/models/skill/SkillVariable';
 import { SkillExecutionService } from '../../services/skill-execution.service';
@@ -16,7 +16,9 @@ import { Skill } from '../../models/Skill';
     styleUrls: ['./skill-card.component.scss']
 })
 export class SkillCardComponent implements OnInit {
+
     @Input() skill: Skill;
+    @Output("onSkillDeleted") onSkillDeleted = new EventEmitter<string>();
 
     request: SkillExecutionRequestDto;
     parameterSettings= new Array<any>();
@@ -31,7 +33,10 @@ export class SkillCardComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.skillSocket.getStateChangesOfSkill(this.skill.iri).subscribe((val: StateChangeInfo) => {
+        this.skillSocket.onSkillStateChanged(this.skill.iri).subscribe((val: StateChangeInfo) => {
+            console.log("state changed");
+            console.log(val);
+
             this.skill.stateMachine.setCurrentState(val.newStateTypeIri);
             this.blinkStateChange = true;
             setTimeout(() => {
@@ -109,6 +114,7 @@ export class SkillCardComponent implements OnInit {
 
     deleteSkill(): void {
         this.skillService.deleteSkill(this.skill.iri).subscribe();
+        this.onSkillDeleted.emit(this.skill.iri);
     }
 
 }

@@ -1,14 +1,21 @@
-import { Body, Controller, Get, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, ServiceUnavailableException, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 import { PlcMappingRequestWithoutFile, PlcMappingService } from './plc-mapping.service';
-import {PlcMappingRequest } from '@shared/models/mappings/PlcMappingRequest';
+import { Observable, catchError, map } from 'rxjs';
 
 
 @Controller('mappings/plc')
 export class PlcMappingController {
 
     constructor(private mappingService: PlcMappingService){}
+
+    @Get('ping')
+    pingMappingApi(): Observable<void> {
+        return this.mappingService.ping().pipe(
+            catchError(err => {throw new ServiceUnavailableException(null, "Service is not running. Make sure to start the Plc2Skill REST API.");})
+        );
+    }
 
     /**
      * Return the current URL of the MTP Mapping service

@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { take } from 'rxjs/operators';
 import { PlcMappingService } from 'src/shared/services/plc-mapping.service';
 import { PlcMappingRequest } from '@shared/models/mappings/PlcMappingRequest';
+import { MessageService } from '../../../services/message.service';
 
 @Component({
     selector: 'plc-mapping',
@@ -27,7 +28,8 @@ export class PlcMappingComponent {
 
     constructor(
         private plcMappingService: PlcMappingService,
-        private fb: FormBuilder) { }
+        private fb: FormBuilder,
+        private messageService: MessageService) { }
 
 
     get selectedFileName(): string {
@@ -49,7 +51,10 @@ export class PlcMappingComponent {
     submit(): void {
         const {files,endpointUrl, baseIri, resourceIri, user, password, nodeIdRoot} = this.plcMappingForm.value;
         const request = new PlcMappingRequest(files.item(0), endpointUrl, baseIri, resourceIri, user, password, nodeIdRoot);
-        this.plcMappingService.executeMapping(request).pipe(take(1)).subscribe();
+        this.plcMappingService.executeMapping(request).pipe(take(1)).subscribe({
+            next: () => this.messageService.info("Started mapping", `Mapping of file ${files.item(0).name} successfully started. This may take a while...`),
+            error: (err) => this.messageService.warn("Error while starting mapping", `Error while starting the mapping of file ${files.item(0).name}. Error:${err}`)
+        });
     }
 
 }

@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import Axios, { AxiosRequestConfig } from 'axios';
-import { ModuleService } from '../../../routes/production-modules/module.service';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 import { SkillService } from '../../skills/skill.service';
 import { PlcMappingRequest } from '../../../../../shared/src/models/mappings/PlcMappingRequest';
+import { HttpService } from '@nestjs/axios';
+import { Observable, catchError, map, of } from 'rxjs';
+import { AxiosRequestConfig } from 'axios';
 
 
 @Injectable()
@@ -16,7 +17,18 @@ export class PlcMappingService {
     }
 
 
-    constructor(private skillService: SkillService) {
+    constructor(
+        private skillService: SkillService,
+        private http: HttpService
+    ) {}
+
+    /**
+     * Simple ping to see if the server is running
+     * @returns Status code
+     */
+    ping(): Observable<void>{
+        const pingUrl = `${this.config.url}/ping`;
+        return this.http.get<void>(pingUrl).pipe(map(res => res.data));
     }
 
     /**
@@ -55,14 +67,13 @@ export class PlcMappingService {
             timeout: 1200000        // large timeout because mapping takes forever
         };
 
-        Axios.post(this.config.url, formData, reqConfig)
-            .then(res => {
-                this.skillService.addSkill(res.data);
-            })
-            .catch(err => {
+        this.http.post(this.config.url, formData, reqConfig).pipe(
+            catchError(err => {
                 console.log("error on mapping");
                 console.log(err);
-            });
+                return of(err);
+            })).
+            subscribe(res => this.skillService.addSkills(res.data));
 
         return;
     }
