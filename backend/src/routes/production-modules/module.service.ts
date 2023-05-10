@@ -26,14 +26,11 @@ export class ModuleService {
         // create a graph name (uuid)
         const graphName = crypto.randomUUID();
         try {
-            const dbResult = await this.graphDbConnection.addRdfDocument(newModule, graphName, contentType);
+            await this.graphDbConnection.addRdfDocument(newModule, graphName, contentType);
+            const modulesAfter = await this.getModules();
 
-            if(dbResult) {
-                // TODO: Check for errors from graphdb (e.g. syntax error while inserting)
-                this.moduleSocket.sendMessage(SocketMessageType.Added);
-                // this.moduleSocket.doSomething();
-                return {msg:'ProductionModule successfully registered'};
-            }
+            this.moduleSocket.sendMessage(SocketMessageType.Added, modulesAfter);
+            return {msg:'ProductionModule successfully registered'};
         } catch (error) {
             throw new BadRequestException(`Error while registering new production module. ${error.toString()}`);
         }
@@ -77,10 +74,10 @@ export class ModuleService {
 
         try {
             const query = `
-                PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+                PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
                 PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
                 SELECT ?module ?component ?interface WHERE {
-                    ?module a VDI3682:TechnicalResource.
+                    ?module a CSS:Resource.
                     OPTIONAL{
                         ?module VDI2206:consistsOf ?component.
                     }
@@ -112,19 +109,18 @@ export class ModuleService {
             // TODO: This could be moved into a separate graph model
             // TODO: Make sure descriptions of executable skills get deleted as well
             const graphQueryResults = await this.graphDbConnection.executeQuery(`
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
             PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
-            PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-            SELECT DISTINCT ?g WHERE {
-                # Get the type with which the module was registered
-                # This has to be made before getting the graph because inferred facts are not stored in any graph and lead to problems
+            SELECT DISTINCT * WHERE {
+                # Get the graph into which module was registered. Types have to be given as values so that explicit facts are retrieved
+                # Inferred facts are not stored inside a named graph
                 BIND(IRI(<${moduleIri}>) AS ?module)
-                ?module a VDI3682:TechnicalResource.
-                ?type rdfs:subClassOf VDI3682:TechnicalResource.
-
+                ?module a ?type.
+                VALUES ?type {
+                    CSS:Resource  VDI3682:TechnicalResource VDI2206:Module VDI2206:System
+                }.
                 # Finding the graph can now be done using explicit facts
                 GRAPH ?g {
                     ?module a ?type.
@@ -132,11 +128,18 @@ export class ModuleService {
             }`);
 
             const resultBindings = graphQueryResults.results.bindings;
-            for (const binding of resultBindings) {
+            const deleteRequests = new Array<Promise<{statusCode: any;msg: any;}>>();
+            resultBindings.forEach(binding => {
                 const graphName = binding.g.value;
-                await this.graphDbConnection.clearGraph(graphName); // clear graph
-            }
-            this.moduleSocket.sendMessage(SocketMessageType.Deleted);
+                deleteRequests.push(this.graphDbConnection.clearGraph(graphName)); // clear graph
+            });
+            await Promise.all(deleteRequests);
+            const modulesAfterDeleting = await this.getModules();
+            console.log("after delete");
+
+            console.log(modulesAfterDeleting);
+
+            this.moduleSocket.sendMessage(SocketMessageType.Deleted, modulesAfterDeleting);
 
         } catch (error) {
             throw new Error(`Error while deleting module with IRI ${moduleIri}. ${error}`);
