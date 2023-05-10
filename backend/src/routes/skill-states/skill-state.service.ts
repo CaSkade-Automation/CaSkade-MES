@@ -14,7 +14,7 @@ export class SkillStateService {
     ) {}
 
 
-    async getCurrentStateInfo(skillIri: string): Promise<CurrentStateInfo> {
+    async getStateInfo(skillIri: string): Promise<CurrentStateInfo> {
         const query = `
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
@@ -48,7 +48,23 @@ export class SkillStateService {
         return mappedResult;
     }
 
+    async getSkillState(skillIri: string): Promise<string> {
+        const query = `
+        PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
+        SELECT ?state WHERE {
+            <${skillIri}> CaSk:hasCurrentState ?state.
+        }`;
+        const queryResult = await this.graphDbConnection.executeQuery(query);
+        console.log("currentState =" + queryResult.results.bindings);
+
+        const currentState = queryResult.results.bindings[0].state.value;
+        return currentState;
+    }
+
     async updateState(skillIri:string, newStateTypeIri: string): Promise<string> {
+        console.log("state before update");
+        console.log(await this.getSkillState(skillIri));
+
         try {
             const deleteQuery = `
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
@@ -56,6 +72,9 @@ export class SkillStateService {
                 <${skillIri}> CaSk:hasCurrentState ?oldCurrentState.
             }`;
             await this.graphDbConnection.executeUpdate(deleteQuery);
+
+            console.log("state after delete");
+            console.log(await this.getSkillState(skillIri));
 
             const insertQuery = `
             PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
@@ -71,6 +90,10 @@ export class SkillStateService {
             await this.graphDbConnection.executeUpdate(insertQuery);
             console.log(`sending new state for skill ${skillIri}`);
             console.log(`new state type: ${newStateTypeIri}`);
+
+            console.log("state after insert");
+            console.log(await this.getSkillState(skillIri));
+
 
 
             this.skillSocket.sendStateChanged(skillIri, newStateTypeIri);

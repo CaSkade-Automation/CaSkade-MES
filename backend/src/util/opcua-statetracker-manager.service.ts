@@ -43,7 +43,7 @@ export class OpcUaStateTrackerManager {
             publishingEnabled: true,
             priority: 10
         });
-        const currentStateInfo = await this.skillStateService.getCurrentStateInfo(skillIri);
+        const currentStateInfo = await this.skillStateService.getStateInfo(skillIri);
 
         // TODO: Same code as in OpcUaSkillExecutor, should be moved to a common place
         let nsIndex: number;
