@@ -1,11 +1,37 @@
 import { MappingDefinition } from "sparql-result-converter";
 
+export const opcUaServerInfoMapping: MappingDefinition[] = [
+    {
+        rootName: 'opcUaServerInfo',
+        propertyToGroup: 'serverIri',
+        name: 'serverIri',
+        toCollect: ['serverIri'],
+        childMappings: [
+            {
+                rootName: 'endpoints',
+                propertyToGroup: 'endpoint',
+                name: 'endpoint',
+                toCollect: ['endpointUrl', 'messageSecurityMode', 'securityPolicy'],
+                childMappings: [
+                    {
+                        rootName: 'userIdentityTokens',
+                        propertyToGroup: 'userIdentityToken',
+                        name: 'userIdentityToken',
+                        toCollect: ['tokenType', 'userName', 'password'],
+                    },
+                ],
+            },
+        ],
+
+    },
+];
+
 const opcUaMethodSkillMapping: MappingDefinition[] = [
     {
         rootName: 'skillExecutionInfos',
         propertyToGroup: 'skillIri',
         name: 'skillIri',
-        toCollect: ['skillMethodIri', 'skillInterface', 'methodNodeId', 'skillNodeId', 'endpointUrl', 'username', 'password', 'messageSecurityMode', 'securityPolicy'],
+        toCollect: ['skillMethodIri', 'skillInterface', 'methodNodeId', 'skillNodeId'],
         childMappings: [
             {
                 rootName: 'parameters',

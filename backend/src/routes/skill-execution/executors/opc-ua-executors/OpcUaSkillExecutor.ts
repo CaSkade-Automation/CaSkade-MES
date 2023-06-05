@@ -14,7 +14,7 @@ import { OpcUaSessionManager } from "../../../../util/OpcUaSessionManager";
  */
 export abstract class OpcUaSkillExecutor extends SkillExecutor {
 
-    protected converter: SparqlResultConverter;
+    protected converter = new SparqlResultConverter();
 
     constructor(
         protected graphDbConnection: GraphDbConnectionService,
@@ -47,7 +47,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
     protected async getOpcUaParameterDescription(skillIri: string): Promise<OpcUaSkillParameterResult> {
         const query = `
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-        PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+        PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
         SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?username ?password ?parameterIri ?parameterRequired
@@ -149,8 +149,6 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
 
         return uaSession.call(methodToCall);
     }
-
-
 
 }
 

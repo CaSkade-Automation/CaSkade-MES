@@ -134,23 +134,16 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
-        PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+        PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
-        SELECT ?skillIri ?skillInterface ?skillMethodIri ?skillNodeId ?methodNodeId ?endpointUrl ?messageSecurityMode ?securityPolicy
-        ?userName ?password ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
+        SELECT ?skillIri ?skillInterface ?skillMethodIri ?skillNodeId ?methodNodeId ?parameterIri ?parameterRequired
+            ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
             BIND(<${skillIri}> AS ?skillIri).
             ?skillIri a CSS:Skill;
                 CSS:accessibleThrough ?skillInterface.
             ?skillInterface OpcUa:nodeId ?skillNodeId.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface;
-                OpcUa:hasEndpointUrl ?endpointUrl;
-                OpcUa:hasMessageSecurityMode ?messageSecurityMode;
-                OpcUa:hasSecurityPolicy ?securityPolicy.
-            OPTIONAL {
-                ?uaServer OpcUa:requiresUserName ?userName;
-                OpcUa:requiresPassword ?password
-            }
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface.
             <${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
             ?command a <${commandTypeIri}>;
                 CaSk:isInvokedBy ?skillMethodIri.
@@ -168,8 +161,6 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        console.log(queryResult.results.bindings);
-
         const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaMethodSkillMapping)
             .getFirstRootElement()[0] as OpcUaSkillQueryResult;
 
@@ -185,24 +176,17 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
-        PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+        PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
         SELECT ?skillIri ?skillInterface ?skillMethodIri ?skillNodeId ?methodNodeId ?endpointUrl ?messageSecurityMode ?securityPolicy
-        ?userName ?password ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
+        ?username ?password ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
             BIND(<${skillIri}> AS ?skillIri).
             ?skillIri a CSS:Skill;
                 CSS:accessibleThrough ?skillInterface.
             ?skillInterface a CaSkMan:OpcUaMethodSkillInterface;
                         OpcUa:nodeId ?skillNodeId.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface;
-                OpcUa:hasEndpointUrl ?endpointUrl;
-                OpcUa:hasMessageSecurityMode ?messageSecurityMode;
-                OpcUa:hasSecurityPolicy ?securityPolicy.
-            OPTIONAL {
-                ?uaServer OpcUa:requiresUserName ?userName;
-                OpcUa:requiresPassword ?password
-            }
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface.
             <${commandTypeIri}> rdfs:subClassOf CaSk:SkillMethod.
             ?skillMethodIri a <${commandTypeIri}>;
                 a OpcUa:UAMethod;
@@ -226,11 +210,6 @@ class OpcUaSkillQueryResult {
     skillInterface: string;
     skillMethod: string;
     methodNodeId: string;
-    endpointUrl: string;
-    messageSecurityMode: string;
-    securityPolicy: string;
-    username: string;
-    password: string;
     parameters: OpcUaSkillParameter[];
 }
 
@@ -253,12 +232,7 @@ class OpcUaSkillMethod {
     }
 
     get skillNodeId(): string { return this.skillQueryResult.skillNodeId;}
-    get endpointUrl(): string { return this.skillQueryResult.endpointUrl;}
     get methodNodeId(): string { return this.skillQueryResult.methodNodeId;}
-    get messageSecurityMode(): string { return this.skillQueryResult.messageSecurityMode;}
-    get securityPolicy():string { return this.skillQueryResult.securityPolicy;}
-    get username(): string { return this.skillQueryResult.username;}
-    get password(): string { return this.skillQueryResult.password;}
     get parameters(): any[] { return this.skillQueryResult.parameters;}
 }
 
