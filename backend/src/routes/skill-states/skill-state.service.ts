@@ -18,7 +18,7 @@ export class SkillStateService {
         const query = `
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
-        PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+        PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
         PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
         PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
@@ -55,16 +55,28 @@ export class SkillStateService {
             <${skillIri}> CaSk:hasCurrentState ?state.
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        console.log("currentState =" + queryResult.results.bindings);
-
         const currentState = queryResult.results.bindings[0].state.value;
         return currentState;
     }
 
-    async updateState(skillIri:string, newStateTypeIri: string): Promise<string> {
-        console.log("state before update");
-        console.log(await this.getSkillState(skillIri));
+    prom = Promise.resolve();
 
+    /**
+     * Handles multiple state updates by chaining them to a promise so that quick sequential state updates will be preserved and done in order
+     * @param skillIri state updates of this skill will be handled
+     * @param newStateTypeIri The new state type after updating
+     * @returns
+     */
+    async handleStateUpdates(skillIri: string, newStateTypeIri: string) {
+        const promToReturn = this.prom
+            .then(() => this.updateState(skillIri, newStateTypeIri));
+        // continue the chain even if there's an error during one of them
+        this.prom = promToReturn.catch((err) => err);
+        // while returning the original Promise whose results and errors can be seen outside
+        return promToReturn;
+    }
+
+    private async updateState(skillIri:string, newStateTypeIri: string): Promise<string> {
         try {
             const deleteQuery = `
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
@@ -73,28 +85,23 @@ export class SkillStateService {
             }`;
             await this.graphDbConnection.executeUpdate(deleteQuery);
 
-            console.log("state after delete");
-            console.log(await this.getSkillState(skillIri));
-
+            // insert new state, make sure its in the skill's graph so that the delete mechanism works
             const insertQuery = `
             PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
             INSERT {
-                <${skillIri}> CaSk:hasCurrentState ?newState.
+                GRAPH ?g {
+                    <${skillIri}> CaSk:hasCurrentState ?newState.
+                }
             } WHERE {
-                <${skillIri}> CSS:behaviorConformsTo ?stateMachine.
+                GRAPH ?g {
+                    <${skillIri}> CSS:behaviorConformsTo ?stateMachine.
+                }
                 ?stateMachine ISA88:hasState ?newState.
                 ?newState a <${newStateTypeIri}>.
             }`;
             await this.graphDbConnection.executeUpdate(insertQuery);
-            console.log(`sending new state for skill ${skillIri}`);
-            console.log(`new state type: ${newStateTypeIri}`);
-
-            console.log("state after insert");
-            console.log(await this.getSkillState(skillIri));
-
-
 
             this.skillSocket.sendStateChanged(skillIri, newStateTypeIri);
             return `Sucessfully updated currentState of skill ${skillIri}`;

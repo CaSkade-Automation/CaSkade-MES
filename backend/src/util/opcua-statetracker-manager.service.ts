@@ -17,16 +17,9 @@ export class OpcUaStateTrackerManager {
     ) {}
 
     public getStateTracker(skillIri: string): Promise<ClientMonitoredItem> {
-        console.log("get state tracker for skillIri: " + skillIri);
-        console.log("available trakcers: " + this.stateTrackers.size);
-
         let tracker = this.stateTrackers.get(skillIri);
-        console.log("tracker");
-        console.log(tracker);
 
         if (!tracker) {
-            console.log("creating new tracker");
-
             tracker = this.createTracker(skillIri);
         }
         return tracker;
@@ -66,10 +59,6 @@ export class OpcUaStateTrackerManager {
             attributeId: AttributeIds.Value
         };
 
-        console.log("item to monitor");
-        console.log(itemToMonitor);
-
-
         const parameters: MonitoringParametersOptions = {
             samplingInterval: 100,
             discardOldest: true,
@@ -83,16 +72,13 @@ export class OpcUaStateTrackerManager {
             TimestampsToReturn.Both
         );
 
+        // TODO: Could create an observable fromEvent(monitoredItem) and apply debounceTime..
         monitoredItem.on("changed", (dataValue: DataValue) => {
-            console.log("changed");
-            console.log(dataValue.value);
-
             const newState = (currentStateInfo.values.find(value => value.assuredValue == dataValue.value.value)).stateTypeIri;
 
             // Send a post to the skill state change route to update the state and trigger all functions (e.g. websocket communication)
-            this.skillStateService.updateState(skillIri, newState);
+            this.skillStateService.handleStateUpdates(skillIri, newState);
         });
-        console.log("item to monitor set up");
 
         return monitoredItem;
     }

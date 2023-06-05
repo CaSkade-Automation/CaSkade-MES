@@ -9,6 +9,6 @@ export class SkillStateController {
     @Patch(':skillIri/states')
     updateSkillState(@Param('skillIri') skillIri:string, @Body() change: Record<string, unknown>): Promise<string> {
         const newState = change['newState'] as string;
-        return this.skillStateService.updateState(skillIri, newState);
+        return this.skillStateService.handleStateUpdates(skillIri, newState);
     }
 }
