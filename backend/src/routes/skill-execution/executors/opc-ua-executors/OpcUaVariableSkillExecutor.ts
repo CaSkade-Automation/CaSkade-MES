@@ -107,7 +107,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 		PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
-		PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+		PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
 		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 		PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>#
 		PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
@@ -170,7 +170,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 		PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
-		PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+		PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
 		SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password ?outputIri ?outputName ?outputNodeId WHERE {
 			BIND(<${skillIri}> AS ?skillIri).
             ?skillIri CSS:accessibleThrough ?skillInterface.
