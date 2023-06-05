@@ -1,13 +1,11 @@
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer} from '@nestjs/websockets';
-import { SocketMessageType, StateChangeInfo } from "@shared/models/socket-communication/SocketData";
+import { BaseSocketMessageType, SkillSocketMessageType, StateChangeInfo } from "@shared/models/socket-communication/SocketData";
 import { Websocket } from './Websocket';
-import { Server } from "ws";
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 @WebSocketGateway(9091, {path: "/skills"})
 export class SkillSocket extends Websocket implements OnGatewayConnection, OnGatewayDisconnect {
-
 
     /**
      * Sends a message that the state of a skill has changed
@@ -19,7 +17,7 @@ export class SkillSocket extends Websocket implements OnGatewayConnection, OnGat
             newStateTypeIri: newStateTypeIri,
             skillIri: skillIri
         };
-        this.sendMessage(SocketMessageType.Changed, stateChangedMessage);
+        this.sendMessage(SkillSocketMessageType.StateChanged, stateChangedMessage);
     }
 
 }

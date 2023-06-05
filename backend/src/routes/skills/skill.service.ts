@@ -8,7 +8,7 @@ import { SkillSocket } from '../../socket-gateway/skill-socket';
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { parameterQueryFragment, outputQueryFragment, skillTypeFragment, skillInterfaceTypeFragment } from './query-fragments';
 import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
-import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
+import { BaseSocketMessageType } from '@shared/models/socket-communication/SocketData';
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
 import { CapabilityService } from '../capabilities/capability.service';
 import { OpcUaSessionManager } from '../../util/OpcUaSessionManager';
@@ -53,11 +53,11 @@ export class SkillService {
                 // get the new capabilities and send a socket message that a capability was registered
                 for (const capabilitIri of newSkill.capabilityIris) {
                     const capability = this.capabilityService.getCapabilityByIri(capabilitIri);
-                    this.capabilitySocket.sendMessage(SocketMessageType.Added, capability);
+                    this.capabilitySocket.sendMessage(BaseSocketMessageType.Added, capability);
                 }
 
                 // Finally, send a socket message that the skill was registered
-                this.skillSocket.sendMessage(SocketMessageType.Added, skillsAfter);
+                this.skillSocket.sendMessage(BaseSocketMessageType.Added, skillsAfter);
             }
 
             return 'New skill successfully added';
@@ -252,7 +252,7 @@ export class SkillService {
                 const graphName = bindings.graph.value;
                 this.graphDbConnection.clearGraph(graphName);
             });
-            this.skillSocket.sendMessage(SocketMessageType.Deleted, `Sucessfully deleted skill with IRI ${skillIri}}`);
+            this.skillSocket.sendMessage(BaseSocketMessageType.Deleted, `Sucessfully deleted skill with IRI ${skillIri}}`);
         } catch (error) {
             throw new Error(
                 `Error while trying to delete skill with IRI ${skillIri}. Error: ${error}`

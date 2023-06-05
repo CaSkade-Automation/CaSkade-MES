@@ -6,7 +6,7 @@ import { moduleMapping } from './module-mappings';
 
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { ModuleSocket } from '../../socket-gateway/module-socket';
-import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
+import { BaseSocketMessageType } from '@shared/models/socket-communication/SocketData';
 import { CapabilityService } from '../capabilities/capability.service';
 
 const converter = new SparqlResultConverter();
@@ -29,7 +29,7 @@ export class ModuleService {
             await this.graphDbConnection.addRdfDocument(newModule, graphName, contentType);
             const modulesAfter = await this.getModules();
 
-            this.moduleSocket.sendMessage(SocketMessageType.Added, modulesAfter);
+            this.moduleSocket.sendMessage(BaseSocketMessageType.Added, modulesAfter);
             return {msg:'ProductionModule successfully registered'};
         } catch (error) {
             throw new BadRequestException(`Error while registering new production module. ${error.toString()}`);
@@ -139,7 +139,7 @@ export class ModuleService {
 
             console.log(modulesAfterDeleting);
 
-            this.moduleSocket.sendMessage(SocketMessageType.Deleted, modulesAfterDeleting);
+            this.moduleSocket.sendMessage(BaseSocketMessageType.Deleted, modulesAfterDeleting);
 
         } catch (error) {
             throw new Error(`Error while deleting module with IRI ${moduleIri}. ${error}`);

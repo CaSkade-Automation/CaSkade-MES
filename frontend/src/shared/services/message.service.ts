@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable, Observer } from "rxjs";
 import { Message, MessageType } from "src/layout/components/message-container/message-container.component";
-import { SocketMessageType } from "../../../../shared/src/models/socket-communication/SocketData";
+import { BaseSocketMessageType } from "../../../../shared/src/models/socket-communication/SocketData";
 import { CapabilitySocketService } from "./sockets/capability-socket.service";
 import { ModuleSocketService } from "./sockets/module-socket.service";
 import { SkillSocketService } from "./sockets/skill-socket.service";
@@ -54,6 +54,11 @@ export class MessageService {
             // Skill changed
             this.skillSocket.onSkillChanged().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Skill","Skill changed", MessageType.Info)),
+                error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
+            }),
+            // Skill state changed
+            this.skillSocket.onSkillStateChanged().subscribe({
+                next: (msg) => this.info("Skill State changed", `New State is ${msg.newStateTypeIri}`),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
             }),
             // Skill deleted

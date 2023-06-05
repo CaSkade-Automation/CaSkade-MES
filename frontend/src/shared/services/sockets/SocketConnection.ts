@@ -3,18 +3,18 @@ import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { WebSocketMessage } from "@shared/models/socket-communication/SocketData";
 import { Injectable } from "@angular/core";
 
-@Injectable({
-    providedIn: 'root'
-})
+// @Injectable({
+//     providedIn: 'root'
+// })
 export class SocketConnection<T> {
 
     private _socket$: WebSocketSubject<WebSocketMessage<T>>;
-    private websocketEndpoint;
 
     public connect(websocketEndpoint: string): void {
+        console.log("connecting for endpoint" + websocketEndpoint);
+
         if (!this._socket$ || this._socket$.closed) {
             this._socket$ = this.createNewWebSocket<T>(websocketEndpoint);
-            this.websocketEndpoint = websocketEndpoint;
             this._socket$.pipe(
                 tap({
                     error: error => console.log(error),

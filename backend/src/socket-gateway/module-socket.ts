@@ -6,5 +6,4 @@ import { Websocket } from './Websocket';
 @WebSocketGateway(9091, {path: "/modules"})
 export class ModuleSocket extends Websocket{
 
-
 }

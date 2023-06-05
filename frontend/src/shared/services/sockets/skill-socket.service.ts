@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { SocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
-import { filter, map, tap } from 'rxjs/operators';
+import { WebSocketMessage, SkillSocketMessageType, StateChangeInfo } from '@shared/models/socket-communication/SocketData';
+import { debounceTime, filter, map, tap } from 'rxjs/operators';
 import { SocketConnection } from './SocketConnection';
 import { SkillDto } from '@shared/models/skill/Skill';
 
@@ -12,31 +12,39 @@ import { SkillDto } from '@shared/models/skill/Skill';
 export class SkillSocketService  implements OnDestroy {
 
     private readonly WS_ENDPOINT = "ws://localhost:9091/skills";
+    private socketConnection: SocketConnection<SkillDto[] | StateChangeInfo>;
 
-    constructor(
-        private socketConnection: SocketConnection<SkillDto[]>
-    ) {}
+    constructor() {
+        this.socketConnection = new SocketConnection<SkillDto[] | StateChangeInfo>();
+    }
 
     connect(): void {
         this.socketConnection.connect(this.WS_ENDPOINT);
     }
 
     onSkillAdded(): Observable<WebSocketMessage<SkillDto[]>> {
-        return this.socketConnection.socket$.pipe(filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SocketMessageType.Added));
+        return this.socketConnection.socket$.pipe(
+            filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SkillSocketMessageType.Added));
     }
 
     onSkillDeleted(): Observable<WebSocketMessage<SkillDto[]>> {
-        return this.socketConnection.socket$.pipe(filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SocketMessageType.Deleted));
+        return this.socketConnection.socket$.pipe(
+            filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SkillSocketMessageType.Deleted));
     }
 
     onSkillChanged(): Observable<WebSocketMessage<SkillDto[]>> {
-        return this.socketConnection.socket$.pipe(filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SocketMessageType.Changed));
+        return this.socketConnection.socket$.pipe(
+            filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SkillSocketMessageType.Changed));
     }
 
-    onSkillStateChanged(skillIri: string): any {
-        return this.socketConnection.socket$.pipe(tap(data => console.log(data)),
-            filter(msg => (msg.body.some(skill => (skill.skillIri == skillIri)) && msg.type == SocketMessageType.Changed)),
-            map(msg => msg.body));
+    onSkillStateChanged(skillIri?: string): Observable<StateChangeInfo> {
+        // let subject = this.socketConnection.socket$.pipe();      // TODO: Should this be debounced?
+        let subject = this.socketConnection.socket$.pipe();
+        if(skillIri) {
+            subject = subject.pipe(filter((msg: WebSocketMessage<StateChangeInfo>) =>
+                (msg.body.skillIri == skillIri) && msg.type == SkillSocketMessageType.StateChanged));
+        }
+        return subject.pipe(map((msg: WebSocketMessage<StateChangeInfo>) => msg.body));
     }
 
     ngOnDestroy(): void {

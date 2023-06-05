@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
+import { BaseSocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
 import { filter } from 'rxjs/operators';
 import { SocketConnection } from './SocketConnection';
 import { CapabilityDto } from '@shared/models/capability/Capability';
@@ -12,10 +12,10 @@ import { CapabilityDto } from '@shared/models/capability/Capability';
 export class CapabilitySocketService implements OnDestroy {
 
     private readonly WS_ENDPOINT = "ws://localhost:9091/capabilities";
-
-    constructor(
-        private socketConnection: SocketConnection<CapabilityDto[]>
-    ) {}
+    private socketConnection: SocketConnection<CapabilityDto[]>;
+    constructor() {
+        this.socketConnection = new SocketConnection<CapabilityDto[]>();
+    }
 
     connect(): void {
         this.socketConnection.connect(this.WS_ENDPOINT);
@@ -23,17 +23,17 @@ export class CapabilitySocketService implements OnDestroy {
 
     getCapabilityAdded(): Observable<WebSocketMessage<CapabilityDto[]>> {
         return this.socketConnection.socket$.pipe(
-            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == SocketMessageType.Added));
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Added));
     }
 
     getCapabilityDeleted(): Observable<WebSocketMessage<CapabilityDto[]>> {
         return this.socketConnection.socket$.pipe(
-            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == SocketMessageType.Deleted));
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Deleted));
     }
 
     getCapabilityChanged(): Observable<WebSocketMessage<CapabilityDto[]>> {
         return this.socketConnection.socket$.pipe(
-            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == SocketMessageType.Changed));
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Changed));
     }
 
     ngOnDestroy(): void {

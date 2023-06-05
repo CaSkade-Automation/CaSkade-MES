@@ -6,7 +6,7 @@ import * as crypto from 'crypto';
 
 import {SparqlResultConverter} from "sparql-result-converter";
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
-import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
+import { BaseSocketMessageType } from '@shared/models/socket-communication/SocketData';
 import { PropertyService } from '../properties/property.service';
 import { SkillService } from '../skills/skill.service';
 
@@ -32,7 +32,7 @@ export class CapabilityService {
             const capabilityGraphName = crypto.randomUUID();
 
             await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
-            this.capabilitySocket.sendMessage(SocketMessageType.Added);
+            this.capabilitySocket.sendMessage(BaseSocketMessageType.Added);
             return 'New capability successfully added';
         } catch (error) {
             throw new BadRequestException(`Error while registering a new capability. Error: ${error}`);
@@ -123,9 +123,6 @@ export class CapabilityService {
                 }
             }`);
             const capability = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
-            console.log("capability");
-            console.log(capability);
-
 
             capability.skillDtos = await this.skillService.getSkillsForCapability(capability.iri);
             return capability;
@@ -209,7 +206,7 @@ export class CapabilityService {
                 const graphName = bindings.graph.value;
                 this.graphDbConnection.clearGraph(graphName);
             });
-            this.capabilitySocket.sendMessage(SocketMessageType.Deleted);
+            this.capabilitySocket.sendMessage(BaseSocketMessageType.Deleted);
         } catch (error) {
             throw new Error(
                 `Error while trying to delete capability with IRI ${capabilityIri}. Error: ${error}`
