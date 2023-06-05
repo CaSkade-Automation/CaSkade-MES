@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { take } from 'rxjs/operators';
 import { PlcMappingService } from 'src/shared/services/plc-mapping.service';
@@ -11,6 +11,8 @@ import { MessageService } from '../../../services/message.service';
     styleUrls: ['./plc-mapping.component.scss']
 })
 export class PlcMappingComponent {
+
+    @Input("context") context:  "skills" | "production-modules" | "capabilities";
 
     plcMappingForm = this.fb.group({
         files: this.fb.control<FileList>(null, Validators.required),
@@ -50,10 +52,12 @@ export class PlcMappingComponent {
 
     submit(): void {
         const {files,endpointUrl, baseIri, resourceIri, user, password, nodeIdRoot} = this.plcMappingForm.value;
-        const request = new PlcMappingRequest(files.item(0), endpointUrl, baseIri, resourceIri, user, password, nodeIdRoot);
+        const request = new PlcMappingRequest(files.item(0), endpointUrl, baseIri, resourceIri, user, password, nodeIdRoot, this.context);
         this.plcMappingService.executeMapping(request).pipe(take(1)).subscribe({
-            next: () => this.messageService.info("Started mapping", `Mapping of file ${files.item(0).name} successfully started. This may take a while...`),
-            error: (err) => this.messageService.warn("Error while starting mapping", `Error while starting the mapping of file ${files.item(0).name}. Error:${err}`)
+            next: () => this.messageService
+                .info("Started mapping", `Mapping of file ${files.item(0).name} successfully started. This may take a while...`),
+            error: (err) => this.messageService
+                .warn("Error while starting mapping", `Error while starting the mapping of file ${files.item(0).name}. Error:${err}`)
         });
     }
 

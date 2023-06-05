@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { first, Observable } from 'rxjs';
+import { first, Observable, take, tap } from 'rxjs';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 import { PlcMappingRequest } from '@shared/models/mappings/PlcMappingRequest';
 
@@ -17,7 +17,8 @@ export class PlcMappingService {
 
 
     isConnected(): Observable<HttpResponse<any>> {
-        return this.httpClient.get<any>(this.baseApiRoute, { observe: 'response' }).pipe(first());
+        const pingUrl = `${this.baseApiRoute}/ping`;
+        return this.httpClient.get<any>(pingUrl, { observe: 'response' }).pipe(take(1), tap(val => console.log(val)));
     }
 
     /**
@@ -52,6 +53,7 @@ export class PlcMappingService {
         formData.append('nodeIdRoot', mappingRequest.nodeIdRoot);
         formData.append('user', mappingRequest.user);
         formData.append('password', mappingRequest.password);
+        formData.append('context', mappingRequest.context);
 
         const options = {
             reportProgress: true,

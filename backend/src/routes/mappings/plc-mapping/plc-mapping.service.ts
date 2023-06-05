@@ -7,6 +7,8 @@ import { PlcMappingRequest } from '../../../../../shared/src/models/mappings/Plc
 import { HttpService } from '@nestjs/axios';
 import { Observable, catchError, map, of } from 'rxjs';
 import { AxiosRequestConfig } from 'axios';
+import { ModuleService } from '../../production-modules/module.service';
+import { CapabilityService } from '../../capabilities/capability.service';
 
 
 @Injectable()
@@ -18,7 +20,9 @@ export class PlcMappingService {
 
 
     constructor(
+        private moduleService: ModuleService,
         private skillService: SkillService,
+        private capabilityService: CapabilityService,
         private http: HttpService
     ) {}
 
@@ -73,7 +77,16 @@ export class PlcMappingService {
                 console.log(err);
                 return of(err);
             })).
-            subscribe(res => this.skillService.addSkills(res.data));
+            subscribe(res => {
+                switch (additionalData.context) {
+                case "production-modules": this.moduleService.addModule(res.data, "text/turtle");
+                    break;
+                case "skills": this.skillService.addSkills(res.data, "text/turtle");
+                    break;
+                case "capabilities": this.capabilityService.addCapability(res.data);
+                    break;
+                }
+            });
 
         return;
     }

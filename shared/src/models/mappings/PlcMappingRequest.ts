@@ -7,6 +7,7 @@ export class PlcMappingRequest {
         public resourceIri = "",
         public user = "",
         public password = "",
-        public nodeIdRoot ="") {}
+        public nodeIdRoot ="",
+        public context: "skills" | "production-modules" | "capabilities") {}
 
 }

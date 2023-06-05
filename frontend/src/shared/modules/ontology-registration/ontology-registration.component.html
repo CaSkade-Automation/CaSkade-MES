@@ -27,5 +27,5 @@
 </div>
 
 <manual-registration *ngIf="ontologyType=='manualOntology'" [context]="context"></manual-registration>
-<mtp-mapping *ngIf="ontologyType=='mtp'"></mtp-mapping>
-<plc-mapping *ngIf="ontologyType=='plc'"></plc-mapping>
+<mtp-mapping *ngIf="ontologyType=='mtp'" [context]="context"></mtp-mapping>
+<plc-mapping *ngIf="ontologyType=='plc'" [context]="context"></plc-mapping>
