@@ -31,54 +31,73 @@ export class MessageService {
             this.observer = observer;
 
             //Modules  add
-            this.moduleSocket.getModulesAdded().subscribe({
-                next: (val) => this.addAndDeleteMessage(new Message("New Module","Module added", MessageType.Success)),
+            this.moduleSocket.onModulesAdded().subscribe({
+                next: (newModules) => {
+                    newModules.forEach(module => {
+                        this.addAndDeleteMessage(new Message("New Module",`Module "${module.getLocalName()}" added`, MessageType.Success));
+                    });
+                },
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Module registration",`Error: ${err}`, MessageType.Danger)),
             });
+
             // Modules change
-            this.moduleSocket.getModulesChanged().subscribe({
+            this.moduleSocket.onModulesChanged().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Module","Module updated", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Module update",`Error: ${err}`, MessageType.Danger)),
             }),
+
             // Modules delete
-            this.moduleSocket.getModulesDeleted().subscribe({
+            this.moduleSocket.onModuleDeleted().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Module","Module deleted", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Module deletion",`Error: ${err}`, MessageType.Danger)),
             }),
 
+
             // Skill added
-            this.skillSocket.onSkillAdded().subscribe({
-                next: (val) => this.addAndDeleteMessage(new Message("New Skill","Skill added", MessageType.Success)),
+            this.skillSocket.onSkillsAdded().subscribe({
+                next: (newSkills) => {
+                    newSkills.forEach(skill =>
+                        this.addAndDeleteMessage(new Message("New Skill", `Skill "${skill.getLocalName()}" added`, MessageType.Success))
+                    );
+                },
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Skill registration",`Error: ${err}`, MessageType.Danger)),
             });
+
             // Skill changed
             this.skillSocket.onSkillChanged().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Skill","Skill changed", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
             }),
+
             // Skill state changed
             this.skillSocket.onSkillStateChanged().subscribe({
                 next: (msg) => this.info("Skill State changed", `New State is ${msg.newStateTypeIri}`),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
             }),
+
             // Skill deleted
             this.skillSocket.onSkillDeleted().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Skill","Skill deleted", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Skill deletion",`Error: ${err}`, MessageType.Danger)),
             }),
 
-            //Capabilities  add
-            this.capabilitySocket.getCapabilityAdded().subscribe({
-                next: (val) => this.addAndDeleteMessage(new Message("New Capability","Capability added", MessageType.Success)),
+
+            //Capabilities added
+            this.capabilitySocket.onCapabilitiesAdded().subscribe({
+                next: (newCapabilities) => {
+                    newCapabilities.forEach(newCap =>
+                        this.addAndDeleteMessage(new Message("New Capability",`Capability "${newCap.getLocalName()}" added`, MessageType.Success))
+                    );
+                },
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Capability registration",`Error: ${err}`, MessageType.Danger)),
             }),
             // Capabilities change
-            this.capabilitySocket.getCapabilityChanged().subscribe({
+            this.capabilitySocket.onCapabilityChanged().subscribe({
                 next: (val) =>  this.addAndDeleteMessage(new Message("Capability","Capability changed", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Capability changing.", `Error: ${err}`, MessageType.Danger)),
             }),
             // Capabilities delete
-            this.capabilitySocket.getCapabilityDeleted().subscribe({
+            this.capabilitySocket.onCapabilityDeleted().subscribe({
                 next: (val) => this.addAndDeleteMessage(new Message("Capability","Capability deleted", MessageType.Info)),
                 error: (err) => this.addAndDeleteMessage(new Message("Error during Capability deletion.", `Error: ${err}`, MessageType.Danger))
             });

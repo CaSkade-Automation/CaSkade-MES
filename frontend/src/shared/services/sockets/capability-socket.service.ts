@@ -1,9 +1,10 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseSocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { SocketConnection } from './SocketConnection';
 import { CapabilityDto } from '@shared/models/capability/Capability';
+import { Capability } from '../../models/Capability';
 
 
 @Injectable({
@@ -21,19 +22,25 @@ export class CapabilitySocketService implements OnDestroy {
         this.socketConnection.connect(this.WS_ENDPOINT);
     }
 
-    getCapabilityAdded(): Observable<WebSocketMessage<CapabilityDto[]>> {
+    onCapabilitiesAdded(): Observable<Capability[]> {
         return this.socketConnection.socket$.pipe(
-            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Added));
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Added),
+            map((msg: WebSocketMessage<CapabilityDto[]>) => msg.body.map(dto => new Capability(dto))),
+        );
     }
 
-    getCapabilityDeleted(): Observable<WebSocketMessage<CapabilityDto[]>> {
+    onCapabilityDeleted(): Observable<Capability[]> {
         return this.socketConnection.socket$.pipe(
-            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Deleted));
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Deleted),
+            map((msg: WebSocketMessage<CapabilityDto[]>) => msg.body.map(dto => new Capability(dto))),
+        );
     }
 
-    getCapabilityChanged(): Observable<WebSocketMessage<CapabilityDto[]>> {
+    onCapabilityChanged(): Observable<Capability[]> {
         return this.socketConnection.socket$.pipe(
-            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Changed));
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Changed),
+            map((msg: WebSocketMessage<CapabilityDto[]>) => msg.body.map(dto => new Capability(dto)))
+        );
     }
 
     ngOnDestroy(): void {

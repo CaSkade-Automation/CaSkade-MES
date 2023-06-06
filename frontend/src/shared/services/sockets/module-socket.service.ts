@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { BaseSocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
 import { SocketConnection } from './SocketConnection';
 import { ProductionModuleDto} from '@shared/models/production-module/ProductionModule';
+import { ProductionModule } from '../../models/ProductionModule';
 
 @Injectable({
     providedIn: 'root'
@@ -21,19 +22,25 @@ export class ModuleSocketService {
         this.socketConnection.connect(this.WS_ENDPOINT);
     }
 
-    getModulesAdded(): Observable<WebSocketMessage<ProductionModuleDto[]>> {
+    onModulesAdded(): Observable<ProductionModule[]> {
         return this.socketConnection.socket$.pipe(
-            filter((val: WebSocketMessage<ProductionModuleDto[]>) => val.type == BaseSocketMessageType.Added));
+            filter((msg: WebSocketMessage<ProductionModuleDto[]>) => msg.type == BaseSocketMessageType.Added),
+            map((msg: WebSocketMessage<ProductionModuleDto[]>) => msg.body.map(dto => new ProductionModule(dto))),
+        );
     }
 
-    getModulesChanged(): Observable<WebSocketMessage<ProductionModuleDto[]>> {
+    onModulesChanged(): Observable<ProductionModule[]> {
         return this.socketConnection.socket$.pipe(
-            filter((val: WebSocketMessage<ProductionModuleDto[]>) => val.type == BaseSocketMessageType.Changed));
+            filter((msg: WebSocketMessage<ProductionModuleDto[]>) => msg.type == BaseSocketMessageType.Changed),
+            map((msg: WebSocketMessage<ProductionModuleDto[]>) => msg.body.map(dto => new ProductionModule(dto))),
+        );
     }
 
-    getModulesDeleted(): Observable<WebSocketMessage<ProductionModuleDto[]>> {
+    onModuleDeleted(): Observable<ProductionModule[]> {
         return this.socketConnection.socket$.pipe(
-            filter((val: WebSocketMessage<ProductionModuleDto[]>) => val.type == BaseSocketMessageType.Deleted));
+            filter((msg: WebSocketMessage<ProductionModuleDto[]>) => msg.type == BaseSocketMessageType.Deleted),
+            map((msg: WebSocketMessage<ProductionModuleDto[]>) => msg.body.map(dto => new ProductionModule(dto))),
+        );
     }
 
     ngOnDestroy(): void {

@@ -1,10 +1,12 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Observable,  Observer } from "rxjs";
+import { BehaviorSubject, Observable, merge } from "rxjs";
+import { map, startWith, take, tap} from 'rxjs/operators';
 import { ProductionModuleDto } from "@shared/models/production-module/ProductionModule";
-import { map,  take } from 'rxjs/operators';
 import { ModuleSocketService } from "./sockets/module-socket.service";
 import { ProductionModule } from "../models/ProductionModule";
+import { CapabilitySocketService } from "./sockets/capability-socket.service";
+import { SkillSocketService } from "./sockets/skill-socket.service";
 
 @Injectable({
     providedIn: 'root'
@@ -12,31 +14,55 @@ import { ProductionModule } from "../models/ProductionModule";
 export class ModuleService {
     apiRoot = "/api";
 
-    observer: Observer<ProductionModule[]>;
+    private moduleSubject$ = new BehaviorSubject<ProductionModule[]>([]);
+
+
+    onModuleAdded$ = this.moduleSocket.onModulesAdded()
+    onModuleDeleted$ = this.moduleSocket.onModuleDeleted()
+
+    onCapabilityAdded$ = this.capabilitySocket.onCapabilitiesAdded();
+    onCapabilityDeleted$ = this.capabilitySocket.onCapabilityDeleted();
+    onSkillAdded$ = this.skillSocket.onSkillsAdded();
+    onSkillDeleted$ = this.skillSocket.onSkillDeleted();
+    onCapabilityOrSkillChanged$ = merge(this.onCapabilityAdded$, this.onCapabilityDeleted$, this.onSkillAdded$, this.onSkillDeleted$)
 
     constructor(
         private http: HttpClient,
-        private moduleSocket: ModuleSocketService) { }
+        private moduleSocket: ModuleSocketService,
+        private capabilitySocket: CapabilitySocketService,
+        private skillSocket: SkillSocketService) {
+        this.loadModulesAndSubscribe();
+    }
 
-    /**
-     * Get all modules currently registered
-     */
-    getAllModules(): Observable<ProductionModule[]> {
-        let modules;
-        this.loadModules().pipe(take(1)).subscribe(initialModules => {
-            modules = initialModules;
-            this.observer.next(modules);
-        });
-
-        this.moduleSocket.getModulesAdded().subscribe(msg => {
-            this.loadModules().pipe(take(1)).subscribe((newModules: any) => {
-                // if(modules) {
-                //     this.addNewModules(modules, newModules);
-                // }
-                this.observer.next(newModules);
+    public loadModulesAndSubscribe(): void {
+        this.loadModules().subscribe(modules => {
+            const initialModules = modules;
+            // on adding, we get the current modules, so update
+            this.onModuleAdded$.pipe(startWith(initialModules)).subscribe(addedModules => {
+                const allModules = [...this.moduleSubject$.value, ...addedModules];
+                this.moduleSubject$.next(allModules);
             });
         });
-        return this.createObservable();
+
+        // on delete, we get the current modules, so update
+        this.onModuleDeleted$.subscribe(modules => {
+            this.moduleSubject$.next(modules);
+        });
+
+        // on changes (add, delete) of capabilities and skills it's best to reload all modules
+        this.onCapabilityOrSkillChanged$.subscribe(changes => {
+            this.loadModules().subscribe(modules => {
+                this.moduleSubject$.next(modules);
+            });
+        });
+    }
+
+    public getModules(): Observable<ProductionModule[]> {
+        return this.moduleSubject$.asObservable();
+    }
+
+    public reloadModules(): void {
+        this.loadModules().subscribe(modules => this.moduleSubject$.next(modules));
     }
 
     /**
@@ -45,20 +71,23 @@ export class ModuleService {
     private loadModules(): Observable<ProductionModule[]> {
         const apiURL = `${this.apiRoot}/modules`;
         return this.http.get<ProductionModuleDto[]>(apiURL).pipe(
-            map(
-                (data: ProductionModuleDto[]) => data.map(productionModuleDto => {
-                    return new ProductionModule(productionModuleDto);
-                })
-            ));
+            take(1),
+            map((moduleDtos: ProductionModuleDto[]) => moduleDtos.map(dto => new ProductionModule(dto))),
+        );
     }
 
 
-
-    createObservable(): Observable<ProductionModule[]> {
-        return new Observable(observer => {
-            this.observer = observer;
-        });
+    /**
+     * Deletes a module
+     * @param moduleIri IRI of the module to delete
+     * @returns A void observable as DELETE returns empty body
+     */
+    deleteModule(moduleIri: string): Observable<void> {
+        const encodedModuleIri = encodeURIComponent(moduleIri);
+        const url = `api/modules/${encodedModuleIri}`;
+        return this.http.delete<void>(url);
     }
+
 
     /**
      * Get a single module by its IRI
@@ -71,10 +100,12 @@ export class ModuleService {
             map((data: ProductionModuleDto) => new ProductionModule(data))
         );
     }
-    addModule(ontologyString: string): Observable<Record<string, any>> {
+
+    addModule(ontologyString: string): void {
         const apiURL = `${this.apiRoot}/modules`;
         const headers = new HttpHeaders({"content-type": "text/turtle"});
-        return this.http.post<ProductionModuleDto>(apiURL, ontologyString, {headers: headers});
+        this.http.post<ProductionModuleDto>(apiURL, ontologyString, {headers: headers})
+            .subscribe((res) => this.moduleSubject$.next([...this.moduleSubject$.value, new ProductionModule(res)]));
     }
 
     addMtpModule(ontologyFile: File): Observable<File>{

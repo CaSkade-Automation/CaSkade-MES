@@ -4,6 +4,7 @@ import { WebSocketMessage, SkillSocketMessageType, StateChangeInfo } from '@shar
 import { debounceTime, filter, map, tap } from 'rxjs/operators';
 import { SocketConnection } from './SocketConnection';
 import { SkillDto } from '@shared/models/skill/Skill';
+import { Skill } from '../../models/Skill';
 
 
 @Injectable({
@@ -22,19 +23,33 @@ export class SkillSocketService  implements OnDestroy {
         this.socketConnection.connect(this.WS_ENDPOINT);
     }
 
-    onSkillAdded(): Observable<WebSocketMessage<SkillDto[]>> {
+    /**
+     * Reacts on new skills being added
+     * @returns Observable with an array of skills that were added
+     */
+    onSkillsAdded(): Observable<Skill[]> {
         return this.socketConnection.socket$.pipe(
-            filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SkillSocketMessageType.Added));
+            filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SkillSocketMessageType.Added),
+            map((msg: WebSocketMessage<SkillDto[]>) => msg.body.map(dto => new Skill(dto))),
+        );
     }
 
-    onSkillDeleted(): Observable<WebSocketMessage<SkillDto[]>> {
+    /**
+     * Reacts when a skill is deleted
+     * @returns Observable with an array of all skills after deletion
+     */
+    onSkillDeleted(): Observable<Skill[]> {
         return this.socketConnection.socket$.pipe(
-            filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SkillSocketMessageType.Deleted));
+            filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SkillSocketMessageType.Deleted),
+            map((msg: WebSocketMessage<SkillDto[]>) => msg.body.map(dto => new Skill(dto)))
+        );
     }
 
-    onSkillChanged(): Observable<WebSocketMessage<SkillDto[]>> {
+    onSkillChanged(): Observable<Skill[]> {
         return this.socketConnection.socket$.pipe(
-            filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SkillSocketMessageType.Changed));
+            filter((msg: WebSocketMessage<SkillDto[]>) => msg.type == SkillSocketMessageType.Changed),
+            map((msg: WebSocketMessage<SkillDto[]>) => msg.body.map(dto => new Skill(dto))),
+        );
     }
 
     onSkillStateChanged(skillIri?: string): Observable<StateChangeInfo> {
