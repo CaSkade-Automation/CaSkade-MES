@@ -27,12 +27,18 @@ export class CapabilityService {
      * @param newCapability Rdf document describing the new capability
      */
     async addCapability(newCapability: string): Promise<string> {
+        const capabilitiesBefore = await this.getAllCapabilities();
         try {
             // create a graph name for the service (uuid)
             const capabilityGraphName = crypto.randomUUID();
 
             await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
-            this.capabilitySocket.sendMessage(BaseSocketMessageType.Added);
+            const capabilitiesAfter = await this.getAllCapabilities();
+
+            const newCapabilities = capabilitiesAfter.filter(
+                capAfter => !capabilitiesBefore.some(capBefore => capBefore.iri === capAfter.iri));
+
+            this.capabilitySocket.sendCapabilitiesAdded(newCapabilities);
             return 'New capability successfully added';
         } catch (error) {
             throw new BadRequestException(`Error while registering a new capability. Error: ${error}`);
@@ -76,7 +82,8 @@ export class CapabilityService {
                 # Filter only relevant if specific type given
                 FILTER(EXISTS{?capability a <${capabilityType}>})
             }`);
-            const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
+            const capabilities = converter
+                .convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
             // add skills
             for (const cap of capabilities) {
                 cap.skillDtos = await this.skillService.getSkillsForCapability(cap.iri);
@@ -122,7 +129,8 @@ export class CapabilityService {
                     VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
                 }
             }`);
-            const capability = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
+            const capability = converter
+                .convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
 
             capability.skillDtos = await this.skillService.getSkillsForCapability(capability.iri);
             return capability;
@@ -201,12 +209,17 @@ export class CapabilityService {
             const queryResult = await this.graphDbConnection.executeQuery(query);
             const queryResultBindings = queryResult.results.bindings;
 
+            const deleteRequests = new Array<Promise<{statusCode: any; msg: any;}>>();
             // iterate over graphs and clear every one
             queryResultBindings.forEach(bindings => {
                 const graphName = bindings.graph.value;
-                this.graphDbConnection.clearGraph(graphName);
+                deleteRequests.push(this.graphDbConnection.clearGraph(graphName));
             });
-            this.capabilitySocket.sendMessage(BaseSocketMessageType.Deleted);
+
+            // wait for all graphs to be deleted before getting the remaining skills
+            await Promise.all(deleteRequests);
+            const capabilitiesAfterDeleting = await this.getAllCapabilities();
+            this.capabilitySocket.sendCapabilityDeleted(capabilitiesAfterDeleting);
         } catch (error) {
             throw new Error(
                 `Error while trying to delete capability with IRI ${capabilityIri}. Error: ${error}`

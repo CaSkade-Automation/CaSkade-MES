@@ -52,13 +52,12 @@ export class SkillService {
 
                 // get the new capabilities and send a socket message that a capability was registered
                 for (const capabilitIri of newSkill.capabilityIris) {
-                    const capability = this.capabilityService.getCapabilityByIri(capabilitIri);
-                    this.capabilitySocket.sendMessage(BaseSocketMessageType.Added, capability);
+                    const capability = await this.capabilityService.getCapabilityByIri(capabilitIri);
+                    this.capabilitySocket.sendCapabilitiesAdded([capability]);
                 }
-
-                // Finally, send a socket message that the skill was registered
-                this.skillSocket.sendMessage(BaseSocketMessageType.Added, skillsAfter);
             }
+            // Finally, send a socket message that the skill was registered
+            this.skillSocket.sendSkillsAdded(newSkills);
 
             return 'New skill successfully added';
         } catch (error) {
@@ -234,11 +233,11 @@ export class SkillService {
             SELECT ?skill ?graph WHERE {
                 BIND(<${skillIri}> AS ?skill)
                 ?skill a ?skillType.
-                ?type rdfs:subClassOf CSS:Skill.
+                ?skillType rdfs:subClassOf CSS:Skill.
                 GRAPH ?graph {
                     ?skill a ?skillType
-                    }
-                }`;
+                }
+            }`;
 
             const queryResult = await this.graphDbConnection.executeQuery(query);
             const queryResultBindings = queryResult.results.bindings;
@@ -248,11 +247,17 @@ export class SkillService {
             }
 
             // iterate over graphs and clear every one
+            const deleteRequests = new Array<Promise<{statusCode: any; msg: any;}>>();
             queryResultBindings.forEach(bindings => {
                 const graphName = bindings.graph.value;
-                this.graphDbConnection.clearGraph(graphName);
+                deleteRequests.push(this.graphDbConnection.clearGraph(graphName));
             });
-            this.skillSocket.sendMessage(BaseSocketMessageType.Deleted, `Sucessfully deleted skill with IRI ${skillIri}}`);
+
+            // wait for all graphs to be deleted before getting the remaining skills
+            await Promise.all(deleteRequests);
+            const skillsAfterDeleting = await this.getAllSkills();
+
+            this.skillSocket.sendSkillDeleted(skillsAfterDeleting);
         } catch (error) {
             throw new Error(
                 `Error while trying to delete skill with IRI ${skillIri}. Error: ${error}`

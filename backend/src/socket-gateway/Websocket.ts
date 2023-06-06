@@ -26,7 +26,7 @@ export abstract class Websocket implements OnGatewayConnection, OnGatewayDisconn
    * Sends a message to all connected clients
    * @param {string} message The message to be emitted
    */
-    sendMessage(messageType: SocketMessageType , messageBody?: any): void {
+    protected sendMessage(messageType: SocketMessageType , messageBody?: any): void {
         // Create the message and send it to all connected clients
         const message = new WebSocketMessage(messageType, messageBody);
         this.connectedClients.forEach(client => {
