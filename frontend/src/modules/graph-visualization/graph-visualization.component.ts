@@ -67,26 +67,33 @@ export class GraphVisualizationComponent implements AfterViewInit, OnInit {
     svgWidth = 200;
     elementIri: string;
 
+    // On init, we subscribe to route param changes to get the currently selected entityType and IRI
     ngOnInit(): void {
         this.route.params.subscribe(p => {
             this.entityType = p['entityType'];
             this.elementIri = p['elementIri'];
-
-            switch (this.entityType) {
-            case 'modules':
-                this.setupModuleGraph();
-                break;
-            case 'capabilities':
-                this.setupCapabilityGraph();
-                break;
-            case 'skills':
-                this.setupSkillGraph();
-                break;
-            default:
-                this.setupModuleGraph();
-                break;
-            }
         });
+    }
+
+    // As soon as the page has loaded
+    ngAfterViewInit(): void {
+        this.svgWidth = this.svgContainer.nativeElement.offsetWidth;
+        this.svgHeight = this.svgContainer.nativeElement.offsetHeight;
+
+        switch (this.entityType) {
+        case 'modules':
+            this.setupModuleGraph();
+            break;
+        case 'capabilities':
+            this.setupCapabilityGraph();
+            break;
+        case 'skills':
+            this.setupSkillGraph();
+            break;
+        default:
+            this.setupModuleGraph();
+            break;
+        }
     }
 
     private setupModuleGraph(): void {
@@ -99,7 +106,7 @@ export class GraphVisualizationComponent implements AfterViewInit, OnInit {
 
     private setupCapabilityGraph(): void {
         if(!this.elementIri) {
-            this.capabilityService.getAllCapabilities().subscribe(capabilities => this.setupSimulation(capabilities));
+            this.capabilityService.getCapabilities().subscribe(capabilities => this.setupSimulation(capabilities));
         } else {
             this.capabilityService.getCapabilityByIri(this.elementIri).subscribe(capability => this.setupSimulation([capability]));
         }
@@ -113,10 +120,6 @@ export class GraphVisualizationComponent implements AfterViewInit, OnInit {
         }
     }
 
-    ngAfterViewInit(): void {
-        this.svgWidth = this.svgContainer.nativeElement.offsetWidth;
-        this.svgHeight = this.svgContainer.nativeElement.offsetHeight;
-    }
 
     /**Defines settings of the SVG and the color-scheme of the nodes */
     setupSimulation(data: D3Serializable []): void {
@@ -126,9 +129,9 @@ export class GraphVisualizationComponent implements AfterViewInit, OnInit {
         this.data = graphData;
 
         // set svg
-        this.svg = d3Selection.select("#graph")
-            .attr("width",this.svgWidth + 65)
-            .attr("height", this.svgHeight + 65);
+        this.svg = d3Selection.select("#graph");
+        // .attr("width",this.svgWidth + 65)
+        // .attr("height", this.svgHeight + 65);
 
         this.color = d3Scale.scaleOrdinal(d3ScaleChromatic.schemeCategory10); // chooses a scheme category for node colours
 
