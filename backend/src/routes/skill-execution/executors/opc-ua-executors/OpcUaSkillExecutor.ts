@@ -47,6 +47,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
     protected async getOpcUaParameterDescription(skillIri: string): Promise<OpcUaSkillParameterResult> {
         const query = `
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+        PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
