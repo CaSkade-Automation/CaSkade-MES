@@ -11,6 +11,7 @@ export const skillInterfaceTypeFragment = `
 ?skill a CSS:Skill;
     CSS:accessibleThrough ?skillInterface.
 ?skillInterface a ?skillInterfaceType.
+?skillInterfaceType rdfs:subClassOf CSS:SkillInterface.
 FILTER(!isBlank(?skillInterfaceType ))  # Filter out all blank nodes
 FILTER NOT EXISTS {
     ?someSubSkillSubClass sesame:directSubClassOf ?skillInterfaceType.  # Filter out upper classes, get only specific subtype
