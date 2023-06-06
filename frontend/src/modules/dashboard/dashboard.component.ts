@@ -41,8 +41,8 @@ export class DashboardComponent implements OnInit {
 
     private loadEntityData(): void {
         const modules$ = this.moduleService.getModules();
-        const capabilities$ = this.capabilityService.getAllCapabilities();
-        const skills$ = this.skillService.getAllSkills();
+        const capabilities$ = this.capabilityService.getCapabilities();
+        const skills$ = this.skillService.getSkills();
 
         zip(modules$, capabilities$, skills$)
             .pipe(

@@ -59,7 +59,7 @@ export class SkillTaskFormComponent implements OnInit {
         // Clear the fg in case of switch between different skill tasks
         this.fg.reset();
 
-        this.skills = await firstValueFrom(this.skillService.getAllSkills());
+        this.skills = await firstValueFrom(this.skillService.getSkills());
 
         // Get current input values from the model to populate form fields in the element alraedy has a value
         let commandTypeIri: string;

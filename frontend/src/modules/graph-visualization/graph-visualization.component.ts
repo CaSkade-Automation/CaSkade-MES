@@ -114,7 +114,7 @@ export class GraphVisualizationComponent implements AfterViewInit, OnInit {
 
     private setupSkillGraph(): void {
         if(!this.elementIri) {
-            this.skillService.getAllSkills().subscribe(skills => this.setupSimulation(skills));
+            this.skillService.getSkills().subscribe(skills => this.setupSimulation(skills));
         } else {
             this.skillService.getSkillByIri(this.elementIri).subscribe(skill => this.setupSimulation([skill]));
         }

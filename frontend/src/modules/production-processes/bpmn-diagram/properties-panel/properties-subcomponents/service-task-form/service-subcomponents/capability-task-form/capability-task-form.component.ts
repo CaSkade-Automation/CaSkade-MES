@@ -54,7 +54,7 @@ export class CapabilityTaskFormComponent implements OnInit {
         // Clear the fg in case of switch between different skill tasks
         this.fg.reset();
 
-        this.capabilities = await firstValueFrom(this.capabilityService.getAllCapabilities());
+        this.capabilities = await firstValueFrom(this.capabilityService.getCapabilities());
 
         // Get current input values from the model to populate form fields if the element already has a value
         let commandTypeIri: string;
