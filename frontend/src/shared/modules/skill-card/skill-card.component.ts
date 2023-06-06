@@ -34,9 +34,6 @@ export class SkillCardComponent implements OnInit {
 
     ngOnInit(): void {
         this.skillSocket.onSkillStateChanged(this.skill.iri).subscribe((val: StateChangeInfo) => {
-            console.log("state changed");
-            console.log(val);
-
             this.skill.stateMachine.setCurrentState(val.newStateTypeIri);
             this.blinkStateChange = true;
             setTimeout(() => {
@@ -59,7 +56,7 @@ export class SkillCardComponent implements OnInit {
             return "btn-secondary";
         case "SuspendCommand":
         case "HoldCommand":
-            return "btn-dark";
+            return "btn-secondary";
         case "AbortCommand":
         case "StopCommand":
             return "btn-danger";
