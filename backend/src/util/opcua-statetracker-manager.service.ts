@@ -21,6 +21,7 @@ export class OpcUaStateTrackerManager {
 
         if (!tracker) {
             tracker = this.createTracker(skillIri);
+            this.stateTrackers.set(skillIri, tracker);
         }
         return tracker;
     }
