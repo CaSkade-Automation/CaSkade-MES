@@ -105,7 +105,10 @@ export class ModuleService {
         const apiURL = `${this.apiRoot}/modules`;
         const headers = new HttpHeaders({"content-type": "text/turtle"});
         this.http.post<ProductionModuleDto>(apiURL, ontologyString, {headers: headers})
-            .subscribe((res) => this.moduleSubject$.next([...this.moduleSubject$.value, new ProductionModule(res)]));
+            .subscribe({
+                next: (res) => this.moduleSubject$.next([...this.moduleSubject$.value, new ProductionModule(res)]),
+                error: (err) => {throw err;}
+            });
     }
 
     addMtpModule(ontologyFile: File): Observable<File>{
