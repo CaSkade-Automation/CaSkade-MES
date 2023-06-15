@@ -12,6 +12,7 @@ import * as camundaExtensionModule from 'camunda-bpmn-moddle/lib';
 import * as camundaModdleDescriptor from  'camunda-bpmn-moddle/resources/camunda.json';
 import { BpmnDataModel } from './BpmnDataModel';
 import { emptyXml } from './emptyDiagram';
+import { BehaviorSubject, Observable, from, fromEvent, of } from 'rxjs';
 
 @Component({
     selector: 'bpmn-modeler',
@@ -21,7 +22,7 @@ import { emptyXml } from './emptyDiagram';
 export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
 
     public bpmnModeler: BpmnModeler;       // bpmn-js modeler that is passed to the properties panel
-    public clickedElement: any;            // Clicked BPMN element that is passed to the properties panel
+    public clickedElement$ = new BehaviorSubject<any>({});            // Clicked BPMN element that is passed to the properties panel
 
     @ViewChild('ref', { static: true }) private el: ElementRef;     // Reference to the DOM element
 
@@ -46,7 +47,7 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
         this.bpmnModeler.importXML(emptyXml).then(() => {
             // When done importing, get the process element and set it as the initial clicked element
             const process = this.bpmnModeler.get('canvas').getRootElement();
-            this.clickedElement = process;
+            this.clickedElement$.next(process);
         });
 
         // Setup listener for later clicks
@@ -88,7 +89,7 @@ export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
      * @param event Click event containing the clicked BPMN element
      */
     onDiagramElementClicked(event: any): void {
-        this.clickedElement = event.element;
+        this.clickedElement$.next(event.element);
     }
 
 }

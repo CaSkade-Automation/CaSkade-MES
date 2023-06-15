@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CamundaMailConnectorFunction, CamundaMailEntry, CamundaMailService } from '../../../bpmn-mail.service';
+import { Observable, filter } from 'rxjs';
+import { BpmnElement } from '../../../../BpmnDataModel';
 
 @Component({
     selector: 'mail-form',
@@ -9,7 +11,7 @@ import { CamundaMailConnectorFunction, CamundaMailEntry, CamundaMailService } fr
 })
 export class MailFormComponent implements OnInit {
 
-    @Input() bpmnElement
+    @Input() bpmnElement$: Observable<BpmnElement>
 
     mailFg = new FormGroup({
         to: new FormControl("", [Validators.required, Validators.email]),
@@ -23,15 +25,19 @@ export class MailFormComponent implements OnInit {
         // ])
     })
 
+    mailEntry: CamundaMailEntry
+
     constructor(private bpmnMailElementService: CamundaMailService) { }
 
     ngOnInit() {
-        const mailEntry = this.bpmnMailElementService.getMailEntry(this.bpmnElement);
+        this.bpmnElement$.pipe(filter(bpmnElement => bpmnElement.type == "bpmn:SendTask")).subscribe(bpmnElement => {
+            this.mailEntry = this.bpmnMailElementService.getMailEntry(bpmnElement);
+        });
         // this.mailFg.setValue(mailEntry);
     }
 
     submit(): void {
-        this.bpmnMailElementService.addMailEntry(this.bpmnElement, CamundaMailConnectorFunction['mail-send'], this.mailFg.value as CamundaMailEntry);
+        this.bpmnMailElementService.addMailEntry(this.mailEntry, CamundaMailConnectorFunction['mail-send'], this.mailFg.value as CamundaMailEntry);
     }
 
 }

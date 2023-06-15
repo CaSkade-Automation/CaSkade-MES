@@ -6,8 +6,8 @@
 </div>
 
 <ng-container [ngSwitch]="this.serviceTaskType">
-    <capability-task-form *ngSwitchCase="'Capability'" [bpmnElement]="this.bpmnElement"></capability-task-form>
-    <skill-task-form *ngSwitchCase="'Skill'" [bpmnElement]="this.bpmnElement"></skill-task-form>
+    <capability-task-form *ngSwitchCase="'Capability'" [bpmnElement$]="this.bpmnElement$"></capability-task-form>
+    <skill-task-form *ngSwitchCase="'Skill'" [bpmnElement$]="this.bpmnElement$"></skill-task-form>
     <!-- <webservice-form *ngSwitchCase="Web Service" [bpmnElement]="this.bpmnElement"></webservice-form> -->
 </ng-container>
 

@@ -24,8 +24,8 @@ export class ManualRegistrationComponent {
                 this.moduleService.addModule(this.ontologyString);
                 this.ontologyString="Ontology registered";
             } catch (error) {
-                this.ontologyString="Error while registering";
-                this.ontologyString+=error;
+                this.ontologyString = "Error while registering\n";
+                this.ontologyString += error;
             }
         }
         if(this.context=="skills") {
