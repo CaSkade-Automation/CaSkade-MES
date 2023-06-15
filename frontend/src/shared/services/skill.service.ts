@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map } from 'rxjs/operators';
+import { map, startWith, take } from 'rxjs/operators';
 import { SkillDto } from '@shared/models/skill/Skill';
 import { Skill } from '../models/Skill';
+import { SkillSocketService } from './sockets/skill-socket.service';
 
 @Injectable({
     providedIn: 'root'
@@ -11,22 +12,57 @@ import { Skill } from '../models/Skill';
 export class SkillService {
     apiRoot = "/api";
 
+    private skillSubject$ = new BehaviorSubject<Skill[]>([]);
+
+    private onSkillsAdded$ = this.skillSocket.onSkillsAdded();
+    private onSkillDeleted$ = this.skillSocket.onSkillDeleted();
+
     constructor(
-        private http: HttpClient
-    ) { }
+        private http: HttpClient,
+        private skillSocket: SkillSocketService
+    ) {
+        this.loadSkillsAndSubscribe();
+    }
 
     /**
      * Get all skills that are currently registered
      */
-    getAllSkills(): Observable<Skill[]> {
-        const apiURL = `${this.apiRoot}/skills`;
+    getSkills(): Observable<Skill[]> {
+        return this.skillSubject$.asObservable();
+    }
 
+    public loadSkillsAndSubscribe(): void {
+        this.loadSkills().subscribe(skillDtos => {
+            const initialSkills = skillDtos;
+            // on adding, we get the current skills, so update
+            this.onSkillsAdded$.pipe(startWith(initialSkills)).subscribe(addedSkills => {
+                const allSkills = [...this.skillSubject$.value, ...addedSkills];
+                this.skillSubject$.next(allSkills);
+            });
+
+            // on deleting, we also get the current skills, so update
+            this.onSkillDeleted$.subscribe(skills => {
+                this.skillSubject$.next(skills);
+            });
+        });
+    }
+
+    public reloadSkills(): void {
+        this.loadSkills().subscribe(skills => {
+            this.skillSubject$.next(skills);
+        });
+    }
+
+    /**
+     * Loads all currently available skills from the GraphDB
+     * @returns An observable of all available skills
+     */
+    private loadSkills(): Observable<Skill[]> {
+        const apiURL = `${this.apiRoot}/skills`;
         return this.http.get<SkillDto[]>(apiURL).pipe(
-            map(
-                (data: SkillDto[]) => data.map(skillDto => {
-                    return new Skill(skillDto);
-                })
-            ));
+            take(1),
+            map((skillDtos: SkillDto[]) => skillDtos.map(dto => new Skill(dto))),
+        );
     }
 
 
@@ -39,8 +75,7 @@ export class SkillService {
         const apiURL = `${this.apiRoot}/skills/${encodedSkillIri}`;
 
         return this.http.get<SkillDto>(apiURL).pipe(
-            map(
-                (data: SkillDto) => new Skill(data))
+            map((data: SkillDto) => new Skill(data))
         );
     }
 

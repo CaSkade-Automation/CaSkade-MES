@@ -1,18 +1,20 @@
 import { Injectable } from '@angular/core';
-import { Observable, Observer } from 'rxjs';
+import { BehaviorSubject, Observable, Observer, merge } from 'rxjs';
 import { CapabilityDto } from '@shared/models/capability/Capability';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { map, take } from 'rxjs/operators';
+import { map, startWith, take } from 'rxjs/operators';
 import { SkillService } from './skill.service';
 import { Capability } from '../models/Capability';
 import { environment } from '../../../environments/environment';
 import { CapabilitySocketService } from './sockets/capability-socket.service';
+import { SkillSocketService } from './sockets/skill-socket.service';
 
 
 export enum CapabilityTypes {
     "All" = "http://www.w3id.org/hsu-aut/css#Capability",
     "ProvidedCapability" = "http://www.w3id.org/hsu-aut/cask#ProvidedCapability",
-    "RequiredCapability" = "http://www.w3id.org/hsu-aut/cask#RequiredCapability"
+    "RequiredCapability" = "http://www.w3id.org/hsu-aut/cask#RequiredCapability",
+    "None" = "http://www.w3id.org/hsu-aut/cask#NullCapability"
 }
 
 
@@ -22,34 +24,54 @@ export enum CapabilityTypes {
 export class CapabilityService {
     apiRoot = `${environment.settings.backendUrl}/api`;
 
-    observer: Observer<Capability[]>;
+    private capabilitySubject$ = new BehaviorSubject<Capability[]>([]);
+
+    private onCapabilityAdded$ = this.capabilitySocket.onCapabilitiesAdded();
+    private onCapabilityDeleted$ = this.capabilitySocket.onCapabilityDeleted();
+    private onSkillAdded$ = this.skillSocket.onSkillsAdded();
+    private onSkillDeleted$ = this.skillSocket.onSkillDeleted();
+    private onSkillChanged$ = merge(this.onSkillAdded$, this.onSkillDeleted$)
 
     constructor(
         private http: HttpClient,
-        private skillService: SkillService,
-        private capabilitySocket: CapabilitySocketService
-    ) { }
+        private capabilitySocket: CapabilitySocketService,
+        private skillSocket: SkillSocketService
+    ) {
+        this.loadCapabiltiesAndSubscribe();
+    }
 
 
-    /**
-     * Returns all capabilities that are currently registered
-     */
-    getAllCapabilities(capType?: CapabilityTypes): Observable<Capability[]> {
-        console.log(capType);
+    public getCapabilities(): Observable<Capability[]> {
+        return this.capabilitySubject$.asObservable();
+    }
 
-        let capabilities;
-        this.loadCapabilities(capType).pipe(take(1)).subscribe(initialCapabilities => {
-            capabilities = initialCapabilities;
-            this.observer.next(capabilities);
-        });
-
-        this.capabilitySocket.getCapabilityAdded().subscribe(msg => {
-            this.loadCapabilities(capType).pipe(take(1)).subscribe((newCapabilities: Capability[]) => {
-                this.observer.next(newCapabilities);
+    public loadCapabiltiesAndSubscribe(capType = CapabilityTypes.All): void {
+        this.loadCapabilities(capType).subscribe(capabilities => {
+            const initialCapabilities = capabilities;
+            // on adding, we get the current modules, so update
+            this.onCapabilityAdded$.pipe(startWith(initialCapabilities)).subscribe(addedCapabilities => {
+                const allCapabilities = [...this.capabilitySubject$.value, ...addedCapabilities];
+                this.capabilitySubject$.next(allCapabilities);
             });
         });
-        return this.createObservable();
 
+        // on delete, we get the current modules, so update
+        this.onCapabilityDeleted$.subscribe(allCapabilities => {
+            this.capabilitySubject$.next(allCapabilities);
+        });
+
+        // on changes (add, delete) of capabilities and skills it's best to reload all modules
+        this.onSkillChanged$.subscribe(changes => {
+            this.loadCapabilities().subscribe(capabilities => {
+                this.capabilitySubject$.next(capabilities);
+            });
+        });
+    }
+
+    reloadCapabilities(): void {
+        this.loadCapabilities().subscribe(capabilities => {
+            this.capabilitySubject$.next(capabilities);
+        });
     }
 
     /**
@@ -59,15 +81,11 @@ export class CapabilityService {
         const apiURL = `${this.apiRoot}/capabilities`;
         const typeParam = new HttpParams().append("type", capType);
         return this.http.get<CapabilityDto[]>(apiURL, {params: typeParam}).pipe(
-            map((data: CapabilityDto[]) => data.map(capabilityDto => new Capability(capabilityDto))
-            ));
+            take(1),
+            map((moduleDtos: CapabilityDto[]) => moduleDtos.map(dto => new Capability(dto))),
+        );
     }
 
-    private createObservable(): Observable<Capability[]> {
-        return new Observable(observer => {
-            this.observer = observer;
-        });
-    }
 
     /**
      * Returns a capability with a given IRI
@@ -107,9 +125,9 @@ export class CapabilityService {
         return this.http.post<File>(apiURL, formData);
     }
 
-    deleteCapability(capabilityIri: string) {
+    deleteCapability(capabilityIri: string): Observable<void> {
         const encodedIri = encodeURIComponent(capabilityIri);
         const apiUrl = `${this.apiRoot}/capabilities/${encodedIri}`;
-        return this.http.delete(apiUrl);
+        return this.http.delete<void>(apiUrl);
     }
 }

@@ -6,15 +6,17 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { SkillService } from '../../../../routes/skills/skill.service';
 import { OpcUaSkillExecutor, OpcUaSkillParameter } from './OpcUaSkillExecutor';
 import { opcUaMethodSkillMapping } from '../skill-execution-mappings';
+import { OpcUaSessionManager } from '../../../../util/OpcUaSessionManager';
 
 
 export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
 
-    constructor(graphDbConnection: GraphDbConnectionService, skillService: SkillService, skillIri: string) {
-        super(graphDbConnection, skillIri);
-        this.graphDbConnection = graphDbConnection;
+    private skillService: SkillService;
+
+    constructor(graphDbConnection: GraphDbConnectionService,sessionManager: OpcUaSessionManager, skillService: SkillService) {
+        super(graphDbConnection, sessionManager);
+        // this.graphDbConnection = graphDbConnection;
         this.skillService = skillService;
-        this.converter = new SparqlResultConverter();
     }
 
     /**
@@ -31,13 +33,13 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
             for (const describedParameter of parameterDescription.parameters) {
                 const foundReqParam = requestParameters.find(reqParam => reqParam.name == describedParameter.parameterName);
                 if(foundReqParam && foundReqParam.value) {
-                    await this.writeSingleNode(describedParameter.parameterNodeId, foundReqParam.value);
+                    await this.writeSingleNode(executionRequest.skillIri, describedParameter.parameterNodeId, foundReqParam.value);
                 }
             }
         } catch (err) {
             console.log(`Error while writing value: ${err}`);
         } finally {
-            this.endUaConnection();
+            // this.endUaConnection();
         }
 
     }
@@ -53,16 +55,18 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
 
         if (outputDtos == undefined || outputDtos.length == 0 ) return null;
 
-        const skillMethodDescription = await this.getStatelessOpcUaMethodDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
+        const skillMethodDescription = await this.getStatelessOpcUaMethodDescription(skill.skillIri, executionRequest.commandTypeIri);
+
+        const uaSession = await this.sessionManager.getSession(skill.skillIri);
 
         try {
             // Call the method and get the output values. Note that these are just values without names (fail of OPC UA)
-            const methodResult = await this.callMethod(skillMethodDescription.methodNodeId);
+            const methodResult = await this.callMethod(skill.skillIri, skillMethodDescription.methodNodeId);
             const methodOutput = methodResult.outputArguments;
 
             // Read the nodes of the output arguments to get an array including names (but without values)
             const methodNode = NodeId.resolveNodeId(skillMethodDescription.methodNodeId);
-            const [output] = await this.uaSession.translateBrowsePath([
+            const [output] = await uaSession.translateBrowsePath([
                 makeBrowsePath(methodNode,".OutputArguments"),
             ]);
             const outputArgumentNodeId  =  output.targets[0].targetId;
@@ -70,7 +74,7 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
                 { attributeIds: AttributeIds.Value, nodeId: outputArgumentNodeId },
             ];
 
-            const [outputArgumentValue]  = await this.uaSession.read(nodesToRead);
+            const [outputArgumentValue]  = await uaSession.read(nodesToRead);
 
             // Match named output arguments with values of the call
             for (let i = 0; i < methodOutput.length; i++) {
@@ -87,7 +91,7 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
         } catch (err) {
             throw new InternalServerErrorException();
         } finally {
-            this.endUaConnection();
+            // this.endUaConnection();
         }
     }
 
@@ -104,20 +108,20 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
             for (const param of skillDescription.parameters) {
                 const foundReqParam = executionRequest.parameters.find(reqParam => reqParam.name == param.parameterName);
                 if(foundReqParam && foundReqParam.value) {
-                    await this.writeSingleNode(param.parameterNodeId, foundReqParam.value);
+                    await this.writeSingleNode(skillDescription.skillIri, param.parameterNodeId, foundReqParam.value);
                 }
 
             }
 
             // Call the method
-            await this.callMethod(skillDescription.methodNodeId);
+            await this.callMethod(skillDescription.skillIri, skillDescription.methodNodeId);
 
         } catch (err) {
             console.log(`Error while invoking transition ${executionRequest.commandTypeIri} on skill ${executionRequest.skillIri}`);
             console.log(err);
             throw new InternalServerErrorException();
         } finally {
-            this.endUaConnection();
+            // this.endUaConnection();
         }
 
 
@@ -130,23 +134,16 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
-        PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+        PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
-        SELECT ?skillIri ?skillInterface ?skillMethodIri ?skillNodeId ?methodNodeId ?endpointUrl ?messageSecurityMode ?securityPolicy
-        ?userName ?password ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
+        SELECT ?skillIri ?skillInterface ?skillMethodIri ?skillNodeId ?methodNodeId ?parameterIri ?parameterRequired
+            ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
             BIND(<${skillIri}> AS ?skillIri).
             ?skillIri a CSS:Skill;
                 CSS:accessibleThrough ?skillInterface.
             ?skillInterface OpcUa:nodeId ?skillNodeId.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface;
-                OpcUa:hasEndpointUrl ?endpointUrl;
-                OpcUa:hasMessageSecurityMode ?messageSecurityMode;
-                OpcUa:hasSecurityPolicy ?securityPolicy.
-            OPTIONAL {
-                ?uaServer OpcUa:requiresUserName ?userName;
-                OpcUa:requiresPassword ?password
-            }
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface.
             <${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
             ?command a <${commandTypeIri}>;
                 CaSk:isInvokedBy ?skillMethodIri.
@@ -164,8 +161,6 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
             }
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
-        console.log(queryResult.results.bindings);
-
         const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaMethodSkillMapping)
             .getFirstRootElement()[0] as OpcUaSkillQueryResult;
 
@@ -181,24 +176,17 @@ export class OpcUaMethodSkillExecutionService extends OpcUaSkillExecutor{
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
-        PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+        PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
         SELECT ?skillIri ?skillInterface ?skillMethodIri ?skillNodeId ?methodNodeId ?endpointUrl ?messageSecurityMode ?securityPolicy
-        ?userName ?password ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
+        ?username ?password ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
             BIND(<${skillIri}> AS ?skillIri).
             ?skillIri a CSS:Skill;
                 CSS:accessibleThrough ?skillInterface.
             ?skillInterface a CaSkMan:OpcUaMethodSkillInterface;
                         OpcUa:nodeId ?skillNodeId.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface;
-                OpcUa:hasEndpointUrl ?endpointUrl;
-                OpcUa:hasMessageSecurityMode ?messageSecurityMode;
-                OpcUa:hasSecurityPolicy ?securityPolicy.
-            OPTIONAL {
-                ?uaServer OpcUa:requiresUserName ?userName;
-                OpcUa:requiresPassword ?password
-            }
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface.
             <${commandTypeIri}> rdfs:subClassOf CaSk:SkillMethod.
             ?skillMethodIri a <${commandTypeIri}>;
                 a OpcUa:UAMethod;
@@ -222,11 +210,6 @@ class OpcUaSkillQueryResult {
     skillInterface: string;
     skillMethod: string;
     methodNodeId: string;
-    endpointUrl: string;
-    messageSecurityMode: string;
-    securityPolicy: string;
-    username: string;
-    password: string;
     parameters: OpcUaSkillParameter[];
 }
 
@@ -249,12 +232,7 @@ class OpcUaSkillMethod {
     }
 
     get skillNodeId(): string { return this.skillQueryResult.skillNodeId;}
-    get endpointUrl(): string { return this.skillQueryResult.endpointUrl;}
     get methodNodeId(): string { return this.skillQueryResult.methodNodeId;}
-    get messageSecurityMode(): string { return this.skillQueryResult.messageSecurityMode;}
-    get securityPolicy():string { return this.skillQueryResult.securityPolicy;}
-    get username(): string { return this.skillQueryResult.username;}
-    get password(): string { return this.skillQueryResult.password;}
     get parameters(): any[] { return this.skillQueryResult.parameters;}
 }
 

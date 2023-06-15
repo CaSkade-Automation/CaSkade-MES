@@ -1,56 +1,27 @@
-import { AttributeIds, BrowseDescription, BrowseDirection, CallMethodRequestOptions, CallMethodResult, ClientSession,
-    ConnectionStrategy, DataType, MessageSecurityMode, NodeId, NodeIdType, OPCUAClient, OPCUAClientOptions,
-    SecurityPolicy, StatusCode, UserNameIdentityToken, WriteValue } from "node-opcua";
+import { AttributeIds, BrowseDescription, BrowseDirection, CallMethodRequestOptions,
+    CallMethodResult,DataType, NodeId, NodeIdType,
+    StatusCode, WriteValue } from "node-opcua";
 import { SkillService } from "../../../../routes/skills/skill.service";
 import { SparqlResultConverter } from "sparql-result-converter";
 import { GraphDbConnectionService } from "../../../../util/GraphDbConnection.service";
 import { opcUaSkillParameterMapping } from "../skill-execution-mappings";
 import { SkillExecutor } from "../SkillExecutor";
 import { SkillExecutionRequestDto } from "@shared/models/skill/SkillExecutionRequest";
+import { OpcUaSessionManager } from "../../../../util/OpcUaSessionManager";
 
 /**
  * Abstract class wrapping OPC UA client functionality that contains methods for both types of OPC UA skills
  */
 export abstract class OpcUaSkillExecutor extends SkillExecutor {
 
-    protected graphDbConnection: GraphDbConnectionService;
-    protected skillService: SkillService;
-    protected converter: SparqlResultConverter;
+    protected converter = new SparqlResultConverter();
 
-    protected skillIri: string;
-
-    protected uaClient: OPCUAClient;
-    protected uaSession: ClientSession;
-
-    connectionStrategy: ConnectionStrategy = {
-        initialDelay: 1000,
-        maxRetry: 1,
-        maxDelay: 10000,
-        randomisationFactor: 0.5
-    };
-
-    constructor(graphDbConnection: GraphDbConnectionService, skillIri: string) {
+    constructor(
+        protected graphDbConnection: GraphDbConnectionService,
+        protected sessionManager: OpcUaSessionManager
+    ) {
         super();
-        this.skillIri = skillIri;
-        this.graphDbConnection = graphDbConnection;
     }
-
-    async connectAndCreateSession(): Promise<ClientSession> {
-        const uaServerInfo = await this.getOpcUaServerInfo(this.skillIri);
-        const options = this.createOptionsObject(uaServerInfo.messageSecurityMode, uaServerInfo.securityPolicy);
-        const userIdToken = this.createUserIdentityToken(uaServerInfo.securityPolicy, uaServerInfo.username, uaServerInfo.password);
-        this.uaClient = OPCUAClient.create(options);
-
-        try {
-            await this.uaClient.connect(uaServerInfo.endpointUrl);
-        } catch (err) {
-            console.log(`Error while connecting to UAServer at ${uaServerInfo.endpointUrl}. Err: ${err}`);
-        }
-
-        this.uaSession = await this.uaClient.createSession();             // TODO: Integrate user identity token here
-        return this.uaSession;
-    }
-
 
     async setSkillParameters(executionRequest: SkillExecutionRequestDto): Promise<void> {
         const parameterDescription = await this.getOpcUaParameterDescription(executionRequest.skillIri);
@@ -62,7 +33,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             if(foundReqParam && foundReqParam.value) {
 
                 try {
-                    const res = await this.writeSingleNode(describedParam.parameterNodeId, foundReqParam.value);
+                    const res = await this.writeSingleNode(executionRequest.skillIri, describedParam.parameterNodeId, foundReqParam.value);
                     console.log(res);
                 } catch (err) {
                     console.log(`Error while writing value: ${err}`);
@@ -72,88 +43,15 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
 
     }
 
-    /**
-     * Returns a proper node-opc-ua MessageSecurityMode from a given IRI
-     * @param messageSecurityModeIri IRI of a MessageSecurityMode according to the OPC UA ontology
-     */
-    protected getMessageSecurityMode(messageSecurityModeIri: string): MessageSecurityMode {
-        switch (messageSecurityModeIri) {
-        case "http://www.hsu-ifa.de/ontologies/OpcUaMessageSecurityMode_None":
-            return MessageSecurityMode.None;
-        case "http://www.hsu-ifa.de/ontologies/OpcUaMessageSecurityMode_Sign":
-            return MessageSecurityMode.Sign;
-        case "http://www.hsu-ifa.de/ontologies/OpcUaMessageSecurityMode_SignAndEncrypt":
-            return MessageSecurityMode.SignAndEncrypt;
-        default:
-            return MessageSecurityMode.None;
-        }
-    }
-
-    // TODO: Implement similar to getMessageSecurityMode
-    protected getSecurityPolicy(securityPolicyString: string): SecurityPolicy {
-        return SecurityPolicy.None;
-    }
-
-    protected createUserIdentityToken(securityPolicyIri: string, user: string, password: string): UserNameIdentityToken {
-        let userIdentityToken: UserNameIdentityToken;
-        const securityPolicy = this.getSecurityPolicy(securityPolicyIri);
-        if(securityPolicy != SecurityPolicy.None) {
-            userIdentityToken = new UserNameIdentityToken({
-                userName: user,
-                password: Buffer.from(password),
-            });
-        } else {
-            return undefined;
-        }
-    }
-
-    createOptionsObject(messageSecurityModeIri: string, securityPolicyIri: string): OPCUAClientOptions {
-        // TODO: Integrate SecurityPolicy
-        const options : OPCUAClientOptions = {
-            applicationName: "SkillMEx OPC UA Capability Executor",
-            connectionStrategy: this.connectionStrategy,
-            securityMode: this.getMessageSecurityMode(messageSecurityModeIri),
-            securityPolicy: this.getSecurityPolicy(securityPolicyIri),
-            endpointMustExist: false,
-        };
-
-        return options;
-    }
-
-    /**
-     * Get all info about an OPC UA server that is necessary to connect and create a session
-     * @param skillIri IRI of the skill that the server contains
-     */
-    private async getOpcUaServerInfo(skillIri: string): Promise<OpcUaServerInfo> {
-        const query = `
-        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-        PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
-        SELECT ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password WHERE {
-            BIND(<${skillIri}> AS ?skillIri).
-            ?skillIri CSS:accessibleThrough ?skillInterface.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?skillInterface;
-                OpcUa:hasEndpointUrl ?endpointUrl;
-                OpcUa:hasMessageSecurityMode ?messageSecurityMode;
-                OpcUa:hasSecurityPolicy ?securityPolicy.
-            OPTIONAL {
-                ?uaServer OpcUa:requiresUserName ?userName;
-                    OpcUa:requiresPassword ?password.
-            }
-        }`;
-        const queryResult = await this.graphDbConnection.executeQuery(query);
-        const opcUaServerInfo = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaSkillParameterMapping)
-            .getFirstRootElement()[0] as Promise<OpcUaServerInfo>;
-
-        return opcUaServerInfo;
-    }
 
     protected async getOpcUaParameterDescription(skillIri: string): Promise<OpcUaSkillParameterResult> {
         const query = `
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-        PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+        PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
+        PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
-        SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password ?parameterIri ?parameterRequired
+        SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?username ?password ?parameterIri ?parameterRequired
             ?parameterName ?parameterType ?parameterUaType ?parameterNodeId WHERE {
             BIND(<${skillIri}> AS ?skillIri).
             ?skillIri CSS:accessibleThrough ?skillInterface.
@@ -162,7 +60,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
                 OpcUa:hasMessageSecurityMode ?messageSecurityMode;
                 OpcUa:hasSecurityPolicy ?securityPolicy.
             OPTIONAL {
-                ?uaServer OpcUa:requiresUserName ?userName;
+                ?uaServer OpcUa:requiresUserName ?username;
                     OpcUa:requiresPassword ?password.
             }
             OPTIONAL {
@@ -171,7 +69,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
                     CaSk:hasVariableName ?parameterName;
                     CaSk:hasVariableType ?parameterType;
                     CaSk:isRequired ?parameterRequired;
-                    OpcUa:nodeId ?parameterNodeId;
+                    OpcUa:nodeId ?parameterNodeId.
             }
         }`;
         //OpcUa:hasDataType ?parameterUaType.
@@ -189,23 +87,25 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
      * @param nodeIdString ID of the Node to write
      * @param value Value to set
      */
-    protected async writeSingleNode(nodeIdString: string, value: any, namespace?: string): Promise<StatusCode> {
+    protected async writeSingleNode(skillIri: string, nodeIdString: string, value: any, namespace?: string): Promise<StatusCode> {
+
+        const uaSession = await this.sessionManager.getSession(skillIri);
+
         // Problem: Some UA servers provide full nodeID string that can be parsed, others don't (they provide namespace separately)
         // Solution: Try to get a proper nodeId by trying to resolve the whole string. If it fails -> try with the separate namespace
         let nodeId: NodeId;
-
         try {
             nodeId = NodeId.resolveNodeId(nodeIdString);
         } catch (error) {
             // if nodeId cannot be resolved, try to do it manually
             let nsIndex = Number(namespace);    // namespace could also be stored as index
             if(!nsIndex) {
-                nsIndex = this.uaSession.getNamespaceIndex(namespace);  // if not stored as index, try to get index
+                nsIndex = uaSession.getNamespaceIndex(namespace);  // if not stored as index, try to get index
             }
             nodeId = new NodeId(NodeIdType.STRING, nodeIdString, nsIndex);
         }
 
-        const nodeType = await this.uaSession.getBuiltInDataType(nodeId);
+        const nodeType = await uaSession.getBuiltInDataType(nodeId);
 
         const writeValue =  new WriteValue(
             {
@@ -220,18 +120,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             }
         );
 
-        // const opts : VariantOptions = {
-        //     dataType: DataType[nodeType],
-        //     value: value
-        // };
-        // const variant = new Variant(opts);
-
-        // const writeOptions: WriteValueOptions = {
-        //     nodeId: nodeId,
-        //     value: variant,
-        // };
-
-        return this.uaSession.write(writeValue);
+        return uaSession.write(writeValue);
     }
 
 
@@ -240,7 +129,8 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
      * @param session An active ClientSession to an OPC UA server
      * @param methodNodeId NodeId of the method to be called
      */
-    protected async callMethod(methodNodeId: string): Promise<CallMethodResult> {
+    protected async callMethod(skillIri: string, methodNodeId: string): Promise<CallMethodResult> {
+        const uaSession = await this.sessionManager.getSession(skillIri);
         const methodNode = NodeId.resolveNodeId(methodNodeId);
 
         // Browse parent node -> This will be the object node
@@ -249,7 +139,7 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             browseDirection: BrowseDirection.Inverse,
             resultMask: 1
         });
-        const browseResult = await this.uaSession.browse(browseDesc);
+        const browseResult = await uaSession.browse(browseDesc);
         const parentNode = browseResult.references[0].nodeId;
 
         const methodToCall: CallMethodRequestOptions = {
@@ -258,24 +148,11 @@ export abstract class OpcUaSkillExecutor extends SkillExecutor {
             inputArguments: []
         };
 
-        return this.uaSession.call(methodToCall);
-    }
-
-    protected endUaConnection(): void {
-        this.uaSession.close(true);
-        this.uaClient.disconnect();
+        return uaSession.call(methodToCall);
     }
 
 }
 
-
-interface OpcUaServerInfo{
-    endpointUrl: string;
-    messageSecurityMode: string;
-    securityPolicy: string;
-    username: string;
-    password: string;
-}
 
 
 export class OpcUaSkillParameterResult {

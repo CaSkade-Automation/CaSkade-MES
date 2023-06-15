@@ -1,12 +1,13 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { trigger, transition, style, animate, state, group, animateChild, query } from '@angular/animations';
 import { FormGroup } from '@angular/forms';
-import { BpmnDataModel, BpmnProperty } from '../BpmnDataModel';
+import { BpmnDataModel, BpmnElement, BpmnProperty } from '../BpmnDataModel';
 
 
 import { BpmnExtensionElementService } from './bpmn-extension-element.service';
 import { BpmnModelService } from './bpmn-model.service';
 import { CamundaMailService } from './bpmn-mail.service';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'properties-panel',
@@ -56,8 +57,8 @@ import { CamundaMailService } from './bpmn-mail.service';
     templateUrl: './properties-panel.component.html',
     styleUrls: ['./properties-panel.component.scss'],
 })
-export class PropertiesPanelComponent implements OnChanges, OnInit {
-    @Input() bpmnElement: any;
+export class PropertiesPanelComponent implements OnInit {
+    @Input() bpmnElement$: Observable<BpmnElement>;
     @Input() bpmnModeler: any;  // Gets passed in from the modeler component
 
     dataModel: BpmnDataModel;
@@ -71,24 +72,12 @@ export class PropertiesPanelComponent implements OnChanges, OnInit {
         private connectorService: CamundaMailService
     ) {}
 
+
     ngOnInit(): void {
         this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
-        this.extensionElementService.setup(this.bpmnModeler, this.bpmnElement);
+        this.extensionElementService.setup(this.bpmnModeler, this.bpmnElement$);
         this.modelService.setup(this.bpmnModeler);
         this.connectorService.setup(this.bpmnModeler);
-    }
-
-
-    ngOnChanges(changes: SimpleChanges): void {
-        this.extensionElementService.changeBpmnElement(this.bpmnElement);
-    }
-
-    /**
-     * Event handling function that gets called by the child BPMN property groups on every form change in order to propagate the changes to the BPMN data model
-     * @param newProperty The new property that will be set on the model
-     */
-    onPropertyGroupChanged(newProperty: BpmnProperty): void {
-        this.dataModel.updateProperty(this.bpmnElement, newProperty);
     }
 
 

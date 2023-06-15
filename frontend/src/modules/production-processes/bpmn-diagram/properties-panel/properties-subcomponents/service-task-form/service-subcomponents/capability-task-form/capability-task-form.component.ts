@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Isa88CommandTypeIri } from '@shared/models/state-machine/ISA88/ISA88CommandTypeIri';
-import { debounceTime, firstValueFrom, Subscription, tap } from 'rxjs';
+import { combineLatest, debounceTime, firstValueFrom, Observable, Subscription, tap } from 'rxjs';
 import { ExpressionGoal } from '@shared/models/properties/PropertyDTO';
 import { BpmnTaskCapability, BpmnTaskCapabilityDTO } from '../../../../../../../../shared/models/BpmnTaskCapability';
 import { Capability } from '../../../../../../../../shared/models/Capability';
 import { Property } from '../../../../../../../../shared/models/Property';
 import { CapabilityService } from '../../../../../../../../shared/services/capability.service';
-import { BpmnProperty } from '../../../../../BpmnDataModel';
+import { BpmnElement, BpmnProperty } from '../../../../../BpmnDataModel';
 import { BpmnExtensionElementService } from '../../../../bpmn-extension-element.service';
 
 @Component({
@@ -17,11 +17,9 @@ import { BpmnExtensionElementService } from '../../../../bpmn-extension-element.
 })
 export class CapabilityTaskFormComponent implements OnInit {
 
-    _bpmnElement;
-    $inoutSub: Subscription;
-    $valueSub: Subscription;
+    @Input() bpmnElement$: Observable<BpmnElement>;
 
-    capabilities = new Array<Capability>();
+    capabilities$: Observable<Capability[]>;
     selectedCapability: Capability;
     existingProperties: Property[];
 
@@ -44,55 +42,55 @@ export class CapabilityTaskFormComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.capabilities$ = this.capabilityService.getCapabilities();
     }
 
     /**
      * Dynamically sets up a FormGroup for the parameters of a skill
      * @param skillIri IRI of the skill that parameters will be setup for
      */
-    async updateForm(): Promise<void> {
-        // Clear the fg in case of switch between different skill tasks
-        this.fg.reset();
+    updateForm(): void {
 
-        this.capabilities = await firstValueFrom(this.capabilityService.getAllCapabilities());
+        combineLatest([this.bpmnElement$, this.capabilities$]).subscribe(([bpmnElement, capabilities]) => {
 
-        // Get current input values from the model to populate form fields if the element already has a value
-        let commandTypeIri: string;
-        let selfResetting: boolean;
-        try {
-            const inputs = this.extensionElementService.getInputParameters();
-            const serializedTaskCapability = JSON.parse(inputs.find(input => input.name == "capability").value as string) as BpmnTaskCapabilityDTO;
-            const taskCapability = new BpmnTaskCapability(serializedTaskCapability);
+            // Clear the fg in case of switch between different skill tasks
+            this.fg.reset();
 
-            console.log(taskCapability);
+            // Get current input values from the model to populate form fields if the element already has a value
+            let commandTypeIri: string;
+            let selfResetting: boolean;
+            try {
+                const inputs = this.extensionElementService.getInputParameters();
+                const serializedTaskCapability = JSON.parse(inputs.find(input => input.name == "capability").value as string) as BpmnTaskCapabilityDTO;
+                const taskCapability = new BpmnTaskCapability(serializedTaskCapability);
 
 
-            // try to set the values
-            this.selectedCapability = this.capabilities.find(cap => cap.iri === taskCapability.capabilityIri);
-            commandTypeIri = taskCapability.commandTypeIri;
-            this.existingProperties = taskCapability.properties;
-            selfResetting = taskCapability.selfResetting;
+                // try to set the values
+                this.selectedCapability = capabilities.find(cap => cap.iri === taskCapability.capabilityIri);
+                commandTypeIri = taskCapability.commandTypeIri;
+                this.existingProperties = taskCapability.properties;
+                selfResetting = taskCapability.selfResetting;
 
-        } catch (error) {
+            } catch (error) {
             // if no capability is stored in the current task
-            this.selectedCapability = this.capabilities[0];
-            commandTypeIri = Isa88CommandTypeIri.Start;
-            selfResetting = true;
-        }
+                this.selectedCapability = capabilities[0];
+                commandTypeIri = Isa88CommandTypeIri.Start;
+                selfResetting = true;
+            }
 
-        this.fg.controls.capabilityIri.setValue(this.selectedCapability.iri);
-        this.fg.controls.commandTypeIri.setValue(Isa88CommandTypeIri[commandTypeIri]);
-        this.fg.controls.selfResetting.setValue(selfResetting);
+            this.fg.controls.capabilityIri.setValue(this.selectedCapability.iri);
+            this.fg.controls.commandTypeIri.setValue(Isa88CommandTypeIri[commandTypeIri]);
+            this.fg.controls.selfResetting.setValue(selfResetting);
 
-        // Make sure parameter form matches skill and that outputs of skill are added as task outputs
-        this.setupPropertyForm();
-        this.setOutputs();
-        this.$inoutSub = this.synchronizeInputsAndOutputs();
-        this.$valueSub = this.syncFormValuesAndProcess();
+            // Make sure parameter form matches skill and that outputs of skill are added as task outputs
+            this.setupPropertyForm(this.selectedCapability);
+            this.setOutputs(bpmnElement, this.selectedCapability);
+            this.syncFormValuesAndProcess();
+        });
     }
 
 
-    setupPropertyForm(): void {
+    setupPropertyForm(newCapability: Capability): void {
         // Filter only actual values as these are the property instances that will be set. Requirements are just used for constraints
         const actualValueInputs = this.getActualValueInputProperties();
         actualValueInputs.forEach(prop => {
@@ -109,9 +107,9 @@ export class CapabilityTaskFormComponent implements OnInit {
         });
     }
 
-    private setOutputs(): void {
-        const bpmnOutputProperties = this.selectedCapability.outputProperties.map(output => {
-            const outputName = `${this._bpmnElement.id}_${output.getLocalName()}`;
+    private setOutputs(bpmnElement: any, selectedCapability: Capability): void {
+        const bpmnOutputProperties = selectedCapability.outputProperties.map(output => {
+            const outputName = `${bpmnElement.id}_${output.getLocalName()}`;
             const outputValue = "${" + outputName + "}";
             return new BpmnProperty(outputName, outputValue);
         });
@@ -135,35 +133,6 @@ export class CapabilityTaskFormComponent implements OnInit {
         });
     }
 
-
-    /**
-	 * Makes sure that properties always match to the current skill selection
-	 */
-    private synchronizeInputsAndOutputs(): Subscription {
-        return this.fg.controls.capabilityIri.valueChanges.subscribe(capabilityIri => {
-            this.selectedCapability = this.capabilities.find(cap => cap.iri == capabilityIri);
-            // If no skillIri is given, nothing can be done
-            if (!this.selectedCapability) return;
-
-            this.setupPropertyForm();
-            this.setOutputs();
-        });
-    }
-
-
-    @Input()
-    set bpmnElement(elem: any) {
-        // kill existing subscriptions
-        try {
-            this.$inoutSub.unsubscribe();
-            this.$valueSub.unsubscribe();
-        } catch (error) {
-            // If there are no subscriptions, they cant be cancelled and thats fine -> nothing to do here
-        }
-
-        this._bpmnElement = elem;
-        this.updateForm();
-    }
 
     /**
 	 * Convenience getter that simplifies getting the parameter sub-FormGroup

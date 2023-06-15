@@ -16,7 +16,9 @@ import { ServiceLocator } from "./shared/services/service-locator.service";
         HttpClientModule,
         SkillCardModule
     ],
-    declarations: [AppComponent],
+    declarations: [
+        AppComponent,
+    ],
     providers: [AuthGuard],
     bootstrap: [AppComponent]
 })

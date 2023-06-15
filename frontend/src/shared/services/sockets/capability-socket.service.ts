@@ -1,29 +1,49 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
-import { filter } from 'rxjs/operators';
+import { BaseSocketMessageType, WebSocketMessage } from '@shared/models/socket-communication/SocketData';
+import { filter, map } from 'rxjs/operators';
 import { SocketConnection } from './SocketConnection';
+import { CapabilityDto } from '@shared/models/capability/Capability';
+import { Capability } from '../../models/Capability';
 
 
 @Injectable({
     providedIn: 'root'
 })
-export class CapabilitySocketService extends SocketConnection  implements OnDestroy {
-    WS_ENDPOINT = "ws://localhost:9091/capabilities";
+export class CapabilitySocketService implements OnDestroy {
 
-    getCapabilityAdded(): Observable<WebSocketMessage> {
-        return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Added));
+    private readonly WS_ENDPOINT = "ws://localhost:9091/capabilities";
+    private socketConnection: SocketConnection<CapabilityDto[]>;
+    constructor() {
+        this.socketConnection = new SocketConnection<CapabilityDto[]>();
     }
 
-    getCapabilityDeleted(): Observable<WebSocketMessage> {
-        return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Deleted));
+    connect(): void {
+        this.socketConnection.connect(this.WS_ENDPOINT);
     }
 
-    getCapabilityChanged(): Observable<WebSocketMessage> {
-        return this.socket$.pipe(filter((val: WebSocketMessage) => val.type == SocketMessageType.Changed));
+    onCapabilitiesAdded(): Observable<Capability[]> {
+        return this.socketConnection.socket$.pipe(
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Added),
+            map((msg: WebSocketMessage<CapabilityDto[]>) => msg.body.map(dto => new Capability(dto))),
+        );
+    }
+
+    onCapabilityDeleted(): Observable<Capability[]> {
+        return this.socketConnection.socket$.pipe(
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Deleted),
+            map((msg: WebSocketMessage<CapabilityDto[]>) => msg.body.map(dto => new Capability(dto))),
+        );
+    }
+
+    onCapabilityChanged(): Observable<Capability[]> {
+        return this.socketConnection.socket$.pipe(
+            filter((val: WebSocketMessage<CapabilityDto[]>) => val.type == BaseSocketMessageType.Changed),
+            map((msg: WebSocketMessage<CapabilityDto[]>) => msg.body.map(dto => new Capability(dto)))
+        );
     }
 
     ngOnDestroy(): void {
-        this.socket$.complete();
+        this.socketConnection.socket$.complete();
     }
 }

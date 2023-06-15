@@ -1,28 +1,30 @@
 import { Injectable } from '@angular/core';
 import * as InputOutputHelper from 'bpmn-js-properties-panel/lib/helper/InputOutputHelper';
-import { BpmnDataModel, BpmnProperty } from '../BpmnDataModel';
+import * as ExtensionElementsHelper from 'bpmn-js-properties-panel/lib/helper/ExtensionElementsHelper';
+import { BpmnDataModel, BpmnElement, BpmnProperty as CamundaProperty } from '../BpmnDataModel';
+import { Observable, combineLatest, filter, map, startWith } from 'rxjs';
 
 @Injectable()
 export class BpmnExtensionElementService {
 
+    bpmnElement$: Observable<BpmnElement>;
     bpmnElement: any;
     bpmnModeler: any;
     dataModel: BpmnDataModel;
     moddle: any;
 
-    setup(bpmnModeler: any, bpmnElement: any) {
+    setup(bpmnModeler: any, bpmnElement$: Observable<any>) {
         this.bpmnModeler = bpmnModeler;
-        this.bpmnElement = bpmnElement;
+        this.bpmnElement$ = bpmnElement$;
+        this.bpmnElement$.subscribe(elem => {
+            this.bpmnElement = elem;
+        });
         this.dataModel = new BpmnDataModel(this.bpmnModeler.get("modeling"));
         this.moddle = this.bpmnModeler.get("moddle");
     }
 
-    changeBpmnElement(bpmnElement: any): void {
-        this.bpmnElement = bpmnElement;
-    }
-
-    getExtensionElements(){
-        this.bpmnElement.businessObject.extensionElements;
+    getExtensionElements(): any{
+        return this.bpmnElement.businessObject.extensionElements;
     }
 
     getInputParameters(): CamundaInputParameter[] {
@@ -33,19 +35,63 @@ export class BpmnExtensionElementService {
         return InputOutputHelper.getOutputParameters(this.bpmnElement) as CamundaInputParameter[];
     }
 
+    updateBaseProperty(property: CamundaProperty): void {
+        this.dataModel.updateProperty(this.bpmnElement, property);
+    }
+
     /**
      * Updates a simple bpmn property (e.g. name, user task assignee)
      * @param property
      */
-    updateBaseProperty(property: BpmnProperty): void {
-        this.dataModel.updateProperty(this.bpmnElement, property);
+    updateCamundaProperty(property: CamundaProperty): void {
+        const existingProperty = this.getCamundaProperty(property.name);
+
+        let extensionElements = this.getExtensionElements();
+        if (!extensionElements) {
+            extensionElements = this.moddle.create('bpmn:ExtensionElements', { values: [] });
+        }
+
+        if(existingProperty) {
+            existingProperty.value = property.value;
+
+        } else {
+            const camundaProperty = this.moddle.create('camunda:Property', { name: property.name, value: property.value });
+
+            const prop = this.moddle.create('camunda:Properties', {
+                values: [camundaProperty]
+            });
+
+
+            extensionElements.get("values").push(prop);
+        }
+
+        this.bpmnModeler.get("modeling").updateProperties(this.bpmnElement, {
+            "extensionElements": extensionElements
+        });
+    }
+
+    getCamundaProperties() {
+        const camundaProperties = ExtensionElementsHelper.getExtensionElements(this.bpmnElement.businessObject, "camunda:Properties")[0];
+        return camundaProperties;
+    }
+
+    getCamundaProperty(propertyName: string): CamundaProperty {
+        try {
+            const camundaProperties = ExtensionElementsHelper.getExtensionElements(this.bpmnElement.businessObject, "camunda:Properties")[0];
+            const propertyValues = camundaProperties.values as Array<CamundaProperty> ?? [];
+            const foundProperty = propertyValues.find(propertyValue => propertyValue.name == propertyName);
+            console.log({foundProperty: foundProperty});
+            return foundProperty;
+        } catch (error) {
+            return undefined;
+        }
     }
 
     /**
      * Adds an input parameter to the current bpmn element
      * @param value Value to be set as input parameter
      */
-    addCamundaInputParameter(prop: BpmnProperty): void {
+    addCamundaInputParameter(prop: CamundaProperty): void {
         const stringVal = JSON.stringify(prop.value);
 
         const existingInputParameters = this.getInputParameters();
@@ -53,14 +99,14 @@ export class BpmnExtensionElementService {
 
         try {
             // If this input parameter exists, set the new value
-            const inputParameter = existingInputParameters.find(input => input.name == prop.key);
+            const inputParameter = existingInputParameters.find(input => input.name == prop.name);
 
             inputParameter.value = JSON.stringify(prop.value);
             this.updateInputOutput(existingInputParameters, existingOutputParameters);
         } catch (error) {
             // In case it doesn't exist, create a new one
             const inputParameter = this.moddle.create('camunda:InputParameter', {
-                name: `${prop.key}`,
+                name: `${prop.name}`,
                 value: `${stringVal}`
             });
             const inputParameters = [...existingInputParameters, inputParameter];
@@ -69,14 +115,14 @@ export class BpmnExtensionElementService {
         }
     }
 
-    setCamundaOutputParameters(props: Array<BpmnProperty>): void {
+    setCamundaOutputParameters(props: Array<CamundaProperty>): void {
         // Get existing parameters to not overwrite them
         const existingInputParameters = this.getInputParameters();
         const outputParameters = new Array<CamundaOutputParameter>();
         // Create new output (note that ${name} has to be set as value so that the value is passed in by the engine)
         props.forEach(prop => {
             const newOutputParameter = this.moddle.create('camunda:OutputParameter', {
-                name: `${prop.key}`,
+                name: `${prop.name}`,
                 value: `${prop.value}`
             });
             outputParameters.push(newOutputParameter);
@@ -90,9 +136,9 @@ export class BpmnExtensionElementService {
             inputParameters: [...inputs],
             outputParameters: [...outputs]
         });
-
+        const properties = this.getCamundaProperties();
         const extensionElements = this.moddle.create('bpmn:ExtensionElements', {
-            values: [inputOutput]
+            values: [inputOutput, properties]
         });
 
         this.bpmnModeler.get("modeling").updateProperties(this.bpmnElement, {

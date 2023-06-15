@@ -42,11 +42,12 @@ export class MtpMappingService {
 	 * @param mtpFile MTP file that will be mapped
 	 * @returns The mapped module with skills in turtle syntax
 	 */
-    executeMapping(mtpFile): Observable<string> {
+    executeMapping(mtpFile, context: string): Observable<string> {
 
 
         const formData = new FormData();
         formData.append('mtp-file', mtpFile);
+        formData.append('context', context);
 
         const options = {
             reportProgress: true,

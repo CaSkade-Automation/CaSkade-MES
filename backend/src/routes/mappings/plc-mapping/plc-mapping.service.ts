@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
-import Axios, { AxiosRequestConfig } from 'axios';
-import { ModuleService } from '../../../routes/production-modules/module.service';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 import { SkillService } from '../../skills/skill.service';
+import { PlcMappingRequest } from '../../../../../shared/src/models/mappings/PlcMappingRequest';
+import { HttpService } from '@nestjs/axios';
+import { Observable, catchError, map, of } from 'rxjs';
+import { AxiosRequestConfig } from 'axios';
+import { ModuleService } from '../../production-modules/module.service';
+import { CapabilityService } from '../../capabilities/capability.service';
 
 
 @Injectable()
@@ -15,7 +19,20 @@ export class PlcMappingService {
     }
 
 
-    constructor(private skillService: SkillService) {
+    constructor(
+        private moduleService: ModuleService,
+        private skillService: SkillService,
+        private capabilityService: CapabilityService,
+        private http: HttpService
+    ) {}
+
+    /**
+     * Simple ping to see if the server is running
+     * @returns Status code
+     */
+    ping(): Observable<void>{
+        const pingUrl = `${this.config.url}/ping`;
+        return this.http.get<void>(pingUrl).pipe(map(res => res.data));
     }
 
     /**
@@ -36,27 +53,39 @@ export class PlcMappingService {
 
     /**
      * Execute a mapping with a given file
-     * @param mtpFile File containing an MTP
+     * @param plcFile File containing an MTP
      */
-    async executeMapping(additionalData: AdditionalPlcMappingInfo, mtpFile: Express.Multer.File): Promise<string> {
+    async executeMapping(additionalData: PlcMappingRequestWithoutFile, plcFile: Express.Multer.File): Promise<string> {
 
         const formData = new FormData();
         formData.append('endpointUrl', additionalData.endpointUrl);
+        formData.append('baseIri', additionalData.baseIri);
+        formData.append('user', additionalData.user);
+        formData.append('password', additionalData.password);
+        formData.append('resourceIri', additionalData.resourceIri);
         formData.append('nodeIdRoot', additionalData.nodeIdRoot);
-        formData.append("plc-file", fs.createReadStream(mtpFile.path), {filename: mtpFile.originalname});
+        formData.append("plc-file", fs.createReadStream(plcFile.path), {filename: plcFile.originalname});
 
         const reqConfig: AxiosRequestConfig = {
             headers: formData.getHeaders(),
             timeout: 1200000        // large timeout because mapping takes forever
         };
 
-        Axios.post(this.config.url, formData, reqConfig)
-            .then(res => {
-                this.skillService.addSkill(res.data);
-            })
-            .catch(err => {
+        this.http.post(this.config.url, formData, reqConfig).pipe(
+            catchError(err => {
                 console.log("error on mapping");
                 console.log(err);
+                return of(err);
+            })).
+            subscribe(res => {
+                switch (additionalData.context) {
+                case "production-modules": this.moduleService.addModule(res.data, "text/turtle");
+                    break;
+                case "skills": this.skillService.addSkills(res.data, "text/turtle");
+                    break;
+                case "capabilities": this.capabilityService.addCapability(res.data);
+                    break;
+                }
             });
 
         return;
@@ -65,7 +94,5 @@ export class PlcMappingService {
 
 }
 
-export interface AdditionalPlcMappingInfo {
-    endpointUrl: string,
-    nodeIdRoot: string
-}
+// File is handled separately on backend request, thus should not be used in the additional data object
+export type PlcMappingRequestWithoutFile = Omit<PlcMappingRequest, "file">;

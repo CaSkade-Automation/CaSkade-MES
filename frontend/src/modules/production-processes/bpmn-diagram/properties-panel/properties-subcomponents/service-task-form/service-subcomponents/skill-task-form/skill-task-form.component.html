@@ -5,7 +5,7 @@
                 title="IRI of the skill that should be executed in this task"></i></label>
         <select class="form-control form-control-sm" formControlName="skillIri">
             <option value="{{null}}">...</option>
-            <option *ngFor="let skill of this.skills" [ngValue]="skill.iri">{{skill.iri}}</option>
+            <option *ngFor="let skill of (this.skills$ | async)" [ngValue]="skill.iri">{{skill.iri}}</option>
         </select>
     </div>
 
@@ -18,7 +18,7 @@
         </select>
     </div>
 
-    <ng-container [formGroup]="fgParameters" *ngFor="let parameter of this.selectedSkill?.skillParameters">
+    <ng-container [formGroup]="fgParameters" *ngFor="let parameter of (this.selectedSkill$ | async)?.skillParameters">
         <div class="form-group">
             <label class="col-form-label">{{parameter.name}}<i class="far fa-question-circle"
                     title="Parameter {{parameter.name}}"></i></label>
@@ -33,5 +33,5 @@
     </div>
 
     <strong>List of Outputs:</strong>
-    <p *ngFor="let output of this.selectedSkill?.skillOutputs">{{output.name}} - {{output.type}}</p>
+    <p *ngFor="let output of (this.selectedSkill$ | async)?.skillOutputs">{{output.name}} - {{output.type}}</p>
 </form>
