@@ -1,10 +1,19 @@
+<div class="row mb-3">
+    <div class="col-sm">
+        <h3>Overview of currently registered modules</h3>
+    </div>
+    <div class="col-sm">
+        <button class="btn btn-primary float-end" (click)="reloadModules()"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+    </div>
+</div>
+
 <div class="row">
-    <div class="col-6" *ngFor="let module of modules">
-        <div class="card mb-5">
+    <div class="col-6" *ngFor="let module of (modules$ | async)">
+        <div class="card mb-5 border-secondary">
             <div class="card-header">
-                <div class="row">
+                <div class="row align-items-center">
                     <div class="col-9">
-                        <h3 class="card-title" title="{{module.iri}}">{{module.getLocalName()}}</h3>
+                        <h4 class="d-inline align-middle" title="{{module.iri}}">{{module.getLocalName()}}</h4>
                     </div>
                     <div class="col-3">
                         <div class="float-end">
@@ -18,9 +27,9 @@
                 </div>
             </div>
             <div class="card-body">
-                <h4>Capabilities:</h4>
+                <h5>Capabilities:</h5>
                 <ng-container *ngFor="let capability of module.capabilities">
-                    <capability-card [capability]="capability" (onCapabilityDeleted)="onCapabilityDeleted($event)"></capability-card>
+                    <capability-card [capability]="capability"></capability-card>
                 </ng-container>
             </div>
 

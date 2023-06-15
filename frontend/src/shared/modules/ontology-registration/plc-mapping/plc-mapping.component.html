@@ -1,40 +1,72 @@
-<form>
+<form [formGroup]="plcMappingForm">
+    <p class="mt-4">With this form, you can automatically register the skills of a PLC project. The ontological description is
+        automatically created using a mapping application. When developing your PLC program, make sure to use the
+        PLC2Skill PLC library. When you're done developing and your PLC is running, fill out the form to start the
+        mapping process.</p>
+
     <div class="row mt-4">
-        <div class="col">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">Endpoint URL</span>
-                </div>
-                <input type="text" class="form-control" id="endpointUrl" name="endpointUrl" [(ngModel)]="endpointUrl">
-            </div>
+        <label class="col-sm-3 col-md-2 col-form-label">Endpoint URL:</label>
+        <div class="col-sm-4 col-md-4">
+            <input type="text" class="form-control" id="endpointUrl" name="endpointUrl" formControlName="endpointUrl">
         </div>
-        <div class="col">
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">Node ID root</span>
-                </div>
-                <input type="text" class="form-control" id="nodeIdRoot" name="nodeIdRoot" [(ngModel)]="nodeIdRoot">
+
+        <label for="plcOpenFiles" class="col-sm-3 col-md-2 col-form-label">PlcOpenXML File:</label>
+        <div class="col-sm-4 col-md-4">
+            <input class="form-control" type="file" id="plcOpenFiles" formControlName="files">
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <label for="baseIri" class="col-sm-3 col-md-2 col-form-label">Base IRI:</label>
+        <div class="col-sm-4 col-md-4">
+            <input class="form-control" type="text" id="baseIri" formControlName="baseIri">
+        </div>
+        <label for="resourceIri" class="col-sm-3 col-md-2 col-form-label">Resource IRI:</label>
+        <div class="col-sm-4 col-md-4">
+            <input class="form-control" type="text" id="resourceIri" formControlName="resourceIri">
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-auto">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="requiresAuth" formControlName="requiresAuth">
+                <label class="form-check-label" for="requiresAuth">PLC requires authentication</label>
             </div>
         </div>
     </div>
 
-
-    <div class="input-group mb-3 mt-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text"><i class="fas fa-file-upload"></i> </span>
+    <div class="row mt-1" *ngIf="requiresAuth">
+        <label for="plcUser" class="col-sm-3 col-md-2 col-form-label">User:</label>
+        <div class="col-sm-4 col-md-4">
+            <input class="form-control" type="text" id="plcUser" formControlName="user">
         </div>
-        <div class="custom-file">
-            <input #file accept=".xml" (change)="onFileAdded($event); changed=true" type="file"
-                class="custom-file-input" id="inputGroupFile01">
-            <label class="custom-file-label" for="inputGroupFile01">Select a PLCopen XML file (.xml)</label>
+        <label for="plcPw" class="col-sm-3 col-md-2 col-form-label">Password:</label>
+        <div class="col-sm-4 col-md-4">
+            <input class="form-control" type="text" id="plcPw" formControlName="password">
         </div>
     </div>
-    <ng-container *ngIf="changed; else elseDisabled">
-        <div> <span class="fas fa-check-circle"></span> {{addedFile.name}} selected </div>
-        <button (click)="submit()" class="btn btn-primary">Submit</button>
-    </ng-container>
-    <ng-template #elseDisabled>
-        <button class="btn btn-primary" disabled>Submit</button>
-    </ng-template>
 
+    <div class="row mt-3">
+        <div class="col-auto">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="nodeIdManual" formControlName="nodeIdManual">
+                <label class="form-check-label" for="nodeIdManual">Manually set Node ID</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-1" *ngIf="nodeIdManual">
+        <label for="nodeIdRoot" class="col-sm-3 col-md-2 col-form-label">Node ID Root:</label>
+        <div class="col-sm-4 col-md-4">
+            <input class="form-control" type="text" id="nodeIdRoot" formControlName="password">
+        </div>
+    </div>
+
+
+    <div class="row mt-3">
+        <div class="col-auto">
+            <button (click)="submit()" class="btn btn-primary" [disabled]="!formValid">Submit</button>
+        </div>
+    </div>
 </form>

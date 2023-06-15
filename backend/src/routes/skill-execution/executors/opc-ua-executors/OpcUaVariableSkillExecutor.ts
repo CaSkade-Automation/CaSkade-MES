@@ -7,16 +7,27 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { SkillService } from '../../../skills/skill.service';
 import { OpcUaSkillExecutor, OpcUaSkillParameter } from './OpcUaSkillExecutor';
 import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
+import { OpcUaSessionManager } from '../../../../util/OpcUaSessionManager';
+import { OpcUaStateTrackerManager } from '../../../../util/opcua-statetracker-manager.service';
 
 /**
  * Skill executor for a skill whose transitions are fired by setting a command variable to a certain value
  */
 export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 
-    constructor(graphDbConnection: GraphDbConnectionService, skillService: SkillService, skillIri: string) {
-        super(graphDbConnection, skillIri);
+    private skillService: SkillService;
+    private uaStateTrackerManager: OpcUaStateTrackerManager;
+
+    constructor(
+        graphDbConnection: GraphDbConnectionService,
+        skillService: SkillService,
+        uaSessionManager: OpcUaSessionManager,
+        uaStateTrackerManager: OpcUaStateTrackerManager
+    ) {
+        super(graphDbConnection, uaSessionManager);
         this.graphDbConnection = graphDbConnection;
         this.skillService = skillService;
+        this.uaStateTrackerManager = uaStateTrackerManager;
         this.converter = new SparqlResultConverter();
     }
 
@@ -26,29 +37,37 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
      * @param executionRequest Object containing skillIri, transitionIri and all parameters with the values they have to be set to
      */
     async invokeTransition(executionRequest: SkillExecutionRequestDto): Promise<any> {
-        this.uaSession.readNamespaceArray();
+        const uaSession = await this.sessionManager.getSession(executionRequest.skillIri);
+        uaSession.readNamespaceArray();
         const skillDescription = await this.getOpcUaVariableSkillDescription(executionRequest.skillIri, executionRequest.commandTypeIri);
+        const {parameters, commandNodeId, requiredCommandValue, commandNamespace} = skillDescription;
 
         try {
             // Write all "normal" parameters first
-            for (const param of skillDescription.parameters) {
+            for (const param of parameters) {
                 const matchedReqParam = executionRequest.parameters.find(reqParam => reqParam.name == param.parameterName);
                 if(matchedReqParam && matchedReqParam.value) {
-                    await this.writeSingleNode(param.parameterNodeId, matchedReqParam.value);
+                    await this.writeSingleNode(executionRequest.skillIri, param.parameterNodeId, matchedReqParam.value);
                 }
             }
             // Then write the command parameter
-            await this.writeSingleNode(skillDescription.commandNodeId, Number(skillDescription.requiredCommandValue), skillDescription.commandNamespace);
-
             // Specifically for OpcUaVariableSkills: This type of skills doesn't send feedback about state changes, has to be actively tracked here
-            ClientSubscription.create(this.uaSession, {});
+            await this.uaStateTrackerManager.getStateTracker(executionRequest.skillIri);
+
+            console.log("writing command");
+            console.log(executionRequest.commandTypeIri);
+
+            console.log(commandNodeId, Number(requiredCommandValue), commandNamespace);
+
+            await this.writeSingleNode(executionRequest.skillIri, commandNodeId, Number(requiredCommandValue), commandNamespace);
+
 
         } catch (err) {
             console.log(`Error while invoking transition "${executionRequest.commandTypeIri}" on skill "${executionRequest.skillIri}":`);
             console.log(err);
-            throw new InternalServerErrorException();
+            throw new InternalServerErrorException(err);
         } finally {
-            this.endUaConnection();
+            // this.endUaConnection();
         }
     }
 
@@ -64,6 +83,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
         if (outputDtos == undefined || outputDtos.length == 0 ) return [];
 
         const skillOutputDescription = await this.getOpcUaSkillOutputDescription(executionRequest.skillIri);
+        const uaSession = await this.sessionManager.getSession(executionRequest.skillIri);
 
         // Read all output nodes and match it with the existing output description of the skill
         for (const output of skillOutputDescription.outputs) {
@@ -71,8 +91,8 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
                 nodeId: output.outputNodeId,
                 attributeId: AttributeIds.Value
             });
-            // Read the value. Note that OPC UA hides the result inside value.value. Result contains another value -> Thus 3 x value
-            const outputValue = (await this.uaSession.read(readNode)).value.value.value;
+            // Read the value. Note that OPC UA hides the result inside value.value. Result contains another value -> Thus 3x value
+            const outputValue = (await uaSession.read(readNode)).value.value;
 
             const matchingOutput = outputDtos.find(outputDto => outputDto.name == output.outputName);
             matchingOutput.value = outputValue;
@@ -82,29 +102,22 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
     }
 
 
-    async getOpcUaVariableSkillDescription(skillIri: string, commandTypeIri: string): Promise<OpcUaVariableSkill> {
+    async getOpcUaVariableSkillDescription(skillIri: string, commandTypeIri: string): Promise<OpcUaVariableSkillCommandInfo> {
         const query = `
 		PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
-		PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
+		PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
 		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 		PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>#
 		PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
-		SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?requiredCommandValue ?commandNodeId ?commandNamespace
+		SELECT ?skillIri ?requiredCommandValue ?commandNodeId ?commandNamespace
         ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterNodeId WHERE {
-			BIND(<${skillIri}> AS ?skillIri);
+			BIND(<${skillIri}> AS ?skillIri).
 			?skillIri CSS:behaviorConformsTo/ISA88:hasTransition ?command;
                 CSS:accessibleThrough ?skillInterface.
             ?skillInterface a CaSkMan:OpcUaVariableSkillInterface.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?commandParameter;
-                OpcUa:hasEndpointUrl ?endpointUrl;
-                OpcUa:hasMessageSecurityMode ?messageSecurityMode;
-                OpcUa:hasSecurityPolicy ?securityPolicy.
-            OPTIONAL {
-                ?uaServer OpcUa:requiresUserName ?userName;
-                OpcUa:requiresPassword ?password
-            }
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?commandParameter.
             <${commandTypeIri}> rdfs:subClassOf ISA88:Transition.
             ?command a <${commandTypeIri}>;
                 DINEN61360:has_Data_Element ?commandVariableDataElement.
@@ -134,7 +147,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 		}`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
         const mappedResult = <unknown>this.converter.convertToDefinition(queryResult.results.bindings, opcUaVariableSkillMapping)
-            .getFirstRootElement()[0] as OpcUaVariableSkill;
+            .getFirstRootElement()[0] as OpcUaVariableSkillCommandInfo;
 
         return mappedResult;
     }
@@ -145,24 +158,17 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
      * @param skillIri
      * @returns
      */
-    async getOpcUaSkillOutputDescription(skillIri: string): Promise<OpcUaVariableSkillOutput> {
+    async getOpcUaSkillOutputDescription(skillIri: string): Promise<OpcUaVariableSkillOutputInfo> {
         const query = `
 		PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX CaSkMan: <http://www.w3id.org/hsu-aut/caskman#>
-		PREFIX OpcUa: <http://www.hsu-ifa.de/ontologies/OpcUa#>
-		SELECT ?skillIri ?endpointUrl ?messageSecurityMode ?securityPolicy ?userName ?password ?outputIri ?outputName ?outputNodeId WHERE {
+		PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
+		SELECT ?skillIri ?outputIri ?outputName ?outputNodeId WHERE {
 			BIND(<${skillIri}> AS ?skillIri).
             ?skillIri CSS:accessibleThrough ?skillInterface.
             ?skillInterface a CaSkMan:OpcUaVariableSkillInterface.
-            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?commandParameter;
-                OpcUa:hasEndpointUrl ?endpointUrl;
-                OpcUa:hasMessageSecurityMode ?messageSecurityMode;
-                OpcUa:hasSecurityPolicy ?securityPolicy.
-            OPTIONAL {
-                ?uaServer OpcUa:requiresUserName ?userName;
-                OpcUa:requiresPassword ?password
-            }
+            ?uaServer OpcUa:hasNodeSet/OpcUa:containsNode ?commandParameter.
 
             ?skillIri CaSk:hasSkillOutput ?outputIri.
             ?outputIri CaSk:hasVariableName ?outputName;
@@ -175,7 +181,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 		}`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
         const mappedResult = this.converter.convertToDefinition(queryResult.results.bindings, opcUaVariableSkillOutputMapping)
-            .getFirstRootElement()[0] as OpcUaVariableSkillOutput;
+            .getFirstRootElement()[0] as OpcUaVariableSkillOutputInfo;
 
         return mappedResult;
     }
@@ -183,12 +189,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 
 }
 
-class OpcUaVariableSkill {
-    endpointUrl: string;
-    messageSecurityMode: string;
-    securityPolicy: string;
-    userName: string;
-    password: string;
+class OpcUaVariableSkillCommandInfo {
     requiredCommandValue: number;
     commandNodeId: string;
     commandNamespace: string;
@@ -198,12 +199,7 @@ class OpcUaVariableSkill {
 /**
  * All relevant info to read an output node
  */
-class OpcUaVariableSkillOutput {
-    endpointUrl: string;
-    messageSecurityMode: string;
-    securityPolicy: string;
-    userName: string;
-    password: string;
+class OpcUaVariableSkillOutputInfo {
     outputs: OpcUaVariableSkillOutputNode[];
 }
 
@@ -212,33 +208,4 @@ class OpcUaVariableSkillOutputNode {
     outputName: string;
     outputNodeId: string;
 }
-
-// class OpcUaSkillParameterResult {
-//     endpointUrl: string;
-//     messageSecurityMode: string;
-//     securityPolicy: string;
-//     username: string;
-//     password: string;
-//     parameters: OpcUaSkillParameter[];
-// }
-
-
-// class OpcUaVariableSkill {
-//     private skillQueryResult: OpcUaSkillQueryResult;
-
-//     constructor(public skillIri: string, public commandTypeIri: string, skillQueryResult: OpcUaSkillQueryResult) {
-//         this.skillQueryResult = skillQueryResult;
-//     }
-
-//     get skillNodeId(): string { return this.skillQueryResult.skillNodeId;}
-//     get endpointUrl(): string { return this.skillQueryResult.endpointUrl;}
-//     get methodNodeId(): string { return this.skillQueryResult.methodNodeId;}
-//     get messageSecurityMode(): string { return this.skillQueryResult.messageSecurityMode;}
-//     get securityPolicy():string { return this.skillQueryResult.securityPolicy;}
-//     get username(): string { return this.skillQueryResult.username;}
-//     get password(): string { return this.skillQueryResult.password;}
-//     get parameters(): any[] { return this.skillQueryResult.parameters;}
-// }
-
-
 

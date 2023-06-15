@@ -14,9 +14,10 @@ export abstract class StateMachine extends RdfElement{
     abstract getActiveCommands(): Command[];
     abstract getStates(): State[];
 
-    setCurrentState(stateTypeIri: string) {
+    setCurrentState(stateTypeIri: string): void {
         const newState = this.getStates().find(state => state.iri == stateTypeIri);
-        if (newState === undefined) throw new StateNotFoundError(`There is no state of type '${stateTypeIri}' on this state machine. Current state could not be changed`);
+        if (newState === undefined)
+            throw new StateNotFoundError(`There is no state of type '${stateTypeIri}' on this state machine. Current state could not be changed`);
 
         // If the error is not thrown (i.e. newState is defined), set the new current state
         this.currentState = newState;

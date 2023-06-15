@@ -8,7 +8,7 @@ import { SkillModule } from './routes/skills/skill.module';
 import { SkillExecutionModule } from './routes/skill-execution/skill-execution.module';
 import { MtpMappingModule } from './routes/mappings/mtp-mapping/mtp-mapping.module';
 import { PlcMappingModule } from './routes/mappings/plc-mapping/plc-mapping.module';
-import { OpcUaStateMonitorModule } from './util/opc-ua-state-monitor.module';
+import { OpcUaModule } from './util/opcua.module';
 import { GraphDbConnectionModule } from './util/GraphDbConnection.module';
 import { SocketModule } from './socket-gateway/socket.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -19,31 +19,31 @@ import configuration from './configuration/config';
 
 @Module({
     imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-            load: [configuration],
+    ConfigModule.forRoot({
+        isGlobal: true,
+        load: [configuration],
         }),
-        ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '..', 'frontend-dist'),
+    ServeStaticModule.forRoot({
+        rootPath: join(__dirname, '..', 'frontend-dist'),
         }),
-        GraphDbConnectionModule,
-        MtpMappingModule,
-        SocketModule,
-        ModuleModule,
-        CapabilityModule,
-        SkillModule,
-        GraphRepositoryModule,
-        GraphOperationModule,
-        SkillExecutionModule,
-        MtpMappingModule,
-        PlcMappingModule,
-        OpcUaStateMonitorModule
+    GraphDbConnectionModule,
+    MtpMappingModule,
+    SocketModule,
+    ModuleModule,
+    CapabilityModule,
+    SkillModule,
+    GraphRepositoryModule,
+    GraphOperationModule,
+    SkillExecutionModule,
+    MtpMappingModule,
+    PlcMappingModule,
+    OpcUaModule
     ],
     controllers: [AppController],
     providers: [],
     exports: [
-        GraphDbConnectionModule,
-        SocketModule
+    GraphDbConnectionModule,
+    SocketModule
     ]
-})
+    })
 export class AppModule {}

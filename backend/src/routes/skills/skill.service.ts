@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
 import * as crypto from 'crypto';
 import { SkillDto, SkillQueryResult} from "@shared/models/skill/Skill";
@@ -8,42 +8,56 @@ import { SkillSocket } from '../../socket-gateway/skill-socket';
 import {SparqlResultConverter} from 'sparql-result-converter';
 import { parameterQueryFragment, outputQueryFragment, skillTypeFragment, skillInterfaceTypeFragment } from './query-fragments';
 import { OpcUaVariableSkillExecutionService } from '../skill-execution/executors/opc-ua-executors/OpcUaVariableSkillExecutor';
-import { OpcUaStateMonitorService } from '../../util/opc-ua-state-monitor.service';
-import { SocketMessageType } from '@shared/models/socket-communication/SocketData';
+import { BaseSocketMessageType } from '@shared/models/socket-communication/SocketData';
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
+import { CapabilityService } from '../capabilities/capability.service';
+import { OpcUaSessionManager } from '../../util/OpcUaSessionManager';
+import { OpcUaStateTrackerManager } from '../../util/opcua-statetracker-manager.service';
 const converter = new SparqlResultConverter();
 
 @Injectable()
 export class SkillService {
-    constructor(private graphDbConnection: GraphDbConnectionService,
+    constructor(
+        private graphDbConnection: GraphDbConnectionService,
         private skillSocket: SkillSocket,
         private capabilitySocket: CapabilitySocket,
-        private uaStateChangeMonitor: OpcUaStateMonitorService) {}
+        private uaStateTrackerManager: OpcUaStateTrackerManager,
+        @Inject(forwardRef(() => CapabilityService))
+        private capabilityService: CapabilityService,
+    ) {}
 
 
     /**
-     * Register a new skill
+     * Register one or more skills described in an RDF document
      * @param newSkill Content of an RDF document describing a skill
      */
-    async addSkill(newSkill: string, contentType?: string): Promise<string> {
+    async addSkills(newSkill: string, contentType?: string): Promise<string> {
+        const skillsBefore = await this.getAllSkills();
         try {
             // create a graph name for the skill (uuid)
+            // TODO: There is a problem with multiple skills: Only one graphName is created leading to problems on delete
             const skillGraphName = crypto.randomUUID();
             await this.graphDbConnection.addRdfDocument(newSkill, skillGraphName, contentType);
 
-            // Skill is added, now get its IRI and skill type to setup a state change monitor in case its an OpcUaVariableSkill
-            const skillInfo = await this.getSkillInGraph(skillGraphName);
+            const skillsAfter = await this.getAllSkills();
 
-            if (skillInfo.skillTypeIri == "http://www.hsu-ifa.de/ontologies/capability-model#OpcUaVariableSkill") {
-                const skillExecutor = new OpcUaVariableSkillExecutionService(this.graphDbConnection, this, skillInfo.skillIri);
-                const uaClientSession = await skillExecutor.connectAndCreateSession();
-                this.uaStateChangeMonitor.setupItemToMonitor(uaClientSession, skillInfo.skillIri);
+            const newSkills = skillsAfter.filter(
+                skillAfter => !skillsBefore.some(skillBefore => skillBefore.skillIri === skillAfter.skillIri));
+
+            // For all new skills, get their IRI and skill type to setup a state change monitor in case its an OpcUaVariableSkill
+            for (const newSkill of newSkills) {
+                if (newSkill.skillInterfaceType == "http://www.w3id.org/hsu-aut/caskman#OpcUaVariableSkillInterface") {
+                    this.uaStateTrackerManager.getStateTracker(newSkill.skillIri);
+                }
+
+                // get the new capabilities and send a socket message that a capability was registered
+                for (const capabilitIri of newSkill.capabilityIris) {
+                    const capability = await this.capabilityService.getCapabilityByIri(capabilitIri);
+                    this.capabilitySocket.sendCapabilitiesAdded([capability]);
+                }
             }
-
-            // This is a pretty hacky solution... SkillUp currently registers a skill with capability at the skill endpoint, thus there is no way to check for new capabilities that are registered through SkillUp
-            this.capabilitySocket.sendMessage(SocketMessageType.Added);
-            // Send a socket message that a skill was registered
-            this.skillSocket.sendMessage(SocketMessageType.Added);
+            // Finally, send a socket message that the skill was registered
+            this.skillSocket.sendSkillsAdded(newSkills);
 
             return 'New skill successfully added';
         } catch (error) {
@@ -80,7 +94,8 @@ export class SkillService {
                 ${outputQueryFragment}
             }`;
             const queryResult = await this.graphDbConnection.executeQuery(query);
-            const mappedResults = converter.convertToDefinition(queryResult.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
+            const mappedResults = converter.convertToDefinition(queryResult.results.bindings, skillMapping, false)
+                .getFirstRootElement() as SkillQueryResult[];
             const skillDtos = mappedResults.map(result => new SkillDto(result));
 
             return skillDtos;
@@ -120,7 +135,8 @@ export class SkillService {
             }`;
 
             const rawResults = await this.graphDbConnection.executeQuery(query);
-            const mappedResult = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement()[0] as SkillQueryResult;
+            const mappedResult = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false)
+                .getFirstRootElement()[0] as SkillQueryResult;
             const skillDto = new SkillDto(mappedResult);
 
             return skillDto;
@@ -154,7 +170,8 @@ export class SkillService {
                 ${outputQueryFragment}
             }`;
             const rawResults = await this.graphDbConnection.executeQuery(query);
-            const mappedResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
+            const mappedResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false)
+                .getFirstRootElement() as SkillQueryResult[];
             const skillDtos = mappedResults.map(result => new SkillDto(result));
 
             return skillDtos;
@@ -188,7 +205,8 @@ export class SkillService {
                     ${outputQueryFragment}
             }`;
             const rawResults = await this.graphDbConnection.executeQuery(query);
-            const skillResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false).getFirstRootElement() as SkillQueryResult[];
+            const skillResults = converter.convertToDefinition(rawResults.results.bindings, skillMapping, false)
+                .getFirstRootElement() as SkillQueryResult[];
             const skillDtos = skillResults.map(result => new SkillDto(result));
             return skillDtos;
         } catch(error) {
@@ -215,11 +233,11 @@ export class SkillService {
             SELECT ?skill ?graph WHERE {
                 BIND(<${skillIri}> AS ?skill)
                 ?skill a ?skillType.
-                ?type rdfs:subClassOf CSS:Skill.
+                ?skillType rdfs:subClassOf CSS:Skill.
                 GRAPH ?graph {
                     ?skill a ?skillType
-                    }
-                }`;
+                }
+            }`;
 
             const queryResult = await this.graphDbConnection.executeQuery(query);
             const queryResultBindings = queryResult.results.bindings;
@@ -229,11 +247,17 @@ export class SkillService {
             }
 
             // iterate over graphs and clear every one
+            const deleteRequests = new Array<Promise<{statusCode: any; msg: any;}>>();
             queryResultBindings.forEach(bindings => {
                 const graphName = bindings.graph.value;
-                this.graphDbConnection.clearGraph(graphName);
+                deleteRequests.push(this.graphDbConnection.clearGraph(graphName));
             });
-            this.skillSocket.sendMessage(SocketMessageType.Deleted, `Sucessfully deleted skill with IRI ${skillIri}}`);
+
+            // wait for all graphs to be deleted before getting the remaining skills
+            await Promise.all(deleteRequests);
+            const skillsAfterDeleting = await this.getAllSkills();
+
+            this.skillSocket.sendSkillDeleted(skillsAfterDeleting);
         } catch (error) {
             throw new Error(
                 `Error while trying to delete skill with IRI ${skillIri}. Error: ${error}`
@@ -241,55 +265,27 @@ export class SkillService {
         }
     }
 
-    async updateState(skillIri:string, newStateTypeIri: string): Promise<string> {
-        try {
-            const deleteQuery = `
-            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
-            DELETE WHERE {
-                <${skillIri}> CaSk:hasCurrentState ?oldCurrentState.
-            }`;
-            await this.graphDbConnection.executeUpdate(deleteQuery);
-
-            const insertQuery = `
-            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
-            PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
-            INSERT {
-                <${skillIri}> CaSk:hasCurrentState ?newState.
-            } WHERE {
-                <${skillIri}> CSS:behaviorConformsTo ?stateMachine.
-                ?stateMachine ISA88:hasState ?newState.
-                ?newState a <${newStateTypeIri}>.
-            }`;
-            await this.graphDbConnection.executeUpdate(insertQuery);
-            this.skillSocket.sendStateChanged(skillIri, newStateTypeIri);
-            return `Sucessfully updated currentState of skill ${skillIri}`;
-        } catch (error) {
-            throw new Error(
-                `Error while trying to update currentState of skill: ${skillIri}. Error: ${error}`
-            );
-        }
-    }
 
     /**
      * Returns the skill in the given graph. Can be used to get the latest skill
      */
-    async getSkillInGraph(graphIri: string): Promise<{skillIri: string, skillTypeIri: string}> {
+    async getSkillInGraph(graphIri: string): Promise<{skillIri: string, skillInterfaceTypeIri: string}> {
         const query = `
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        SELECT ?skillIri ?skillTypeIri ?g
+        SELECT ?skillIri ?skillInterfaceTypeIri ?g
         WHERE {
-            ?skillTypeIri rdfs:subClassOf CSS:Skill.   # Get the explicit type that was used to register the skill
+            ?skillInterfaceTypeIri rdfs:subClassOf CSS:SkillInterface.   # Get the explicit type that was used to register the skill
+            ?skillIri CSS:accessibleThrough ?skillInterface.
             GRAPH ?g {
-                ?skillIri a ?skillTypeIri.             # Get the graph where the skill was registered
+                ?skillInterface a ?skillInterfaceTypeIri.             # Get the graph where the skill was registered
             }
             FILTER (?g = <urn:${graphIri}>)         # Only get the skill inside the given graph
         }`;
         const queryResult = await this.graphDbConnection.executeQuery(query);
         const skillIri = queryResult.results.bindings[0]["skillIri"].value as string;
-        const skillTypeIri = queryResult.results.bindings[0]["skillTypeIri"].value as string;
-        return {skillIri, skillTypeIri};
+        const skillInterfaceTypeIri = queryResult.results.bindings[0]["skillInterfaceTypeIri"].value as string;
+        return {skillIri, skillInterfaceTypeIri};
     }
 
 

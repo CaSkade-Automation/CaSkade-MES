@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SkillService } from 'src/shared/services/skill.service';
 import { Skill } from '../../../shared/models/Skill';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'skill-overview',
@@ -9,17 +10,19 @@ import { Skill } from '../../../shared/models/Skill';
 })
 export class SkillOverviewComponent implements OnInit {
 
-    skills= new Array<Skill>();
+    // Subscription to all skills that is always updated through sockets and subscribed to using the async pipe
+    skills$: Observable<Array<Skill>>;
 
     constructor(
         private skillService: SkillService
     ) {}
 
     ngOnInit(): void {
-        this.skillService.getAllSkills().subscribe((skills: Skill[]) =>{
-            this.skills=skills;
-        });
+        this.skills$ = this.skillService.getSkills();
+    }
 
+    reloadSkills(): void {
+        this.skillService.reloadSkills();
     }
 }
 

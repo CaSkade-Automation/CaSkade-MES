@@ -24,11 +24,7 @@ export class Skill extends RdfElement implements D3Serializable{
         this.skillInterfaceType = new RdfElement(skillDto.skillInterfaceType);
         this.stateMachine = Isa88StateMachineBuilder.buildDefault(skillDto.stateMachineIri, skillDto.currentStateTypeIri);
 
-        if(skillDto.capabilityIris) {
-            skillDto.capabilityIris.map(capIri => {
-                this.capabilityService.getCapabilityByIri(capIri).subscribe(cap => this.relatedCapabilities.push(cap));
-            });
-        }
+        skillDto.capabilityIris.map(capIri => new RdfElement(capIri));
 
         if(skillDto.skillParameterDtos) {
             this.skillParameters = skillDto.skillParameterDtos.map(paramDto => new SkillVariable(paramDto));

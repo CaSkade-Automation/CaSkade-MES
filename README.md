@@ -4,7 +4,7 @@
 </div>
 <hr>
 
-## Table of Contents
+# Table of Contents
 1. [Introduction](https://github.com/aljoshakoecher/SkillMEx#Introduction)
 2. [Setup & Install](https://github.com/aljoshakoecher/SkillMEx#setup--install)
 3. [Using SkillMEx](https://github.com/aljoshakoecher/SkillMEx#using-skillmex)
@@ -13,7 +13,7 @@
 6. [Further Reading](https://github.com/aljoshakoecher/SkillMEx#further-reading)
 <hr>
 
-## Introduction
+# Introduction
 SkillMEx is a manufacturing execution platform that works with manufacturing modules that have a semantic description of their functions in the form of *capabilities* and *skills*. It's powered by this [capability and skill ontology](https://github.com/aljoshakoecher/machine-skill-model).
 
 *Ontologies? Capabilities? Skills? What?*
@@ -25,7 +25,10 @@ We have created a model in the form of an ontology that can be used to model man
 3. **Skills**: Every capability that is automatically executable needs to have a description of how to invoke and interact with this capability. This is the skill aspect of our model. Skills describe interaction mechanisms that are provided by a module in order to automatically use its functionalities.
 
 
-## Setup & Install
+# Setup & Install
+
+## Development setup
+
 ### Requirements
 
 **Node.js**
@@ -35,19 +38,28 @@ SkillMEx is built with NestJS & Angular which both rely on Node.js being install
 **GraphDB**
 
 SkillMEx uses ontologies and stores them in a triple store. We currently work with GraphDB. Make sure to download GraphDB from https://www.ontotext.com/products/graphdb/graphdb-free/ and start it. You then need to create a repository that SkillMEx can use. The connection to a repository can be managed in SkillMEx.
+By default, SkillMEx currently expects a repository with ID "test-repo" to exist. This can be changed at runtime but you may run into troubles if you don't have a repository with this name in your GraphDB instance.
 In case you cannot connect to your running GraphDB with SkillMEx, you may need to set appropriate CORS policy on GraphDB. This can be done by setting the parameter `graphdb.workbench.cors.enable` to `true` (either in the settings dialogue of the window opening on GraphDB startup or as a command line parameter, see [this SO thread](https://stackoverflow.com/questions/60137895/enable-cors-on-graphdb) for additional details).
 
-### Development setup
-After you have installed Node.js, follow these steps to run SkillMEx in development mode:
+**Capability & Skill Ontology**
+
+An "empty" GraphDB doesn't get you far. You have to import the data model for machines, their capabilities and skills that SkillMEx requires. This data model is implemented in an OWL ontology and can be downloaded [here](https://github.com/aljoshakoecher/machine-skill-model). Make sure to take the *merged* version from the latest release.
+Once you downloaded it, import it into your GraphDB repository. This is done by using `Import (left sidebar) -> RDF` and then clicking on `Upload RDF files`. Select your file, upload it and - important - do not forget to click `Import` on the right once your file has been uploaded.
+
+
+### Starting SkillMEx
+After you have checked all the requirements, follow these steps to run SkillMEx in development mode:
 - Download or clone this repository
 - When starting SkillMEx for the first time, open shells inside both backend and frontend directory and in both directories, execute `npm install` in order to install all npm dependencies.
 - As soon as `npm install` is finished, both backend and frontend can be started. Note that these are separate stand-alone applications, so you need to execute `npm run start:dev` in both backend and frontend. 
 - Both backend and frontend should now run in "watch-mode" where changes on either frontend or backend lead to an automatic restart of the server or the web application, respectively. This is quite convenient for development as you don't need to manually restart the server or refresh your browser's page.
 
-### Docker & other pre-built versions
+
+## Docker & other pre-built versions
 🚧 Currently not available, but on our to-do list 🚧
 
-## Using SkillMEx
+
+# Using SkillMEx
 Once you have it up and running, SkillMEx acts as a platform for (manufacturing) modules. Modules can be registered with their capabilities and skills and later deleted. Additional capabilities and skills can also be added later. Skills with different execution technologies can be executed through a unified interface. Skill processes can be modeled and executed using BPMN.
 
 
@@ -102,12 +114,12 @@ Once you have it up and running, SkillMEx acts as a platform for (manufacturing)
   </tr>
 </table>
 
-## Additional Tools
-### Automatically create and register skills from Java source code
+# Additional Tools
+## Automatically create and register skills from Java source code
 We created [SkillUp](https://github.com/aljoshakoecher/skill-up) which takes away all the effort involved in creating a skill. If you do it "manually", there is a lot that needs to be done. You need to develop skills in a certain way (using a state machine). You need to provide an interface technology to invoke your skill's behavior (either OPC UA server or web server) and you need to create a rather large and complex ontology to describe all that.
 The good news is: SkillUp automates it all for you and even registers yours modules and skills at SkillMEx. Checkout the [SkillUp Wiki](https://github.com/aljoshakoecher/skill-up/wiki) for an extended step-by-step documentation on how to get started.
 
-### Modelling and executing skill-processes using BPMN
+## Modelling and executing skill-processes using BPMN
 Single skills can be executed from the module overview or skill management. But what if you want to model (and eventually execute) complete production processes? Of course, manually stepping through a process with multiple skills is not an option.
 Instead, SkillMEx uses BPMN to model and execute BPMN processes.
 
@@ -126,10 +138,10 @@ In order to deploy processes and execute them, you need to have a BPMN engine. S
 Naturally, Camunda doesn't know anything about skills and skill processes. In order to execute skill processes, you need to have an extension we developed which you can grab [here](https://github.com/aljoshakoecher/BPMN-Skill-Executor/releases). Take the jar from the latest release and drop it into your Camunda servers lib folder. Note: Don't drop it into the lib folder inside the root folder. It needs to be the lib folder under server/apache-tomcat
     
 
-## API Documentation
+# API Documentation
 SkillMEx features a quite extensive REST API that can be used to retrieve all registered modules, skills, capabilities and to do other things like run queries. You can find the [documentation in the wiki](https://github.com/aljoshakoecher/SkillMEx/wiki/API-Documentation).
 
-## Further Reading
+# Further Reading
 We present the concept of manufacturing based on semantically modelled capabilities and skills in various scientific publications which are shown in the following list. If you have any questions about these contributions, contact [Aljosha Köcher on ResearchGate](https://www.researchgate.net/profile/Aljosha-Koecher).
 * A. Köcher, C. Hildebrandt, B. Caesar, J. Bakakeu, J. Peschke, A. Scholz, A. Fay: *Automating the Development of Machine Skills and their Semantic Description.* In: 2020 25th IEEE International Conference on Emerging Technologies and Factory Automation (ETFA): IEEE, S. 1013–1018, 9/8/2020 - 9/11/2020. 
 * A. Köcher, C. Hildebrandt, L.M. Vieira da Silva, A. Fay: *A Formal Capability and Skill Model for Use in Plug and Produce Scenarios.* In: 2020 25th IEEE International Conference on Emerging Technologies and Factory Automation (ETFA): IEEE, S. 1663–1670, 9/8/2020 - 9/11/2020.

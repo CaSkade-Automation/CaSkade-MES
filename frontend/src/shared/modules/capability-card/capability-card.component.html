@@ -1,8 +1,8 @@
-<div class="card border-dark mb-3  border-secondary rounded">
+<div class="card mb-3">
     <div class="card-header">
-        <div class="row">
+        <div class="row align-items-center">
             <div class="col-9">
-                <h5 class="card-title" title="{{capability.iri}}">{{capability.getLocalName()}}</h5>
+                <h5 class="d-inline" title="{{capability.iri}}">{{capability.getLocalName()}}</h5>
             </div>
             <div class="col-3">
                 <div class="float-end">
@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <h5 *ngIf="capability.skills.length > 0">Skills:</h5>
+        <h6 *ngIf="capability.skills.length > 0" class="mt-2">Skills:</h6>
         <ng-container *ngFor="let skill of capability.skills">
             <skill-card [skill]="skill"></skill-card>
         </ng-container>

@@ -1,12 +1,29 @@
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer} from '@nestjs/websockets';
-import { SocketMessageType, StateChangeInfo } from "@shared/models/socket-communication/SocketData";
+import { BaseSocketMessageType, SkillSocketMessageType, StateChangeInfo } from "@shared/models/socket-communication/SocketData";
 import { Websocket } from './Websocket';
-import { Server } from "ws";
 import { Injectable } from '@nestjs/common';
+import { SkillDto } from '@shared/models/skill/Skill';
 
 @Injectable()
 @WebSocketGateway(9091, {path: "/skills"})
 export class SkillSocket extends Websocket implements OnGatewayConnection, OnGatewayDisconnect {
+
+    /**
+     * Sends a message that new skills have been added with the newly added skills as the body
+     * @param newSkills The newly added skills
+     */
+    public sendSkillsAdded(newSkills: SkillDto[]): void {
+        this.sendMessage(BaseSocketMessageType.Added, newSkills);
+    }
+
+
+    /**
+    * Sends a message that a skill has been deleted with all current skills as the body
+    * @param skills All currently registered skills after deleting
+    */
+    public sendSkillDeleted(skills: SkillDto[]): void {
+        this.sendMessage(BaseSocketMessageType.Deleted, skills);
+    }
 
 
     /**
@@ -14,12 +31,12 @@ export class SkillSocket extends Websocket implements OnGatewayConnection, OnGat
      * @param skillIri IRI of the skill
      * @param newStateTypeIri IRI of the updated state's type
      */
-    sendStateChanged(skillIri: string, newStateTypeIri: string): void {
+    public sendStateChanged(skillIri: string, newStateTypeIri: string): void {
         const stateChangedMessage: StateChangeInfo = {
             newStateTypeIri: newStateTypeIri,
             skillIri: skillIri
         };
-        this.sendMessage(SocketMessageType.Changed, stateChangedMessage);
+        this.sendMessage(SkillSocketMessageType.StateChanged, stateChangedMessage);
     }
 
 }

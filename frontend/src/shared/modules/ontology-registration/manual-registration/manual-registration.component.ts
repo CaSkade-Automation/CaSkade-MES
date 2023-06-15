@@ -20,9 +20,13 @@ export class ManualRegistrationComponent {
 
     submit(): void {
         if(this.context=="production-modules"){
-            this.moduleService.addModule(this.ontologyString).pipe(take(1)).subscribe(
-                () => this.ontologyString="Ontology registered"
-            );
+            try {
+                this.moduleService.addModule(this.ontologyString);
+                this.ontologyString="Ontology registered";
+            } catch (error) {
+                this.ontologyString = "Error while registering\n";
+                this.ontologyString += error;
+            }
         }
         if(this.context=="skills") {
             this.skillService.addSkill(this.ontologyString).pipe(take(1)).subscribe(

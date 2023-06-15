@@ -6,11 +6,11 @@ import { PropertyModule } from '../properties/property.module';
 
 @Module({
     imports: [
-        PropertyModule,
-        SkillModule
+    PropertyModule,
+    forwardRef(() => SkillModule)
     ],
     controllers: [CapabilityController],
     providers: [CapabilityService],
     exports: [CapabilityService],
-})
+    })
 export class CapabilityModule {}

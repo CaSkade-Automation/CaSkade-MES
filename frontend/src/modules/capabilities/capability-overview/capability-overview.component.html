@@ -1,11 +1,20 @@
-<div class="row" [formGroup]="capabilityTypeForm">
-    <div class="col-12">
+<div class="row mb-3">
+    <div class="col-sm">
+        <h3>Overview of all capabilities</h3>
+    </div>
+    <div class="col-sm">
+        <button class="btn btn-primary float-end" (click)="reloadCapabilities()"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+    </div>
+</div>
+<div class="row mb-3" [formGroup]="capabilityTypeForm">
+    <div class="col-1">
+        <span class="fw-bold">Filter:</span>
+    </div>
+    <div class="col-10">
         <div class="form-check form-check-inline form-switch">
             <input class="form-check-input" formControlName="showProvided" type="checkbox" id="providedCapabilitiesSwitch">
             <label class="form-check-label" for="providedCapabilitiesSwitch">Show provided capabilities</label>
         </div>
-    </div>
-    <div class="col-12">
         <div class="form-check form-check-inline form-switch">
             <input class="form-check-input" formControlName="showRequired" type="checkbox" id="requiredCapabilitiesSwitch">
             <label class="form-check-label" for="requiredCapabilitiesSwitch">Show required capabilities</label>
@@ -13,7 +22,7 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-6" *ngFor="let capability of capabilities">
+    <div class="col-6" *ngFor="let capability of (capabilities$ | async)">
         <capability-card [capability]="capability"></capability-card>
     </div>
 </div>

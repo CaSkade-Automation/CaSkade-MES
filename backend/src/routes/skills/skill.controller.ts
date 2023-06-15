@@ -6,15 +6,19 @@ import { SkillExecutorFactory } from '../skill-execution/skill-executor-factory.
 
 import { SkillExecutionRequestDto } from '@shared/models/skill/SkillExecutionRequest';
 import { SkillVariableDto } from '@shared/models/skill/SkillVariable';
+import { SkillStateService } from '../skill-states/skill-state.service';
 
 @Controller('/skills')
 export class SkillController {
-    constructor(private skillService: SkillService,
-        private executorFactory: SkillExecutorFactory) {}
+
+    constructor(
+        private skillService: SkillService,
+        private executorFactory: SkillExecutorFactory
+    ) {}
 
     @Post()
     addSkill(@StringBody() newSkill: string): Promise<string> {
-        return this.skillService.addSkill(newSkill);
+        return this.skillService.addSkills(newSkill);
     }
 
     @Get()
@@ -30,14 +34,8 @@ export class SkillController {
     @Put(':skillIri/parameters')
     async setSkillParameters(@Param('skillIri') skillIri: string, @Body() parameters:SkillVariableDto[]): Promise<void> {
         const skillExecutor = await this.executorFactory.getSkillExecutor(skillIri);
-        const executionRequest = new SkillExecutionRequestDto(skillIri, "http://www.hsu-ifa.de/ontologies/capability-model#SetParameters", parameters);
+        const executionRequest = new SkillExecutionRequestDto(skillIri, "http://www.w3id.org/hsu-aut/cask#SetParameters", parameters);
         skillExecutor.setSkillParameters(executionRequest);
-    }
-
-    @Patch(':skillIri/states')
-    updateSkillState(@Param('skillIri') skillIri:string, @Body() change: Record<string, unknown>): Promise<string> {
-        const newState = change['newState'] as string;
-        return this.skillService.updateState(skillIri, newState);
     }
 
     @Delete(':skillIri')

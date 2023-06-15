@@ -8,13 +8,14 @@ import { SkillModule } from '../../skills/skill.module';
 
 @Module({
     imports: [
-        HttpModule,
-        ModuleModule,
-        SkillModule,
-        MulterModule.register({
-            dest: './../uploaded-files/mtp',
-        })],
+    HttpModule,
+    ModuleModule,
+    SkillModule,
+    MulterModule.register({
+        dest: './../uploaded-files/mtp',
+        })
+    ],
     controllers: [MtpMappingController],
     providers: [MtpMappingService],
-})
+    })
 export class MtpMappingModule {}
