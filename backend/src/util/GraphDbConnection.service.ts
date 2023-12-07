@@ -93,11 +93,7 @@ export class GraphDbConnectionService {
                 "msg": dbResponse.data};
 
         } catch (err) {
-            if (err.response.status == 400) {       // On error: If its just a query mistake (graphdb 400) -> return this query mistake
-                throw new Error(`Mistake in your statement: ${err.response.data}`);
-            } else {                                // On error: If something really went wrong: Throw error
-                throw new Error(`Error while executing statement: ${err}`);
-            }
+            throw new Error(`GraphDB Error. This typically means that something is wrong with your RDF data or query. GraphDB error message: ${err.response.data}`);
         }
     }
 
