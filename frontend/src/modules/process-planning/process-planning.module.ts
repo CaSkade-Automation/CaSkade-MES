@@ -6,31 +6,29 @@ import { NgModule } from '@angular/core';
 
 
 // Routing
-import { OrderManagementRouter } from './order-management.routing';
+import { ProcessPlanningRouter } from './process-planning.routing';
 
 // Components
-import { NewOrderComponent } from './new-order/new-order.component';
-import { OrderManagementComponent } from './order-management.component';
+import { NewOrderComponent } from './new-plan/new-plan.component';
+import { ProcessPlanningComponent } from './process-planning.component';
 import { UploadSummaryComponent } from './upload-summary/upload-summary.component';
 import { CheckResultComponent } from './check-result/check-result.component';
-import { OrderQueryService } from './order-query-service';
 
 @NgModule({
     imports: [
-        OrderManagementRouter,
+        ProcessPlanningRouter,
         ReactiveFormsModule,
         FormsModule,
         CommonModule,
         HttpClientModule
     ],
     declarations: [
-        OrderManagementComponent,
+        ProcessPlanningComponent,
         NewOrderComponent,
         UploadSummaryComponent,
         CheckResultComponent,
     ],
     providers: [
-        OrderQueryService
     ]
 })
-export class OrderManagementModule { }
+export class ProcessPlanningModule { }

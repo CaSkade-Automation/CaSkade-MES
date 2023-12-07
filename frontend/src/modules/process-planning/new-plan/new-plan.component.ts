@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder,  FormArray } from '@angular/forms';
-import { OrderQueryService } from '../order-query-service';
+import { FormBuilder,  FormArray, Validators } from '@angular/forms';
+import { CapabilityService } from '../../../shared/services/capability.service';
+import { Observable, filter, map } from 'rxjs';
+import { Capability } from '../../../shared/models/Capability';
 
 
 @Component({
-    selector: 'app-new-order',
-    templateUrl: './new-order.component.html',
+    selector: 'new-plan',
+    templateUrl: './new-plan.component.html',
 })
 export class NewOrderComponent implements OnInit {
 
-    // TODO: Get real properties from the graph db
-    restrictionProperties: string[] = ["Material", "Tolerance"];
+    requiredCapabilities$: Observable<Capability[]>
 
     processes: string[];
 
@@ -18,9 +19,7 @@ export class NewOrderComponent implements OnInit {
     logicInterpretations = ["<", "<=", "=", "=>", ">"];
 
     orderInquiryForm = this.fb.group({
-        name: [''],
-        company : [''],
-        eMail: [''],
+        requiredCapability: this.fb.control("", Validators.required),
         selectedRestrictions: this.fb.array([
             this.fb.group({
                 propertyType: [''],
@@ -31,12 +30,16 @@ export class NewOrderComponent implements OnInit {
     })
 
 
-    constructor(private fb: FormBuilder, private orderQueryService: OrderQueryService) { }
+    constructor(
+        private fb: FormBuilder,
+        private capabilityService: CapabilityService
+    ) {}
 
     ngOnInit() {
-        this.orderQueryService.getAllManufacturingProcesses().subscribe(data => {
-            this.processes = data;
-        });
+        this.requiredCapabilities$ = this.capabilityService.getCapabilities()
+            .pipe(
+                map(caps => caps.filter(cap => cap.capabilityType.iri == "http://www.w3id.org/hsu-aut/cask#RequiredCapability"))
+            );
     }
 
 
@@ -49,9 +52,6 @@ export class NewOrderComponent implements OnInit {
 
     onSubmit(){
 
-
-
-        // const fd = new FormData();
         // this.selectedFiles.forEach(file => {
         //   fd.append('part', file, file.name);
         // });
