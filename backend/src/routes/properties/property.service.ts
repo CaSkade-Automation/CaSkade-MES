@@ -66,7 +66,7 @@ export class PropertyService {
     async getInputPropertiesOfCapability(capabilityIri: string): Promise<Array<PropertyDTO>> {
         const queryString = `
         PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
-        PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+        PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
 
         SELECT ?describedElementIri ?propertyInstanceIri ?expressionGoal ?logicInterpretation ?value ?propertyTypeIri
             ?code ?definition ?unit

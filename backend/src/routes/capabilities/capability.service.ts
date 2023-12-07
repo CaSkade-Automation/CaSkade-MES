@@ -53,7 +53,7 @@ export class CapabilityService {
     async getAllCapabilities(capabilityType = "http://www.w3id.org/hsu-aut/css#Capability"): Promise<Array<CapabilityDto>> {
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
-            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+            PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
             PREFIX VDI2860: <http://www.hsu-ifa.de/ontologies/VDI2860#>
             PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
             PREFIX DIN8580: <http://www.hsu-ifa.de/ontologies/DIN8580#>
@@ -114,7 +114,7 @@ export class CapabilityService {
             const queryResult = await this.graphDbConnection.executeQuery(`
             PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
-            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+            PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
             SELECT ?capability ?input ?output WHERE {
                 ?capability a CSS:Capability.
                 FILTER(?capability = IRI("${capabilityIri}")).
@@ -148,7 +148,7 @@ export class CapabilityService {
     async getCapabilitiesOfModule(moduleIri: string): Promise<CapabilityDto[]> {
         const query = `
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-        PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+        PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
         SELECT ?capability ?input ?output WHERE {
             ?capability a CSS:Capability.
             <${moduleIri}> CSS:providesCapability ?capability.
@@ -236,7 +236,7 @@ export class CapabilityService {
     //     try {
     //         const queryResult = await this.graphDbConnection.executeQuery(`
     //         PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-    //         PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+    //         PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
     //         SELECT ?capability ?input ?output WHERE {
     //             ?capability a Cap:Capability.
     //             ?capability Cap:isExecutableViaSkill <${skillIri}>

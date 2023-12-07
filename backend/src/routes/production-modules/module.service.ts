@@ -116,7 +116,7 @@ export class ModuleService {
             const graphQueryResults = await this.graphDbConnection.executeQuery(`
             PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
+            PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
             PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
             SELECT DISTINCT * WHERE {
                 # Get the graph into which module was registered. Types have to be given as values so that explicit facts are retrieved
