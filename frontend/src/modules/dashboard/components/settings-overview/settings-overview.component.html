@@ -22,6 +22,12 @@
         </div>
 
         <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckCheckedDisabled" formControlName="processPlanningConnected">
+            <label *ngIf="(this.apiConnectionForm.get('processPlanningConnected').value == true)" class="form-check-label" for="flexSwitchCheckCheckedDisabled">Process Planning is connected</label>
+            <label *ngIf="(this.apiConnectionForm.get('processPlanningConnected').value == false)" class="form-check-label warn" for="flexSwitchCheckCheckedDisabled">Process Planning is not connected</label>
+        </div>
+
+        <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckCheckedDisabled" formControlName="processServiceConnected">
             <label *ngIf="(this.apiConnectionForm.get('processServiceConnected').value == true)" class="form-check-label" for="flexSwitchCheckCheckedDisabled">Process Engine is connected</label>
             <label *ngIf="(this.apiConnectionForm.get('processServiceConnected').value == false)" class="form-check-label warn" for="flexSwitchCheckCheckedDisabled">Process Engine is not connected</label>

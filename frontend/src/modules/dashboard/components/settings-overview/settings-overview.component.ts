@@ -8,6 +8,7 @@ import { MtpMappingService } from '../../../../shared/services/mtp-mapping.servi
 import { PlcMappingService } from '../../../../shared/services/plc-mapping.service';
 import { MessageService } from '../../../../shared/services/message.service';
 import {Modal} from "bootstrap";
+import { ProcessPlanningService } from '../../../../shared/services/process-planning.service';
 
 @Component({
     selector: 'settings-overview',
@@ -23,6 +24,7 @@ export class SettingsOverviewComponent implements OnInit {
         processServiceConnected: this.fb.control({value: false, disabled: true}),
         mtpMappingServiceConnected: this.fb.control({value: false, disabled: true}),
         plcMappingServiceConnected: this.fb.control({value: false, disabled: true}),
+        processPlanningConnected: this.fb.control({value: false, disabled: true}),
     });
 
 
@@ -32,7 +34,8 @@ export class SettingsOverviewComponent implements OnInit {
         private processService: ProcessDefinitionService,
         private mtpMappingService: MtpMappingService,
         private plcMappingService: PlcMappingService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private planningService: ProcessPlanningService
     ){
 
     }
@@ -42,6 +45,7 @@ export class SettingsOverviewComponent implements OnInit {
         this.setValue("BPMN Engine", this.processService.isConnected(), this.apiConnectionForm.controls.processServiceConnected);
         this.setValue("MTP Mapping Service", this.mtpMappingService.isConnected(), this.apiConnectionForm.controls.mtpMappingServiceConnected);
         this.setValue("PLC Mapping Service",this.plcMappingService.isConnected(), this.apiConnectionForm.controls.plcMappingServiceConnected);
+        this.setValue("ProcessPlanning",this.planningService.isConnected(), this.apiConnectionForm.controls.processPlanningConnected);
     }
 
     setValue(apiName: string, obs: Observable<HttpResponse<any>>, fC: FormControl): void {
