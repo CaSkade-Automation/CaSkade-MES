@@ -3,6 +3,10 @@ import { FormBuilder,  FormArray, Validators, FormGroup } from '@angular/forms';
 import { CapabilityService } from '../../../shared/services/capability.service';
 import { Observable, filter, map } from 'rxjs';
 import { Capability } from '../../../shared/models/Capability';
+import { ProcessPlanningService } from '../../../shared/services/process-planning.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { state, trigger } from '@angular/animations';
+import { style } from 'd3';
 
 
 @Component({
@@ -12,10 +16,7 @@ import { Capability } from '../../../shared/models/Capability';
 export class NewOrderComponent implements OnInit {
 
     requiredCapabilities$: Observable<Capability[]>
-
-    processes: string[];
-
-    selectedFiles=new Array<File>();
+    showPlanningInProgress = false;
     logicInterpretations = ["<", "<=", "=", "=>", ">"];
 
     orderInquiryForm = this.fb.group({
@@ -29,7 +30,10 @@ export class NewOrderComponent implements OnInit {
 
     constructor(
         private fb: FormBuilder,
-        private capabilityService: CapabilityService
+        private capabilityService: CapabilityService,
+        private planningService: ProcessPlanningService,
+        private router: Router,
+        private route: ActivatedRoute
     ) {}
 
     ngOnInit() {
@@ -108,18 +112,15 @@ export class NewOrderComponent implements OnInit {
     }
 
 
-    onSubmit(){
-        console.log(this.orderInquiryForm.value);
-        console.log(this.orderInquiryForm.get('properties'));
+    onSubmit(): void {
+        this.showPlanningInProgress = true;
+        this.planningService.createProcessPlan().subscribe(plan => {
+            // Stop loading animation and set plan to service so it can be retrieved in the next component
+            this.showPlanningInProgress = false;
+            this.planningService.currentPlan = plan;
+            this.router.navigate(['../check-plan'], {relativeTo: this.route});
+        });
 
-
-        // this.selectedFiles.forEach(file => {
-        //   fd.append('part', file, file.name);
-        // });
-        // this.httpClient.post('/api/order-management/upload', fd)
-        //   .subscribe(res => {
-        //     this.router.navigate(['../upload-summary'], {relativeTo: this.route})
-        // })
     }
 
 }

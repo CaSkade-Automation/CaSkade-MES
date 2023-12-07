@@ -13,6 +13,7 @@ import { NewOrderComponent } from './new-plan/new-plan.component';
 import { ProcessPlanningComponent } from './process-planning.component';
 import { UploadSummaryComponent } from './check-plan/check-plan.component';
 import { BpmnPlanningResultComponent } from './bpmn-result/bpmn-result.component';
+import { LoaderComponent } from './new-plan/loader/loader.component';
 
 @NgModule({
     imports: [
@@ -27,6 +28,7 @@ import { BpmnPlanningResultComponent } from './bpmn-result/bpmn-result.component
         NewOrderComponent,
         UploadSummaryComponent,
         BpmnPlanningResultComponent,
+        LoaderComponent
     ],
     providers: [
     ]

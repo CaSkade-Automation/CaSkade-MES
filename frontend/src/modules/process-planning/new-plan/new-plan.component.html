@@ -109,6 +109,7 @@
         <div class="col-auto">
             <button type="submit" class="btn btn-success float-right">Start Planning</button>
         </div>
+        <loader *ngIf="showPlanningInProgress" [active]='showPlanningInProgress'></loader>
     </div>
 
 </form>
