@@ -3,13 +3,13 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { NewOrderComponent } from './new-plan/new-plan.component';
 import { ProcessPlanningComponent } from './process-planning.component';
-import { UploadSummaryComponent } from './upload-summary/upload-summary.component';
-import { CheckResultComponent } from './check-result/check-result.component';
+import { UploadSummaryComponent } from './check-plan/check-plan.component';
+import { BpmnPlanningResultComponent } from './bpmn-result/bpmn-result.component';
 
 const routes: Routes = [
     {
         path: '',
-        redirectTo: 'new-order',
+        redirectTo: 'new-plan',
         pathMatch: 'full',
     },
     {
@@ -20,22 +20,22 @@ const routes: Routes = [
         },
         children: [
             {
-                path: 'new-order',
+                path: 'new-plan',
                 component: NewOrderComponent,
                 data: {
                     title: 'New Order'
                 }
             },
             {
-                path: 'upload-summary',
+                path: 'check-plan',
                 component: UploadSummaryComponent,
                 data: {
                     title: 'Order Summary'
                 }
             },
             {
-                path: 'check-result',
-                component: CheckResultComponent,
+                path: 'bpmn-result',
+                component: BpmnPlanningResultComponent,
                 data: {
                     title: 'Check-Result'
                 }

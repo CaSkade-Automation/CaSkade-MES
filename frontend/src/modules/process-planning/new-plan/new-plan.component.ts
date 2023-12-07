@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder,  FormArray, Validators } from '@angular/forms';
+import { FormBuilder,  FormArray, Validators, FormGroup } from '@angular/forms';
 import { CapabilityService } from '../../../shared/services/capability.service';
 import { Observable, filter, map } from 'rxjs';
 import { Capability } from '../../../shared/models/Capability';
@@ -19,14 +19,11 @@ export class NewOrderComponent implements OnInit {
     logicInterpretations = ["<", "<=", "=", "=>", ">"];
 
     orderInquiryForm = this.fb.group({
-        requiredCapability: this.fb.control("", Validators.required),
-        selectedRestrictions: this.fb.array([
-            this.fb.group({
-                propertyType: [''],
-                logicInterpretation: [''],
-                value: ['']
-            })
-        ])
+        requiredCapability: this.fb.control(null, Validators.required),
+        properties: this.fb.group({}),
+        propertyConstraints: this.fb.array([]),
+        sequenceConstraints: this.fb.array([]),
+        partialSolutionConstraints: this.fb.array([])
     })
 
 
@@ -40,17 +37,81 @@ export class NewOrderComponent implements OnInit {
             .pipe(
                 map(caps => caps.filter(cap => cap.capabilityType.iri == "http://www.w3id.org/hsu-aut/cask#RequiredCapability"))
             );
+
+        // If the required capability is selected / changed, the form needs to add form controls for the properties of the selected capability
+        this.orderInquiryForm.get('requiredCapability').valueChanges.subscribe(change => {
+            const propertyFormGroup = this.orderInquiryForm.get('properties') as FormGroup;
+            const requiredCapabilityInputs = this.requiredCapability.inputs;
+            const requiredCapabilityOutputs = this.requiredCapability.outputs;
+            requiredCapabilityInputs.forEach(input => {
+                propertyFormGroup.addControl(input.getLocalName(), this.fb.control(""));
+            });
+            requiredCapabilityOutputs.forEach(output => {
+                propertyFormGroup.addControl(output.getLocalName(), this.fb.control(""));
+            });
+        });
     }
 
-
-    onFilesSelected(event) {
-        // add the selected files to the list of files to upload
-        for (let i = 0; i < event.target.files.length; i++) {
-            this.selectedFiles.push(event.target.files[i]);
-        }
+    get requiredCapability(): Capability {
+        return this.orderInquiryForm.get('requiredCapability').value;
     }
+
+    get propertyConstraints(): FormArray {
+        return this.orderInquiryForm.get('propertyConstraints') as FormArray;
+    }
+
+    addNewPropertyConstraint(): void {
+        const newPropertyConstraint = this.fb.group({
+            propertyName: this.fb.control(""),
+            relation: this.fb.control(""),
+            value: this.fb.control(""),
+        });
+        this.propertyConstraints.push(newPropertyConstraint);
+    }
+
+    deletePropertyConstraint(index: number): void {
+        this.propertyConstraints.removeAt(index);
+    }
+
+    get sequenceConstraints(): FormArray {
+        return this.orderInquiryForm.get('sequenceConstraints') as FormArray;
+    }
+
+    addNewSequenceConstraint(): void {
+        const newSequenceConstraint = this.fb.group({
+            capabilityA: this.fb.control(""),
+            relation: this.fb.control(""),
+            capabilityB: this.fb.control(""),
+        });
+        this.sequenceConstraints.push(newSequenceConstraint);
+    }
+
+    deleteSequenceConstraint(index: number): void {
+        this.sequenceConstraints.removeAt(index);
+    }
+
+    get partialSolutions(): FormArray {
+        return this.orderInquiryForm.get('partialSolutionConstraints') as FormArray;
+    }
+
+    addNewPartialSolution(): void {
+        const newPartialSolutionConstraint = this.fb.group({
+            capability: this.fb.control(""),
+            step: this.fb.control(""),
+            isApplied: this.fb.control(false),
+        });
+        this.partialSolutions.push(newPartialSolutionConstraint);
+    }
+
+    deletePartialSolution(index: number): void {
+        this.partialSolutions.removeAt(index);
+    }
+
 
     onSubmit(){
+        console.log(this.orderInquiryForm.value);
+        console.log(this.orderInquiryForm.get('properties'));
+
 
         // this.selectedFiles.forEach(file => {
         //   fd.append('part', file, file.name);
@@ -59,29 +120,6 @@ export class NewOrderComponent implements OnInit {
         //   .subscribe(res => {
         //     this.router.navigate(['../upload-summary'], {relativeTo: this.route})
         // })
-    }
-
-    deleteFile(index: number) {
-        this.selectedFiles.splice(index, 1);
-    }
-
-
-    get selectedRestrictions() {
-        return this.orderInquiryForm.get('selectedRestrictions') as FormArray;
-    }
-
-    addRestriction(){
-        this.selectedRestrictions.push(
-            this.fb.group({
-                propertyType: [''],
-                logicInterpretation: [''],
-                value: ['']
-            })
-        );
-    }
-
-    removeRestriction(i: number) {
-        this.selectedRestrictions.removeAt(i);
     }
 
 }

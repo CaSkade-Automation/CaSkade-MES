@@ -26,7 +26,7 @@ export class CapabilityOverviewComponent implements OnInit {
 
     ngOnInit(): void {
         this.capabilities$ = this.capabilityService.getCapabilities();
-
+        this.capabilities$.subscribe(caps => console.log(caps));
         // Filter logic
         this.capabilityTypeForm.valueChanges.subscribe(val => {
             const {showProvided, showRequired} = val;

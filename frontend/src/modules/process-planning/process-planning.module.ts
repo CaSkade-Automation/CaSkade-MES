@@ -11,8 +11,8 @@ import { ProcessPlanningRouter } from './process-planning.routing';
 // Components
 import { NewOrderComponent } from './new-plan/new-plan.component';
 import { ProcessPlanningComponent } from './process-planning.component';
-import { UploadSummaryComponent } from './upload-summary/upload-summary.component';
-import { CheckResultComponent } from './check-result/check-result.component';
+import { UploadSummaryComponent } from './check-plan/check-plan.component';
+import { BpmnPlanningResultComponent } from './bpmn-result/bpmn-result.component';
 
 @NgModule({
     imports: [
@@ -26,7 +26,7 @@ import { CheckResultComponent } from './check-result/check-result.component';
         ProcessPlanningComponent,
         NewOrderComponent,
         UploadSummaryComponent,
-        CheckResultComponent,
+        BpmnPlanningResultComponent,
     ],
     providers: [
     ]
