@@ -10,16 +10,15 @@ import { AfterContentInit, Component, ElementRef, Input, OnDestroy, Output, View
 import * as BpmnModeler from 'bpmn-js/dist/bpmn-modeler.production.min.js';
 import * as camundaExtensionModule from 'camunda-bpmn-moddle/lib';
 import * as camundaModdleDescriptor from  'camunda-bpmn-moddle/resources/camunda.json';
-import { BpmnDataModel } from './BpmnDataModel';
 import { emptyXml } from './emptyDiagram';
-import { BehaviorSubject, Observable, from, fromEvent, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'bpmn-modeler',
     templateUrl: './bpmn-modeler.component.html',
     styleUrls: ['./bpmn-modeler.component.scss']
 })
-export class BpmnDiagramComponent implements AfterContentInit, OnDestroy {
+export class BpmnModelerComponent implements AfterContentInit, OnDestroy {
 
     public bpmnModeler: BpmnModeler;       // bpmn-js modeler that is passed to the properties panel
     public clickedElement$ = new BehaviorSubject<any>({});            // Clicked BPMN element that is passed to the properties panel

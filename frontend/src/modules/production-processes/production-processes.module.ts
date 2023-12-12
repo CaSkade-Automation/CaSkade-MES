@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProductionProcessesComponent } from './production-processes.component';
 import { SkillProcessesRoutingModule } from './production-processes.routing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BpmnDiagramComponent } from './bpmn-diagram/bpmn-modeler.component';
+import { BpmnModelerComponent } from './bpmn-diagram/bpmn-modeler.component';
 import { PropertiesPanelComponent } from './bpmn-diagram/properties-panel/properties-panel.component';
 import { BpmnViewerModule } from '../../shared/modules/bpmn-viewer/bpmn-viewer.module';
 import { BaseTaskFormComponent } from './bpmn-diagram/properties-panel/properties-subcomponents/base-task-form/base-task-form.component';
@@ -34,7 +34,7 @@ import { CapabilityTaskFormComponent } from './bpmn-diagram/properties-panel/pro
     ],
     declarations: [
         ProductionProcessesComponent,
-        BpmnDiagramComponent,
+        BpmnModelerComponent,
         PropertiesPanelComponent,
         BaseTaskFormComponent,
         CapabilityTaskFormComponent,
