@@ -11,7 +11,7 @@
         </div>
         <div class="card-body">
             <div>
-                <form (ngSubmit)="onSubmit()" [formGroup]="form">
+                <form [formGroup]="form">
                     <base-task-form [bpmnElement$]="this.bpmnElement$"></base-task-form>
                     <div [ngSwitch]="(this.bpmnElement$ | async).type">
                         <service-task-form *ngSwitchCase="'bpmn:ServiceTask'" [bpmnElement$]="this.bpmnElement$"></service-task-form>

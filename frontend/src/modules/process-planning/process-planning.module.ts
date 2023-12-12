@@ -14,6 +14,7 @@ import { ProcessPlanningComponent } from './process-planning.component';
 import { UploadSummaryComponent } from './check-plan/check-plan.component';
 import { BpmnPlanningResultComponent } from './bpmn-result/bpmn-result.component';
 import { LoaderComponent } from './new-plan/loader/loader.component';
+import { BpmnModelerModule } from '../../shared/modules/bpmn-modeler/bpmn-modeler.module';
 
 @NgModule({
     imports: [
@@ -21,7 +22,8 @@ import { LoaderComponent } from './new-plan/loader/loader.component';
         ReactiveFormsModule,
         FormsModule,
         CommonModule,
-        HttpClientModule
+        HttpClientModule,
+        BpmnModelerModule
     ],
     declarations: [
         ProcessPlanningComponent,

@@ -4,7 +4,7 @@ import { ProcessDefinition } from '@shared/models/processDefinition/ProcessDefin
 import { DeploymentRequest, DeploymentService } from '../../shared/services/bpmn/deployment.service';
 import { ProcessDefinitionService } from '../../shared/services/bpmn/process-definition.service';
 import { MessageService } from '../../shared/services/message.service';
-import { BpmnModelerComponent } from './bpmn-diagram/bpmn-modeler.component';
+import { BpmnModelerComponent } from '../../shared/modules/bpmn-modeler/bpmn-modeler.component';
 
 @Component({
     selector: 'app-skill-processes',

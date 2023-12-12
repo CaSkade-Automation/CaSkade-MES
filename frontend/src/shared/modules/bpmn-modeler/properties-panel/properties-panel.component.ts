@@ -81,13 +81,6 @@ export class PropertiesPanelComponent implements OnInit {
     }
 
 
-    onSubmit() {
-        console.log("form value");
-        console.log(this.form.value);
-        console.log("the form");
-        console.log(this.form);
-    }
-
     /**
      * Depending on the current state, hides or shows the property panel
      */

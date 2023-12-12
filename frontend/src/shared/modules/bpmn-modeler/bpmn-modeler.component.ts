@@ -88,6 +88,8 @@ export class BpmnModelerComponent implements AfterContentInit, OnDestroy {
      * @param event Click event containing the clicked BPMN element
      */
     onDiagramElementClicked(event: any): void {
+        console.log("clicked");
+
         this.clickedElement$.next(event.element);
     }
 
