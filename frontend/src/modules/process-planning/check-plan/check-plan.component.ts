@@ -23,7 +23,7 @@ export class UploadSummaryComponent implements OnInit {
     }
 
     nextTab(): void {
-        this.router.navigate(['../producibility-check'], {relativeTo: this.route});
+        this.router.navigate(['../bpmn-result'], {relativeTo: this.route});
     }
 
 
