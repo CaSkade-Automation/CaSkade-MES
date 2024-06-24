@@ -10,14 +10,21 @@
         </div>
 
         <div class="form-check form-check-inline">
-            <label class="form-check-label " for="mtp" style="padding-left: 10px;">
+            <label class="form-check-label ps-3 " for="naturalLanguage">
+                <input class="form-check-input" type="radio" name="options" id="naturalLanguage" [value]="'naturalLanguage'" [(ngModel)]="ontologyType">
+                From natural language
+            </label>
+        </div>
+
+        <div class="form-check form-check-inline">
+            <label class="form-check-label ps-3" for="mtp">
                 <input class="form-check-input" type="radio" name="options" id="mtp" [value]="'mtp'" [(ngModel)]="ontologyType">
                 Mapping from MTP
             </label>
         </div>
 
         <div class="form-check form-check-inline">
-            <label class="form-check-label " for="plc" style="padding-left: 10px;">
+            <label class="form-check-label ps-3" for="plc">
                 <input class="form-check-input" type="radio" name="options" id="plc" [value]="'plc'" [(ngModel)]="ontologyType">
                 Mapping from PLC code
             </label>
@@ -26,6 +33,7 @@
     </div>
 </div>
 
-<manual-registration *ngIf="ontologyType=='manualOntology'" [context]="context"></manual-registration>
+<llm-generation *ngIf="ontologyType=='naturalLanguage'" [context]="context"></llm-generation>
 <mtp-mapping *ngIf="ontologyType=='mtp'" [context]="context"></mtp-mapping>
 <plc-mapping *ngIf="ontologyType=='plc'" [context]="context"></plc-mapping>
+<manual-registration *ngIf="ontologyType=='manualOntology'" [context]="context"></manual-registration>
