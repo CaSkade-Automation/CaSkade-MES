@@ -1,5 +1,5 @@
-import { PropertyDTO } from "@shared/models/properties/PropertyDTO";
-import { Property } from "./Property";
+import { PropertyInstanceDto } from "@shared/models/properties/PropertyDTO";
+import { Property, PropertyInstance } from "./Property";
 
 /**
  * This class describes a capability which is modelled in a capability task to be executed later with a skill
@@ -8,13 +8,13 @@ export class BpmnTaskCapability{
     public capabilityIri
     public commandTypeIri: string;
     public selfResetting=false;
-    public properties = new Array<Property>();
+    public propertyInstances = new Array<PropertyInstance>();
 
     constructor(dto: BpmnTaskCapabilityDTO) {
         this.capabilityIri = dto.capabilityIri;
         this.commandTypeIri = dto.commandTypeIri;
         this.selfResetting = dto.selfResetting;
-        this.properties = dto.propertyDtos.map(propDto => new Property(propDto));
+        this.propertyInstances = dto.propertyInstanceDtos.map(propDto => new PropertyInstance(propDto));
     }
 }
 
@@ -24,7 +24,7 @@ export class BpmnTaskCapabilityDTO{
         public capabilityIri: string,
         public commandTypeIri: string,
         public selfResetting: boolean=false,
-        public propertyDtos: PropertyDTO[] = []) {
+        public propertyInstanceDtos: PropertyInstanceDto[] = []) {
     }
 }
 

@@ -71,8 +71,8 @@ export class BpmnModelerComponent implements AfterContentInit, OnDestroy {
     /**
      * Reset the modeler back to the initial process only containing a start event
      */
-    clear(): void {
-        this.bpmnModeler.importXML(emptyXml);
+    clear(): Promise<void> {
+        return this.bpmnModeler.importXML(emptyXml);
     }
 
     /**

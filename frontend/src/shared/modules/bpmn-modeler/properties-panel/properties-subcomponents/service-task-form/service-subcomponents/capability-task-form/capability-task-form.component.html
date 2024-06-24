@@ -3,9 +3,9 @@
     <div class="form-group">
         <label class="col-sm-6 col-form-label">Capability:<i class="far fa-question-circle"
                 title="IRI of the capability that should be executed in this task"></i></label>
-        <select class="form-control form-control-sm" formControlName="capabilityIri">
+        <select class="form-select form-select-sm" formControlName="capabilityIri">
             <option value="{{null}}">...</option>
-            <option *ngFor="let capability of this.capabilities" [ngValue]="capability.iri">{{capability.iri}}</option>
+            <option *ngFor="let capability of (this.capabilities$ | async)" [ngValue]="capability.iri">{{capability.iri}}</option>
         </select>
     </div>
 
@@ -18,7 +18,7 @@
         </select>
     </div>
 
-    <ng-container [formGroup]="fgProperties" *ngFor="let property of this.getActualValueInputProperties()">
+    <ng-container [formGroup]="fgProperties" *ngFor="let property of this.getUnboundProperty()">
         <div class="form-group">
             <label class="col-form-label">{{property.getLocalName()}}<i class="far fa-question-circle"
                     title="Parameter {{property.getLocalName()}}"></i></label>
@@ -33,5 +33,5 @@
     </div>
 
     <strong>List of Outputs:</strong>
-    <p *ngFor="let output of this.selectedCapability?.outputProperties">{{output.getLocalName()}} - {{output.type}}</p>
+    <p *ngFor="let output of (this.selectedCapability$ | async)?.outputProperties">{{output.getLocalName()}} - {{output.type}}</p>
 </form>

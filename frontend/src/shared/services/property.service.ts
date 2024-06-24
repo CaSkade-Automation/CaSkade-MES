@@ -41,13 +41,27 @@ export class PropertyService {
         this.loadProperties().subscribe(properties => {
             const initialProperties = properties;
             // when a capability is added, we get new properties
-            this.onCapabilityAdded$.pipe(startWith(initialProperties)).subscribe(addedCapabilities => {
-                const newProperties = (addedCapabilities as Capability[]).reduce((acc, capability) => {
+            this.onCapabilityAdded$.pipe(
+                map((addedCapabilities: Capability[]) => addedCapabilities.reduce((acc, capability) => {
                     return acc.concat(capability.inputProperties).concat(capability.outputProperties);
-                }, []);
-                const allProperties = [...this.propertySubject$.value, ...newProperties];
-                this.propertySubject$.next(allProperties);
-            });
+                }, [])),
+                startWith(initialProperties))
+                .subscribe(addedProperties => {
+                    console.log("initial props");
+                    console.log(initialProperties);
+                    console.log("prop subject");
+                    console.log(this.propertySubject$.value);
+
+                    console.log({addedProperties});
+
+
+                    const allProperties = [...this.propertySubject$.value, ...addedProperties];
+                    console.log("all props");
+                    console.log(allProperties);
+
+
+                    this.propertySubject$.next(allProperties);
+                });
         });
 
         // on delete, we get the current modules, so update

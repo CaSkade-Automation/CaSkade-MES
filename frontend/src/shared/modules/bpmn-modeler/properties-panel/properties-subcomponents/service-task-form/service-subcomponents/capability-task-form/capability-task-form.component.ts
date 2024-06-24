@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Isa88CommandTypeIri } from '@shared/models/state-machine/ISA88/ISA88CommandTypeIri';
-import { combineLatest, debounceTime, firstValueFrom, Observable, Subscription, tap } from 'rxjs';
-import { ExpressionGoal } from '@shared/models/properties/PropertyDTO';
+import { BehaviorSubject, combineLatest, debounceTime, firstValueFrom, Observable, Subscription, tap, withLatestFrom } from 'rxjs';
+import { ExpressionGoal, PropertyDTO, PropertyInstanceDto } from '@shared/models/properties/PropertyDTO';
 import { BpmnTaskCapability, BpmnTaskCapabilityDTO } from '../../../../../../../../shared/models/BpmnTaskCapability';
 import { Capability } from '../../../../../../../../shared/models/Capability';
-import { Property } from '../../../../../../../../shared/models/Property';
+import { Property, PropertyInstance } from '../../../../../../../../shared/models/Property';
 import { CapabilityService } from '../../../../../../../../shared/services/capability.service';
 import { BpmnElement, BpmnProperty } from '../../../../../BpmnDataModel';
 import { BpmnExtensionElementService } from '../../../../bpmn-extension-element.service';
@@ -20,8 +20,8 @@ export class CapabilityTaskFormComponent implements OnInit {
     @Input() bpmnElement$: Observable<BpmnElement>;
 
     capabilities$: Observable<Capability[]>;
-    selectedCapability: Capability;
-    existingProperties: Property[];
+    selectedCapability$ = new BehaviorSubject<Capability>(null);                   // The currently selected capability (for form generation)
+    existingPropertyInstances: PropertyInstance[];
 
     // Definition of the FormGroup
     fg = new FormGroup({
@@ -43,6 +43,16 @@ export class CapabilityTaskFormComponent implements OnInit {
 
     ngOnInit() {
         this.capabilities$ = this.capabilityService.getCapabilities();
+        this.handleCapabilitySelection();
+    }
+
+    handleCapabilitySelection(): void {
+        this.fg.controls.capabilityIri.valueChanges.pipe(debounceTime(100), withLatestFrom(this.capabilities$)).subscribe(([capabilityIri, capabilities]) => {
+            const selectedCapability = capabilities.find(cap =>cap.iri === capabilityIri);
+            this.selectedCapability$.next(selectedCapability);
+            console.log(this.selectedCapability$.value);
+
+        });
     }
 
     /**
@@ -50,6 +60,7 @@ export class CapabilityTaskFormComponent implements OnInit {
      * @param skillIri IRI of the skill that parameters will be setup for
      */
     updateForm(): void {
+        console.log("update");
 
         combineLatest([this.bpmnElement$, this.capabilities$]).subscribe(([bpmnElement, capabilities]) => {
 
@@ -64,27 +75,29 @@ export class CapabilityTaskFormComponent implements OnInit {
                 const serializedTaskCapability = JSON.parse(inputs.find(input => input.name == "capability").value as string) as BpmnTaskCapabilityDTO;
                 const taskCapability = new BpmnTaskCapability(serializedTaskCapability);
 
+                console.log(taskCapability);
 
                 // try to set the values
-                this.selectedCapability = capabilities.find(cap => cap.iri === taskCapability.capabilityIri);
+                const matchingCapability = capabilities.find(cap => cap.iri === taskCapability.capabilityIri);
+                this.selectedCapability$.next(matchingCapability);
                 commandTypeIri = taskCapability.commandTypeIri;
-                this.existingProperties = taskCapability.properties;
+                this.existingPropertyInstances = taskCapability.propertyInstances;
                 selfResetting = taskCapability.selfResetting;
 
             } catch (error) {
             // if no capability is stored in the current task
-                this.selectedCapability = capabilities[0];
+                this.selectedCapability$.next(capabilities[0]);
                 commandTypeIri = Isa88CommandTypeIri.Start;
                 selfResetting = true;
             }
 
-            this.fg.controls.capabilityIri.setValue(this.selectedCapability.iri);
+            this.fg.controls.capabilityIri.setValue(this.selectedCapability$.value.iri);
             this.fg.controls.commandTypeIri.setValue(Isa88CommandTypeIri[commandTypeIri]);
             this.fg.controls.selfResetting.setValue(selfResetting);
 
             // Make sure parameter form matches skill and that outputs of skill are added as task outputs
-            this.setupPropertyForm(this.selectedCapability);
-            this.setOutputs(bpmnElement, this.selectedCapability);
+            this.setupPropertyForm(this.selectedCapability$.value);
+            this.setOutputs(bpmnElement, this.selectedCapability$.value);
             this.syncFormValuesAndProcess();
         });
     }
@@ -92,11 +105,11 @@ export class CapabilityTaskFormComponent implements OnInit {
 
     setupPropertyForm(newCapability: Capability): void {
         // Filter only actual values as these are the property instances that will be set. Requirements are just used for constraints
-        const actualValueInputs = this.getActualValueInputProperties();
+        const actualValueInputs = this.getUnboundProperty();
         actualValueInputs.forEach(prop => {
             let existingValue = "";
             try {
-                existingValue = this.existingProperties.find(exProp => exProp.getLocalName() == prop.getLocalName()).value;
+                existingValue = this.existingPropertyInstances.find(exProp => exProp.getLocalName() == prop.getLocalName()).value;
                 const formControl = this.fgProperties as FormGroup;
                 const form = formControl.get(prop.getLocalName());
                 this.fgProperties.controls[prop.getLocalName()].setValue(existingValue);
@@ -123,11 +136,17 @@ export class CapabilityTaskFormComponent implements OnInit {
     private syncFormValuesAndProcess(): Subscription {
         return this.fg.valueChanges.pipe(debounceTime(100)).subscribe(data => {
             // Fill in parameter values and create an executionRequest
-            const propertiesWithValues = this.getActualValueInputProperties().map(prop => {
-                prop.value = data.properties[prop.getLocalName()];
-                return prop.toDto();
+            const propertyInstances = new Array<PropertyInstanceDto>();
+            this.getUnboundProperty().forEach(prop => {
+                const propInstance: PropertyInstanceDto = {
+                    logicInterpretation: "=",
+                    expressionGoal: ExpressionGoal.None,
+                    propertyInstanceIri: `${prop.iri}_processValue`,
+                    value: data.properties[prop.getLocalName()]
+                };
+                propertyInstances.push(propInstance);
             });
-            const taskCapabilityDto = new BpmnTaskCapabilityDTO(data.capabilityIri, data.commandTypeIri, data.selfResetting, propertiesWithValues);
+            const taskCapabilityDto = new BpmnTaskCapabilityDTO(data.capabilityIri, data.commandTypeIri, data.selfResetting, propertyInstances);
 
             this.extensionElementService.addCamundaInputParameter(new BpmnProperty("capability", taskCapabilityDto));
         });
@@ -143,12 +162,25 @@ export class CapabilityTaskFormComponent implements OnInit {
 
 
     /**
-     * Filter input properties for expression goal "Actual_Value". Only these properties need to be filled.
-     * Requirements and Assurances are used for constraints only
-     * @returns An array of input properties with expression goal "Actual_Value"
+     * Filter input properties for those that have an unbound instance description, i.e. one that allows to set values
+     * Requirements and Assurances are used for constraints only and are thus not considered here.
+     * @returns An array of input properties that allow for setting values
      */
-    getActualValueInputProperties(): Array<Property>{
-        return this.selectedCapability?.inputProperties.filter(inputProp => inputProp.expressionGoal == ExpressionGoal.Actual_Value);
+    getUnboundProperty(): Array<Property>{
+        const selectedCapability = this.selectedCapability$.value;
+        if(!selectedCapability) return [];
+
+
+        console.log("sel cap");
+        console.log(selectedCapability);
+        console.log(selectedCapability.inputProperties);
+
+
+
+        const properties = selectedCapability?.inputProperties.filter(inputProp => inputProp.instances.some(instance => (!instance.expressionGoal) ));
+        console.log(properties);
+
+        return properties;
     }
 
 }
