@@ -56,7 +56,7 @@ export class MtpMappingService {
             const mappedTurtleDocument = res.data as string;
             const skills = mappedTurtleDocument.match(/<.*> a .*Skill(>|;)/gi);
 
-            const contentType = "application/text-turtle; charset=UTF-8";   // Currently, MTP mapping returns result in turtle syntax
+            const contentType = "text/turtle; charset=UTF-8";   // Currently, MTP mapping returns result in turtle syntax
             this.moduleService.addModule(res.data, contentType);
             skills.forEach(skill => {
                 this.skillService.addSkills(skill + ".");
