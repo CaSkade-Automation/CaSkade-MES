@@ -305,7 +305,6 @@ export class GraphVisualizationComponent implements AfterViewInit, OnInit {
 
     private positionLinks(l: D3Link) {
         const {offsetX, offsetY} = this.getLinkOffsets(l);
-
         return "M" + l.source.x + "," + l.source.y +
                 "S" + offsetX + "," + offsetY +
                 " " + l.target.x + "," + l.target.y;
@@ -380,11 +379,10 @@ export class GraphVisualizationComponent implements AfterViewInit, OnInit {
         this.queryService.getNeighbors(d.id).subscribe(neighborData => {
             const numberOfNeighbors = neighborData.length;
             const distance = 15;
-
             // Create nodes and links for data and position symmetrically
             neighborData.forEach(nD => {
                 let i = 0;
-                const angle = (360/numberOfNeighbors * i) * (Math.PI/180);
+                const angle = (360/numberOfNeighbors) * i * (Math.PI/180);
                 const source = new RdfElement(nD.source);
                 const relation = new RdfElement(nD.relation);
                 const target = new RdfElement(nD.target);
