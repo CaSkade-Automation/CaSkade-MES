@@ -33,7 +33,7 @@ export class PropertyController {
      */
     @Get('')
     getSkillsOfCapability(@Query('capabilityIri') capabilityIri: string): Promise<PropertyDTO[]>{
-        return this.propertyService.getInputPropertiesOfCapability(capabilityIri);
+        return this.propertyService.getPropertiesOfCapability(capabilityIri);
     }
 
 }

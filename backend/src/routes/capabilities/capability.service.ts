@@ -7,7 +7,7 @@ import * as crypto from 'crypto';
 import {SparqlResultConverter} from "sparql-result-converter";
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
 import { BaseSocketMessageType } from '@shared/models/socket-communication/SocketData';
-import { PropertyService } from '../properties/property.service';
+import { PropertyService, VDI3682RelationType } from '../properties/property.service';
 import { SkillService } from '../skills/skill.service';
 
 const converter = new SparqlResultConverter();
@@ -90,10 +90,19 @@ export class CapabilityService {
             }
 
             for (const cap of capabilities) {
-                const capInputProperties = await this.propertyService.getInputPropertiesOfCapability(cap.iri);
-                cap.inputs.map(input => {
-                    const props = capInputProperties.filter(inputProp => inputProp.describedElementIri == input.iri);
+                const capInputProperties = await this.propertyService.getPropertiesOfCapability(cap.iri, VDI3682RelationType['VDI3682:hasInput']);
+                const capOutputProperties = await this.propertyService.getPropertiesOfCapability(cap.iri, VDI3682RelationType['VDI3682:hasOutput']);
+
+                if (capInputProperties.length == 0) continue;
+                cap.inputs.forEach(input => {
+                    const props = capInputProperties.filter(inputProp => inputProp.parentElement == input.iri);
                     input.propertyDtos = props;
+                });
+
+                if (capOutputProperties.length == 0) continue;
+                cap.outputs.forEach(output=> {
+                    const props = capOutputProperties.filter(outputProp => outputProp.parentElement == output.iri);
+                    output.propertyDtos = props;
                 });
             }
 
