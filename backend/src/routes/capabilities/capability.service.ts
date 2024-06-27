@@ -60,7 +60,7 @@ export class CapabilityService {
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             SELECT ?capability ?input ?inputType ?output ?capabilityType ?processType WHERE {
                 ?capability a CSS:Capability, ?capabilityType.
-                Values ?capabilityType {CaSk:ProvidedCapability CaSk:RequiredCapability}
+                Values ?capabilityType {<${capabilityType}>}  # Restrict values to be either all capabilities or only required / provided
                 OPTIONAL{
                     ?capability VDI3682:hasInput ?input.
                     ?input a ?inputType.
@@ -77,10 +77,8 @@ export class CapabilityService {
                     VALUES ?processParentType {DIN8580:Fertigungsverfahren VDI2860:Handhaben}
                     FILTER (NOT EXISTS{
                             ?someSubtype rdfs:subClassOf ?processType.
-                        })
+                    })
                 }
-                # Filter only relevant if specific type given
-                FILTER(EXISTS{?capability a <${capabilityType}>})
             }`);
             const capabilities = converter
                 .convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
