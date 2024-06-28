@@ -16,6 +16,7 @@ import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './configuration/config';
 import { ProcessPlanningModule } from './routes/process-planning/process-planning.module';
+import { LlmGenerationModule } from './routes/mappings/llm-generation/llm-generation.module';
 
 
 @Module({
@@ -39,6 +40,7 @@ import { ProcessPlanningModule } from './routes/process-planning/process-plannin
     SkillExecutionModule,
     MtpMappingModule,
     PlcMappingModule,
+    LlmGenerationModule,
     OpcUaModule
     ],
     controllers: [AppController],
