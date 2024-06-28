@@ -119,7 +119,8 @@ export class PropertyService {
             }
         }`;
         const rawResult = await this.graphDbConnection.executeQuery(queryString);
-        const result = converter.convertToDefinition(rawResult.results.bindings, propertyMapping).getFirstRootElement() as Array<PropertyDTO>;
+        const result = converter.convertToDefinition(rawResult.results.bindings, propertyMapping)
+            .getFirstRootElement() as Array<PropertyDTO>;
         return result;
     }
 

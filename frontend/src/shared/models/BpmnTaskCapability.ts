@@ -1,5 +1,5 @@
 import { PropertyInstanceDto } from "@shared/models/properties/PropertyDTO";
-import { Property, PropertyInstance } from "./Property";
+import { PropertyInstance } from "./Property";
 
 /**
  * This class describes a capability which is modelled in a capability task to be executed later with a skill
