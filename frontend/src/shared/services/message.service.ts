@@ -16,8 +16,8 @@ export class ArchivedMessage {
 })
 export class MessageService {
 
+    readonly displayTime = 4000;    // message display time in milliseconds
     messageDisplay= new Array<Message>()
-
     observer: Observer<Message[]>;
 
     constructor(
@@ -161,7 +161,7 @@ export class MessageService {
         setTimeout(() => {
             this.messageDisplay.splice(0,1);
             this.observer.next(this.messageDisplay);
-        },2000);
+        }, this.displayTime);
     }
 
     private addToArchive(message: Message): void {
