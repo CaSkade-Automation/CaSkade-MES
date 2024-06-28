@@ -1,7 +1,7 @@
-<form style="padding-top: 20px;" formGroup="form">
+<form style="padding-top: 20px;" [formGroup]="form">
     <label for="llmModel" class="form-label">LLM model name:</label>
     <select class="form-select" formControlName="model" id="llmModel">
-        <option *ngFor="let model of models" value="">{{model}}</option>
+        <option *ngFor="let model of models" [value]="model">{{model}}</option>
     </select>
 
     <label for="taskDescription">Task description:</label>
