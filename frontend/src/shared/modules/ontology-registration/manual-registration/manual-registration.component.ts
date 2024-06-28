@@ -3,6 +3,7 @@ import { take } from 'rxjs/operators';
 import { CapabilityService } from 'src/shared/services/capability.service';
 import { ModuleService } from 'src/shared/services/module.service';
 import { SkillService } from 'src/shared/services/skill.service';
+import { MessageService } from '../../../services/message.service';
 
 @Component({
     selector: 'manual-registration',
@@ -16,28 +17,33 @@ export class ManualRegistrationComponent {
     constructor(
         private moduleService: ModuleService,
         private skillService: SkillService,
-        private capabilityService: CapabilityService) { }
+        private capabilityService: CapabilityService,
+        private messageService: MessageService
+    ) { }
 
     submit(): void {
         if(this.context=="production-modules"){
             try {
                 this.moduleService.addModule(this.ontologyString);
-                this.ontologyString="Ontology registered";
+                this.messageService.success("Resource manually registered", "Successfully registered a new resource");
             } catch (error) {
-                this.ontologyString = "Error while registering\n";
-                this.ontologyString += error;
+                this.messageService.warn("Error while manually registering resource", error);
             }
         }
         if(this.context=="skills") {
             this.skillService.addSkill(this.ontologyString).pipe(take(1)).subscribe(
-                () => this.ontologyString="Ontology registered"
+                () => this.messageService.success("Skill manually registered", "Successfully registered a new skill")
             );
         }
         if(this.context == "capabilities") {
             this.capabilityService.addCapability(this.ontologyString).pipe(take(1)).subscribe(
-                () => this.ontologyString="Ontology registered"
+                () => this.messageService.success("Capability manually registered", "Successfully registered a new capability")
             );
         }
+    }
+
+    clear(): void {
+        this.ontologyString = "";
     }
 
 }
