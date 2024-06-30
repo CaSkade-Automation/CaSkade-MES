@@ -1,0 +1,123 @@
+<h1>Capability Editor</h1>
+<p>
+    Select a capability to edit its type, properties or constraints
+</p>
+
+<div class="row my-3">
+    <label for="capabilitySelect" class="col-sm-2 col-form-label">Capability:</label>
+    <div class="col-sm-10">
+        <select class="form-select" [formControl]="capabilitySelect">
+            <option *ngFor="let cap of (capabilities$ | async)" [ngValue]="cap">{{cap.iri}}</option>
+        </select>
+    </div>
+</div>
+
+
+<div *ngIf="this.capabilityToEdit" class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col-8">
+                <h5 class="d-inline" title="{{capabilityToEdit.iri}}">{{capabilityToEdit.getLocalName()}}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-3">
+                <b>Capability Type:</b>
+            </div>
+            <div class="col-6 d-flex gap-2 align-items-center">
+                <span>
+                    {{capabilityToEdit.capabilityType.getLocalName()}}
+                </span>
+                <div *ngIf="capabilityToEdit.capabilityType.getLocalName() == 'Capability'">
+                    <i class="fa-solid fa-question" title="Abstract capability, neither provided not required"></i>
+                    <button class="ms-3 btn btn-sm btn-outline-dark" (click)="setRequired()">Set required</button>
+                    <button class="ms-3 btn btn-sm btn-outline-dark" (click)="setProvided()">Set provided</button>
+                </div>
+                <div *ngIf="capabilityToEdit.capabilityType.getLocalName() == 'RequiredCapability'">
+                    <i class="fa-solid fa-asterisk"></i>
+                </div>
+                <div *ngIf="capabilityToEdit.capabilityType.getLocalName() == 'ProvidedCapability'">
+                    <i class="fa-solid fa-exclamation"></i>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-3">
+                <b>Inputs:</b>
+                <ul>
+                    <li *ngFor="let capInput of capabilityToEdit.inputs">{{capInput.getLocalName()}}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <b>Outputs:</b>
+                <ul>
+                    <li *ngFor="let capOutput of capabilityToEdit.outputs">{{capOutput.getLocalName()}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal to set required -->
+<div class="modal fade" #setRequiredInfoModal data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="setRequiredBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle">
+                <h1 class="modal-title fs-5" id="setRequiredBackdropLabel">Make capability required<i
+                        class="ms-3 fas fa-exclamation-triangle"></i></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to turn this abstract capability into a required one?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" (click)="confirmSetRequired()">Yes, make this capability
+                    required</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abort</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal to set provided -->
+<div class="modal modal-lg fade" #setProvidedInfoModal data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="setProvidedBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle">
+                <h1 class="modal-title fs-5" id="setProvidedBackdropLabel">Make capability provided<i
+                        class="ms-3 fas fa-exclamation-triangle"></i></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Are you sure you want to turn this abstract capability into a provided one? If so, you must
+                    select a resource that provides this capability:
+                </p>
+                <div class="row">
+                    <div class="col-4">
+                        <b>Providing resource:</b>
+                    </div>
+                    <div class="col-8">
+                        <select class="form-select" [formControl]="providingResource">
+                            <option *ngFor="let resource of resources" [value]="resource.iri">
+                                {{resource.getLocalName()}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" (click)="confirmSetProvided()">Yes, make this capability
+                    provided</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abort</button>
+            </div>
+        </div>
+    </div>
+</div>

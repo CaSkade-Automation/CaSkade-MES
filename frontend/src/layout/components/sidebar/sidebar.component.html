@@ -4,6 +4,30 @@
             <i class="fas fa-tachometer-alt"></i>&nbsp;
             <span>Dashboard</span>
         </a>
+        <div class="nested-menu">
+            <a (click)="addExpandClass('pages')" class="list-group-item">
+                <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;
+                <span>Engineering</span>
+            </a>
+            <li [class.expand]="showMenu === 'pages'" class="nested list-group">
+                <ul class="submenu mb-0">
+                    <li>
+                        <a class="list-group-item" routerLink="capability-editor"
+                            [routerLinkActiveOptions]="matchSubPathOption" [routerLinkActive]="['router-link-active']">
+                            <i class="fa-solid fa-wrench"></i>&nbsp;
+                            <span>Capability Editor</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="list-group-item" routerLink="skill-programming"
+                            [routerLinkActiveOptions]="matchSubPathOption" [routerLinkActive]="['router-link-active']">
+                            <i class="fa-solid fa-code"></i>&nbsp;
+                            <span>Skill Programming</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </div>
         <a routerLink="/production-modules" [routerLinkActive]="['router-link-active']" class="list-group-item">
             <i class="fas fa-puzzle-piece"></i>&nbsp;
             <span>Module Management</span>

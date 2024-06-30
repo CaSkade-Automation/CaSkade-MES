@@ -15,11 +15,33 @@
                     (click)="copyIRI()">
                         <i class="text-success-subtle" [class]="clipBoardClass"></i>
                     </button>
-                    <a class="btn btn-sm btn-secondary me-1" title="Show in Graph View" [routerLink]="[ '/graph-visualization/capabilities', capability.iri]">
+                    <a
+                    #editToolTip
+                    data-bs-toggle="tooltip"
+                    data-bs-trigger="hover"
+                    data-bs-placement="top"
+                    data-bs-title="Edit capability info"
+                    class="btn btn-sm btn-secondary me-1"
+                    [routerLink]="[ '/capability-editor', capability.iri ]">
+                        <i class="fa fa-pencil"></i>
+                    </a>
+                    <a
+                    #graphVisuToolTip
+                    data-bs-toggle="tooltip"
+                    data-bs-trigger="hover"
+                    data-bs-placement="top"
+                    data-bs-title="Show in Graph View"
+                    class="btn btn-sm btn-secondary me-1"  [routerLink]="[ '/graph-visualization/capabilities', capability.iri]">
                         <i class="fa fa-project-diagram"></i>
                     </a>
-                    <button class="btn btn-sm btn-danger"
-                    title="Disconnect Capability" (click)="deleteCapability()"><i class="far fa-trash-alt"></i></button>
+                    <button
+                    #deleteCapToolTip
+                    data-bs-toggle="tooltip"
+                    data-bs-trigger="hover"
+                    data-bs-placement="top"
+                    data-bs-title="Delete Capability"
+                    class="btn btn-sm btn-danger"
+                    (click)="deleteCapability()"><i class="far fa-trash-alt"></i></button>
                 </div>
             </div>
         </div>
@@ -33,17 +55,6 @@
                 <span>
                     {{capability.capabilityType.getLocalName()}}
                 </span>
-                <div *ngIf="capability.capabilityType.getLocalName() == 'Capability'">
-                    <i class="fa-solid fa-question" title="Abstract capability, neither provided not required"></i>
-                    <button class="ms-3 btn btn-sm btn-outline-dark" (click)="setRequired()">Set required</button>
-					<button class="ms-3 btn btn-sm btn-outline-dark" (click)="setProvided()">Set provided</button>
-                </div>
-                <div *ngIf="capability.capabilityType.getLocalName() == 'RequiredCapability'">
-                    <i class="fa-solid fa-asterisk"></i>
-                </div>
-                <div *ngIf="capability.capabilityType.getLocalName() == 'ProvidedCapability'">
-                    <i class="fa-solid fa-exclamation"></i>
-                </div>
             </div>
         </div>
         <div class="row mt-3">
@@ -68,56 +79,5 @@
             <skill-card [skill]="skill"></skill-card>
         </ng-container>
 
-    </div>
-</div>
-
-<!-- Modal to set required -->
-<div class="modal fade" #setRequiredInfoModal data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="setRequiredBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning-subtle">
-                <h1 class="modal-title fs-5" id="setRequiredBackdropLabel">Make capability required<i class="ms-3 fas fa-exclamation-triangle"></i></h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-            Are you sure you want to turn this abstract capability into a required one?
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-warning" (click)="confirmSetRequired()">Yes, make this capability required</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abort</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- Modal to set provided -->
-<div class="modal modal-lg fade" #setProvidedInfoModal data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="setProvidedBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning-subtle">
-                <h1 class="modal-title fs-5" id="setProvidedBackdropLabel">Make capability provided<i class="ms-3 fas fa-exclamation-triangle"></i></h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>
-                    Are you sure you want to turn this abstract capability into a provided one? If so, you must select a resource that provides this capability:
-                </p>
-                <div class="row">
-                    <div class="col-4">
-                        <b>Providing resource:</b>
-                    </div>
-                    <div class="col-8">
-                        <select class="form-select" [formControl]="providingResource">
-                            <option *ngFor="let resource of resources" [value]="resource.iri">{{resource.getLocalName()}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-warning" (click)="confirmSetProvided()">Yes, make this capability provided</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abort</button>
-            </div>
-        </div>
     </div>
 </div>
