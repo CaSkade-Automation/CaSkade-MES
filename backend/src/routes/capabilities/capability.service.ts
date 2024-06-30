@@ -9,6 +9,7 @@ import { CapabilitySocket } from '../../socket-gateway/capability-socket';
 import { BaseSocketMessageType } from '@shared/models/socket-communication/SocketData';
 import { PropertyService, VDI3682RelationType } from '../properties/property.service';
 import { SkillService } from '../skills/skill.service';
+import { CapabilityType, ChangeCapabilityTypeDto } from '@shared/models/capability/CapabilityType';
 
 const converter = new SparqlResultConverter();
 
@@ -53,32 +54,48 @@ export class CapabilityService {
     async getAllCapabilities(capabilityType = "http://www.w3id.org/hsu-aut/css#Capability"): Promise<Array<CapabilityDto>> {
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
             PREFIX VDI2860: <http://www.hsu-ifa.de/ontologies/VDI2860#>
-            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
             PREFIX DIN8580: <http://www.hsu-ifa.de/ontologies/DIN8580#>
-            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             SELECT ?capability ?input ?inputType ?output ?capabilityType ?processType WHERE {
-                ?capability a CSS:Capability, ?capabilityType.
-                Values ?capabilityType {<${capabilityType}>}  # Restrict values to be either all capabilities or only required / provided
+                ?capability a CSS:Capability.
                 OPTIONAL{
                     ?capability VDI3682:hasInput ?input.
                     ?input a ?inputType.
-                    VALUES ?inputType {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                    VALUES ?inputType {
+                        VDI3682:Energy VDI3682:Product VDI3682:Information
+                    }
                 }
                 OPTIONAL{
                     ?capability VDI3682:hasOutput ?output.
                     ?output a ?outputType.
-                    VALUES ?outputType {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                    VALUES ?outputType {
+                        VDI3682:Energy VDI3682:Product VDI3682:Information
+                    }
                 }
                 OPTIONAL{
                     ?capability a ?processType.
                     ?processType rdfs:subClassOf ?processParentType.
-                    VALUES ?processParentType {DIN8580:Fertigungsverfahren VDI2860:Handhaben}
+                    VALUES ?processParentType {
+                        DIN8580:Fertigungsverfahren VDI2860:Handhaben
+                    }
                     FILTER (NOT EXISTS{
                             ?someSubtype rdfs:subClassOf ?processType.
-                    })
+                        })
                 }
+                BIND(
+                    IF(EXISTS { ?capability rdf:type CaSk:RequiredCapability },
+                        CaSk:RequiredCapability,
+                        IF(EXISTS { ?capability rdf:type CaSk:ProvidedCapability },
+                            CaSk:ProvidedCapability,
+                        CSS:Capability
+                    )
+                ) AS ?capabilityType)
+                FILTER(EXISTS{?capability a <${capabilityType}>})
             }`);
             const capabilities = converter
                 .convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
@@ -119,22 +136,48 @@ export class CapabilityService {
     async getCapabilityByIri(capabilityIri: string): Promise<CapabilityDto> {
         try {
             const queryResult = await this.graphDbConnection.executeQuery(`
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
             PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
             PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
-            SELECT ?capability ?input ?output WHERE {
+            PREFIX DIN8580: <http://www.hsu-ifa.de/ontologies/DIN8580#>
+            PREFIX VDI2860: <http://www.hsu-ifa.de/ontologies/VDI2860#>
+            SELECT ?capability ?input ?inputType ?output ?capabilityType ?processType WHERE {
                 ?capability a CSS:Capability.
                 FILTER(?capability = IRI("${capabilityIri}")).
                 OPTIONAL{
                     ?capability VDI3682:hasInput ?input.
-                    ?input a ?fpbElement.
-                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                    ?input a ?inputType.
+                    VALUES ?inputType {
+                        VDI3682:Energy VDI3682:Product VDI3682:Information
+                    }
                 }
                 OPTIONAL{
                     ?capability VDI3682:hasOutput ?output.
-                    ?output a ?fpbElement.
-                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                    ?input a ?outputType.
+                    VALUES ?outputType {
+                        VDI3682:Energy VDI3682:Product VDI3682:Information
+                    }
                 }
+                OPTIONAL{
+                ?capability a ?processType.
+                ?processType rdfs:subClassOf ?processParentType.
+                VALUES ?processParentType {
+                    DIN8580:Fertigungsverfahren VDI2860:Handhaben
+                }
+                FILTER (NOT EXISTS{
+                        ?someSubtype rdfs:subClassOf ?processType.
+                    })
+                }
+                BIND(
+                    IF(EXISTS { ?capability rdf:type CaSk:RequiredCapability },
+                        CaSk:RequiredCapability,
+                        IF(EXISTS { ?capability rdf:type CaSk:ProvidedCapability },
+                            CaSk:ProvidedCapability,
+                        CSS:Capability
+                    )
+                ) AS ?capabilityType)
             }`);
             const capability = converter
                 .convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
@@ -154,21 +197,48 @@ export class CapabilityService {
      */
     async getCapabilitiesOfModule(moduleIri: string): Promise<CapabilityDto[]> {
         const query = `
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
-        SELECT ?capability ?input ?output WHERE {
+        PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
+        PREFIX DIN8580: <http://www.hsu-ifa.de/ontologies/DIN8580#>
+        PREFIX VDI2860: <http://www.hsu-ifa.de/ontologies/VDI2860#>
+        SELECT ?capability ?input ?inputType ?output ?capabilityType ?processType WHERE {
             ?capability a CSS:Capability.
             <${moduleIri}> CSS:providesCapability ?capability.
             OPTIONAL {
                 ?capability VDI3682:hasInput ?input.
-                ?input a ?fpbElement.
-                VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                ?input a ?inputType.
+                VALUES ?inputType {
+                    VDI3682:Energy VDI3682:Product VDI3682:Information
+                }
             }
             OPTIONAL{
                 ?capability VDI3682:hasOutput ?output.
-                ?output a ?fpbElement.
-                VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
+                ?output a ?outputType.
+                VALUES ?outputType {
+                    VDI3682:Energy VDI3682:Product VDI3682:Information
+                }
             }
+                OPTIONAL{
+                ?capability a ?processType.
+                ?processType rdfs:subClassOf ?processParentType.
+                VALUES ?processParentType {
+                    DIN8580:Fertigungsverfahren VDI2860:Handhaben
+                }
+                FILTER (NOT EXISTS{
+                        ?someSubtype rdfs:subClassOf ?processType.
+                    })
+                }
+                BIND(
+                    IF(EXISTS { ?capability rdf:type CaSk:RequiredCapability },
+                        CaSk:RequiredCapability,
+                        IF(EXISTS { ?capability rdf:type CaSk:ProvidedCapability },
+                            CaSk:ProvidedCapability,
+                        CSS:Capability
+                    )
+                ) AS ?capabilityType)
         }`;
 
         try {
@@ -185,6 +255,38 @@ export class CapabilityService {
             console.error(`Error while returning capabilities of module with IRI ${moduleIri}, ${error}`);
             throw new Error(error);
         }
+    }
+
+    async changeCapabilityType(capabilityIri: string, changeCapabilityTypeInfo: ChangeCapabilityTypeDto): Promise<void> {
+        // if change to provided, there must be a resource
+        console.log(changeCapabilityTypeInfo);
+
+        const {newType, providingResourceIri} = changeCapabilityTypeInfo;
+        if (newType == CapabilityType.ProvidedCapability && !providingResourceIri) {
+            throw new Error("Make sure to pass a resource in order to change a capability's type to provided");
+        }
+
+        let resourceString = "";
+        if (newType == CapabilityType.ProvidedCapability) {
+            resourceString = `<${providingResourceIri}> CSS:providesCapability <${capabilityIri}>.`;
+        }
+
+        // Query including optional resource string. Note: The query needs to insert the new type into the same graph as the old type
+        // Otherwise deletion fails as it gets the graph in which the capability type declartion is made
+        const sparqlUpdate = `
+        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+        INSERT {
+            GRAPH ?graph {
+                <${capabilityIri}> a <${newType}>.
+                ${resourceString}
+            }
+        } WHERE {
+            GRAPH ?graph {
+                <${capabilityIri}> a CSS:Capability.
+            }
+        }`;
+
+        await this.graphDbConnection.executeUpdate(sparqlUpdate);
     }
 
     async deleteCapabilitiesOfModule(moduleIri: string): Promise<void> {

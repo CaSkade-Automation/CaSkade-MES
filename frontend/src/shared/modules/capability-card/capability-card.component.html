@@ -1,11 +1,20 @@
 <div class="card mb-3">
     <div class="card-header">
         <div class="row align-items-center">
-            <div class="col-9">
+            <div class="col-8">
                 <h5 class="d-inline" title="{{capability.iri}}">{{capability.getLocalName()}}</h5>
             </div>
-            <div class="col-3">
+            <div class="col-4">
                 <div class="float-end">
+                    <button class="btn btn-sm me-1" [class]="copyButtonClass"
+                    #copyToolTip
+                    data-bs-toggle="tooltip"
+                    data-bs-trigger="hover"
+                    data-bs-placement="top"
+                    data-bs-title="Copy to clipboard"
+                    (click)="copyIRI()">
+                        <i class="text-success-subtle" [class]="clipBoardClass"></i>
+                    </button>
                     <a class="btn btn-sm btn-secondary me-1" title="Show in Graph View" [routerLink]="[ '/graph-visualization/capabilities', capability.iri]">
                         <i class="fa fa-project-diagram"></i>
                     </a>
@@ -16,9 +25,30 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-12">
-                <h6>Inputs:</h6>
+        <div class="row align-items-center">
+            <div class="col-3">
+                <b>Capability Type:</b>
+            </div>
+            <div class="col-6 d-flex gap-2 align-items-center">
+                <span>
+                    {{capability.capabilityType.getLocalName()}}
+                </span>
+                <div *ngIf="capability.capabilityType.getLocalName() == 'Capability'">
+                    <i class="fa-solid fa-question" title="Abstract capability, neither provided not required"></i>
+                    <button class="ms-3 btn btn-sm btn-outline-dark" (click)="setRequired()">Set required</button>
+					<button class="ms-3 btn btn-sm btn-outline-dark" (click)="setProvided()">Set provided</button>
+                </div>
+                <div *ngIf="capability.capabilityType.getLocalName() == 'RequiredCapability'">
+                    <i class="fa-solid fa-asterisk"></i>
+                </div>
+                <div *ngIf="capability.capabilityType.getLocalName() == 'ProvidedCapability'">
+                    <i class="fa-solid fa-exclamation"></i>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-3">
+                <b>Inputs:</b>
                 <ul>
                     <li *ngFor="let capInput of capability.inputs">{{capInput.getLocalName()}}</li>
                 </ul>
@@ -26,17 +56,68 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <h6>Outputs:</h6>
+                <b>Outputs:</b>
                 <ul>
                     <li *ngFor="let capOutput of capability.outputs">{{capOutput.getLocalName()}}</li>
                 </ul>
             </div>
         </div>
 
-        <h6 *ngIf="capability.skills.length > 0" class="mt-2">Skills:</h6>
+        <b *ngIf="capability.skills.length > 0" class="mt-2">Skills:</b>
         <ng-container *ngFor="let skill of capability.skills">
             <skill-card [skill]="skill"></skill-card>
         </ng-container>
 
+    </div>
+</div>
+
+<!-- Modal to set required -->
+<div class="modal fade" #setRequiredInfoModal data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="setRequiredBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle">
+                <h1 class="modal-title fs-5" id="setRequiredBackdropLabel">Make capability required<i class="ms-3 fas fa-exclamation-triangle"></i></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            Are you sure you want to turn this abstract capability into a required one?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" (click)="confirmSetRequired()">Yes, make this capability required</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abort</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal to set provided -->
+<div class="modal modal-lg fade" #setProvidedInfoModal data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="setProvidedBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle">
+                <h1 class="modal-title fs-5" id="setProvidedBackdropLabel">Make capability provided<i class="ms-3 fas fa-exclamation-triangle"></i></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Are you sure you want to turn this abstract capability into a provided one? If so, you must select a resource that provides this capability:
+                </p>
+                <div class="row">
+                    <div class="col-4">
+                        <b>Providing resource:</b>
+                    </div>
+                    <div class="col-8">
+                        <select class="form-select" [formControl]="providingResource">
+                            <option *ngFor="let resource of resources" [value]="resource.iri">{{resource.getLocalName()}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" (click)="confirmSetProvided()">Yes, make this capability provided</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abort</button>
+            </div>
+        </div>
     </div>
 </div>
