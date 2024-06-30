@@ -37,15 +37,11 @@ export class LlmGenerationComponent implements OnInit {
             this.messageService.warn("Not available", "LLM Generation can currently only be used to generate capabilities.");
         }
         if(this.context == "capabilities") {
-            this.messageService.success("Works", "it works");
             const {model, taskDescription} = this.form.value;
-            console.log(model, taskDescription);
-
-            this.llmGeneration.generateCapability(taskDescription, model).subscribe(data => console.log(data));
-
-            // this.capabilityService.addCapability(this.ontologyString).pipe(take(1)).subscribe(
-            //     () => this.ontologyString="Ontology registered"
-            // );
+            this.messageService.info("Generation started", "Started generating a capability from your description. Depending on the complexity, this may take a while");
+            this.llmGeneration.generateCapability(taskDescription, model).subscribe(data => {
+                this.messageService.success("Generated capability", "Successfully generated a new capability from plain text");
+            });
         }
     }
 

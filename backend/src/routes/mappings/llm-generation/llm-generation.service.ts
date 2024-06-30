@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 import { HttpService } from '@nestjs/axios';
-import { Observable, catchError, lastValueFrom, map, of, tap } from 'rxjs';
-import { AxiosRequestConfig } from 'axios';
+import { Observable, catchError, lastValueFrom, map } from 'rxjs';
+import { AxiosError } from 'axios';
 import { CapabilityService } from '../../capabilities/capability.service';
 import { LlmCapabilityGenerationDto } from '@shared/models/mappings/LlmGenerationRequestDto';
 
@@ -48,7 +48,9 @@ export class LlmGenerationService {
     getModels(): Observable<Array<string>> {
         const url = `${this.config.url}/models`;
         return this.http.get<Array<string>>(url).pipe(
-            catchError(err => {throw new Error(err.toString());}),
+            catchError((err:AxiosError) => {
+                throw new InternalServerErrorException("Could not connect to the LLM Service. Make sure it's running and you have the port set correctly.");
+            }),
             map(res => res.data));
     }
 
@@ -60,10 +62,8 @@ export class LlmGenerationService {
         // const reqConfig: AxiosRequestConfig = {
         //     timeout: 1200000        // large timeout because mapping takes forever
         // };
-        console.log("generating cap");
-
         const res = await lastValueFrom(this.http.post<string>(this.config.url, llmCapabilityRequest).pipe(
-            catchError((err) => {
+            catchError((err: AxiosError) => {
                 console.log("error during LLM capability generation");
                 console.log(err);
                 throw new Error(err.message);
@@ -71,16 +71,8 @@ export class LlmGenerationService {
             map(res => res.data)
         ));
 
-        //TODO: Continue here. Request ends at LLM-Rest-API (java). But JSon needs to be properly read. And add error handling in frontend
-        console.log("returning");
-        console.log(res);
-        try {
-            await this.capabilityService.addCapability(res);
-        } catch (error) {
-            console.log("error while trying to register capability");
-            console.log(error);
+        await this.capabilityService.addCapability(res);
 
-        }
 
         return {msg: "Capability successfully registered"};
     }

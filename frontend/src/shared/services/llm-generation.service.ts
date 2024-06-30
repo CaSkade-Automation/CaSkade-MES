@@ -1,8 +1,9 @@
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { first, Observable, take, tap } from 'rxjs';
+import { catchError, first, Observable, take, tap } from 'rxjs';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
 import { LlmCapabilityGenerationDto } from '@shared/models/mappings/LlmGenerationRequestDto';
+import { MessageService } from './message.service';
 
 @Injectable({
     providedIn: 'root'
@@ -12,7 +13,8 @@ export class LlmGenerationService {
     baseApiRoute = '/api/mappings/llm';
 
     constructor(
-        private httpClient: HttpClient
+        private httpClient: HttpClient,
+        private messageService: MessageService
     ) { }
 
 
@@ -43,7 +45,14 @@ export class LlmGenerationService {
      */
     getModels(): Observable<Array<string>> {
         const url = `${this.baseApiRoute}/models`;
-        return this.httpClient.get<Array<string>>(url);
+        return this.httpClient.get<Array<string>>(url).
+            pipe(
+                take(1),
+                catchError((err: HttpErrorResponse) => {
+                    this.messageService.warn("Error while loading models", err.error.message);
+                    throw new Error(err.message);
+                })
+            );
     }
 
     /**
