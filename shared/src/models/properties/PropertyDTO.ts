@@ -8,6 +8,7 @@ export class PropertyInstanceDto {
 
 export class PropertyDTO {
     propertyIri: string;        // IRI of the data element
+    typeDescription: string;
     parentElement: string;
     dataType: string;
     code?: string;

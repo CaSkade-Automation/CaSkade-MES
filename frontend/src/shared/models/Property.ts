@@ -26,7 +26,7 @@ export class PropertyInstance extends RdfElement{
 
 export class Property extends RdfElement {
     parentElement: RdfElement;
-
+    typeDescription: RdfElement;
     dataType: string;
     code?: string;
     definition: string;
@@ -36,6 +36,7 @@ export class Property extends RdfElement {
     constructor(dto: PropertyDTO) {
         super(dto.propertyIri);
         this.parentElement = new RdfElement(dto.parentElement);
+        this.typeDescription = new RdfElement(dto.typeDescription);
         this.dataType = dto.dataType;
         this.code = dto.code;
         this.definition = dto.definition;
@@ -46,6 +47,7 @@ export class Property extends RdfElement {
     toDto(): PropertyDTO {
         const dto: PropertyDTO = {
             propertyIri: this.iri,
+            typeDescription: this.typeDescription.iri,
             dataType: this.dataType,
             code: this.code,
             definition: this.definition,

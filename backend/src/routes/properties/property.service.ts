@@ -24,24 +24,25 @@ export class PropertyService {
         PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
 
         SELECT ?parentElement ?propertyIri ?propertyInstanceIri ?expressionGoal ?logicInterpretation
-        ?value ?code ?dataType ?definition ?unit WHERE {
+            ?value ?typeDescription ?code ?dataType ?definition ?unit
+        WHERE {
             ?parentElement DINEN61360:has_Data_Element ?propertyIri.
             ?propertyIri a DINEN61360:Data_Element;
 				DINEN61360:has_Instance_Description ?propertyInstanceIri.
 			?propertyInstanceIri a DINEN61360:Instance_Description;
                 DINEN61360:Expression_Goal ?expressionGoal;
                 DINEN61360:Logic_Interpretation ?logicInterpretation.
-            ?dataElement DINEN61360:has_Type_Description ?propertyType.
+            ?dataElement DINEN61360:has_Type_Description ?typeDescription.
 
             OPTIONAL {
                 ?propertyInstanceIri DINEN61360:Value ?value.
             }
             OPTIONAL {
-                ?propertyType DINEN61360:Code ?code;
+                ?typeDescription DINEN61360:Code ?code;
                     DINEN61360:Definition ?definition.
             }
             OPTIONAL {
-                ?propertyType DINEN61360:Unit_of_Measure ?unit.
+                ?typeDescription DINEN61360:Unit_of_Measure ?unit.
             }
 			OPTIONAL {
                 ?propertyInstanceIri a ?dataType.
@@ -60,7 +61,9 @@ export class PropertyService {
         const queryString = `
         PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
 
-        SELECT ?propertyInstanceIri ?expressionGoal ?logicInterpretation ?value ?propertyType ?code ?definition ?unit WHERE {
+        SELECT ?propertyInstanceIri ?expressionGoal ?logicInterpretation ?typeDescription
+            ?value ?typeDescription ?code ?definition ?unit
+        WHERE {
             ?propertyInstanceIri a DINEN61360:Instance_Description;
                 DINEN61360:Expression_Goal ?expressionGoal;
                 DINEN61360:Logic_Interpretation ?logicInterpretation;
@@ -68,11 +71,11 @@ export class PropertyService {
             OPTIONAL {
                 ?propertyInstanceIri DINEN61360:Value ?value.
             }
-            ?dataElement DINEN61360:has_Type_Description ?propertyType.
-            ?propertyType DINEN61360:Code ?code;
+            ?dataElement DINEN61360:has_Type_Description ?typeDescription.
+            ?typeDescription DINEN61360:Code ?code;
                 DINEN61360:Definition ?definition.
             OPTIONAL {
-                ?propertyType DINEN61360:Unit_of_Measure ?unit.
+                ?typeDescription DINEN61360:Unit_of_Measure ?unit.
             }
             FILTER(?propertyInstanceIri = <${propertyIri}>)
         }`;
@@ -92,7 +95,8 @@ export class PropertyService {
         PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
 
         SELECT ?parentElement ?propertyIri ?propertyInstanceIri ?expressionGoal ?logicInterpretation
-        ?value ?code ?dataType ?definition ?unit WHERE {
+            ?typeDescription ?value ?code ?dataType ?definition ?unit
+        WHERE {
             <${capabilityIri}> ?inOut ?parentElement.
             VALUES ?inOut {${relationType}}
             ?parentElement DINEN61360:has_Data_Element ?propertyIri.
@@ -101,17 +105,17 @@ export class PropertyService {
 			?propertyInstanceIri a DINEN61360:Instance_Description;
                 DINEN61360:Expression_Goal ?expressionGoal;
                 DINEN61360:Logic_Interpretation ?logicInterpretation.
-            ?dataElement DINEN61360:has_Type_Description ?propertyType.
+            ?dataElement DINEN61360:has_Type_Description ?typeDescription.
 
             OPTIONAL {
                 ?propertyInstanceIri DINEN61360:Value ?value.
             }
             OPTIONAL {
-                ?propertyType DINEN61360:Code ?code;
+                ?typeDescription DINEN61360:Code ?code;
                     DINEN61360:Definition ?definition.
             }
             OPTIONAL {
-                ?propertyType DINEN61360:Unit_of_Measure ?unit.
+                ?typeDescription DINEN61360:Unit_of_Measure ?unit.
             }
 			OPTIONAL {
                 ?propertyInstanceIri a ?dataType.

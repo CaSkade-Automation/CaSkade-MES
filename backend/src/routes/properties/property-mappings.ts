@@ -5,7 +5,7 @@ const propertyMapping: MappingDefinition[] = [
         rootName: 'properties',
         propertyToGroup: 'propertyIri',
         name: 'propertyIri',
-        toCollect: ['code', 'dataType', 'definition', 'unit', 'parentElement'],
+        toCollect: ['code', 'typeDescription', 'dataType', 'definition', 'unit', 'parentElement'],
         childMappings: [
             {
                 rootName: 'instances',

@@ -8,5 +8,6 @@ export class CapabilityDto extends RdfElementDto{
     public processType?: string;
 	public inputs?: Array<FpbElementDTO>;
 	public outputs?: Array<FpbElementDTO>;
+    public constraints?: Array<string>;
     public skillDtos?: Array<SkillDto>;
 }
