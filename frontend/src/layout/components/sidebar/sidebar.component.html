@@ -5,11 +5,11 @@
             <span>Dashboard</span>
         </a>
         <div class="nested-menu">
-            <a (click)="addExpandClass('pages')" class="list-group-item">
+            <a (click)="addExpandClass('engineering-submenu')" class="list-group-item">
                 <i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;
                 <span>Engineering</span>
             </a>
-            <li [class.expand]="showMenu === 'pages'" class="nested list-group">
+            <li [class.expand]="showMenu === 'engineering-submenu'" class="nested list-group">
                 <ul class="submenu mb-0">
                     <li>
                         <a class="list-group-item" routerLink="capability-editor"
@@ -46,11 +46,11 @@
         </a>
 
         <div class="nested-menu">
-            <a (click)="addExpandClass('pages')" class="list-group-item">
+            <a (click)="addExpandClass('processes-submenu')" class="list-group-item">
                 <i class="fas fa-random"></i>&nbsp;
                 <span>Production Processes</span>
             </a>
-            <li [class.expand]="showMenu === 'pages'" class="nested list-group">
+            <li [class.expand]="showMenu === 'processes-submenu'" class="nested list-group">
                 <ul class="submenu mb-0">
                     <li>
                         <a class="list-group-item" routerLink="production-processes/model"
