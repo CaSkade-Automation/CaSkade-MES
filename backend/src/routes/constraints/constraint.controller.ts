@@ -10,7 +10,7 @@ export class ConstraintController {
 
     @Get('')
     getAllConstraints() {
-        return this.constraintService.getAllConstraints();
+        return this.constraintService.getConstraints();
     }
 
 

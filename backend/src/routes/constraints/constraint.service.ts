@@ -1,38 +1,68 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { GraphDbConnectionService } from '../../util/GraphDbConnection.service';
+import { SparqlResultConverter } from 'sparql-result-converter';
+import { FormulaConstraintDto, ValueConstraintDto } from '@shared/models/constraints/ConstraintDto';
+import { constraintMapping } from './constraint-mappings';
+import { getValueConstraintQuery } from './constraint-queries';
+import { OmRdfParser } from "openmath-rdf-parser";
+
+const converter = new SparqlResultConverter();
+const oMRdfParser = new OmRdfParser();
 
 @Injectable()
 export class ConstraintService {
 
 
-    getAllConstraints() {
-        // Constraints can be either simple value constraints or open math constraints, need to get both
-        const valueConstraintsQuery = `
-        `;
+    constructor(
+        readonly graphDbConnection: GraphDbConnectionService
+    ) {}
 
-        const openMathConstraintQuery = `
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX OM: <http://openmath.org/vocab/math#>
 
-        SELECT ?parent ?capabilityConstraint (count(?argumentList)-1 as ?position) ?operator ?argName ?argValue ?argType ?arg WHERE {
+    async getConstraints(capabilityIri = '?cap') {
+        const constraints = new Array<ValueConstraintDto | FormulaConstraintDto>();
 
-            ?capabilityConstraint OM:arguments/rdf:rest* ?argumentList;
-                OM:operator ?operator.
+        // Get all value constraints
+        try {
+            const valueConstraintsQuery = getValueConstraintQuery(capabilityIri);
+            const vCQueryResult = await this.graphDbConnection.executeQuery(valueConstraintsQuery);
+            const partialValueConstraints = converter
+                .convertToDefinition(vCQueryResult.results.bindings, constraintMapping)
+                .getFirstRootElement() as Array<Partial<ValueConstraintDto>>;
 
-            ?argumentList rdf:rest*/rdf:first ?arg.
-            ?arg a ?argType.
-            # ?argType rdfs:subClassOf OM:Object.
-            OPTIONAL {
-                ?arg OM:name ?argName.
-            }
-            OPTIONAL {
-                ?arg OM:value ?argValue.
-            }
+            const valueConstraints = partialValueConstraints
+                .map(pC => new ValueConstraintDto(
+                    pC.capabilityIri, pC.dataElement, pC.instanceDescription, pC.expressionGoal, pC.logicInterpretation, pC.value)
+                );
+            constraints.push(...valueConstraints);
+        } catch (error) {
+            console.log("Error while getting value constraint");
+            throw new InternalServerErrorException(error, "Error while getting value constraint");
         }
-        GROUP BY ?capabilityConstraint ?argName ?argValue ?operator ?argType ?arg`;
+
+        // TODO: Formula constraints are currently handled in too complicated way. We need to get export a capability's RDF, send it to the OpenMath parser
+        // The parser loads it, queries it and parses it into a string. It would be way faster if the parser directly queried the GraphDB.
+        // This currently doesn't work because of a bug in Comunica (https://github.com/comunica/comunica/issues/1391). Will be changed if the bug
+        // is fixed on Comunica's side
+        try {
+            const capabilityDeclaration = `<${capabilityIri}> a <http://www.w3id.org/hsu-aut/css#Capability>.`;
+            const graphIris = await this.graphDbConnection.getGraphsContainingStatements(capabilityDeclaration);
+            // There should only be one graph containing the capability definition
+            const capabilityRdfData = await this.graphDbConnection.exportStatementsInGraph(graphIris[0]);
+
+            const formulaConstraints = await oMRdfParser.allFromOpenMath(capabilityRdfData);
+            const formulaConstraintDtos = formulaConstraints
+                .map(formulaConstraint => new FormulaConstraintDto(capabilityIri, formulaConstraint.formula));
+            constraints.push(...formulaConstraintDtos);
+        } catch (error) {
+            console.log("Error while getting formula constraint");
+            throw new InternalServerErrorException(error, "Error while getting formula constraint");
+        }
+        return constraints;
     }
 
-    getConstraintsOfCapability(capabilityIri: string): Array<string> {
-        return [];
+    async getConstraintsOfCapability(capabilityIri: string): Promise<Array<ValueConstraintDto | FormulaConstraintDto>> {
+        const constraints = this.getConstraints(capabilityIri);
+        return constraints;
     }
 
 }
