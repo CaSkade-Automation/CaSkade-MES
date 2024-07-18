@@ -1,0 +1,20 @@
+<div [ngSwitch]="stateType.getLocalName()" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" [attr.data-bs-title]="stateType.getLocalName()" class="me-2">
+    <ng-container *ngSwitchCase="'Product'">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg"
+             width="24" height="24" viewBox="0 0 100 100">
+            <circle fill="#ED2028" r="50" cx="50" cy="50"></circle>
+        </svg>
+    </ng-container>
+    <ng-container *ngSwitchCase="'Information'">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            viewBox="0 0 100 100">
+            <polygon fill="#3050A2" points="20,0 80,0 100,50 80,100 20,100 0,50"></polygon>
+        </svg>
+    </ng-container>
+    <ng-container *ngSwitchCase="'Energy'">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+            viewBox="0 0 100 100">
+            <polygon fill="#6E9AD1" points="50,0 100,50 50,100 0,50"></polygon>
+        </svg>
+    </ng-container>
+</div>

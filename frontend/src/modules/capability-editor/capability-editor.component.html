@@ -6,7 +6,7 @@
 <div class="row my-3">
     <label for="capabilitySelect" class="col-sm-2 col-form-label">Capability:</label>
     <div class="col-sm-10">
-        <select class="form-select" [formControl]="capabilitySelect">
+        <select class="form-select" [compareWith]="compareCaps" [formControl]="capabilitySelect">
             <option *ngFor="let cap of (capabilities$ | async)" [ngValue]="cap">{{cap.iri}}</option>
         </select>
     </div>
@@ -22,11 +22,11 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="row align-items-center">
+        <div class="row d-flex">
             <div class="col-3">
-                <b>Capability Type:</b>
+                <h5>Capability Type:</h5>
             </div>
-            <div class="col-6 d-flex gap-2 align-items-center">
+            <div class="col-6 d-flex gap-2">
                 <span>
                     {{capabilityToEdit.capabilityType.getLocalName()}}
                 </span>
@@ -43,20 +43,141 @@
                 </div>
             </div>
         </div>
-        <div class="row mt-3">
+        <div class="row align-items-center mt-1">
             <div class="col-3">
-                <b>Inputs:</b>
-                <ul>
-                    <li *ngFor="let capInput of capabilityToEdit.inputs">{{capInput.getLocalName()}}</li>
+                <h5>Process Type:</h5>
+            </div>
+            <div class="col-9">
+                <span>
+                    {{capabilityToEdit.processType.getLocalName()}}
+                </span>
+            </div>
+        </div>
+        <div class="row mt-1">
+            <div class="col-lg-6">
+                <h5>Inputs:</h5>
+                <ul class="fa-ul">
+                    <li *ngFor="let capInput of capabilityToEdit.inputs, let i=index">
+                        <div class="d-flex align-items-center">
+                            <span class="fa-li"><i class="fa-solid fa-arrow-right"></i></span>
+                                <app-fpb-state [stateType]="capInput.type"></app-fpb-state>
+                                <span>
+                                    {{capInput.getLocalName()}}
+                                </span>
+                                <span class="ms-2">
+                                    ({{capInput.properties.length | i18nPlural: propertiesMapping}})
+                                </span>
+                                <button *ngIf="capInput.properties.length > 0" class="ms-3 btn btn-link link-secondary"
+                                        (click)="toggleProperties('input', i)">{{propertiesShown.get("input")[i] ? "Hide": "Show"}}
+                                </button>
+                        </div>
+                        <div *ngIf="capInput.properties.length > 0 && propertiesShown.get('input')[i]" class="mt-2">
+                            <h6>Properties:</h6>
+                            <table class="table table-sm table-bordered rounded">
+                                <thead>
+                                    <tr class="table-secondary">
+                                        <th>Property</th>
+                                        <th>Type Desc.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let prop of capInput.properties">
+                                        <td>
+                                            <b>{{prop.getLocalName()}}</b>
+                                            <br>Instances:
+                                            <ul>
+                                                <li *ngFor="let instance of prop.instances">
+                                                    <span>
+                                                        <b>Exp.Goal:</b> {{instance.expressionGoal}}
+                                                    </span>
+                                                    <span class="ms-3">
+                                                        <b>Log. Int.:</b> {{instance.logicInterpretation}}
+                                                    </span>
+                                                    <span class="ms-3">
+                                                        <b>Value:</b> {{instance.value}}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td>{{prop.typeDescription.getLocalName()}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <h5>Outputs:</h5>
+                <ul class="fa-ul">
+                    <li *ngFor="let capOutput of capabilityToEdit.outputs, let i=index" >
+                        <div class="d-flex align-items-center">
+                            <span class="fa-li"><i class="fa-solid fa-arrow-left"></i></span>
+                            <div class="d-flex align-items-center">
+                                <app-fpb-state [stateType]="capOutput.type"></app-fpb-state>
+                                <span>
+                                    {{capOutput.getLocalName()}}
+                                </span>
+                                <span class="ms-2">
+                                    ({{capOutput.properties.length | i18nPlural: propertiesMapping}})
+                                </span>
+                                <button *ngIf="capOutput.properties.length > 0" class="ms-3 btn btn-link link-secondary"
+                                        (click)="toggleProperties('output', i)">{{propertiesShown.get("output")[i] ? "Hide": "Show"}}
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngIf="capOutput.properties.length > 0  && propertiesShown.get('output')[i]" class="mt-2">
+                            <h6>Properties:</h6>
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr class="table-secondary">
+                                        <th>Property</th>
+                                        <th>Type Desc.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let prop of capOutput.properties">
+                                        <td>
+                                            <b>{{prop.getLocalName()}}</b>
+                                            <br>Instances:
+                                            <ul>
+                                                <li *ngFor="let instance of prop.instances">
+                                                    <span>
+                                                        <b>Exp.Goal:</b> {{instance.expressionGoal}}
+                                                    </span>
+                                                    <span class="ms-3">
+                                                        <b>Log. Int.:</b> {{instance.logicInterpretation}}
+                                                    </span>
+                                                    <span class="ms-3">
+                                                        <b>Value:</b> {{instance.value}}
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td>{{prop.typeDescription.getLocalName()}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
+
         <div class="row">
             <div class="col-12">
-                <b>Outputs:</b>
-                <ul>
-                    <li *ngFor="let capOutput of capabilityToEdit.outputs">{{capOutput.getLocalName()}}</li>
-                </ul>
+                <ng-container *ngIf="capabilityToEdit.constraints.length > 0">
+                    <h5>Constraints:</h5>
+                    <ul class="fa-ul">
+                        <li *ngFor="let constraint of capabilityToEdit.constraints" class="d-flex align-items-center">
+                            <span class="fa-li"><i class="fas fa-balance-scale"></i></span>
+                            <span class="badge rounded-pill text-bg-secondary">
+                                {{constraint.expressionGoal || "Formula"}}
+                            </span>
+                            {{constraint.toString()}}
+                        </li>
+                    </ul>
+                </ng-container>
             </div>
         </div>
     </div>
