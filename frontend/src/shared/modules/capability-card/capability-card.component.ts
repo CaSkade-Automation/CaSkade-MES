@@ -15,10 +15,11 @@ import { Router } from '@angular/router';
 })
 export class CapabilityCardComponent implements AfterContentInit, OnDestroy {
 
-    @Input() isEditable = false;
-    @Input() showSkills = false;
     @Input() capability: Capability;
     @Output("onCapabilityDeleted") onCapabilityDeleted = new EventEmitter<string>();
+
+    inputPropertiesShown = new Array<boolean>(false);
+    outputPropertiesShown = new Array<boolean>(false);
 
     @ViewChild('copyToolTip') copyToolTipElem: ElementRef;
     copyToolTip!: Tooltip;
@@ -57,6 +58,14 @@ export class CapabilityCardComponent implements AfterContentInit, OnDestroy {
                 this.clipBoardClass = 'fa-regular fa-clipboard';
             }, 2000);
         }
+    }
+
+    toggleInputProperties(i: number): void {
+        this.inputPropertiesShown[i] = !this.inputPropertiesShown[i];
+    }
+
+    toggleOutputProperties(i: number): void {
+        this.outputPropertiesShown[i] = !this.outputPropertiesShown[i];
     }
 
     deleteCapability(): void {
