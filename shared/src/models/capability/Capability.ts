@@ -1,5 +1,6 @@
 import { RdfElementDto } from "../RdfElement";
-import { FpbElementDTO } from "../fpb/FpbElementDTO";
+import { FormulaConstraintDto, ValueConstraintDto } from "../constraints/ConstraintDto";
+import { FpbElementDTO } from "../fpb/FpbElementDto";
 import { SkillDto } from "../skill/Skill";
 
 
@@ -8,6 +9,6 @@ export class CapabilityDto extends RdfElementDto{
     public processType?: string;
 	public inputs?: Array<FpbElementDTO>;
 	public outputs?: Array<FpbElementDTO>;
-    public constraints?: Array<string>;
+    public constraints?: Array<ValueConstraintDto | FormulaConstraintDto>;
     public skillDtos?: Array<SkillDto>;
 }
