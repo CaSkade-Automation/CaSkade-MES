@@ -6,7 +6,7 @@ export class PropertyInstanceDto {
 }
 
 
-export class PropertyDTO {
+export class PropertyDto {
     propertyIri: string;        // IRI of the data element
     typeDescription: string;
     parentElement: string;

@@ -1,4 +1,4 @@
-import { ExpressionGoal, PropertyDTO, PropertyInstanceDto } from "@shared/models/properties/PropertyDTO";
+import { ExpressionGoal, PropertyDto, PropertyInstanceDto } from "@shared/models/properties/PropertyDto";
 import { RdfElement } from "@shared/models/RdfElement";
 
 export class PropertyInstance extends RdfElement{
@@ -33,7 +33,7 @@ export class Property extends RdfElement {
     unit?: string;
     instances: Array<PropertyInstance>
 
-    constructor(dto: PropertyDTO) {
+    constructor(dto: PropertyDto) {
         super(dto.propertyIri);
         this.parentElement = new RdfElement(dto.parentElement);
         this.typeDescription = new RdfElement(dto.typeDescription);
@@ -44,8 +44,8 @@ export class Property extends RdfElement {
         this.instances = dto.instances.map(instanceDto => new PropertyInstance(instanceDto));
     }
 
-    toDto(): PropertyDTO {
-        const dto: PropertyDTO = {
+    toDto(): PropertyDto {
+        const dto: PropertyDto = {
             propertyIri: this.iri,
             typeDescription: this.typeDescription.iri,
             dataType: this.dataType,

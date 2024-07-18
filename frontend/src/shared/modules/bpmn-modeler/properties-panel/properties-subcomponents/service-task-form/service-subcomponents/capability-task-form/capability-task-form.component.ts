@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Isa88CommandTypeIri } from '@shared/models/state-machine/ISA88/ISA88CommandTypeIri';
 import { BehaviorSubject, combineLatest, debounceTime, firstValueFrom, Observable, Subscription, tap, withLatestFrom } from 'rxjs';
-import { ExpressionGoal, PropertyDTO, PropertyInstanceDto } from '@shared/models/properties/PropertyDTO';
+import { ExpressionGoal, PropertyDto, PropertyInstanceDto } from '@shared/models/properties/PropertyDto';
 import { BpmnTaskCapability, BpmnTaskCapabilityDTO } from '../../../../../../../../shared/models/BpmnTaskCapability';
 import { Capability } from '../../../../../../../../shared/models/Capability';
 import { Property, PropertyInstance } from '../../../../../../../../shared/models/Property';

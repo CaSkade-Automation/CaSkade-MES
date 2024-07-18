@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
-import { PropertyDTO } from "@shared/models/properties/PropertyDTO";
+import { PropertyDto } from "@shared/models/properties/PropertyDto";
 import { PropertyService } from "./property.service";
 
 @Controller('/properties')
@@ -13,7 +13,7 @@ export class PropertyController {
      * Get all properties (of all capabilities) that are currently registered
      */
     @Get()
-    getAllProperties(): Promise<Array<PropertyDTO>> {
+    getAllProperties(): Promise<Array<PropertyDto>> {
         return this.propertyService.getAllProperties();
     }
 
@@ -22,7 +22,7 @@ export class PropertyController {
      * @param propertyIri IRI of the property to get
      */
     @Get(':propertyIri')
-    getPropertyByIri(@Param('propertyIri') propertyIri: string): Promise<PropertyDTO> {
+    getPropertyByIri(@Param('propertyIri') propertyIri: string): Promise<PropertyDto> {
         return this.propertyService.getPropertyByIri(propertyIri);
     }
 
@@ -32,7 +32,7 @@ export class PropertyController {
      * @param capabilityIri: IRI of the capability to find properties of
      */
     @Get('')
-    getSkillsOfCapability(@Query('capabilityIri') capabilityIri: string): Promise<PropertyDTO[]>{
+    getSkillsOfCapability(@Query('capabilityIri') capabilityIri: string): Promise<PropertyDto[]>{
         return this.propertyService.getPropertiesOfCapability(capabilityIri);
     }
 

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { SparqlResultConverter } from "sparql-result-converter";
 import { GraphDbConnectionService } from "../../util/GraphDbConnection.service";
-import { PropertyDTO } from "@shared/models/properties/PropertyDTO";
+import { PropertyDto } from "../../../../shared/src/models/properties/PropertyDto";
 import { propertyMapping } from "./property-mappings";
 
 
@@ -19,7 +19,7 @@ export class PropertyService {
         private graphDbConnection: GraphDbConnectionService,
     ) { }
 
-    async getAllProperties(): Promise<Array<PropertyDTO>> {
+    async getAllProperties(): Promise<Array<PropertyDto>> {
         const queryString = `
         PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
 
@@ -52,12 +52,11 @@ export class PropertyService {
         const rawResult = await this.graphDbConnection.executeQuery(queryString);
 
         const result = converter.convertToDefinition(rawResult.results.bindings, propertyMapping)
-            .getFirstRootElement() as Array<PropertyDTO>;
-        console.log(result);
+            .getFirstRootElement() as Array<PropertyDto>;
         return result;
     }
 
-    async getPropertyByIri(propertyIri: string): Promise<PropertyDTO>{
+    async getPropertyByIri(propertyIri: string): Promise<PropertyDto>{
         const queryString = `
         PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
 
@@ -80,11 +79,11 @@ export class PropertyService {
             FILTER(?propertyInstanceIri = <${propertyIri}>)
         }`;
         const rawResult = await this.graphDbConnection.executeQuery(queryString);
-        const result = converter.convertToDefinition(rawResult.results.bindings, propertyMapping).getFirstRootElement()[0] as PropertyDTO;
+        const result = converter.convertToDefinition(rawResult.results.bindings, propertyMapping).getFirstRootElement()[0] as PropertyDto;
         return result;
     }
 
-    async getPropertiesOfCapability(capabilityIri: string, inOut?: VDI3682RelationType): Promise<Array<PropertyDTO>> {
+    async getPropertiesOfCapability(capabilityIri: string, inOut?: VDI3682RelationType): Promise<Array<PropertyDto>> {
         let relationType = "VDI3682:hasInput VDI3682:hasOutput";
         if (inOut) {
             relationType = VDI3682RelationType[inOut];
@@ -100,13 +99,13 @@ export class PropertyService {
             <${capabilityIri}> ?inOut ?parentElement.
             VALUES ?inOut {${relationType}}
             ?parentElement DINEN61360:has_Data_Element ?propertyIri.
-            ?propertyIri a DINEN61360:Data_Element;
-				DINEN61360:has_Instance_Description ?propertyInstanceIri.
+            # ?propertyIri a CSS:Property;
+			?propertyIri DINEN61360:has_Instance_Description ?propertyInstanceIri.
 			?propertyInstanceIri a DINEN61360:Instance_Description;
-                DINEN61360:Expression_Goal ?expressionGoal;
                 DINEN61360:Logic_Interpretation ?logicInterpretation.
             ?dataElement DINEN61360:has_Type_Description ?typeDescription.
 
+            OPTIONAL {?propertyInstanceIri DINEN61360:Expression_Goal ?expressionGoal.}
             OPTIONAL {
                 ?propertyInstanceIri DINEN61360:Value ?value.
             }
@@ -124,7 +123,7 @@ export class PropertyService {
         }`;
         const rawResult = await this.graphDbConnection.executeQuery(queryString);
         const result = converter.convertToDefinition(rawResult.results.bindings, propertyMapping)
-            .getFirstRootElement() as Array<PropertyDTO>;
+            .getFirstRootElement() as Array<PropertyDto>;
         return result;
     }
 

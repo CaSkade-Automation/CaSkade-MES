@@ -1,4 +1,4 @@
-import { PropertyInstanceDto } from "@shared/models/properties/PropertyDTO";
+import { PropertyInstanceDto } from "@shared/models/properties/PropertyDto";
 import { PropertyInstance } from "./Property";
 
 /**

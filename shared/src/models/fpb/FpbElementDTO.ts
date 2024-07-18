@@ -1,8 +1,8 @@
-import { PropertyDTO } from "../properties/PropertyDTO";
+import { PropertyDto } from "../properties/PropertyDto";
 
 export class FpbElementDTO {
     iri: string;
     type: string;
-    propertyDtos: Array<PropertyDTO>
+    propertyDtos: Array<PropertyDto>
 }
 

@@ -34,7 +34,7 @@ export class NodeCreatorService {
                         nodeData.nodes.push(inputNode);
                         nodeData.links.push(new D3Link(capNode, inputNode, "hasInput"));
 
-                        const inputTypeNode = new D3Node(input.type, input.type, NodeType.None);
+                        const inputTypeNode = new D3Node(input.type.iri, input.type.iri, NodeType.None);
                         nodeData.nodes.push(inputTypeNode);
                         nodeData.links.push(new D3Link(inputNode, inputTypeNode, "rdf:type"));
                     });
@@ -44,7 +44,7 @@ export class NodeCreatorService {
                         nodeData.nodes.push(outputNode);
                         nodeData.links.push(new D3Link(capNode, outputNode, "hasInput"));
 
-                        const outputTypeNode = new D3Node(output.type, output.type, NodeType.None);
+                        const outputTypeNode = new D3Node(output.type.iri, output.type.iri, NodeType.None);
                         nodeData.nodes.push(outputTypeNode);
                         nodeData.links.push(new D3Link(outputNode, outputTypeNode, "rdf:type"));
                     });

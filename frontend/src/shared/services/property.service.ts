@@ -9,7 +9,7 @@ import { CapabilitySocketService } from "./sockets/capability-socket.service";
 import { SkillSocketService } from "./sockets/skill-socket.service";
 import { MessageService } from "./message.service";
 import { Property } from "../models/Property";
-import { PropertyDTO } from "../../../../shared/src/models/properties/PropertyDTO";
+import { PropertyDto } from "@shared/models/properties/PropertyDto";
 import { Capability } from "../models/Capability";
 
 @Injectable({
@@ -86,9 +86,9 @@ export class PropertyService {
      */
     private loadProperties(): Observable<Property[]> {
         const apiURL = `${this.apiRoot}/properties`;
-        return this.http.get<PropertyDTO[]>(apiURL).pipe(
+        return this.http.get<PropertyDto[]>(apiURL).pipe(
             take(1),
-            map((propertyDtos: PropertyDTO[]) => propertyDtos.map(dto => new Property(dto))),
+            map((propertyDtos: PropertyDto[]) => propertyDtos.map(dto => new Property(dto))),
         );
     }
 
