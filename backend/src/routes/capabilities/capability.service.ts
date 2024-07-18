@@ -77,15 +77,12 @@ export class CapabilityService {
      * @param capabilityIri IRI of the capability to get
      */
     async getCapabilityByIri(capabilityIri: string): Promise<CapabilityDto> {
-        console.log(capabilityIri);
-
         const iriFilter = `FILTER(?capability = IRI("${capabilityIri}")).`;
         const queryString = getCapabilityQueryString(iriFilter);
         try {
             const queryResult = await this.graphDbConnection.executeQuery(queryString);
             const capability = converter
-                .convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
-            console.log(capability);
+                .convertToDefinition(queryResult.results.bindings, capabilityMapping, false).getFirstRootElement()[0] as CapabilityDto;
 
             await this.addPropertiesSkillsConstraints(capability);
 
@@ -150,15 +147,13 @@ export class CapabilityService {
         }
 
         //add constraints
-        capability.constraints = this.constraintService.getConstraintsOfCapability(capability.iri);
+        capability.constraints = await this.constraintService.getConstraintsOfCapability(capability.iri);
 
         return capability;
     }
 
     async changeCapabilityType(capabilityIri: string, changeCapabilityTypeInfo: ChangeCapabilityTypeDto): Promise<void> {
         // if change to provided, there must be a resource
-        console.log(changeCapabilityTypeInfo);
-
         const {newType, providingResourceIri} = changeCapabilityTypeInfo;
         if (newType == CapabilityType.ProvidedCapability && !providingResourceIri) {
             throw new Error("Make sure to pass a resource in order to change a capability's type to provided");
