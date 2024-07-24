@@ -132,8 +132,7 @@ export class GraphDbConnectionService {
                 "msg": dbResponse.data};
 
         } catch (err) {
-            throw new Error(`GraphDB Error. This typically means that something is wrong with your RDF data or query.
-                GraphDB error message: ${err.response.data}`);
+            throw new Error(`GraphDB error message: ${err.response.data}`);
         }
     }
 

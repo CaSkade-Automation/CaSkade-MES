@@ -31,14 +31,16 @@ export class ManualRegistrationComponent {
             }
         }
         if(this.context=="skills") {
-            this.skillService.addSkill(this.ontologyString).pipe(take(1)).subscribe(
-                () => this.messageService.success("Skill manually registered", "Successfully registered a new skill")
-            );
+            this.skillService.addSkill(this.ontologyString).pipe(take(1)).subscribe({
+                next: () => this.messageService.success("Skill manually registered", "Successfully registered a new skill"),
+                error: (err) => this.messageService.danger("Failed to register skill", err),
+            });
         }
         if(this.context == "capabilities") {
-            this.capabilityService.addCapability(this.ontologyString).pipe(take(1)).subscribe(
-                () => this.messageService.success("Capability manually registered", "Successfully registered a new capability")
-            );
+            this.capabilityService.addCapability(this.ontologyString).pipe(take(1)).subscribe({
+                next: () => this.messageService.success("Capability manually registered", "Successfully registered a new capability"),
+                error: (err) => this.messageService.danger("Failed to register capability", err.error.message),
+            });
         }
     }
 
