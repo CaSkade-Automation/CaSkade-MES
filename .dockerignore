@@ -1,9 +1,47 @@
-Dockerfile
-.dockerignore
-docker-compose.yml
-.vscode/
-frontend/node_modules
-backend/node_modules
-frontend/npm-debug.log
-backend/npm-debug.log
-dist
+# Node modules
+**/node_modules
+**/npm-debug.log
+**/yarn-error.log
+
+# Build directories
+**/dist
+**/build
+**/.angular
+
+# Development files
+**/.env
+**/.env.local
+**/.env.*.local
+
+# IDE files
+**/.idea
+**/.vscode
+**/*.swp
+**/*.swo
+**/.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+CLAUDE.md
+docs/
+
+# Test files
+**/coverage
+**/.nyc_output
+**/*.spec.ts
+**/*.spec.js
+**/e2e
+
+# Temporary files
+**/tmp
+**/temp
+**/*.log
+
+# Docker files (in build context)
+**/Dockerfile*
+**/docker-compose*
+**/.dockerignore
