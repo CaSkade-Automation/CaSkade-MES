@@ -94,6 +94,11 @@ export class GraphDbConnectionService {
      */
     async getGraphsContainingStatements(statements: string): Promise<Array<string>> {
         const graphQuery = `
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
+        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+        PREFIX VDI2206: <http://www.w3id.org/hsu-aut/VDI2206#>
+        PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
         SELECT ?graph WHERE {
             GRAPH ?graph {
                 ${statements}
@@ -104,7 +109,8 @@ export class GraphDbConnectionService {
         const bindings = queryResult.results.bindings;
         const graphIris = bindings.map(binding => binding.graph.value);
         if (graphIris.length == 0 ) {
-            throw new Error("Error finding graphs. The given statements are not contained in a graph. Maybe they are spread over different graphs?");
+            throw new Error(`Error finding graphs. The given statement ${statements} are not contained in a graph.
+                Maybe they are part of the default graph or spread over different graphs?`);
         }
         return graphIris;
     }
@@ -127,11 +133,12 @@ export class GraphDbConnectionService {
 
         try {
             const dbResponse = await Axios.post(url, statement,{ 'headers': headers });
-
-            return {"statusCode": dbResponse.request.res.statusCode,
-                "msg": dbResponse.data};
+            return;
 
         } catch (err) {
+            console.log("error executing statement");
+            console.log(err);
+
             throw new Error(`GraphDB error message: ${err.response.data}`);
         }
     }
