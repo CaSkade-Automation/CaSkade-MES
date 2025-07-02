@@ -44,7 +44,11 @@ export class ConstraintService {
         // This currently doesn't work because of a bug in Comunica (https://github.com/comunica/comunica/issues/1391). Will be changed if the bug
         // is fixed on Comunica's side
         try {
-            const capabilityDeclaration = `<${capabilityIri}> a <http://www.w3id.org/hsu-aut/css#Capability>.`;
+            // We need to mention explicit capability classes here since just looking for CSS:Cap doesn't work.
+            const capabilityDeclaration = `
+                <${capabilityIri}> a ?capClass.
+                VALUES ?capClass {CSS:Capability CaSk:ProvidedCapability CaSk:RequiredCapability }
+            `;
             const graphIris = await this.graphDbConnection.getGraphsContainingStatements(capabilityDeclaration);
             // There should only be one graph containing the capability definition
             const capabilityRdfData = await this.graphDbConnection.exportStatementsInGraph(graphIris[0]);
@@ -55,7 +59,7 @@ export class ConstraintService {
             constraints.push(...formulaConstraintDtos);
         } catch (error) {
             console.log("Error while getting formula constraint");
-            throw new InternalServerErrorException(error, "Error while getting formula constraint");
+            throw new InternalServerErrorException("Error while getting formula constraint", {cause: new Error(error)});
         }
         return constraints;
     }
