@@ -1,7 +1,8 @@
-import { Controller, Get, Post, ServiceUnavailableException } from "@nestjs/common";
+import { Body, Controller, Get, Post, ServiceUnavailableException } from "@nestjs/common";
 import { Observable, catchError } from "rxjs";
 import { ProcessPlanningService } from "./process-planning.service";
 import { PlanningResultDto } from "@shared/models/process-planning/PlanningResult";
+import { PlanningDataDto } from "@shared/models/process-planning/PlanningDataDto";
 
 @Controller('/process-planning')
 export class ProcessPlanningController {
@@ -21,8 +22,8 @@ export class ProcessPlanningController {
 
 
     @Post('')
-    createProcessPlan(): Observable<PlanningResultDto> {
-        return this.planningService.createProcessPlan().pipe(
+    createProcessPlan(@Body() planningData: PlanningDataDto): Observable<PlanningResultDto> {
+        return this.planningService.createProcessPlan(planningData).pipe(
             catchError(err => {
                 throw new ServiceUnavailableException(null, "Service is not running. Make sure to start the Planning REST API.");
             })

@@ -9,6 +9,7 @@ import { state, trigger } from '@angular/animations';
 import { style } from 'd3';
 import { Property } from '../../../shared/models/Property';
 import { PropertyService } from '../../../shared/services/property.service';
+import { PlanningDataDto } from '@shared/models/process-planning/PlanningDataDto';
 
 
 @Component({
@@ -32,8 +33,9 @@ export class NewOrderComponent implements OnInit {
         value: false
     }]
 
-    orderInquiryForm = this.fb.group({
+    newPlanForm = this.fb.group({
         requiredCapability: this.fb.control(null, Validators.required),
+        maxHappenings: this.fb.control(5, Validators.required),
         properties: this.fb.group({}),
         propertyConstraints: this.fb.array([]),
         sequenceConstraints: this.fb.array([]),
@@ -53,7 +55,6 @@ export class NewOrderComponent implements OnInit {
     ngOnInit(): void {
         this.requiredCapabilities$ = this.capabilityService.getCapabilities()
             .pipe(
-                tap(data => console.log(data)),
                 map(caps => caps.filter(cap => cap.capabilityType.iri == "http://www.w3id.org/hsu-aut/cask#RequiredCapability"))
             );
         this.providedCapabilities$ = this.capabilityService.getCapabilities()
@@ -65,8 +66,8 @@ export class NewOrderComponent implements OnInit {
 
 
         // If the required capability is selected / changed, the form needs to add form controls for the properties of the selected capability
-        this.orderInquiryForm.get('requiredCapability').valueChanges.subscribe(change => {
-            const propertyFormGroup = this.orderInquiryForm.get('properties') as FormGroup;
+        this.newPlanForm.get('requiredCapability').valueChanges.subscribe(change => {
+            const propertyFormGroup = this.newPlanForm.get('properties') as FormGroup;
             const requiredCapabilityInputProperties = this.requiredCapability.inputProperties;
             const requiredCapabilityOutputProperties = this.requiredCapability.outputProperties;
             requiredCapabilityInputProperties.forEach(input => {
@@ -79,11 +80,11 @@ export class NewOrderComponent implements OnInit {
     }
 
     get requiredCapability(): Capability {
-        return this.orderInquiryForm.get('requiredCapability').value;
+        return this.newPlanForm.get('requiredCapability').value;
     }
 
     get propertyConstraints(): FormArray {
-        return this.orderInquiryForm.get('propertyConstraints') as FormArray;
+        return this.newPlanForm.get('propertyConstraints') as FormArray;
     }
 
     addNewPropertyConstraint(): void {
@@ -100,7 +101,7 @@ export class NewOrderComponent implements OnInit {
     }
 
     get sequenceConstraints(): FormArray {
-        return this.orderInquiryForm.get('sequenceConstraints') as FormArray;
+        return this.newPlanForm.get('sequenceConstraints') as FormArray;
     }
 
     addNewSequenceConstraint(): void {
@@ -117,7 +118,7 @@ export class NewOrderComponent implements OnInit {
     }
 
     get partialSolutions(): FormArray {
-        return this.orderInquiryForm.get('partialSolutionConstraints') as FormArray;
+        return this.newPlanForm.get('partialSolutionConstraints') as FormArray;
     }
 
     addNewPartialSolution(): void {
@@ -136,10 +137,13 @@ export class NewOrderComponent implements OnInit {
 
     submit(): void {
         this.showPlanningInProgress = true;
-        this.planningService.createProcessPlan().subscribe(plan => {
+        const planningData = new PlanningDataDto(this.requiredCapability.iri, this.newPlanForm.value.maxHappenings);
+        console.log(planningData);
+
+        this.planningService.createProcessPlan(planningData).subscribe(result => {
             // Stop loading animation and set plan to service so it can be retrieved in the next component
             this.showPlanningInProgress = false;
-            this.planningService.currentPlan = plan;
+            this.planningService.currentResult = result;
             this.router.navigate(['../check-plan'], {relativeTo: this.route});
         });
     }

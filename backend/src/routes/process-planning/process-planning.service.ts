@@ -3,6 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { Observable, map } from "rxjs";
 import { PlanningResultDto } from '@shared/models/process-planning/PlanningResult';
 import { GraphDbConnectionService } from "../../util/GraphDbConnection.service";
+import { PlanningDataDto } from "@shared/models/process-planning/PlanningDataDto";
 
 /**
  * Currently just URL, but should be used for other config settings as well
@@ -34,16 +35,28 @@ export class ProcessPlanningService {
     }
 
 
-    createProcessPlan(): Observable<PlanningResultDto> {
+    createProcessPlan(planningData: PlanningDataDto): Observable<PlanningResultDto> {
         const planningUrl = `${this.config.url}/plan`;
 
-        const params = {
-            "mode": 'sparql-endpoint',
-            "endpoint-url": this.graphDbConnection.getCurrentRepoEndpointString()
-        };
+        const planningRequestData = new PlanningRequestDto(
+            "sparql-endpoint",
+            this.graphDbConnection.getCurrentRepoEndpointString(),
+            planningData.requiredCapabilityIri,
+            planningData.maxHappenings
+        );
 
-        return this.http.post<PlanningResultDto>(planningUrl, null , {params: params}).pipe(map(res => res.data));
+        return this.http.post<PlanningResultDto>(planningUrl, planningRequestData).pipe(map(res => res.data));
     }
 
 
+}
+
+
+export class PlanningRequestDto {
+    constructor(
+		public mode: string,
+		public endpointUrl: string,
+		public requiredCapabilityIri: string,
+        public maxHappenings: number,
+    ) {}
 }

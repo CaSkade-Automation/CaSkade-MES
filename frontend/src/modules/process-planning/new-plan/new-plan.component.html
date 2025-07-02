@@ -1,6 +1,6 @@
 <h3>Define a new planning problem</h3>
 
-<form [formGroup]="orderInquiryForm">
+<form [formGroup]="newPlanForm">
     <div class="row">
         <div class="col">
             <h4>1. Select Required Capability</h4>
@@ -13,6 +13,12 @@
                     <option *ngFor="let requiredCap of (requiredCapabilities$ | async)" [ngValue]="requiredCap">{{requiredCap.iri}}</option>
                 </select>
             </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">Max. Plan Length</span>
+                <input class="form-control" type="number" formControlName="maxHappenings" />
+            </div>
+
             <div *ngIf="requiredCapability != null" formGroupName="properties">
                 <h5>Set all property values</h5>
                 <div *ngIf="requiredCapability.inputProperties.length > 0">

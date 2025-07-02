@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from "@angular/router";
 import { ProcessPlanningService } from '../../../shared/services/process-planning.service';
-import { PlanningResultDto } from '../../../../../shared/src/models/process-planning/PlanningResult';
+import { PlanDto, PlanningResultType } from '@shared/models/process-planning/PlanningResult';
 
 @Component({
     selector: 'check-plan',
@@ -9,7 +9,9 @@ import { PlanningResultDto } from '../../../../../shared/src/models/process-plan
 })
 export class UploadSummaryComponent implements OnInit {
 
-    plan: PlanningResultDto;
+    plan: PlanDto;
+    resultType: PlanningResultType
+    unsatCore: Array<string>
 
     constructor(
         private planningService: ProcessPlanningService,
@@ -18,11 +20,22 @@ export class UploadSummaryComponent implements OnInit {
     ) {}
 
 
+    get isSat(): boolean {
+        return this.resultType == PlanningResultType.SAT;
+    }
+
     ngOnInit(): void {
-        this.plan = this.planningService.currentPlan;
+        this.resultType = this.planningService.currentResult.resultType;
+        this.plan = this.planningService.currentResult.plan;
+        if (this.isSat) {
+            this.unsatCore = null;
+        } else {
+            this.unsatCore = this.planningService.currentResult.unsatCore.map(elem => elem.replace(/\n/g, '<br>'));
+        }
     }
 
     nextTab(): void {
+        if(this.resultType == PlanningResultType.UNSAT) return;
         this.router.navigate(['../bpmn-result'], {relativeTo: this.route});
     }
 

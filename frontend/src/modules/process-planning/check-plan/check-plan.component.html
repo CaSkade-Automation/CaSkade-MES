@@ -1,15 +1,20 @@
 <h3 class="mb-3">Planning Result</h3>
+<div class="alert alert-success" *ngIf="isSat">Your planning problem was solved and a valid plan could be found</div>
+<div class="alert alert-danger" *ngIf="!isSat">Your planning problem could not be solved. See the unsat cores below to find out what caused the insatisfiability</div>
 <div class="row">
     <div class="col">
         <div class="bg-light overflow-auto border border-secondary rounded" style="height:400px">
             <code class="w-100 text-black">
-                <pre class="p-2">{{plan |json}}</pre>
+                <pre class="p-2" *ngIf="isSat">{{plan |json}}</pre>
+                <ng-container *ngIf="!isSat">
+                    <div class="p-2 border border-rounded" *ngFor="let core of unsatCore" [innerHtml]="core"></div>
+                </ng-container>
             </code>
         </div>
     </div>
 </div>
 <div class="row mt-3">
     <div class="col">
-        <button class="btn btn-primary" (click)="nextTab()">Convert to BPMN</button>
+        <button class="btn btn-primary" (click)="nextTab()" [disabled]="this.resultType">Convert to BPMN</button>
     </div>
 </div>

@@ -1,9 +1,16 @@
-export class PlanningResultDto {
-    time_created: string;
-    plan: PlanDto
+export enum PlanningResultType {
+    SAT = "PlanningResultType.SAT",
+    UNSAT = "PlanningResultType.UNSAT"
 }
 
-class PlanDto {
+export class PlanningResultDto {
+    timeCreated: string;
+    resultType: PlanningResultType;
+    plan: PlanDto | null
+    unsatCore: Array<string> | null
+}
+
+export class PlanDto {
     plan_length: number
     plan_steps: PlanStep[]
 }

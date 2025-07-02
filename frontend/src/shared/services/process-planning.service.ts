@@ -2,6 +2,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, take, tap } from 'rxjs';
 import { PlanningResultDto } from '@shared/models/process-planning/PlanningResult';
+import { PlanningDataDto } from '@shared/models/process-planning/PlanningDataDto';
 
 @Injectable({
     providedIn: 'root'
@@ -21,11 +22,11 @@ export class ProcessPlanningService {
         return this.httpClient.get<any>(pingUrl, { observe: 'response' }).pipe(take(1), tap(val => console.log(val)));
     }
 
-    set currentPlan(plan: PlanningResultDto) {
+    set currentResult(plan: PlanningResultDto) {
         this._currentPlan = plan;
     }
 
-    get currentPlan(): PlanningResultDto {
+    get currentResult(): PlanningResultDto {
         return this._currentPlan;
     }
 
@@ -35,7 +36,7 @@ export class ProcessPlanningService {
 	 * @param plcFile MTP file that will be mapped
 	 * @returns The mapped module with skills in turtle syntax
 	 */
-    createProcessPlan(): Observable<PlanningResultDto> {
-        return this.httpClient.post(this.baseApiRoute, {}) as Observable<PlanningResultDto>;
+    createProcessPlan(planningData: PlanningDataDto): Observable<PlanningResultDto> {
+        return this.httpClient.post(this.baseApiRoute, planningData) as Observable<PlanningResultDto>;
     }
 }

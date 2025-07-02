@@ -1,7 +1,7 @@
 import { OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from "@nestjs/websockets";
 import * as crypto from 'crypto';
 import { Server, WebSocket } from "ws";
-import { WebSocketMessage, SocketMessageType } from "@shared/models/socket-communication/SocketData";
+import { WebSocketMessage, BaseSocketMessageType, SkillSocketMessageType } from "@shared/models/socket-communication/SocketData";
 
 export abstract class Websocket implements OnGatewayConnection, OnGatewayDisconnect{
 
@@ -26,7 +26,7 @@ export abstract class Websocket implements OnGatewayConnection, OnGatewayDisconn
    * Sends a message to all connected clients
    * @param {string} message The message to be emitted
    */
-    protected sendMessage(messageType: SocketMessageType , messageBody?: any): void {
+    protected sendMessage(messageType: BaseSocketMessageType | SkillSocketMessageType , messageBody?: any): void {
         // Create the message and send it to all connected clients
         const message = new WebSocketMessage(messageType, messageBody);
         this.connectedClients.forEach(client => {

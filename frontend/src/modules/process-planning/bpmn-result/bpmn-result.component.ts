@@ -176,7 +176,7 @@ export class BpmnPlanningResultComponent implements OnInit, AfterViewInit {
 
 
     ngOnInit(): void {
-        this.plan = this.planningService.currentPlan;
+        this.plan = this.planningService.currentResult;
     }
 
 
