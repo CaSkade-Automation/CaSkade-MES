@@ -39,7 +39,8 @@ export class ManualRegistrationComponent {
         if(this.context == "capabilities") {
             this.capabilityService.addCapability(this.ontologyString).pipe(take(1)).subscribe({
                 next: () => this.messageService.success("Capability manually registered", "Successfully registered a new capability"),
-                error: (err) => this.messageService.danger("Failed to register capability", err.error.message),
+                // complete: () => this.messageService.success("Capability manually registered", "Successfully registered a new capability"),
+                // error: (err) => this.messageService.danger("Failed to register capability", err.error.message),
             });
         }
     }

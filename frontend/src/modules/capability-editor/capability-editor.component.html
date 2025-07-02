@@ -170,11 +170,11 @@
                     <h5>Constraints:</h5>
                     <ul class="fa-ul">
                         <li *ngFor="let constraint of capabilityToEdit.constraints" class="d-flex align-items-center">
-                            <span class="fa-li"><i class="fas fa-balance-scale"></i></span>
+                            <span class="fst-italic me-2">f(x)</span>
                             <span class="badge rounded-pill text-bg-secondary">
                                 {{constraint.expressionGoal || "Formula"}}
                             </span>
-                            {{constraint.toString()}}
+                            <span class="ms-2">{{constraint.toString()}}</span>
                         </li>
                     </ul>
                 </ng-container>
