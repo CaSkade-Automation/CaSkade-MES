@@ -24,8 +24,8 @@ export class ModuleController {
      * @param contentType Encoding of the document
      * @returns A simple response
      */
-    @Post() // TODO: Check if this return makes sense, could also be void
-    async addModule(@StringBody() newModule: string, @Headers("Content-Type") contentType: string): Promise<Record<string, string>> {
+    @Post()
+    async addModule(@StringBody() newModule: string, @Headers("Content-Type") contentType: string): Promise<void> {
         return this.moduleService.addModule(newModule, contentType);
     }
 
@@ -69,7 +69,7 @@ export class ModuleController {
     addModuleSkill(
         @Param('moduleIri') moduleIri: string,
         @StringBody() newSkill: string,
-        @Headers("Content-Type") contentType?: string): Promise<string> {
+        @Headers("Content-Type") contentType?: string): Promise<void> {
         // TODO: Make sure that the skill is registered with the given module. This is currently not checked
         return this.skillService.addSkills(newSkill, contentType);
     }

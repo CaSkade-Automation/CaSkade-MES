@@ -29,10 +29,10 @@ export class CapabilityService {
      * Registers a new capability in the graph DB
      * @param newCapability Rdf document describing the new capability
      */
-    async addCapability(newCapability: string): Promise<string> {
+    async addCapability(newCapability: string): Promise<void> {
         const capabilitiesBefore = await this.getAllCapabilities();
         try {
-            // create a graph name for the service (uuid)
+            // create a graph name for the capability (uuid)
             const capabilityGraphName = crypto.randomUUID();
 
             await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
@@ -42,9 +42,9 @@ export class CapabilityService {
                 capAfter => !capabilitiesBefore.some(capBefore => capBefore.iri === capAfter.iri));
 
             this.capabilitySocket.sendCapabilitiesAdded(newCapabilities);
-            return 'New capability successfully added';
+            return;
         } catch (error) {
-            throw new BadRequestException(`Error while registering a new capability. Error: ${error}`);
+            throw new BadRequestException(`Error while registering a new capability. ${error}`);
         }
     }
 
@@ -196,36 +196,33 @@ export class CapabilityService {
      */
     async deleteCapability(capabilityIri: string): Promise<void> {
         try {
-            // First, delete all skills related to that capability:
-            this.skillService.deleteSkillsOfCapability(capabilityIri);
+            // iterate over all graphs and clear every one
+            const graphs = await this.getGraphsOfCapability(capabilityIri);
 
-            const query = `
-            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-            SELECT ?capability ?graph WHERE {
-                GRAPH ?graph {
-                    BIND(IRI("${capabilityIri}") AS ?capability).
-                    ?capability a CSS:Capability.
-                }
-            }`;
-
-            const queryResult = await this.graphDbConnection.executeQuery(query);
-            const queryResultBindings = queryResult.results.bindings;
-
-            const deleteRequests = new Array<Promise<{statusCode: any; msg: any;}>>();
-            // iterate over graphs and clear every one
-            queryResultBindings.forEach(bindings => {
-                const graphName = bindings.graph.value;
-                deleteRequests.push(this.graphDbConnection.clearGraph(graphName));
+            const deleteRequests = new Array<Promise<void>>();
+            graphs.forEach(graph => {
+                deleteRequests.push(this.graphDbConnection.clearGraph(graph));
             });
-
             // wait for all graphs to be deleted before getting the remaining skills
             await Promise.all(deleteRequests);
             const capabilitiesAfterDeleting = await this.getAllCapabilities();
             this.capabilitySocket.sendCapabilityDeleted(capabilitiesAfterDeleting);
         } catch (error) {
-            throw new Error(
+            throw new InternalServerErrorException(
                 `Error while trying to delete capability with IRI ${capabilityIri}. Error: ${error}`
             );
         }
+    }
+
+    /**
+     * Returns the graph(s) that a capability is declared in
+     * @param capabilityIri IRI of a capability to get graphs for
+     * @returns Array of all graphs - typically only one entry
+     */
+    async getGraphsOfCapability(capabilityIri: string): Promise<Array<string>> {
+        const capStatement = `<${capabilityIri}> a ?capClass.
+            VALUES ?capClass {CSS:Capability CaSk:ProvidedCapability CaSk:RequiredCapability} .`;
+        const graphs = await this.graphDbConnection.getGraphsContainingStatements(capStatement);
+        return graphs;
     }
 }

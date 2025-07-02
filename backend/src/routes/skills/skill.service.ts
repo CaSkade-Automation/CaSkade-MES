@@ -31,7 +31,7 @@ export class SkillService {
      * Register one or more skills described in an RDF document
      * @param newSkill Content of an RDF document describing a skill
      */
-    async addSkills(newSkill: string, contentType?: string): Promise<string> {
+    async addSkills(newSkill: string, contentType?: string): Promise<void> {
         const skillsBefore = await this.getAllSkills();
         try {
             // create a graph name for the skill (uuid)
@@ -59,7 +59,7 @@ export class SkillService {
             // Finally, send a socket message that the skill was registered
             this.skillSocket.sendSkillsAdded(newSkills);
 
-            return 'New skill successfully added';
+            return;
         } catch (error) {
             throw new BadRequestException(`Error while registering a new skill. Error: ${error.toString()}`);
         }
@@ -227,42 +227,19 @@ export class SkillService {
      * @param skillIri IRI of the skill to delete
      */
     async deleteSkill(skillIri: string): Promise<void> {
-        try {
-            const query = `
-            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-            SELECT ?skill ?graph WHERE {
-                BIND(<${skillIri}> AS ?skill)
-                ?skill a ?skillType.
-                ?skillType rdfs:subClassOf CSS:Skill.
-                GRAPH ?graph {
-                    ?skill a ?skillType
-                }
-            }`;
+        const graphs = await this.getGraphsOfSkill(skillIri);
 
-            const queryResult = await this.graphDbConnection.executeQuery(query);
-            const queryResultBindings = queryResult.results.bindings;
+        // iterate over graphs and clear every one
+        const deleteRequests = new Array<Promise<void>>();
+        graphs.forEach(graph => {
+            deleteRequests.push(this.graphDbConnection.clearGraph(graph));
+        });
 
-            if (queryResultBindings.length == 0) {
-                throw new Error(`No graph could be found. Deleting skill ${skillIri} failed.`);
-            }
+        // wait for all graphs to be deleted before getting the remaining skills
+        await Promise.all(deleteRequests);
+        const skillsAfterDeleting = await this.getAllSkills();
 
-            // iterate over graphs and clear every one
-            const deleteRequests = new Array<Promise<{statusCode: any; msg: any;}>>();
-            queryResultBindings.forEach(bindings => {
-                const graphName = bindings.graph.value;
-                deleteRequests.push(this.graphDbConnection.clearGraph(graphName));
-            });
-
-            // wait for all graphs to be deleted before getting the remaining skills
-            await Promise.all(deleteRequests);
-            const skillsAfterDeleting = await this.getAllSkills();
-
-            this.skillSocket.sendSkillDeleted(skillsAfterDeleting);
-        } catch (error) {
-            throw new Error(
-                `Error while trying to delete skill with IRI ${skillIri}. Error: ${error}`
-            );
-        }
+        this.skillSocket.sendSkillDeleted(skillsAfterDeleting);
     }
 
 
@@ -305,5 +282,18 @@ export class SkillService {
         const queryResult = await this.graphDbConnection.executeQuery(query);
         const skillInterfaceType = queryResult.results.bindings[0]["skillInterfaceType"].value;
         return skillInterfaceType;
+    }
+
+
+    /**
+     * Returns the graph(s) that a skill is declared in
+     * @param skillIri IRI of a skill to get graphs for
+     * @returns Array of all graphs - typically only one entry
+     */
+    async getGraphsOfSkill(skillIri: string): Promise<Array<string>> {
+        const capStatement = `<${skillIri}> a ?skillClass.
+            VALUES ?skillClass {CSS:Skill CaSkMan:JavaSkill CaSkMan:MtpSkill CaSkMan:PlcSkill} .`;
+        const graphs = await this.graphDbConnection.getGraphsContainingStatements(capStatement);
+        return graphs;
     }
 }

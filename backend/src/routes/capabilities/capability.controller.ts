@@ -18,7 +18,7 @@ export class CapabilityController {
      * @param newCapability RDF document containing the new capability that is going to be registered
      */
     @Post()
-    addCapability(@StringBody() newCapability: string): Promise<string> {
+    addCapability(@StringBody() newCapability: string): Promise<void> {
         return this.capabilityService.addCapability(newCapability);
     }
 

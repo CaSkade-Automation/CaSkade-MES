@@ -8,6 +8,7 @@ import {SparqlResultConverter} from 'sparql-result-converter';
 import { ModuleSocket } from '../../socket-gateway/module-socket';
 import { BaseSocketMessageType } from '@shared/models/socket-communication/SocketData';
 import { CapabilityService } from '../capabilities/capability.service';
+import { SkillService } from '../skills/skill.service';
 
 const converter = new SparqlResultConverter();
 
@@ -16,16 +17,17 @@ export class ModuleService {
     constructor(
         private graphDbConnection: GraphDbConnectionService,
         private capabilityService: CapabilityService,
+        private skillService: SkillService,
         private moduleSocket: ModuleSocket) {}
 
     /**
      * Register a new module
      * @param newModule Content of an RDF document
      */
-    async addModule(newModule: string, contentType: string): Promise<Record<string, string>> {
+    async addModule(newModule: string, contentType: string): Promise<void> {
         const modulesBefore = await this.getModules();
 
-        // create a graph name (uuid)
+        // create a graph name for the module (uuid)
         const graphName = crypto.randomUUID();
         try {
             await this.graphDbConnection.addRdfDocument(newModule, graphName, contentType);
@@ -35,7 +37,7 @@ export class ModuleService {
                 moduleAfter => !modulesBefore.some(moduleBefore => moduleBefore.iri === moduleAfter.iri));
 
             this.moduleSocket.sendModulesAdded(newModules);
-            return {msg:'ProductionModule successfully registered'};
+            return;
         } catch (error) {
             throw new BadRequestException(`Error while registering new production module. ${error.toString()}`);
         }
@@ -107,44 +109,43 @@ export class ModuleService {
      * @param moduleIri IRI of the module to delete
      */
     async deleteModule(moduleIri: string): Promise<void> {
-        try {
-            // First, delete all capabilities of the module
-            this.capabilityService.deleteCapabilitiesOfModule(moduleIri);
-            // Get module's graph
-            // TODO: This could be moved into a separate graph model
-            // TODO: Make sure descriptions of executable skills get deleted as well
-            const graphQueryResults = await this.graphDbConnection.executeQuery(`
-            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
-            PREFIX VDI2206: <http://www.hsu-ifa.de/ontologies/VDI2206#>
-            SELECT DISTINCT * WHERE {
-                # Get the graph into which module was registered. Types have to be given as values so that explicit facts are retrieved
-                # Inferred facts are not stored inside a named graph
-                BIND(IRI(<${moduleIri}>) AS ?module)
-                ?module a ?type.
-                VALUES ?type {
-                    CSS:Resource  VDI3682:TechnicalResource VDI2206:Module VDI2206:System
-                }.
-                # Finding the graph can now be done using explicit facts
-                GRAPH ?g {
-                    ?module a ?type.
-                }
-            }`);
-
-            const resultBindings = graphQueryResults.results.bindings;
-            const deleteRequests = new Array<Promise<{statusCode: any;msg: any;}>>();
-            resultBindings.forEach(binding => {
-                const graphName = binding.g.value;
-                deleteRequests.push(this.graphDbConnection.clearGraph(graphName)); // clear graph
-            });
-            await Promise.all(deleteRequests);
-            const modulesAfterDeleting = await this.getModules();
-
-            this.moduleSocket.sendModuleDeleted(modulesAfterDeleting);
-
-        } catch (error) {
-            throw new Error(`Error while deleting module with IRI ${moduleIri}. ${error}`);
+        const graphs = new Set<string>();
+        // Deleting is done by removing the corresponding graph. Get all graphs from all capabilities and skills as well as the module itself and clear them
+        const capabilityIris = (await this.capabilityService.getCapabilitiesOfModule(moduleIri)).map(cap => cap.iri);
+        for (const capIri of capabilityIris) {
+            const capabilityGraphs = await this.capabilityService.getGraphsOfCapability(capIri);
+            capabilityGraphs.forEach(capabilityGraph => graphs.add(capabilityGraph));
         }
+
+        const skillIris = (await this.skillService.getSkillsOfModule(moduleIri)).map(skill => skill.skillIri);
+        for (const skillIri of skillIris) {
+            const skillGraphs = await this.skillService.getGraphsOfSkill(skillIri);
+            skillGraphs.forEach(skillGraph => graphs.add(skillGraph));
+        }
+
+        const moduleGraphs = await this.getGraphsOfModule(moduleIri);
+        moduleGraphs.forEach(moduleGraph => graphs.add(moduleGraph));
+
+        const deleteRequests = new Array<Promise<void>>();
+        graphs.forEach(graph =>{
+            deleteRequests.push(this.graphDbConnection.clearGraph(graph));
+        });
+        await Promise.all(deleteRequests);
+        const modulesAfterDeleting = await this.getModules();
+
+        this.moduleSocket.sendModuleDeleted(modulesAfterDeleting);
+    }
+
+
+    /**
+     * Returns the graph(s) that a module is declared in
+     * @param moduleIri IRI of a module to get graphs for
+     * @returns Array of all graphs - typically only one entry
+     */
+    public async getGraphsOfModule(moduleIri: string): Promise<Array<string>> {
+        const moduleStatement = `<${moduleIri}> a ?moduleClass.
+            VALUES ?moduleClass {CSS:Resource  VDI3682:TechnicalResource VDI2206:Module VDI2206:System} .`;
+        const graphs = await this.graphDbConnection.getGraphsContainingStatements(moduleStatement);
+        return graphs;
     }
 }
