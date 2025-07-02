@@ -47,19 +47,7 @@ export class PropertyService {
                 }, [])),
                 startWith(initialProperties))
                 .subscribe(addedProperties => {
-                    console.log("initial props");
-                    console.log(initialProperties);
-                    console.log("prop subject");
-                    console.log(this.propertySubject$.value);
-
-                    console.log({addedProperties});
-
-
                     const allProperties = [...this.propertySubject$.value, ...addedProperties];
-                    console.log("all props");
-                    console.log(allProperties);
-
-
                     this.propertySubject$.next(allProperties);
                 });
         });
