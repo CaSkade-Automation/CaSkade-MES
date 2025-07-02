@@ -110,7 +110,7 @@ export class OpcUaVariableSkillExecutionService extends OpcUaSkillExecutor{
 		PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
 		PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 		PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>#
-		PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
+		PREFIX DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#>
 		SELECT ?skillIri ?requiredCommandValue ?commandNodeId ?commandNamespace
         ?parameterIri ?parameterRequired ?parameterName ?parameterType ?parameterNodeId WHERE {
 			BIND(<${skillIri}> AS ?skillIri).

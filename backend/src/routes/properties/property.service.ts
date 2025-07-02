@@ -21,7 +21,7 @@ export class PropertyService {
 
     async getAllProperties(): Promise<Array<PropertyDto>> {
         const queryString = `
-        PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
+        PREFIX DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#>
 
         SELECT ?parentElement ?propertyIri ?propertyInstanceIri ?expressionGoal ?logicInterpretation
             ?value ?typeDescription ?code ?dataType ?definition ?unit
@@ -58,7 +58,7 @@ export class PropertyService {
 
     async getPropertyByIri(propertyIri: string): Promise<PropertyDto>{
         const queryString = `
-        PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
+        PREFIX DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#>
 
         SELECT ?propertyInstanceIri ?expressionGoal ?logicInterpretation ?typeDescription
             ?value ?typeDescription ?code ?definition ?unit
@@ -90,7 +90,7 @@ export class PropertyService {
         }
 
         const queryString = `
-        PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
+        PREFIX DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#>
         PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
 
         SELECT ?parentElement ?propertyIri ?propertyInstanceIri ?expressionGoal ?logicInterpretation
@@ -103,7 +103,7 @@ export class PropertyService {
 			?propertyIri DINEN61360:has_Instance_Description ?propertyInstanceIri.
 			?propertyInstanceIri a DINEN61360:Instance_Description;
                 DINEN61360:Logic_Interpretation ?logicInterpretation.
-            ?dataElement DINEN61360:has_Type_Description ?typeDescription.
+            ?propertyIri DINEN61360:has_Type_Description ?typeDescription.
 
             OPTIONAL {?propertyInstanceIri DINEN61360:Expression_Goal ?expressionGoal.}
             OPTIONAL {

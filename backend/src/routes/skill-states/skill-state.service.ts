@@ -19,7 +19,7 @@ export class SkillStateService {
         PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
         PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
         PREFIX OpcUa: <http://www.w3id.org/hsu-aut/OpcUa#>
-        PREFIX DINEN61360: <http://www.hsu-ifa.de/ontologies/DINEN61360#>
+        PREFIX DINEN61360: <http://www.w3id.org/hsu-aut/DINEN61360#>
         PREFIX ISA88: <http://www.hsu-ifa.de/ontologies/ISA-TR88#>
         PREFIX sesame: <http://www.openrdf.org/schema/sesame#>
         SELECT ?output ?namespace ?nodeId ?assuredValue ?stateTypeIri
