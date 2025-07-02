@@ -55,8 +55,53 @@ After you have checked all the requirements, follow these steps to run SkillMEx 
 - Both backend and frontend should now run in "watch-mode" where changes on either frontend or backend lead to an automatic restart of the server or the web application, respectively. This is quite convenient for development as you don't need to manually restart the server or refresh your browser's page.
 
 
-## Docker & other pre-built versions
-🚧 Currently not available, but on our to-do list 🚧
+## Docker Setup
+
+SkillMEx now supports Docker for both development and production deployments.
+
+### Production Deployment
+
+**Requirements:**
+- Docker & Docker Compose
+
+**Quick Start:**
+1. Clone the repository
+2. Copy and customize environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+3. Start all services:
+   ```bash
+   docker-compose up -d
+   ```
+
+**Services:**
+- **Frontend**: Available at `http://localhost` (port 80)
+- **Backend API**: Available at `http://localhost:9090/api`
+- **GraphDB**: Available at `http://localhost:7200`
+
+### Development with Docker
+
+For development with hot-reload:
+1. Use the development compose file:
+   ```bash
+   docker-compose -f docker-compose.dev.yml up -d
+   ```
+2. Services will be available at:
+   - **Frontend**: `http://localhost:4200` (Angular dev server)
+   - **Backend**: `http://localhost:9090` (NestJS with hot-reload)
+   - **GraphDB**: `http://localhost:7200`
+
+### Configuration
+
+Environment variables can be configured in the `.env` file. Key settings include:
+- `GRAPHDB_URL`: GraphDB connection URL
+- `GRAPHDB_REPOSITORY`: Repository name (default: "test-repo")
+- `CORS_ORIGIN`: Allowed CORS origin
+- `LOG_LEVEL`: Logging level (info, debug, etc.)
+
+See `.env.example` for all available configuration options.
 
 
 # Using SkillMEx
