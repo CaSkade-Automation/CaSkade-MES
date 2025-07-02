@@ -4,7 +4,7 @@ import { HttpService } from '@nestjs/axios';
 import { Observable, catchError, lastValueFrom, map } from 'rxjs';
 import { AxiosError } from 'axios';
 import { CapabilityService } from '../../capabilities/capability.service';
-import { LlmCapabilityGenerationDto } from '@shared/models/mappings/LlmGenerationRequestDto';
+import { LlmCapabilityGenerationDto } from '@shared/models/mappings/LlmCapabilityGenerationDto';
 
 
 @Injectable()

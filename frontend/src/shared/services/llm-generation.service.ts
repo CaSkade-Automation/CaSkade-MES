@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angula
 import { Injectable } from '@angular/core';
 import { catchError, first, Observable, take, tap } from 'rxjs';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
-import { LlmCapabilityGenerationDto } from '@shared/models/mappings/LlmGenerationRequestDto';
+import { LlmCapabilityGenerationDto } from '@shared/models/mappings/LlmCapabilityGenerationDto';
 import { MessageService } from './message.service';
 
 @Injectable({

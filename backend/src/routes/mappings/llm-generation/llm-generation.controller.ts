@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Put, ServiceUnavailableException, Uploaded
 import { LlmGenerationService } from './llm-generation.service';
 import { Observable, catchError } from 'rxjs';
 import { MappingServiceConfig } from '@shared/models/mappings/MappingServiceConfig';
-import { LlmCapabilityGenerationDto } from '@shared/models/mappings/LlmGenerationRequestDto';
+import { LlmCapabilityGenerationDto } from '@shared/models/mappings/LlmCapabilityGenerationDto';
 
 
 @Controller('mappings/llm')
