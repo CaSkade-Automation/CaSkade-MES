@@ -8,17 +8,19 @@ export function getCapabilityQueryString(iriOrResourceFilter="", typeFilter = ""
             PREFIX VDI2860: <http://www.hsu-ifa.de/ontologies/VDI2860#>
             PREFIX DIN8580: <http://www.hsu-ifa.de/ontologies/DIN8580#>
             SELECT ?capability ?input ?inputType ?outputType ?output ?capabilityType ?processType WHERE {
+                ?process a VDI3682:ProcessOperator;
+                    CSS:requiresCapability ?capability.
                 ?capability a CSS:Capability.
                 ${iriOrResourceFilter}
                 OPTIONAL{
-                    ?capability VDI3682:hasInput ?input.
+                    ?process VDI3682:hasInput ?input.
                     ?input a ?inputType.
                     VALUES ?inputType {
                         VDI3682:Energy VDI3682:Product VDI3682:Information
                     }
                 }
                 OPTIONAL{
-                    ?capability VDI3682:hasOutput ?output.
+                    ?process VDI3682:hasOutput ?output.
                     ?output a ?outputType.
                     VALUES ?outputType {
                         VDI3682:Energy VDI3682:Product VDI3682:Information
