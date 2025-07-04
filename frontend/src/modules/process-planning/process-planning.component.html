@@ -1,0 +1,26 @@
+<h1>Process Planning</h1>
+
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+                <a class="nav-link" routerLink="new-plan" routerLinkActive="active">Enter New Problem</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" routerLink="check-plan" routerLinkActive="active">Check Plan</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" routerLink="bpmn-result" routerLinkActive="active">BPMN Result</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body pt-3 pb-3">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

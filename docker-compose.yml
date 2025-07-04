@@ -1,16 +1,107 @@
-version: '3'
 services:
+  # GraphDB Service
+  graphdb:
+    image: ontotext/graphdb:10.5.0
+    container_name: skillmex-graphdb
+    environment:
+      GDB_HEAP_SIZE: 2g
+      GDB_JAVA_OPTS: >-
+        -Xms1g -Xmx2g
+        -Dgraphdb.home=/opt/graphdb/home
+        -Dgraphdb.workbench.cors.enable=true
+    volumes:
+      - graphdb-data:/opt/graphdb/home
+    ports:
+      - "7200:7200"
+    networks:
+      - skillmex-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7200/rest/repositories"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
-    graphdb:
-        image: "khaller/graphdb-free"
-        container_name: graphdb
-        ports:
-            - 7200:7200
+  # Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: production
+    container_name: skillmex-backend
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-9090}
+      GRAPHDB_URL: ${GRAPHDB_URL:-http://graphdb:7200}
+      GRAPHDB_REPOSITORY: ${GRAPHDB_REPOSITORY:-test-repo}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+      UPLOAD_DIRECTORY: ${UPLOAD_DIRECTORY:-/app/backend/uploaded-files}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # OPC UA Configuration
+      OPCUA_SERVER_URL: ${OPCUA_SERVER_URL:-}
+      OPCUA_USERNAME: ${OPCUA_USERNAME:-}
+      OPCUA_PASSWORD: ${OPCUA_PASSWORD:-}
+      # Camunda Configuration
+      CAMUNDA_URL: ${CAMUNDA_URL:-http://camunda:8080/engine-rest}
+      # JWT Configuration
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600}
+    volumes:
+      - uploaded-files:/app/backend/uploaded-files
+    ports:
+      - "9090:9090"
+    networks:
+      - skillmex-network
+    depends_on:
+      graphdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-    skillmex:
-        environment:
-            - configuration=production
-        build: .
-        container_name: skillmex
-        ports:
-            - 9090:9090
+  # Frontend Service
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: production
+    container_name: skillmex-frontend
+    ports:
+      - "80:80"
+    networks:
+      - skillmex-network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Optional: Camunda Service
+  # camunda:
+  #   image: camunda/camunda-bpm-platform:7.19.0
+  #   container_name: skillmex-camunda
+  #   environment:
+  #     DB_DRIVER: org.h2.Driver
+  #     DB_URL: jdbc:h2:./camunda-h2-dbs/process-engine;MVCC=TRUE;TRACE_LEVEL_FILE=0;DB_CLOSE_ON_EXIT=FALSE
+  #     DB_USERNAME: sa
+  #     DB_PASSWORD: sa
+  #     WAIT_FOR: ""
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - skillmex-network
+
+networks:
+  skillmex-network:
+    driver: bridge
+
+volumes:
+  graphdb-data:
+    driver: local
+  uploaded-files:
+    driver: local

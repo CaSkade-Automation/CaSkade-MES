@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CapabilityService, CapabilityTypes } from 'src/shared/services/capability.service';
+import { CapabilityService } from 'src/shared/services/capability.service';
 import { Observable, Subscription, from } from 'rxjs';
 import { Capability } from '../../../shared/models/Capability';
-import { Skill } from '../../../shared/models/Skill';
 import { FormControl, FormGroup } from '@angular/forms';
+import { CapabilityType } from '@shared/models/capability/CapabilityType';
 
 @Component({
     selector: 'app-capability-overview',
@@ -26,14 +26,14 @@ export class CapabilityOverviewComponent implements OnInit {
 
     ngOnInit(): void {
         this.capabilities$ = this.capabilityService.getCapabilities();
-
+        this.capabilities$.subscribe(caps => console.log(caps));
         // Filter logic
         this.capabilityTypeForm.valueChanges.subscribe(val => {
             const {showProvided, showRequired} = val;
-            if(showProvided && showRequired) this.capabilityService.loadCapabiltiesAndSubscribe(CapabilityTypes.All);
-            if(showProvided && !showRequired) this.capabilityService.loadCapabiltiesAndSubscribe(CapabilityTypes.ProvidedCapability);
-            if(!showProvided && showRequired) this.capabilityService.loadCapabiltiesAndSubscribe(CapabilityTypes.RequiredCapability);
-            if(!showProvided && !showRequired) this.capabilityService.loadCapabiltiesAndSubscribe(CapabilityTypes.None);
+            if(showProvided && showRequired) this.capabilityService.loadCapabiltiesAndSubscribe(CapabilityType.All);
+            if(showProvided && !showRequired) this.capabilityService.loadCapabiltiesAndSubscribe(CapabilityType.ProvidedCapability);
+            if(!showProvided && showRequired) this.capabilityService.loadCapabiltiesAndSubscribe(CapabilityType.RequiredCapability);
+            if(!showProvided && !showRequired) this.capabilityService.loadCapabiltiesAndSubscribe(CapabilityType.None);
         });
     }
 

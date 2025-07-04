@@ -8,6 +8,8 @@ import { MtpMappingService } from '../../../../shared/services/mtp-mapping.servi
 import { PlcMappingService } from '../../../../shared/services/plc-mapping.service';
 import { MessageService } from '../../../../shared/services/message.service';
 import {Modal} from "bootstrap";
+import { ProcessPlanningService } from '../../../../shared/services/process-planning.service';
+import { LlmGenerationService } from '../../../../shared/services/llm-generation.service';
 
 @Component({
     selector: 'settings-overview',
@@ -20,31 +22,37 @@ export class SettingsOverviewComponent implements OnInit {
 
     apiConnectionForm = this.fb.group({
         graphDbConnected: this.fb.control({value: false, disabled: true}),
-        processServiceConnected: this.fb.control({value: false, disabled: true}),
         mtpMappingServiceConnected: this.fb.control({value: false, disabled: true}),
         plcMappingServiceConnected: this.fb.control({value: false, disabled: true}),
+        llmGenerationConnected: this.fb.control({value: false, disabled:true}),
+        processPlanningConnected: this.fb.control({value: false, disabled: true}),
+        processServiceConnected: this.fb.control({value: false, disabled: true}),
     });
 
 
     constructor(
         private fb: FormBuilder,
         private graphDbService: GraphDbRepoService,
-        private processService: ProcessDefinitionService,
         private mtpMappingService: MtpMappingService,
         private plcMappingService: PlcMappingService,
-        private messageService: MessageService
+        private llmGeneration: LlmGenerationService,
+        private planningService: ProcessPlanningService,
+        private messageService: MessageService,
+        private processService: ProcessDefinitionService,
     ){
 
     }
 
     ngOnInit(): void {
-        this.setValue("GraphDB", this.graphDbService.isConnected(), this.apiConnectionForm.controls.graphDbConnected);
-        this.setValue("BPMN Engine", this.processService.isConnected(), this.apiConnectionForm.controls.processServiceConnected);
-        this.setValue("MTP Mapping Service", this.mtpMappingService.isConnected(), this.apiConnectionForm.controls.mtpMappingServiceConnected);
-        this.setValue("PLC Mapping Service",this.plcMappingService.isConnected(), this.apiConnectionForm.controls.plcMappingServiceConnected);
+        this.setApiConnected("GraphDB", this.graphDbService.isConnected(), this.apiConnectionForm.controls.graphDbConnected);
+        this.setApiConnected("PLC Mapping Service",this.plcMappingService.isConnected(), this.apiConnectionForm.controls.plcMappingServiceConnected);
+        this.setApiConnected("MTP Mapping Service", this.mtpMappingService.isConnected(), this.apiConnectionForm.controls.mtpMappingServiceConnected);
+        this.setApiConnected("LLM Generation",this.llmGeneration.isConnected(), this.apiConnectionForm.controls.llmGenerationConnected);
+        this.setApiConnected("ProcessPlanning",this.planningService.isConnected(), this.apiConnectionForm.controls.processPlanningConnected);
+        this.setApiConnected("BPMN Engine", this.processService.isConnected(), this.apiConnectionForm.controls.processServiceConnected);
     }
 
-    setValue(apiName: string, obs: Observable<HttpResponse<any>>, fC: FormControl): void {
+    setApiConnected(apiName: string, obs: Observable<HttpResponse<any>>, fC: FormControl): void {
         obs.subscribe({
             next: (val) => fC.setValue(true),
             error: (err) => {

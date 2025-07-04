@@ -1,0 +1,18 @@
+<form style="padding-top: 20px;" [formGroup]="form">
+    <label for="llmModel" class="form-label">LLM model name:</label>
+    <select class="form-select" formControlName="model" id="llmModel">
+        <option *ngFor="let model of models" [value]="model">{{model}}</option>
+    </select>
+
+    <label for="taskDescription">Task description:</label>
+    <textarea class="form-control" id="taskDescription" formControlName="taskDescription" rows="15"
+        placeholder="Insert natural language description here...">
+    </textarea>
+
+    <div class="box box-info margin-bottom=50px">
+        <form class="form-horizontal" style="padding-top: 10px">
+            <button class="btn btn-primary" (click)="submit()">Generate {{context}}</button>
+            <button class="btn btn-secondary" style="margin-left: 10px;" (click)="clearInput()">Clear </button>
+        </form>
+    </div>
+</form>

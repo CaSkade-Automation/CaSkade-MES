@@ -6,6 +6,7 @@ import { ManualRegistrationComponent } from './manual-registration/manual-regist
 import { MtpMappingComponent } from './mtp-mapping/mtp-mapping.component';
 import { PlcMappingComponent } from './plc-mapping/plc-mapping.component';
 import { DirectivesModule } from '../../directives/Directives.module';
+import { LlmGenerationComponent } from './llm-generation/llm-generation.component';
 
 @NgModule({
     imports: [
@@ -18,7 +19,8 @@ import { DirectivesModule } from '../../directives/Directives.module';
         OntologyRegistrationComponent,
         ManualRegistrationComponent,
         MtpMappingComponent,
-        PlcMappingComponent
+        PlcMappingComponent,
+        LlmGenerationComponent
     ],
     exports: [OntologyRegistrationComponent]
 })

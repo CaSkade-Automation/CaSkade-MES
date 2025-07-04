@@ -1,44 +1,59 @@
-import { ExpressionGoal, PropertyDTO } from "@shared/models/properties/PropertyDTO";
+import { ExpressionGoal, PropertyDto, PropertyInstanceDto } from "@shared/models/properties/PropertyDto";
 import { RdfElement } from "@shared/models/RdfElement";
 
-export class PropertyType extends RdfElement {
-    constructor(
-        iri: string,
-        public code: string,
-        public definition: string,
-        public unit: string
-    ) {
-        super(iri);
-    }
-}
-
-export class Property extends RdfElement {
-    type: PropertyType;
-    logicInterpretation: string;    // according to IEC 61360 ODP: operators such as <, <=, =, ...
+export class PropertyInstance extends RdfElement{
+    logicInterpretation: string;
     expressionGoal: ExpressionGoal;
-    describedElement: RdfElement;
     value?: string;
 
-    constructor(dto: PropertyDTO) {
+    constructor(dto: PropertyInstanceDto) {
         super(dto.propertyInstanceIri);
-        this.type = new PropertyType(dto.propertyTypeIri, dto.code, dto.definition, dto.unit);
-        this.describedElement = new RdfElement(dto.describedElementIri);
         this.logicInterpretation = dto.logicInterpretation;
         this.expressionGoal = dto.expressionGoal;
         this.value = dto.value;
     }
 
-    toDto(): PropertyDTO {
-        const dto: PropertyDTO = {
+    toDto(): PropertyInstanceDto {
+        const dto: PropertyInstanceDto = {
             propertyInstanceIri: this.iri,
-            code: this.type.code,
-            definition: this.type.definition,
-            unit: this.type.unit,
-            propertyTypeIri: this.type.iri,
-            expressionGoal: this.expressionGoal,
-            describedElementIri: this.describedElement.iri,
             logicInterpretation: this.logicInterpretation,
+            expressionGoal: this.expressionGoal,
             value: this.value
+        };
+        return dto;
+    }
+}
+
+export class Property extends RdfElement {
+    parentElement: RdfElement;
+    typeDescription: RdfElement;
+    dataType: string;
+    code?: string;
+    definition: string;
+    unit?: string;
+    instances: Array<PropertyInstance>
+
+    constructor(dto: PropertyDto) {
+        super(dto.propertyIri);
+        this.parentElement = new RdfElement(dto.parentElement);
+        this.typeDescription = new RdfElement(dto.typeDescription);
+        this.dataType = dto.dataType;
+        this.code = dto.code;
+        this.definition = dto.definition;
+        this.unit = dto.unit;
+        this.instances = dto.instances.map(instanceDto => new PropertyInstance(instanceDto));
+    }
+
+    toDto(): PropertyDto {
+        const dto: PropertyDto = {
+            propertyIri: this.iri,
+            typeDescription: this.typeDescription.iri,
+            dataType: this.dataType,
+            code: this.code,
+            definition: this.definition,
+            unit: this.unit,
+            parentElement: this.parentElement.iri,
+            instances: this.instances.map(instance => instance.toDto())
         };
         return dto;
     }

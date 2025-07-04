@@ -11,5 +11,8 @@
     "module": "CommonJS",
     "target": "es2017",
     },
+    "include": [
+		"src/**/*"
+	],
     "exclude": ["dist", "node_modules"]
 }

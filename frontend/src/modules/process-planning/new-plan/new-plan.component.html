@@ -1,0 +1,165 @@
+<h3>Define a new planning problem</h3>
+
+<form [formGroup]="newPlanForm">
+    <div class="row">
+        <div class="col">
+            <h4>1. Select Required Capability</h4>
+            <p>Select the required capability to carry planning out for. All provided capabilities are taken as candidates to fulfill the required capability.
+                Make sure to also select property values according to your requirements
+            </p>
+            <div class="input-group mb-3">
+                <span class="input-group-text">Capability IRI</span>
+                <select class="form-select" formControlName="requiredCapability">
+                    <option *ngFor="let requiredCap of (requiredCapabilities$ | async)" [ngValue]="requiredCap">{{requiredCap.iri}}</option>
+                </select>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">Max. Plan Length</span>
+                <input class="form-control" type="number" formControlName="maxHappenings" />
+            </div>
+
+            <div *ngIf="requiredCapability != null" formGroupName="properties">
+                <h5>Set all property values</h5>
+                <div *ngIf="requiredCapability.inputProperties.length > 0">
+                    <h6>Inputs</h6>
+                    <div *ngFor="let input of requiredCapability.inputs">
+                        <p>Input Element: {{input.getLocalName()}}</p>
+                        <div *ngFor="let inputProp of input.properties" class="input-group mb-3">
+                            <span class="input-group-text">{{inputProp .getLocalName()}}</span>
+                            <input type="text" class="form-control w-50" [formControlName]="inputProp .getLocalName()">
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="requiredCapability.outputProperties.length > 0">
+                    <h6>Outputs</h6>
+                    <div *ngFor="let output of requiredCapability.outputs">
+                        <p>Output Element:{{output.getLocalName()}}</p>
+                        <div *ngFor="let outputProp of output.properties" class="input-group mb-3">
+                            <span class="input-group-text">{{outputProp.getLocalName()}}</span>
+                            <input type="text" class="form-control" [formControlName]="outputProp.getLocalName()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col">
+            <h4>2. Add User Constraints</h4>
+            <p>You can add global property constraints, capability (sequence) constraints or known partial solutions to restrict process planning according to your expert knowledge</p>
+            <p class="mt-3 fw-bold">Property Constraints</p>
+            <ng-container formArrayName="propertyConstraints">
+                <ng-container *ngFor="let constraint of propertyConstraints.controls; let i=index">
+                    <div class="row mb-2" [formGroup]="constraint">
+                        <div class="col-sm-6 col-lg-6">
+                            <div class="input-group">
+                                <span class="input-group-text">Property</span>
+                                <select name="propertyIri" class="form-select" id="relation" formControlName="propertyName">
+                                    <option *ngFor="let property of (properties$ | async)" [ngValue]="property">{{property.iri}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-lg-2">
+                            <div class="input-group">
+                                <span class="input-group-text">Relation</span>
+                                <select name="relation" class="form-select" id="relation" formControlName="relation">
+                                    <option *ngFor="let logicInterpretation of logicInterpretations" [ngValue]="logicInterpretation">{{logicInterpretation}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 col-log-3">
+                            <div class="input-group">
+                                <span class="input-group-text">Value</span>
+                                <input type="text" class="form-control" formControlName="value">
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <button class="btn btn-danger" (click)="deletePropertyConstraint(i)"><i class="fa-solid fa-delete-left"></i></button>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+            <button type="button" class="btn btn-primary" (click)="addNewPropertyConstraint()">Add new property constraint</button>
+
+            <p class="mt-3 fw-bold">Sequence Constraints</p>
+            <ng-container formArrayName="sequenceConstraints">
+                <ng-container *ngFor="let constraint of sequenceConstraints.controls; let i=index">
+                    <div class="row mb-2" [formGroup]="constraint">
+                        <div class="col-xs-12 col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-text">Capability</span>
+                                <select class="form-select" formControlName="capabilityA">
+                                    <option *ngFor="let providedCap of (providedCapabilities$ | async)" [ngValue]="providedCap">{{providedCap.iri}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-2">
+                            <div class="input-group">
+                                <span class="input-group-text">Relation</span>
+                                <select name="relation" class="form-select" id="relation" formControlName="relation">
+                                    <option *ngFor="let relation of sequenceRelations" [ngValue]="relation">{{relation}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-4">
+                            <div class="input-group">
+                                <span class="input-group-text">Capability</span>
+                                <select class="form-select" formControlName="capabilityB">
+                                    <option *ngFor="let providedCap of (providedCapabilities$ | async)" [ngValue]="providedCap">{{providedCap.iri}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <button class="btn btn-danger" (click)="deleteSequenceConstraint(i)"><i class="fa-solid fa-delete-left"></i></button>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+            <button type="button" class="btn btn-primary" (click)="addNewSequenceConstraint()">Add new sequence constraint</button>
+
+            <p class="mt-3 fw-bold">Partial Solutions</p>
+            <ng-container formArrayName="partialSolutionConstraints">
+                <ng-container *ngFor="let constraint of partialSolutions.controls; let i=index">
+                    <div class="row mb-2" [formGroup]="constraint">
+                        <div class="col-xs-12 col-lg-5">
+                            <div class="input-group">
+                                <span class="input-group-text">Capability</span>
+                                <select class="form-select" formControlName="capabilityA">
+                                    <option *ngFor="let providedCap of (providedCapabilities$ | async)" [ngValue]="providedCap">{{providedCap.iri}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-3">
+                            <div class="input-group">
+                                <span class="input-group-text">Relation</span>
+                                <select name="relation" class="form-select" id="relation" formControlName="isApplied">
+                                    <option *ngFor="let option of solutionOptions" [ngValue]="option.value">{{option.text}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-xs-4 col-lg-2">
+                            <div class="input-group">
+                                <span class="input-group-text">in Step</span>
+                                <input type="text" class="form-control" formControlName="step">
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <button class="btn btn-danger" (click)="deletePartialSolution(i)"><i class="fa-solid fa-delete-left"></i></button>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+            <button type="button" class="btn btn-primary" (click)="addNewPartialSolution()">Add new partial solution</button>
+        </div>
+    </div>
+
+    <div class="row mt-4 justify-content-end">
+        <div class="col-auto">
+            <button type="button" class="btn btn-success float-right" (click)="submit()">Start Planning</button>
+        </div>
+        <loader *ngIf="showPlanningInProgress" [active]='showPlanningInProgress'></loader>
+    </div>
+
+</form>

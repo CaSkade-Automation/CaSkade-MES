@@ -70,6 +70,51 @@ export class GraphDbConnectionService {
         return this.executeStatement(statement, "", contentType);
     }
 
+    async exportStatementsInGraph(graphIri: string, format = "text/turtle"): Promise<string> {
+        const url = this.getCurrentRepoEndpointString() + `/rdf-graphs/service?graph=${graphIri}`;
+        const headers = {
+            "Authorization": this.createBase64AuthString(),
+            "Accept": format,
+        };
+        try {
+            const dbResponse = await Axios.get<string>(url, { 'headers': headers });
+
+            return dbResponse.data;
+
+        } catch (err) {
+            throw new Error(`GraphDB Error. This typically means that something is wrong with your RDF data or query.
+                GraphDB error message: ${err.response.data}`);
+        }
+    }
+
+    /**
+     * Returns an array of IRIs of the graphs that contain a set of statements
+     * @param statements The statements contained in one or more graphs
+     * @returns The list of graphs that contain the statement
+     */
+    async getGraphsContainingStatements(statements: string): Promise<Array<string>> {
+        const graphQuery = `
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
+        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+        PREFIX VDI2206: <http://www.w3id.org/hsu-aut/VDI2206#>
+        PREFIX VDI3682: <http://www.w3id.org/hsu-aut/VDI3682#>
+        SELECT ?graph WHERE {
+            GRAPH ?graph {
+                ${statements}
+            }
+        }`;
+
+        const queryResult = await this.executeQuery(graphQuery);
+        const bindings = queryResult.results.bindings;
+        const graphIris = bindings.map(binding => binding.graph.value);
+        if (graphIris.length == 0 ) {
+            throw new Error(`Error finding graphs. The given statement ${statements} are not contained in a graph.
+                Maybe they are part of the default graph or spread over different graphs?`);
+        }
+        return graphIris;
+    }
+
 
     /**
      * Executes a statement against the current repository of the graph database
@@ -88,16 +133,13 @@ export class GraphDbConnectionService {
 
         try {
             const dbResponse = await Axios.post(url, statement,{ 'headers': headers });
-
-            return {"statusCode": dbResponse.request.res.statusCode,
-                "msg": dbResponse.data};
+            return;
 
         } catch (err) {
-            if (err.response.status == 400) {       // On error: If its just a query mistake (graphdb 400) -> return this query mistake
-                throw new Error(`Mistake in your statement: ${err.response.data}`);
-            } else {                                // On error: If something really went wrong: Throw error
-                throw new Error(`Error while executing statement: ${err}`);
-            }
+            console.log("error executing statement");
+            console.log(err);
+
+            throw new Error(`GraphDB error message: ${err.response.data}`);
         }
     }
 
@@ -106,10 +148,14 @@ export class GraphDbConnectionService {
      * Execute a query against the currently selected repository
      * @param {*} queryString The query to execute
      */
-    private async executeSparqlRequest(queryString:string, contentType: string): Promise<GraphDbResult> {
+    private async executeSparqlRequest(
+        queryString:string,
+        contentType: string,
+        accept = "application/sparql-results+json"): Promise<GraphDbResult | string>
+    {
         const headers = {
             "Authorization": this.createBase64AuthString(),
-            "Accept": "application/sparql-results+json",
+            "Accept": accept,
             "Content-Type": contentType
         };
 
@@ -119,7 +165,11 @@ export class GraphDbConnectionService {
                 queryString,
                 { 'headers': headers }
             );
-            return dbResponse.data;                 // Everything ok -> return the response body (data)
+            if (accept == 'text/turtle') {
+                return dbResponse.data as string;
+            } else {
+                return dbResponse.data as GraphDbResult;
+            }
         } catch (err) {
             console.log(err);
 
@@ -131,8 +181,12 @@ export class GraphDbConnectionService {
         }
     }
 
+    executeConstruct(sparqlQuery: string): Promise<string> {
+        return this.executeSparqlRequest(sparqlQuery, "application/sparql-query", "text/turtle") as Promise<string>;
+    }
+
     executeQuery(sparqlQuery: string) : Promise<GraphDbResult> {
-        return this.executeSparqlRequest(sparqlQuery, "application/sparql-query");
+        return this.executeSparqlRequest(sparqlQuery, "application/sparql-query") as Promise<GraphDbResult>;
     }
 
     executeUpdate(sparqlUpdate: string) {

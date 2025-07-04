@@ -1,22 +1,15 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Observer, merge } from 'rxjs';
 import { CapabilityDto } from '@shared/models/capability/Capability';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { map, startWith, take } from 'rxjs/operators';
-import { SkillService } from './skill.service';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
+import { catchError, map, startWith, take } from 'rxjs/operators';
 import { Capability } from '../models/Capability';
 import { environment } from '../../../environments/environment';
 import { CapabilitySocketService } from './sockets/capability-socket.service';
 import { SkillSocketService } from './sockets/skill-socket.service';
-
-
-export enum CapabilityTypes {
-    "All" = "http://www.w3id.org/hsu-aut/css#Capability",
-    "ProvidedCapability" = "http://www.w3id.org/hsu-aut/cask#ProvidedCapability",
-    "RequiredCapability" = "http://www.w3id.org/hsu-aut/cask#RequiredCapability",
-    "None" = "http://www.w3id.org/hsu-aut/cask#NullCapability"
-}
-
+import { RdfElement } from '@shared/models/RdfElement';
+import { ChangeCapabilityTypeDto, CapabilityType} from '@shared/models/capability/CapabilityType';
+import { MessageService } from './message.service';
 
 @Injectable({
     providedIn: 'root'
@@ -35,7 +28,8 @@ export class CapabilityService {
     constructor(
         private http: HttpClient,
         private capabilitySocket: CapabilitySocketService,
-        private skillSocket: SkillSocketService
+        private skillSocket: SkillSocketService,
+        private messageService: MessageService,
     ) {
         this.loadCapabiltiesAndSubscribe();
     }
@@ -45,7 +39,7 @@ export class CapabilityService {
         return this.capabilitySubject$.asObservable();
     }
 
-    public loadCapabiltiesAndSubscribe(capType = CapabilityTypes.All): void {
+    public loadCapabiltiesAndSubscribe(capType = CapabilityType.All): void {
         this.loadCapabilities(capType).subscribe(capabilities => {
             const initialCapabilities = capabilities;
             // on adding, we get the current modules, so update
@@ -77,7 +71,7 @@ export class CapabilityService {
     /**
      * Loads all capabilities from GraphDB with a single HTTP request
      */
-    private loadCapabilities(capType = CapabilityTypes.All): Observable<Capability[]> {
+    private loadCapabilities(capType = CapabilityType.All): Observable<Capability[]> {
         const apiURL = `${this.apiRoot}/capabilities`;
         const typeParam = new HttpParams().append("type", capType);
         return this.http.get<CapabilityDto[]>(apiURL, {params: typeParam}).pipe(
@@ -116,6 +110,24 @@ export class CapabilityService {
         const apiURL = `${this.apiRoot}/capabilities`;
         const headers = new HttpHeaders({"content-type": "text/turtle"});
         return this.http.post<CapabilityDto>(apiURL, ontologyString, {headers: headers});
+    }
+
+    /**
+     * Changes a capability's
+     * @param capabilityIri
+     * @returns
+     */
+    changeCapabilityType(capabilityIri: string, newType: CapabilityType, providingResourceIri: string): Observable<void> {
+        const encodedIri = encodeURIComponent(capabilityIri);
+        const body = new ChangeCapabilityTypeDto(newType, providingResourceIri);
+        const url = `${this.apiRoot}/capabilities/${encodedIri}/type`;
+        return this.http.patch<void>(url, body).pipe(
+            take(1),
+            catchError((err: HttpErrorResponse) => {
+                this.messageService.warn("Error while changing capability type", err.error.message);
+                throw new Error(err.error.message);
+            })
+        );
     }
 
     addMtpCapability(ontologyFile: File): Observable<File>{

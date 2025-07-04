@@ -17,7 +17,7 @@ export class SkillController {
     ) {}
 
     @Post()
-    addSkill(@StringBody() newSkill: string): Promise<string> {
+    addSkill(@StringBody() newSkill: string): Promise<void> {
         return this.skillService.addSkills(newSkill);
     }
 

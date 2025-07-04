@@ -6,9 +6,11 @@ import * as crypto from 'crypto';
 
 import {SparqlResultConverter} from "sparql-result-converter";
 import { CapabilitySocket } from '../../socket-gateway/capability-socket';
-import { BaseSocketMessageType } from '@shared/models/socket-communication/SocketData';
-import { PropertyService } from '../properties/property.service';
+import { PropertyService, VDI3682RelationType } from '../properties/property.service';
 import { SkillService } from '../skills/skill.service';
+import { CapabilityType, ChangeCapabilityTypeDto } from '@shared/models/capability/CapabilityType';
+import { ConstraintService } from '../constraints/constraint.service';
+import { getCapabilityQueryString } from './capability-query';
 
 const converter = new SparqlResultConverter();
 
@@ -18,6 +20,7 @@ export class CapabilityService {
         private graphDbConnection: GraphDbConnectionService,
         private propertyService: PropertyService,
         private capabilitySocket: CapabilitySocket,
+        private constraintService: ConstraintService,
         @Inject(forwardRef(() => SkillService))
         private skillService: SkillService,
     ) { }
@@ -26,10 +29,10 @@ export class CapabilityService {
      * Registers a new capability in the graph DB
      * @param newCapability Rdf document describing the new capability
      */
-    async addCapability(newCapability: string): Promise<string> {
+    async addCapability(newCapability: string): Promise<void> {
         const capabilitiesBefore = await this.getAllCapabilities();
         try {
-            // create a graph name for the service (uuid)
+            // create a graph name for the capability (uuid)
             const capabilityGraphName = crypto.randomUUID();
 
             await this.graphDbConnection.addRdfDocument(newCapability, capabilityGraphName);
@@ -39,9 +42,9 @@ export class CapabilityService {
                 capAfter => !capabilitiesBefore.some(capBefore => capBefore.iri === capAfter.iri));
 
             this.capabilitySocket.sendCapabilitiesAdded(newCapabilities);
-            return 'New capability successfully added';
+            return;
         } catch (error) {
-            throw new BadRequestException(`Error while registering a new capability. Error: ${error}`);
+            throw new BadRequestException(`Error while registering a new capability. ${error}`);
         }
     }
 
@@ -51,52 +54,16 @@ export class CapabilityService {
      * @returns A list of capabilities
      */
     async getAllCapabilities(capabilityType = "http://www.w3id.org/hsu-aut/css#Capability"): Promise<Array<CapabilityDto>> {
+        const typeFilter = `FILTER(EXISTS{?capability a <${capabilityType}>})`;
+        const queryString = getCapabilityQueryString("", typeFilter);
         try {
-            const queryResult = await this.graphDbConnection.executeQuery(`
-            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-            PREFIX VDI2860: <http://www.hsu-ifa.de/ontologies/VDI2860#>
-            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-            PREFIX DIN8580: <http://www.hsu-ifa.de/ontologies/DIN8580#>
-            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
-            SELECT ?capability ?input ?inputType ?output ?capabilityType ?processType WHERE {
-                ?capability a CSS:Capability, ?capabilityType.
-                Values ?capabilityType {CaSk:ProvidedCapability CaSk:RequiredCapability}
-                OPTIONAL{
-                    ?capability VDI3682:hasInput ?input.
-                    ?input a ?inputType.
-                    VALUES ?inputType {VDI3682:Energy VDI3682:Product VDI3682:Information}
-                }
-                OPTIONAL{
-                    ?capability VDI3682:hasOutput ?output.
-                    ?output a ?outputType.
-                    VALUES ?outputType {VDI3682:Energy VDI3682:Product VDI3682:Information}
-                }
-                OPTIONAL{
-                    ?capability a ?processType.
-                    ?processType rdfs:subClassOf ?processParentType.
-                    VALUES ?processParentType {DIN8580:Fertigungsverfahren VDI2860:Handhaben}
-                    FILTER (NOT EXISTS{
-                            ?someSubtype rdfs:subClassOf ?processType.
-                        })
-                }
-                # Filter only relevant if specific type given
-                FILTER(EXISTS{?capability a <${capabilityType}>})
-            }`);
+            const queryResult = await this.graphDbConnection.executeQuery(queryString);
             const capabilities = converter
                 .convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as Array<CapabilityDto>;
-            // add skills
-            for (const cap of capabilities) {
-                cap.skillDtos = await this.skillService.getSkillsForCapability(cap.iri);
-            }
 
             for (const cap of capabilities) {
-                const capInputProperties = await this.propertyService.getInputPropertiesOfCapability(cap.iri);
-                cap.inputs.map(input => {
-                    const props = capInputProperties.filter(inputProp => inputProp.describedElementIri == input.iri);
-                    input.propertyDtos = props;
-                });
+                await this.addPropertiesSkillsConstraints(cap);
             }
-
 
             return capabilities;
         } catch (error) {
@@ -110,29 +77,15 @@ export class CapabilityService {
      * @param capabilityIri IRI of the capability to get
      */
     async getCapabilityByIri(capabilityIri: string): Promise<CapabilityDto> {
+        const iriFilter = `FILTER(?capability = IRI("${capabilityIri}")).`;
+        const queryString = getCapabilityQueryString(iriFilter);
         try {
-            const queryResult = await this.graphDbConnection.executeQuery(`
-            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-            PREFIX CaSk: <http://www.w3id.org/hsu-aut/cask#>
-            PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-            SELECT ?capability ?input ?output WHERE {
-                ?capability a CSS:Capability.
-                FILTER(?capability = IRI("${capabilityIri}")).
-                OPTIONAL{
-                    ?capability VDI3682:hasInput ?input.
-                    ?input a ?fpbElement.
-                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
-                }
-                OPTIONAL{
-                    ?capability VDI3682:hasOutput ?output.
-                    ?output a ?fpbElement.
-                    VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
-                }
-            }`);
+            const queryResult = await this.graphDbConnection.executeQuery(queryString);
             const capability = converter
-                .convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement()[0] as CapabilityDto;
+                .convertToDefinition(queryResult.results.bindings, capabilityMapping, false).getFirstRootElement()[0] as CapabilityDto;
 
-            capability.skillDtos = await this.skillService.getSkillsForCapability(capability.iri);
+            await this.addPropertiesSkillsConstraints(capability);
+
             return capability;
         } catch (error) {
             console.error(`Error while returning capability with IRI ${capabilityIri}, ${error}`);
@@ -146,31 +99,15 @@ export class CapabilityService {
      * @returns
      */
     async getCapabilitiesOfModule(moduleIri: string): Promise<CapabilityDto[]> {
-        const query = `
-        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-        PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-        SELECT ?capability ?input ?output WHERE {
-            ?capability a CSS:Capability.
-            <${moduleIri}> CSS:providesCapability ?capability.
-            OPTIONAL {
-                ?capability VDI3682:hasInput ?input.
-                ?input a ?fpbElement.
-                VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
-            }
-            OPTIONAL{
-                ?capability VDI3682:hasOutput ?output.
-                ?output a ?fpbElement.
-                VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
-            }
-        }`;
-
+        const resourceFilter = `<${moduleIri}> CSS:providesCapability ?capability.`;
+        const queryString = getCapabilityQueryString(resourceFilter);
         try {
-            const queryResult = await this.graphDbConnection.executeQuery(query);
+            const queryResult = await this.graphDbConnection.executeQuery(queryString);
             const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping)
                 .getFirstRootElement() as Array<CapabilityDto>;
 
             for (const cap of capabilities) {
-                cap.skillDtos = await this.skillService.getSkillsForCapability(cap.iri);
+                await this.addPropertiesSkillsConstraints(cap);
             }
 
             return capabilities;
@@ -178,6 +115,71 @@ export class CapabilityService {
             console.error(`Error while returning capabilities of module with IRI ${moduleIri}, ${error}`);
             throw new Error(error);
         }
+    }
+
+    /**
+     * Adds all additional infos such as properties, skills and constraints to a capability
+     * @param capability
+     * @returns
+     */
+    private async addPropertiesSkillsConstraints(capability: CapabilityDto): Promise<CapabilityDto> {
+        // add skills
+        capability.skillDtos = await this.skillService.getSkillsForCapability(capability.iri);
+
+        // add properties
+        const capInputProperties = await this.propertyService
+            .getPropertiesOfCapability(capability.iri, VDI3682RelationType['VDI3682:hasInput']);
+        const capOutputProperties = await this.propertyService
+            .getPropertiesOfCapability(capability.iri, VDI3682RelationType['VDI3682:hasOutput']);
+
+        if (capInputProperties.length > 0) {
+            capability.inputs.forEach(input => {
+                const props = capInputProperties.filter(inputProp => inputProp.parentElement == input.iri);
+                input.propertyDtos = props;
+            });
+        }
+
+        if (capOutputProperties.length > 0) {
+            capability.outputs.forEach(output=> {
+                const props = capOutputProperties.filter(outputProp => outputProp.parentElement == output.iri);
+                output.propertyDtos = props;
+            });
+        }
+
+        //add constraints
+        capability.constraints = await this.constraintService.getConstraintsOfCapability(capability.iri);
+
+        return capability;
+    }
+
+    async changeCapabilityType(capabilityIri: string, changeCapabilityTypeInfo: ChangeCapabilityTypeDto): Promise<void> {
+        // if change to provided, there must be a resource
+        const {newType, providingResourceIri} = changeCapabilityTypeInfo;
+        if (newType == CapabilityType.ProvidedCapability && !providingResourceIri) {
+            throw new Error("Make sure to pass a resource in order to change a capability's type to provided");
+        }
+
+        let resourceString = "";
+        if (newType == CapabilityType.ProvidedCapability) {
+            resourceString = `<${providingResourceIri}> CSS:providesCapability <${capabilityIri}>.`;
+        }
+
+        // Query including optional resource string. Note: The query needs to insert the new type into the same graph as the old type
+        // Otherwise deletion fails as it gets the graph in which the capability type declartion is made
+        const sparqlUpdate = `
+        PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
+        INSERT {
+            GRAPH ?graph {
+                <${capabilityIri}> a <${newType}>.
+                ${resourceString}
+            }
+        } WHERE {
+            GRAPH ?graph {
+                <${capabilityIri}> a CSS:Capability.
+            }
+        }`;
+
+        await this.graphDbConnection.executeUpdate(sparqlUpdate);
     }
 
     async deleteCapabilitiesOfModule(moduleIri: string): Promise<void> {
@@ -194,69 +196,33 @@ export class CapabilityService {
      */
     async deleteCapability(capabilityIri: string): Promise<void> {
         try {
-            // First, delete all skills related to that capability:
-            this.skillService.deleteSkillsOfCapability(capabilityIri);
+            // iterate over all graphs and clear every one
+            const graphs = await this.getGraphsOfCapability(capabilityIri);
 
-            const query = `
-            PREFIX CSS: <http://www.w3id.org/hsu-aut/css#>
-            SELECT ?capability ?graph WHERE {
-                GRAPH ?graph {
-                    BIND(IRI("${capabilityIri}") AS ?capability).
-                    ?capability a CSS:Capability.
-                }
-            }`;
-
-            const queryResult = await this.graphDbConnection.executeQuery(query);
-            const queryResultBindings = queryResult.results.bindings;
-
-            const deleteRequests = new Array<Promise<{statusCode: any; msg: any;}>>();
-            // iterate over graphs and clear every one
-            queryResultBindings.forEach(bindings => {
-                const graphName = bindings.graph.value;
-                deleteRequests.push(this.graphDbConnection.clearGraph(graphName));
+            const deleteRequests = new Array<Promise<void>>();
+            graphs.forEach(graph => {
+                deleteRequests.push(this.graphDbConnection.clearGraph(graph));
             });
-
             // wait for all graphs to be deleted before getting the remaining skills
             await Promise.all(deleteRequests);
             const capabilitiesAfterDeleting = await this.getAllCapabilities();
             this.capabilitySocket.sendCapabilityDeleted(capabilitiesAfterDeleting);
         } catch (error) {
-            throw new Error(
+            throw new InternalServerErrorException(
                 `Error while trying to delete capability with IRI ${capabilityIri}. Error: ${error}`
             );
         }
     }
 
-    // /**
-    //  *
-    //  * @param skillIri
-    //  * @returns
-    //  */
-    // async getCapabilitiesOfSkill(skillIri: string): Promise<CapabilityDto[]> {
-    //     try {
-    //         const queryResult = await this.graphDbConnection.executeQuery(`
-    //         PREFIX Cap: <http://www.hsu-ifa.de/ontologies/capability-model#>
-    //         PREFIX VDI3682: <http://www.hsu-ifa.de/ontologies/VDI3682#>
-    //         SELECT ?capability ?input ?output WHERE {
-    //             ?capability a Cap:Capability.
-    //             ?capability Cap:isExecutableViaSkill <${skillIri}>
-    //             OPTIONAL{
-    //                 ?capability VDI3682:hasInput ?input.
-    //                 ?input a ?fpbElement.
-    //                 VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
-    //             }
-    //             OPTIONAL{
-    //                 ?capability VDI3682:hasOutput ?output.
-    //                 ?output a ?fpbElement.
-    //                 VALUES ?fpbElement {VDI3682:Energy VDI3682:Product VDI3682:Information}
-    //             }
-    //         }`);
-    //         const capabilities = converter.convertToDefinition(queryResult.results.bindings, capabilityMapping).getFirstRootElement() as CapabilityDto[];
-
-    //         return capabilities;
-    //     } catch (error) {
-    //         console.error(`Error while returning capabilities of skill ${skillIri}, ${error}`);
-    //         throw new Error(error);
-    //     }
-    // }
+    /**
+     * Returns the graph(s) that a capability is declared in
+     * @param capabilityIri IRI of a capability to get graphs for
+     * @returns Array of all graphs - typically only one entry
+     */
+    async getGraphsOfCapability(capabilityIri: string): Promise<Array<string>> {
+        const capStatement = `<${capabilityIri}> a ?capClass.
+            VALUES ?capClass {CSS:Capability CaSk:ProvidedCapability CaSk:RequiredCapability} .`;
+        const graphs = await this.graphDbConnection.getGraphsContainingStatements(capStatement);
+        return graphs;
+    }
 }

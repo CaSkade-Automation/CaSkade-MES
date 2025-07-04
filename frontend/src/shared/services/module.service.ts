@@ -7,6 +7,7 @@ import { ModuleSocketService } from "./sockets/module-socket.service";
 import { ProductionModule } from "../models/ProductionModule";
 import { CapabilitySocketService } from "./sockets/capability-socket.service";
 import { SkillSocketService } from "./sockets/skill-socket.service";
+import { MessageService } from "./message.service";
 
 @Injectable({
     providedIn: 'root'
@@ -30,7 +31,8 @@ export class ModuleService {
         private http: HttpClient,
         private moduleSocket: ModuleSocketService,
         private capabilitySocket: CapabilitySocketService,
-        private skillSocket: SkillSocketService) {
+        private skillSocket: SkillSocketService,
+        private messageService: MessageService) {
         this.loadModulesAndSubscribe();
     }
 
@@ -104,10 +106,15 @@ export class ModuleService {
     addModule(ontologyString: string): void {
         const apiURL = `${this.apiRoot}/modules`;
         const headers = new HttpHeaders({"content-type": "text/turtle"});
+
         this.http.post<ProductionModuleDto>(apiURL, ontologyString, {headers: headers})
             .subscribe({
-                next: (res) => this.moduleSubject$.next([...this.moduleSubject$.value, new ProductionModule(res)]),
-                error: (err) => {throw err;}
+                next: (res) => {
+                    this.moduleSubject$.next([...this.moduleSubject$.value, new ProductionModule(res)]
+                    );},
+                error: (err) => {
+                    this.messageService.danger("Error while registering module", err.error.message);
+                }
             });
     }
 
